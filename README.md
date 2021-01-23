@@ -143,6 +143,8 @@ To run individual algorithms, run any of these command lines (note the missing `
    bazel run phase_estimation
    bazel run phase_kick
    bazel run shor_classic
+   bazel run simon
+   bazel run simon_general   
    bazel run superdense
    bazel run supremacy
    bazel run swap_test

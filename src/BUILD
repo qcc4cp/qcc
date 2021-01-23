@@ -114,6 +114,26 @@ py_binary(
 )
 
 py_binary(
+    name = "simon",
+    srcs = ["simon.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)
+
+py_binary(
+    name = "simon_general",
+    srcs = ["simon_general.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)
+
+py_binary(
     name = "superdense",
     srcs = ["superdense.py"],
     python_version = "PY3",
