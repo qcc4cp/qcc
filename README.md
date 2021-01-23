@@ -5,6 +5,8 @@ Source code for the book project by Robert Hundt. In this project, we build infr
 The code organization is fairly simple. 
 *  `src` is the main source directory. All key algorithms are in this directory.
 *  `src/lib` contains the library functions for tensors, states, operators, circuits, and so on, as well as their corresponding tests. The algorithms only depend on these library functions.
+*  `src/linq` contains the implementation based on a sparse representation.
+#  `src/benchmarks` contains just a few benchmarks, as they were mentioned in the book.
 
 ## Installation
 
