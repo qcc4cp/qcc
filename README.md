@@ -112,3 +112,29 @@ To run individual algorithms, run any of these command lines (note the missing `
    bazel run teleportation
    bazel run vqe_simple
 ```
+
+To test aspects of the sparse implementation:
+
+```
+  cd src/libq
+  bazel test ...
+```
+
+To run the benchmarks:
+
+```
+  cd src/benchmarks
+  bazel run larose_benchmark
+  bazel run tensor_math
+```
+
+## About
+
+This code and book were written by Robert Hundt. At the time of this writing, Robert
+was a Distinguished Enginer at Google. However, this is a private project, developed on
+personal infrastructure and time. It is completely independent of Robert's work
+at Google.
+
+Reach Robert at
+*  https://www.linkedin.com/in/robert-hundt-2000/
+*  qcc4cp@gmail.com
