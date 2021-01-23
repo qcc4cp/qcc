@@ -124,8 +124,8 @@ def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  for solutions in range(1, 11):
-    run_experiment(7, 5, solutions)
+  for solutions in range(1, 6):
+    run_experiment(7, 4, solutions)
 
 
 if __name__ == '__main__':
