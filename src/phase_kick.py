@@ -29,7 +29,7 @@ def simple_kick():
   psi = state.bitstring(0, 0, 1)
   psi = ops.Hadamard(2)(psi)
   psi = ops.ControlledU(0, 2, ops.Sgate())(psi)
-  c45 = ops.ControlledU(1, 2, ops.Tgate())(psi, 1)
+  psi = ops.ControlledU(1, 2, ops.Tgate())(psi, 1)
   psi.dump()
 
 
