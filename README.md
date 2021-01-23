@@ -53,12 +53,12 @@ cc_library(
 )
 ```
 
-There is a subtely about `bazel`: All headers must be within the
+There is a subtlety about `bazel`: All headers must be within the
 source tree, or in `/usr/include/...` To work around this, we have to
-point bazel to the installation directory for numpy.  The
+point `bazel` to the installation directory for `numpy`.  The
 specification for the external numpy installation is in the WORKSPACE
 file. Point `path` to your numpy installation's header files,
-excluding the final `include` part of the path. The `includ` path is
+excluding the final `include` part of the path. The `include` path is
 specified in the co-located file `numpy.BUILD`.
 
 ```
@@ -69,7 +69,7 @@ new_local_repository(
 )
 ```
 
-Once `xgates` builds successfully, it has to be imported into `circuit.py`. At the top of this
+Once `xgates` builds successfully, it is imported into `circuit.py`. At the top of this
 file is the import statement that might need to be adjusted:
 
 ```
@@ -83,9 +83,9 @@ file is the import statement that might need to be adjusted:
 import libxgates as xgates
 ```
 
-Additionally, to enable Python to find this file, make sure to include in `PYTHONPATH` the
-directory where the generated `xgates.so` or `libxgates.so` is being generated. For
-example:
+Additionally, to enable Python to find the extension module, make sure
+to include in `PYTHONPATH` the directory where the generated
+`xgates.so` or `libxgates.so` is being generated. For example:
 
 ```
 export PYTHONPATH=$PYTHONPATH:/home/usrname/qcc/blaze-bin/src/lib
@@ -150,7 +150,7 @@ To run the benchmarks:
 
 This code and book were written by Robert Hundt. At the time of this writing, Robert
 was a Distinguished Enginer at Google. However, this is a private project, developed on
-personal infrastructure and time. It is completely independent of Robert's work
+personal infrastructure and in private time. It is completely independent of Robert's work
 at Google.
 
 Reach Robert at
