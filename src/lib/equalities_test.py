@@ -114,7 +114,7 @@ class EqualitiesTest(absltest.TestCase):
         ops.RotationX(90.0 / 180.0 * math.pi)))
 
   def test_v_vdag_v(self):
-    """Figure 4.8 Nielson, Chuang. Also exercise II/3 from Google Quantum."""
+    """Figure 4.8 Nielson, Chuang."""
 
     # Make Toffoli out of V = sqrt(X).
     #

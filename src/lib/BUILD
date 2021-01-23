@@ -1,10 +1,3 @@
-py_runtime(
-    python_version="PY3",
-    name = "python-3.7.3",
-    files = [],
-    interpreter = "python3",
-)
-
 cc_library(
     name = "xgates",
     srcs = [
@@ -14,8 +7,13 @@ cc_library(
         "-O3",
         "-ffast-math",
         "-march=skylake",
+        "-DNPY_NO_DEPRECATED_API",
+        "-DNPY_1_7_API_VERSION",
+        # Configure:
 	"-I/usr/include/python3.7m",
-	"-I/usr/include/numpy",	
+    ],
+    deps = [
+        "@third_party_numpy//:numpy",
     ],
 )
 
@@ -131,6 +129,14 @@ py_library(
         ":state",
         ":tensor",
     ],
+)
+
+filegroup(
+  name = "all",
+  srcs = [
+    ":qcall",
+    ":xgates",
+  ]
 )
 
 py_test(

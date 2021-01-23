@@ -21,14 +21,16 @@ To run the code we need a few tools:
     
 ## Build
 
-Much of the code is in Python and will run out of the box. 
-There is some C++ for the high performance simulation which requires configuration.
+Much of the code is in Python and will run out of the box.  There is
+some C++ for the high performance simulation which requires
+configuration.
 
-The file `src/lib/BUILD` contains the build rule for the C++ xgates extension module.
-This module needs to be able to access the Python header (`Python.h`), 
-as well as some numpy headers.
-Their location might be different on your build machine. Please set the command-line
-parameters `-I...` below appropriately to point to these directories.
+The file `src/lib/BUILD` contains the build rule for the C++ xgates
+extension module.  This module needs to be able to access the Python
+header (`Python.h`), as well as some numpy headers. These files'
+location might be different on your build machine. Please set the
+command-line parameter `-I...` below appropriately to point to your
+Python installation.
 
 ```
 cc_library(
@@ -40,18 +42,31 @@ cc_library(
         "-O3",
         "-ffast-math",
     	"-march=skylake",
+        "-DNPY_NO_DEPRECATED_API",
+        "-DNPY_1_7_API_VERSION",
+        # Configure:
         "-I/usr/include/python3.7m",
-        "-I/usr/include/numpy",
+    ],
+    deps = [
+        "@third_party_numpy//:numpy",
     ],
 )
 ```
 
-There is a subtely about `bazel`: All headers must be within the source tree, or in `/usr/include/...` 
-To work around this, you can add a symbolic link pointing to your numpy installation
-as we've done for the BUILD file above. For example:
+There is a subtely about `bazel`: All headers must be within the
+source tree, or in `/usr/include/...` To work around this, we have to
+point bazel to the installation directory for numpy.  The
+specification for the external numpy installation is in the WORKSPACE
+file. Point `path` to your numpy installation's header files,
+excluding the final `include` part of the path. The `includ` path is
+specified in the co-located file `numpy.BUILD`.
 
 ```
-ln -s ./usr/local/lib/python3.7/dist-packages/numpy/core/include /usr/include/numpy
+new_local_repository(
+    name = "third_party_numpy",
+    path = "/usr/local/lib/python3.7/dist-packages/numpy/core/",
+    build_file = __workspace_dir__ + "/numpy.BUILD", 
+)
 ```
 
 Once `xgates` builds successfully, it has to be imported into `circuit.py`. At the top of this
@@ -85,10 +100,13 @@ cat python
 ```
 
 ## Run
-To test for correct installation, go to `src/lib` and run:
+To build the library and test for correct installation, go to `src/lib` and run:
 
 ```
+    bazel build all
     bazel test ...
+    
+    # Make sure xgates was built properly:
     bazel run circuit_test
 ```
     
