@@ -90,6 +90,23 @@ To test for correct installation, go to `src/lib` and run:
     bazel run circuit_test
 ```
     
-The main algorithms are all in `src`.  
-To run individual algorithms, for example `order_finding.py`, run (and note the missing `.py` extension):
-   `bazel run order_finding`
+The main algorithms are all in `src`.
+To run individual algorithms, run any of these command lines (note the missing `.py` extensions):
+
+```
+   bazel run arith_classic
+   bazel run arith_quantum
+   bazel run bernstein
+   bazel run deutsch
+   bazel run deutsch_jozsa
+   bazel run grover
+   bazel run order_finding
+   bazel run phase_estimation
+   bazel run phase_kick
+   bazel run shor_classic
+   bazel run superdense
+   bazel run supremacy
+   bazel run swap_test
+   bazel run teleportation
+   bazel run vqe_simple
+```
