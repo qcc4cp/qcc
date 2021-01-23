@@ -183,60 +183,6 @@ def cmultmodn(qc, ctl, q, aux, a, number, n):
   inverse_qft(qc, aux, n+1, with_swaps=0)
 
 
-def test_preliminaries(a, number):
-  """Test several of the functions above."""
-
-  print('Testing...')
-  qc = circuit.qc('qft')
-  nbits = 5
-  reg = qc.reg(nbits)
-  qft(qc, reg, nbits, True)
-  for bits in helper.bitprod(nbits):
-    if not qc.psi.prob(*bits) > 0.0:
-      raise AssertionError('invalid QFT')
-  inverse_qft(qc, reg, nbits, True)
-  if qc.psi.prob(*([0] * nbits)) < 0.95:
-    raise AssertionError('invalid Inverse QFT')
-
-  qc = circuit.qc('ccphase')
-  qc.bitstring(1, 1, 0, 1)
-  if qc.psi[13].imag != 0.0:
-    raise AssertionError('imag should be 0 for bitstring')
-  ccphase(qc, math.pi/2, 1, 2, 3)
-  if abs(qc.psi[13].imag) > 0.01:
-    raise AssertionError('imag should be 0 after ccphase on 1, 2')
-  ccphase(qc, math.pi/2, 0, 1, 3)
-  if qc.psi[13].imag < 0.99:
-    raise AssertionError('imag should be 1.0 after ccphase on 0, 1')
-
-  modular_inverse(a, number)
-  if modular_inverse(4, 15) != 4 or modular_inverse(22, 15) != 13:
-    raise AssertionError('Invalid modinv computation')
-
-  angles = precompute_angles(4, 15)
-  if angles[0] != 0.0 or angles[1] != 0.0 or angles[3] != math.pi / 2:
-    raise AssertionError('Invalid angle pre-computation')
-
-  qc = circuit.qc('multest')
-  number = 7
-  nbits = number.bit_length()
-  up_reg = qc.reg(nbits*2, name='up')
-  down_reg = qc.reg(nbits, name='down')
-  aux = qc.reg(nbits+2, name='aux')
-  cc_add_mod_n(qc, aux, down_reg[0], up_reg[0], aux[nbits+1],
-               a, number, nbits+1)
-  cc_add_mod_n_inverse(qc, aux, down_reg[0], up_reg[0], aux[nbits+1],
-                       modular_inverse(a, number), number, nbits+1)
-  maxbits, maxprob = qc.psi.maxprob()
-  if maxprob < 0.999:
-    raise AssertionError('Invalid probabalities after add_mod and inverse.')
-  for i in maxbits:
-    if i != 0:
-      raise AssertionError('Invalid non-|0> state measured.')
-  if flags.FLAGS.qasm:
-    print(qc.qasm())
-
-
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
@@ -244,9 +190,6 @@ def main(argv):
 
   number = flags.FLAGS.N
   a = flags.FLAGS.a
-
-  # Test some of the basic routines.
-  test_preliminaries(a, number)
 
   # The classical part are handled in 'shor_classic.py'
   nbits = number.bit_length()
