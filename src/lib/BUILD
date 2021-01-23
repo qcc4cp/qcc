@@ -6,14 +6,12 @@ py_runtime(
 )
 
 py_library(
-    name = "bell",
+    name = "tensor",
     visibility = ["//visibility:public"],
     srcs = [
-        "bell.py",
+        "tensor.py",
     ],
     srcs_version = "PY3",
-    deps = [
-    ],
 )
 
 py_library(
@@ -55,12 +53,70 @@ py_library(
 )
 
 py_library(
-    name = "tensor",
+    name = "bell",
     visibility = ["//visibility:public"],
     srcs = [
-        "tensor.py",
+        "bell.py",
     ],
     srcs_version = "PY3",
+    deps = [
+    ],
+)
+
+py_library(
+    name = "ir",
+    visibility = ["//visibility:public"],
+    srcs = [
+        "ir.py",
+    ],
+    srcs_version = "PY3",
+    deps = [
+        ":ops",
+        ":state",
+        ":tensor",
+    ],
+)
+
+py_library(
+    name = "dumpers",
+    visibility = ["//visibility:public"],    
+    srcs = [
+        "dumpers.py",
+    ],
+    srcs_version = "PY3",
+    deps = [
+        ":ir",
+    ],
+)
+
+py_library(
+    name = "circuit",
+    visibility = ["//visibility:public"],    
+    srcs = [
+        "circuit.py",
+    ],
+    srcs_version = "PY3",
+    deps = [
+        ":dumpers",
+        ":ir",
+        ":ops",
+        ":state",
+        ":tensor",
+    ],
+)
+
+# Catch all libraries.
+py_library(
+    name = "qcall",
+    deps = [
+        ":bell",
+        ":circuit",
+        ":helper",
+        ":ir",
+        ":ops",
+        ":state",
+        ":tensor",
+    ],
 )
 
 py_test(
@@ -126,3 +182,29 @@ py_test(
 
     ],
 )
+
+py_test(
+    name = "measure_test",
+    size = "small",
+    srcs = ["measure_test.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":ops",
+        ":state",
+    ],
+)
+
+py_test(
+    name = "equalities_test",
+    size = "small",
+    srcs = ["equalities_test.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":bell",
+        ":ops",
+        ":state",
+    ],
+)
+
