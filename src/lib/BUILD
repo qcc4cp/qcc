@@ -5,6 +5,20 @@ py_runtime(
     interpreter = "python3",
 )
 
+cc_library(
+    name = "xgates",
+    srcs = [
+        "xgates.cc",
+    ],
+    copts = [
+        "-O3",
+        "-ffast-math",
+        "-march=skylake",
+	"-I/usr/include/python3.7m",
+	"-I/usr/include/numpy",	
+    ],
+)
+
 py_library(
     name = "tensor",
     visibility = ["//visibility:public"],
@@ -208,3 +222,19 @@ py_test(
     ],
 )
 
+
+# This test depends on xgates. However, bazel doesn't allow dependencies
+# to cc_libraries. This means this test should NOT run with bazel test ...
+#
+# It has to be run manually, via
+#     bazel run circuit_test
+#
+py_binary(
+    name = "circuit_test",
+    srcs = ["circuit_test.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)

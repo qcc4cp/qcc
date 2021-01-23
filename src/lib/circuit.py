@@ -12,7 +12,15 @@ from src.lib import ir
 from src.lib import ops
 from src.lib import state
 from src.lib import tensor
-from src.lib import xgates
+
+# Configure: This line might have to change, depending on
+#            the current build environment.
+#
+# Google internal:
+# import xgates
+#
+# GitHub Linux:
+import libxgates as xgates
 
 flags.DEFINE_string('libq', '', 'Generate libq output file, or empty')
 flags.DEFINE_string('qasm', '', 'Generate qasm output file, or empty')

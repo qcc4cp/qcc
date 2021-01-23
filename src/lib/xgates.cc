@@ -6,11 +6,7 @@
 #include <stdlib.h>
 #include <complex>
 
-//#include "third_party/py/numpy/core/include/numpy/ndarraytypes.h"
-//#include "third_party/py/numpy/core/include/numpy/ufuncobject.h"
-//b#include "third_party/py/numpy/core/include/numpy/npy_3kcompat.h"
-
-#include "src/numpy-incl/numpy/ndarraytypes.h"
+#include <numpy/ndarraytypes.h>
 #include <numpy/ufuncobject.h>
 #include <numpy/npy_3kcompat.h>
 
@@ -150,4 +146,9 @@ PyMODINIT_FUNC PyInit_xgates(void) {
   Py_Initialize();
   import_array();
   return PyModule_Create(&xgates_definition);
+}
+
+// To accommodate different build environments, this one might be needed.
+PyMODINIT_FUNC PyInit_libxgates(void) {
+  return PyInit_xgates();
 }
