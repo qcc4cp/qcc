@@ -1,2 +1,3 @@
-# qcc
-Source code for book project "Quantum Computing for Classical Programmers"
+# Quantum Computing for Classical Programmers
+
+Source code for the book project by Robert Hundt
