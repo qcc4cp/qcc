@@ -5,7 +5,7 @@ import numpy as np
 
 from absl.testing import absltest
 
-from lib import state
+from src.lib import state
 
 
 class StateTest(absltest.TestCase):

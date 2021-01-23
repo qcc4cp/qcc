@@ -6,6 +6,17 @@ py_runtime(
 )
 
 py_library(
+    name = "bell",
+    visibility = ["//visibility:public"],
+    srcs = [
+        "bell.py",
+    ],
+    srcs_version = "PY3",
+    deps = [
+    ],
+)
+
+py_library(
     name = "helper",
     visibility = ["//visibility:public"],
     srcs = [
@@ -51,6 +62,21 @@ py_library(
     ],
     srcs_version = "PY3",
 )
+
+py_test(
+    name = "bell_test",
+    size = "small",
+    srcs = ["bell_test.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":tensor",
+        ":state",
+        ":ops",
+        ":bell",		
+    ],
+)
+
 
 py_test(
     name = "tensor_test",

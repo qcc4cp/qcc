@@ -2,7 +2,7 @@
 
 from absl.testing import absltest
 
-from lib import tensor
+from src.lib import tensor
 
 class TensorTest(absltest.TestCase):
 

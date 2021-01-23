@@ -7,8 +7,8 @@ import random
 
 import numpy as np
 
-from lib import helper
-from lib import tensor
+from src.lib import helper
+from src.lib import tensor
 
 
 class State(tensor.Tensor):

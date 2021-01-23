@@ -7,9 +7,9 @@ import cmath
 import math
 import numpy as np
 
-from lib import helper
-from lib import state
-from lib import tensor
+from src.lib import helper
+from src.lib import state
+from src.lib import tensor
 
 
 class Operator(tensor.Tensor):

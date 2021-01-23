@@ -3,9 +3,9 @@ import math
 
 from absl.testing import absltest
 
-from lib import helper
-from lib import ops
-from lib import state
+from src.lib import helper
+from src.lib import ops
+from src.lib import state
 
 
 class OpsTest(absltest.TestCase):
