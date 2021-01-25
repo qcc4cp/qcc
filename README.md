@@ -14,10 +14,11 @@ To run the code we need a few tools:
 
 *  The `bazel` build system. Install from [bazel's homepage](https://docs.bazel.build/versions/master/install.html)
 
-*  We will need Python's `pip` tool to install packages. If it is not available, here is one way to do install it:
+*  We will need Python's `pip` tool to install packages and `git` to manage the source. 
+  Here is one way to do install them:
 ```
-    sudo apt update
-    sudo apt install python3-pip
+    sudo apt-get install python3-pip
+    sudo apt-get install git
 ```
 
 *  Google's `absl` library. Install with 
@@ -25,15 +26,11 @@ To run the code we need a few tools:
    python3 -m pip install absl-py
 ```   
    
-*  `numpy`. Install with 
+*  `numpy` and `scipy`. Install with 
 ```
    python3 -m pip install numpy
-```    
-
-*  `scipy`. This library is only used in phase estimation (and could be skipped). Install with 
-```
    python3 -m pip install scipy
-```
+```    
    
 * Finally, to get these source onto your computer:
 ```
@@ -116,8 +113,9 @@ export PYTHONPATH=$PYTHONPATH:/home/usrname/qcc/blaze-bin/src/lib
 only have a `python3` installed, make sure a `python` is available in the PATH, eg.:
 
 ```
-cat python
+cat /usr/local/python
   python3 $@
+sudo chmod +x /usr/local/python
 ```
 
 ## Run
@@ -127,7 +125,10 @@ To build the library and test for correct installation, go to `src/lib` and run:
     bazel build all
     bazel test ...
     
-    # Make sure xgates was built properly:
+    # Make sure to set PYTHONPATH (once):
+    export PYTHONPATH=$PYTHONPATH:/home/usrname/qcc/blaze-bin/src/lib
+    
+    # Ensure xgates was built properly:
     bazel run circuit_test
 ```
     
