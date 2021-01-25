@@ -2,18 +2,18 @@
 
 Source code for the book project by Robert Hundt. In this project, we build infrastructure from the ground up, implement standard algorithms, such as Quantum Teleportation, Grover's Search, QFT, and Shor's integer factorization. We also implement high performance quantum simulation and a transpilation technique to compile our circuits to other infrastructures, such as Qiskit or Cirq. The book itself details this implementation, its motivation and the underlying math, in great detail. At this point, the book has not yet been published.
 
-The code organization is fairly simple. 
-*  `src` is the main source directory. All key algorithms are in this directory.
-*  `src/lib` contains the library functions for tensors, states, operators, circuits, and so on, as well as their corresponding tests. The algorithms only depend on these library functions.
-*  `src/libq` contains the implementation based on a sparse representation.
-*  `src/benchmarks` contains just a few benchmarks, as they were mentioned in the book.
+The code is organized as follows: 
+*  `src` is the main source directory. All algorithms are in this directory.
+*  `src/lib` contains the library functions for tensors, states, operators, circuits, and so on, as well as their corresponding tests. All algorithms depend on these library functions.
+*  `src/libq` contains the sparse implementation.
+*  `src/benchmarks` contains a few benchmarks, as they are mentioned in the book.
 
 ## Installation
 
-These instructions focus on Debian Linux. CentOS is also supported, 
-see the corresponding README.CentOS.md file. We may add Other OS'es in the future.
+These instructions focus on Debian Linux. CentOS is also supported (see README.CentOS.md). 
+We may add other OS'es in the future.
 
-To run the code we need a few tools:
+To run the code a few tools are needed:
 
 *  The `bazel` build system. Install from [bazel's homepage](https://docs.bazel.build/versions/master/install.html)
 
@@ -81,6 +81,7 @@ specified in the co-located file `numpy.BUILD`.
 ```
 new_local_repository(
     name = "third_party_numpy",
+    # Configure:
     path = "/usr/local/lib/python3.7/dist-packages/numpy/core/",
     build_file = __workspace_dir__ + "/numpy.BUILD", 
 )
