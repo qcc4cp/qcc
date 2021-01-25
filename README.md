@@ -10,6 +10,9 @@ The code organization is fairly simple.
 
 ## Installation
 
+These instructions focus on Debian Linux. CentOS is also supported, 
+see the corresponding README.CentOS.md file. We may add Other OS'es in the future.
+
 To run the code we need a few tools:
 
 *  The `bazel` build system. Install from [bazel's homepage](https://docs.bazel.build/versions/master/install.html)
@@ -105,13 +108,11 @@ to include in `PYTHONPATH` the directory where the generated
 export PYTHONPATH=$PYTHONPATH:/home/usrname/qcc/bazel-bin/src/lib
 ```
 
-`bazel` also attempts to use the Python interpreter `python`. On systems that
-only have a `python3` installed, make sure a `python` is available in the PATH, eg.:
+`bazel` also attempts to use the Python 2 interpreter `python`. If it 
+is not available on a system, install via:
 
 ```
-cat /usr/local/python
-  python3 $@
-sudo chmod +x /usr/local/python
+sudo apt-get install python
 ```
 
 ## Run
@@ -167,10 +168,10 @@ To run the benchmarks:
 ## About
 
 This code and book were written by Robert Hundt. At the time of this writing, Robert
-was a Distinguished Enginer at Google. However, this is a private project, developed on
+is a Distinguished Enginer at Google. However, this is a private project, developed on
 personal infrastructure and in private time. It is completely independent of Robert's work
 at Google.
 
 Reach Robert at
 *  https://www.linkedin.com/in/robert-hundt-2000/
-*  qcc4cp@gmail.com
+*  qcc4cp@gmail.com (site specific email account)
