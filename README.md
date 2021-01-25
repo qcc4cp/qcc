@@ -11,13 +11,34 @@ The code organization is fairly simple.
 ## Installation
 
 To run the code we need a few tools:
+
 *  The `bazel` build system. Install from [bazel's homepage](https://docs.bazel.build/versions/master/install.html)
+
+*  We will need Python's `pip` tool to install packages. If it is not available, here is one way to do install it:
+```
+    sudo apt update
+    sudo apt install python3-pip
+```
+
 *  Google's `absl` library. Install with 
-   `pip install absl-py`
+```
+   python3 -m pip install absl-py
+```   
+   
 *  `numpy`. Install with 
-    `pip install numpy`
+```
+   python3 -m pip install numpy
+```    
+
 *  `scipy`. This library is only used in phase estimation (and could be skipped). Install with 
-   `pip install scipy`.
+```
+   python3 -m pip install scipy
+```
+   
+* Finally, to get these source onto your computer:
+```
+    git clone https://github.com/qcc4cp/qcc.git
+```
     
 ## Build
 
