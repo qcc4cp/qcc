@@ -410,12 +410,6 @@ def TraceOut(rho, index_set):
   return rho
 
 
-# A nice and intuitive description on how to measure a given qubit
-# can be found here:
-#   http://dkopczyk.quantee.co.uk/quantum-computing-in-python-introduction/
-
-
-
 def Measure(psi, idx, tostate=0, collapse=True):
   """Measure a qubit out of a state via a projector on the density matrix."""
 
@@ -424,8 +418,7 @@ def Measure(psi, idx, tostate=0, collapse=True):
   # is set to true, also collapses the state to `tostate`. It is helpful
   # for debugging to have this forcing function, but care must
   # be taken not to collapse the state to one with 0 probability.
-  # This sort of thing should only be used for testing.
-
+  
   # Compute probability of qubit(idx) to be in state 0 / 1
   rho = psi.density()
   if tostate == 0:
