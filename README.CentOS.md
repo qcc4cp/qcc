@@ -1,11 +1,13 @@
 These are install instructions specific for CentOS.
 
 On a new VM, these packages need to be installed:
+```
      sudo yum install -y python3
      sudo yum install -y python3-devel
      sudo yum install -y git
      sudo yum install -y gcc
      sudo yum install -y gcc-c++
+```
 
 Bazel is a little bit more complicated. Download the file found here:
 ```
@@ -22,4 +24,4 @@ and run:
     sudo yum install -y bazel3
 ```  
 
-The instructions for downloading absl, numpy, and scipy are the same as in the README.md file. 
+All other instructions from the main `README.md` still apply.
