@@ -150,6 +150,14 @@ To run individual algorithms, run any of these command lines (note the missing `
    bazel run vqe_simple
 ```
 
+or, more general:
+```
+for algo in `ls -1 *py | sed s@.py@@g`
+do
+   bazel run $algo
+done
+```
+
 To test aspects of the sparse implementation:
 
 ```
