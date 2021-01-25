@@ -15,21 +15,17 @@ To run the code we need a few tools:
 *  The `bazel` build system. Install from [bazel's homepage](https://docs.bazel.build/versions/master/install.html)
 
 *  We will need Python's `pip` tool to install packages and `git` to manage the source. 
-  Here is one way to do install them:
+  Here is one way to install them:
 ```
     sudo apt-get install python3-pip
     sudo apt-get install git
 ```
 
-*  Google's `absl` library. Install with 
+*  We need Google's `absl` library, as well as `numpy` and `scipy`. Install with 
 ```
-   python3 -m pip install absl-py
-```   
-   
-*  `numpy` and `scipy`. Install with 
-```
-   python3 -m pip install numpy
-   python3 -m pip install scipy
+   sudo python3 -m pip install absl-py
+   sudo python3 -m pip install numpy
+   sudo python3 -m pip install scipy
 ```    
    
 * Finally, to get these source onto your computer:
