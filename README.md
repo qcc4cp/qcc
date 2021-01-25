@@ -102,7 +102,7 @@ to include in `PYTHONPATH` the directory where the generated
 `xgates.so` or `libxgates.so` is being generated. For example:
 
 ```
-export PYTHONPATH=$PYTHONPATH:/home/usrname/qcc/blaze-bin/src/lib
+export PYTHONPATH=$PYTHONPATH:/home/usrname/qcc/bazel-bin/src/lib
 ```
 
 `bazel` also attempts to use the Python interpreter `python`. On systems that
@@ -122,7 +122,7 @@ To build the library and test for correct installation, go to `src/lib` and run:
     bazel test ...
     
     # Make sure to set PYTHONPATH (once):
-    export PYTHONPATH=$PYTHONPATH:/home/usrname/qcc/blaze-bin/src/lib
+    export PYTHONPATH=$PYTHONPATH:/home/usrname/qcc/bazel-bin/src/lib
     
     # Ensure xgates was built properly:
     bazel run circuit_test
