@@ -137,6 +137,7 @@ To run individual algorithms, run any of these command lines (note the missing `
    bazel run arith_classic
    bazel run arith_quantum
    bazel run bernstein
+   bazel run counting
    bazel run deutsch
    bazel run deutsch_jozsa
    bazel run grover
