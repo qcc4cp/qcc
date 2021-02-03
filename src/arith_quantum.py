@@ -1,5 +1,5 @@
 # python3
-"""Example: Arithmetic with Quantum Circuits doing arithmetic via DFT."""
+"""Example: Arithmetic with Quantum Circuits doing arithmetic via QFT."""
 
 # ACHTUNG: This version did not work with a given Python environment.
 # Updating the environment fixed it, but the real reasons are unknown.
@@ -24,10 +24,10 @@ from src.lib import helper
 #  https://medium.com/@sashwat.anagolum/qftaddition-ce0a0b2bc4f4
 #
 # The following code is interesting in that the QFT here uses
-# a different initial power of two (ops.dft starts with 2 pi,
+# a different initial power of two (ops.qft starts with 2 pi,
 # this one just with pi).
 #
-# This dft would work in phase estimation, even though with slightly
+# This qft would work in phase estimation, even though with slightly
 # worse accuracy, while the opposite is not true.
 #
 # TODO(rhundt): Analyze why exactly.
@@ -43,8 +43,8 @@ def check_result(psi, a, b, nbits, factor=1.0):
     raise AssertionError('incorrect addition')
 
 
-def dft(qc, reg, n):
-  """dft."""
+def qft(qc, reg, n):
+  """qft."""
 
   qc.had(reg[n])
   for i in range(0, n):
@@ -58,8 +58,8 @@ def evolve(qc, reg_a, reg_b, n, factor):
     qc.cu1(reg_b[n-i], reg_a[n], factor * math.pi/float(2**(i)))
 
 
-def inverse_dft(qc, reg, n):
-  """Inverse."""
+def inverse_qft(qc, reg, n):
+  """Inverse qft."""
 
   for i in range(0, n):
     qc.cu1(reg[i], reg[n], -1*math.pi/float(2**(n-i)))
@@ -73,11 +73,11 @@ def arith_quantum(n, init_a, init_b, factor=1.0, dumpit=False):
   a = qc.reg(n+1, helper.val2bits(init_a, n)[::-1], name='a')
   b = qc.reg(n+1, helper.val2bits(init_b, n)[::-1], name='b')
   for i in  range(0, n+1):
-    dft(qc, a, n-i)
+    qft(qc, a, n-i)
   for i in range(0, n+1):
     evolve(qc, a, b, n-i, factor)
   for i in range(0, n+1):
-    inverse_dft(qc, a, i)
+    inverse_qft(qc, a, i)
   if dumpit:
     qc.dump_to_file()
   check_result(qc.psi, init_a, init_b, n+1, factor)
@@ -107,14 +107,14 @@ def arith_quantum_constant(n, init_a, c):
   qc = circuit.qc('qadd')
   a = qc.reg(n+1, helper.val2bits(init_a, n)[::-1], name='a')
   for i in  range(0, n+1):
-    dft(qc, a, n-i)
+    qft(qc, a, n-i)
 
   angles = precompute_angles(c, n)
   for i in range(0, n):
     qc.u1(a[i], angles[i])
 
   for i in range(0, n+1):
-    inverse_dft(qc, a, i)
+    inverse_qft(qc, a, i)
 
   maxbits, _ = qc.psi.maxprob()
   result = helper.bits2val(maxbits[0:n][::-1])
