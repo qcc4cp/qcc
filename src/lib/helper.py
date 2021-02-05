@@ -56,3 +56,42 @@ def density_to_cartesian(rho):
   z = 2.0 * a - 1.0
 
   return np.real(x), np.real(y), np.real(z)
+
+
+def qubit_to_bloch(psi):
+  """Compute Bloch spere coordinates from 2x1 state vector/qubit."""
+  
+  return density_to_cartesian(psi.density())
+
+
+def dump_bloch(x, y, z):
+  """Textual output for Bloch sphere coordinates."""
+
+  print('x: {:.2f}, y: {:.2f}, z: {:.2f}'.format(x, y, z))
+
+
+def pi_fractions(val, pi='pi') -> str:
+  """Convert a value in fractions of pi."""
+
+  if val is None:
+    return ''
+  if val == 0:
+    return '0'
+  for pi_multiplier in range(1, 2):
+    for frac in range(-128, 128):
+      if frac and math.isclose(val, pi_multiplier * math.pi / frac):
+        pi_str = ''
+        if pi_multiplier != 1:
+          pi_str = '{}*'.format(abs(pi_multiplier))
+        if frac == -1:
+          return '-{}{}'.format(pi_str, pi)
+        if frac < 0:
+          return '-{}{}/{}'.format(pi_str, pi, -frac)
+        if frac == 1:
+          return '{}{}'.format(pi_str, pi)
+        return '{}{}/{}'.format(pi_str, pi, frac)
+
+  # couldn't find fractional, just return original value.
+  return f'{val}'
+
+
