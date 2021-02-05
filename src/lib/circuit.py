@@ -25,6 +25,7 @@ import libxgates as xgates
 flags.DEFINE_string('libq', '', 'Generate libq output file, or empty')
 flags.DEFINE_string('qasm', '', 'Generate qasm output file, or empty')
 flags.DEFINE_string('cirq', '', 'Generate cirq output file, or empty')
+flags.DEFINE_string('latex', '', 'Generate Latex output file, or empty')
 
 
 class qc:
@@ -92,6 +93,7 @@ class qc:
     self.dump_with_dumper(flags.FLAGS.libq, dumpers.libq)
     self.dump_with_dumper(flags.FLAGS.qasm, dumpers.qasm)
     self.dump_with_dumper(flags.FLAGS.cirq, dumpers.cirq)
+    self.dump_with_dumper(flags.FLAGS.latex, dumpers.latex)
 
   @property
   def nbits(self):
