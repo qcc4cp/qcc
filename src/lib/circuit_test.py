@@ -65,7 +65,7 @@ class CircuitTest(absltest.TestCase):
       psi.apply(ops.PauliY(), i)
       qc.z(i)
       psi.apply(ops.PauliZ(), i)
-      qc.had(i)
+      qc.h(i)
       psi.apply(ops.Hadamard(), i)
       if i:
         qc.cu1(0, i, 1.1)
@@ -79,7 +79,7 @@ class CircuitTest(absltest.TestCase):
     qc.bitstring(1, 0, 1, 0, 1)
 
     for n in range(5):
-      qc.had(n)
+      qc.h(n)
       psi.apply(ops.Hadamard(), n)
       for i in range(0, 5):
         qc.cu1(n-(i+1), n, math.pi/float(2**(i+1)))
@@ -87,7 +87,7 @@ class CircuitTest(absltest.TestCase):
       for i in range(0, 5):
         qc.cu1(n-(i+1), n, -math.pi/float(2**(i+1)))
         psi.apply_controlled(ops.U1(-math.pi/float(2**(i+1))), n-(i+1), n)
-      qc.had(n)
+      qc.h(n)
       psi.apply(ops.Hadamard(), n)
 
     if not psi.is_close(qc.psi):

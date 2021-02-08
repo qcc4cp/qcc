@@ -56,14 +56,20 @@ class Node:
 
   @property
   def idx0(self):
+    if not self.is_single():
+      raise AssertionError('Invalid use of idx0(), must be single gate.')
     return self._idx0
 
   @property
   def ctl(self):
+    if not self.is_ctl():
+      raise AssertionError('Invalid use of ctl(), must be controlled gate.')
     return self._idx0
 
   @property
   def idx1(self):
+    if not self.is_ctl():
+      raise AssertionError('Invalid use of idx1(), must be controlled gate.')
     return self._idx1
 
   @property

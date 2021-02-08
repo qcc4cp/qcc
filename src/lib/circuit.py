@@ -242,7 +242,7 @@ class qc:
     """Add another full circuit to this circuit."""
 
     # Iterate of the new circuit and add the gates one by one,
-    # inheriting this circuit's eager mode.
+    # using this circuit's eager mode.
     #
     for gate in qc.ir.gates:
       if gate.is_single():
@@ -255,11 +255,26 @@ class qc:
     """Return, but don't apply, an inverted circuit."""
 
     # The order of the gates is reversed and the each gates
-    # itself becomes its adjoint. After this, the new circuit
-    # is returned. The eager mode is False. The expectation
+    # itself becomes its adjoint. After this, a new circuit
+    # is returned. Eager mode is False. The expectation
     # is that an inverse circuit inv is constructed and then applied
-    # via qc.qc(inv), at which point it is applied according to the
-    # eager mode of the qc circuit.
+    # via circuit.qc(inv), at which point it is applied according to the
+    # eager mode of the qc circuit. Usage model:
+    #
+    #    main = circuit.qc('main circuit')
+    #    ... add gates, eager or not.
+    #
+    #    c = circuit.qc('sub circuit', eager=False)
+    #    ... add gates to c, not eager.
+    #
+    #    Now let's add c to main, at which point the gates are applied.
+    #      main.qc(c)
+    #
+    #    Let's construct the inverse (non-Eager) and add to main (eager)
+    #    at an offset.
+    #      c_inv = c0.inverse()
+    #      offset=3
+    #      main.qc(c_inv, offset)
     #
     newqc = qc(self.name, eager=False)
     inv = self.ir.gates.copy()
