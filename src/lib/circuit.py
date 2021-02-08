@@ -36,7 +36,7 @@ class qc:
     self.psi = 1.0
     self.ir = ir.Ir()
     self.eager = eager
-    state.reset()
+    self.global_reg = 0
 
   class scope:
     """Scope object to allow grouping of gates in the output."""
@@ -52,8 +52,9 @@ class qc:
       self.ir.end_section()
 
   # --- States ----------------------------------------------------
-  def reg(self, size, it=None, *, name=None):
-    ret = state.Reg(size, it)
+  def reg(self, size, it=0, *, name=None):
+    ret = state.Reg(size, it, self.global_reg)
+    self.global_reg = self.global_reg + size
     self.psi = self.psi * ret.psi()
     self.ir.reg(size, name, ret)
     return ret
@@ -103,12 +104,12 @@ class qc:
   def apply1(self, gate, idx, name=None, *, val=None):
     if isinstance(idx, state.Reg):
       for reg in range(idx.nbits):
-        self.ir.single(name, idx[reg], val)
+        self.ir.single(name, idx[reg], gate, val)
         if self.eager:
           xgates.apply1(self.psi, gate.reshape(4), self.psi.nbits, idx[reg],
                         tensor.tensor_width)
       return
-    self.ir.single(name, idx, val)
+    self.ir.single(name, idx, gate, val)
     if self.eager:
       xgates.apply1(self.psi, gate.reshape(4), self.psi.nbits, idx,
                     tensor.tensor_width)
@@ -116,7 +117,7 @@ class qc:
   def apply_controlled(self, gate, ctl, idx, name=None, *, val=None):
     if isinstance(idx, state.Reg):
       raise AssertionError('controlled register not supported')
-    self.ir.controlled(name, ctl, idx, val)
+    self.ir.controlled(name, ctl, idx, gate, val)
     if self.eager:
       xgates.applyc(self.psi, gate.reshape(4), self.psi.nbits, ctl, idx,
                     tensor.tensor_width)
@@ -155,14 +156,8 @@ class qc:
   def toffoli(self, idx0, idx1, idx2):
     self.ccx(idx0, idx1, idx2)
 
-  def had(self, idx):
-    self.apply1(ops.Hadamard(), idx, 'h')
-
   def h(self, idx):
     self.apply1(ops.Hadamard(), idx, 'h')
-
-  def unitary(self, op, idx):
-    self.psi = ops.Operator(op)(self.psi, idx, 'u')
 
   def t(self, idx):
     self.apply1(ops.Tgate(), idx, 't')
@@ -194,6 +189,12 @@ class qc:
   def rz(self, idx, theta):
     self.apply1(ops.RotationZ(theta), idx, 'rz')
 
+#  This one is possible, but it is not a 1- or 2-qubit gate, hence
+#  super slow. Do not use (unless really unavoidable)
+#
+#  def unitary(self, op, idx):
+#    self.psi = ops.Operator(op)(self.psi, idx, 'u')
+
 # --- Measure ----------------------------------------------------
   def measure_bit(self, idx, tostate=0, collapse=True):
     return ops.Measure(self.psi, idx, tostate, collapse)
@@ -217,8 +218,8 @@ class qc:
       self.ccx(ctl, idx0, idx1)
       self.ccx(ctl, idx1, idx0)
 
-  def dft(self, reg):
-    """Apply Dft directly."""
+  def qft_rk(self, reg, swap=True):
+    """Apply Qft with Rk gates directly."""
 
     nbits = reg.nbits
     for idx in range(reg[0], reg[0] + nbits):
@@ -232,5 +233,58 @@ class qc:
         self.crk(controlled_from, idx, rk)
 
     # Now the qubits need to change their order.
-    for idx in range(reg[0], reg[0] + nbits // 2):
-      self.swap(idx, reg[0] + nbits - idx - 1)
+    if swap:
+      for idx in range(reg[0], reg[0] + nbits // 2):
+        self.swap(idx, reg[0] + nbits - idx - 1)
+
+# --- qc's of qc's ------------------------------------------
+  def qc(self, qc, offset=0):
+    """Add another full circuit to this circuit."""
+
+    # Iterate of the new circuit and add the gates one by one,
+    # inheriting this circuit's eager mode.
+    #
+    for gate in qc.ir.gates:
+      if gate.is_single():
+        self.apply1(gate.gate, gate.idx0+offset, gate.name, val=gate.val)
+      if gate.is_ctl():
+        self.apply_controlled(gate.gate, gate.ctl+offset, gate.idx1+offset,
+                              gate.name, val=gate.val)
+
+  def inverse(self):
+    """Return, but don't apply, an inverted circuit."""
+
+    # The order of the gates is reversed and the each gates
+    # itself becomes its adjoint. After this, the new circuit
+    # is returned. The eager mode is False. The expectation
+    # is that an inverse circuit inv is constructed and then applied
+    # via qc.qc(inv), at which point it is applied according to the
+    # eager mode of the qc circuit.
+    #
+    newqc = qc(self.name, eager=False)
+    inv = self.ir.gates.copy()
+    inv.reverse()
+    for gate in inv:
+      if gate.is_single():
+        newqc.apply1(gate.gate.adjoint(), gate.idx0, gate.name+'^-1', val=gate.val)
+      if gate.is_ctl():
+        newqc.apply_controlled(gate.gate.adjoint(), gate.ctl, gate.idx1,
+                              gate.name+'^-1', val=gate.val)
+    return newqc
+
+
+# --- Debug --------------------------------------------------
+  def dump(self, desc=None, gates=None):
+    """Simple dumper for basic debugging of a circuit."""
+
+    if desc:
+      print(desc)
+    for gate in self.ir.gates:
+      if gate.is_single():
+        print('  {}({})'.format(gate.name, gate.idx0))
+        if gates:
+          gate.gate.dump()
+      if gate.is_ctl():
+        print('  {}({}, {})'.format(gate.name, gate.ctl, gate.idx1))
+        if gates:
+          gate.gate.dump()

@@ -17,11 +17,12 @@ class Op(enum.Enum):
 class Node:
   """Single node in the IR."""
 
-  def __init__(self, opcode, name, idx0=0, idx1=None, val=None):
+  def __init__(self, opcode, name, idx0, idx1, gate, val):
     self._opcode = opcode
     self._name = name
     self._idx0 = idx0
     self._idx1 = idx1
+    self._gate = gate
     self._val = val
 
   def is_single(self):
@@ -69,6 +70,10 @@ class Node:
   def val(self):
     return self._val
 
+  @property
+  def gate(self):
+    return self._gate
+
 
 class Ir:
   """Compiler IR."""
@@ -86,19 +91,19 @@ class Ir:
       self.regs.append((self.nregs + i, name, i))
     self.nregs += size
 
-  def single(self, name, idx0, val=None):
-    self.gates.append(Node(Op.SINGLE, name, idx0, None, val))
+  def single(self, name, idx0, gate, val=None):
+    self.gates.append(Node(Op.SINGLE, name, idx0, None, gate, val))
     self._ngates += 1
 
-  def controlled(self, name, idx0, idx1, val=None):
-    self.gates.append(Node(Op.CTL, name, idx0, idx1, val))
+  def controlled(self, name, idx0, idx1, gate, val=None):
+    self.gates.append(Node(Op.CTL, name, idx0, idx1, gate, val))
     self._ngates += 1
 
   def section(self, desc):
-    self.gates.append(Node(Op.SECTION, desc))
+    self.gates.append(Node(Op.SECTION, desc, 0, 0, None, None))
 
   def end_section(self):
-    self.gates.append(Node(Op.END_SECTION, 0))
+    self.gates.append(Node(Op.END_SECTION, 0, 0, 0, None, None))
 
   @property
   def ngates(self):

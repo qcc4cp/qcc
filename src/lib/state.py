@@ -224,25 +224,15 @@ def rand(n):
 zero = zeros(1)
 one = ones(1)
 
-# Maintain global register state.
-global_register_count = 0
-
-
-def reset():
-  global global_register_count
-  global_register_count = 0
-
 
 class Reg():
 
-  def __init__(self, size, it=None):
-    global global_register_count
-
+  def __init__(self, size, it=0, global_reg=None):
     self.size = size
-    self.global_idx = list(range(global_register_count,
-                                 global_register_count + size))
+    self.global_idx = list(range(global_reg,
+                                 global_reg + size))
     self.val = [0 for x in range(size)]
-    global_register_count += size
+    global_reg += size
 
     if it:
       if isinstance(it, int):

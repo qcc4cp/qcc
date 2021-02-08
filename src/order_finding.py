@@ -115,7 +115,7 @@ def inverse_qft(qc, up_reg, n, with_swaps):
       qc.swap(up_reg[i], up_reg[n-1-i])
 
   for i in range(n):
-    qc.had(up_reg[i])
+    qc.h(up_reg[i])
     if i != n-1:
       j = i+1
       for y in range(i, -1, -1):
@@ -206,7 +206,7 @@ def main(argv):
   # Register for multiplications.
   down = qc.reg(nbits, name='q2')
 
-  qc.had(up)
+  qc.h(up)
   qc.x(down[0])
   for i in range(0, nbits*2):
     cmultmodn(qc, up[i], down, aux, int(a**(2**i)), number, nbits)

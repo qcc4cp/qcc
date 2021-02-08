@@ -46,7 +46,7 @@ def check_result(psi, a, b, nbits, factor=1.0):
 def qft(qc, reg, n):
   """qft."""
 
-  qc.had(reg[n])
+  qc.h(reg[n])
   for i in range(0, n):
     qc.cu1(reg[n-(i+1)], reg[n], math.pi/float(2**(i+1)))
 
@@ -63,7 +63,7 @@ def inverse_qft(qc, reg, n):
 
   for i in range(0, n):
     qc.cu1(reg[i], reg[n], -1*math.pi/float(2**(n-i)))
-  qc.had(reg[n])
+  qc.h(reg[n])
 
 
 def arith_quantum(n, init_a, init_b, factor=1.0, dumpit=False):

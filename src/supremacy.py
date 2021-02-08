@@ -224,7 +224,7 @@ def sim_circuit(states, nbits, depth, target_nbits, target_depth):
       if s[i] == Gate.T:
         qc.t(i)
       if s[i] == Gate.H:
-        qc.had(i)
+        qc.h(i)
       if s[i] == Gate.U:
         if random.randint(0, 1) == 0:
           qc.v(i)

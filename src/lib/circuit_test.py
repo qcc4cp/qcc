@@ -93,6 +93,31 @@ class CircuitTest(absltest.TestCase):
     if not psi.is_close(qc.psi):
       raise AssertionError('Numerical Problems')
 
+  def test_circuit_of_circuit(self):
+    c1 = circuit.qc('c1')
+    c1.reg(6, 0)
+    c1.x(0)
+    c1.cx(1, 2)
+    c2 = circuit.qc('c2', eager=False)
+    c2.x(1)
+    c2.cx(3, 1)
+    c1.qc(c2, 0)
+    c1.qc(c2, 1)
+    c1.qc(c2, 2)
+    self.assertEqual(8, c1.ir.ngates)
+
+  def test_circuit_of_inv_circuit(self):
+    c1 = circuit.qc('c1')
+    c1.reg(6, 0)
+    c1.x(0)
+    c1.rx(1, math.pi/3)
+    c1.h(1)
+    c1.cz(3, 2)
+
+    c2 = c1.inverse()
+    c1.qc(c2, 0)
+    self.assertEqual(8, c1.ir.ngates)    
+
 
 if __name__ == '__main__':
   absltest.main()
