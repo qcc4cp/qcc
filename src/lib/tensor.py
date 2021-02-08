@@ -81,6 +81,13 @@ class Tensor(np.ndarray):
     tr_rho2 = np.real(np.trace(np.matmul(self, self)))
     return np.allclose(tr_rho2, 1.0)
 
+  def is_permutation(self):
+    x = self #np.asanyarray(self)
+    return int(x.ndim == 2 and x.shape[0] == x.shape[1] and
+               (x.sum(axis=0) == 1).all() and
+               (x.sum(axis=1) == 1).all() and
+               ((x == 1) | (x == 0)).all())
+
   def kron(self, arg):
     """Return the kronecker product of this object with arg."""
 
