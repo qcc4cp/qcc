@@ -82,7 +82,7 @@ class Tensor(np.ndarray):
     return np.allclose(tr_rho2, 1.0)
 
   def is_permutation(self):
-    x = self #np.asanyarray(self)
+    x = self
     return int(x.ndim == 2 and x.shape[0] == x.shape[1] and
                (x.sum(axis=0) == 1).all() and
                (x.sum(axis=1) == 1).all() and
