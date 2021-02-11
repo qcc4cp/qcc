@@ -5,6 +5,7 @@
 
 import enum
 
+from src.lib import helper
 
 class Op(enum.Enum):
   UNK = 0
@@ -25,6 +26,15 @@ class Node:
     self._gate = gate
     self._val = val
 
+  def __str__(self):
+    if self.is_single():
+      s = '{}({})'.format(self.name, self.idx0)
+    if self.is_ctl():
+      s = '{}({}, {})'.format(self.name, self.ctl, self.idx1)
+    if self._val:
+      s += '({})'.format(helper.pi_fractions(self.val))
+    return s
+  
   def is_single(self):
     return self._opcode == Op.SINGLE
 
@@ -90,6 +100,12 @@ class Ir:
     self.regs = []
     self.nregs = 0
     self.regset = []
+
+  def __str__(self):
+    s = ''
+    for node in self.gates:
+      s += ('  ' + str(node) + '\n')
+    return s
 
   def reg(self, size, name, register):
     self.regset.append((name, size, register))

@@ -116,8 +116,7 @@ class CircuitTest(absltest.TestCase):
 
     c2 = c1.inverse()
     c1.qc(c2, 0)
-    self.assertEqual(8, c1.ir.ngates)    
-
+    self.assertEqual(8, c1.ir.ngates)
 
 if __name__ == '__main__':
   absltest.main()

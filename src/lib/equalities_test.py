@@ -85,6 +85,9 @@ class EqualitiesTest(absltest.TestCase):
     op = h(z(h))
     self.assertTrue(op.is_close(ops.PauliX()))
 
+    op = x(z)
+    self.assertTrue(op.is_close(1.0j * ops.PauliY()))
+
   def test_global_phase(self):
     """Exercise 4.14 in Nielson, Chuang, HTH == phase*rotX(pi/4)."""
 

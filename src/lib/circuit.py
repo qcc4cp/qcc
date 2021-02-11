@@ -181,13 +181,13 @@ class qc:
     self.apply1(ops.Yroot(), idx, 'yroot')
 
   def rx(self, idx, theta):
-    self.apply1(ops.RotationX(theta), idx, 'rx')
+    self.apply1(ops.RotationX(theta), idx, 'rx', val=theta)
 
   def ry(self, idx, theta):
-    self.apply1(ops.RotationY(theta), idx, 'ry')
+    self.apply1(ops.RotationY(theta), idx, 'ry', val=theta)
 
   def rz(self, idx, theta):
-    self.apply1(ops.RotationZ(theta), idx, 'rz')
+    self.apply1(ops.RotationZ(theta), idx, 'rz', val=theta)
 
 #  This one is possible, but it is not a 1- or 2-qubit gate, hence
 #  super slow. Do not use (unless really unavoidable)
@@ -237,7 +237,7 @@ class qc:
       for idx in range(reg[0], reg[0] + nbits // 2):
         self.swap(idx, reg[0] + nbits - idx - 1)
 
-# --- qc's of qc's ------------------------------------------
+# --- qc of qc ------------------------------------------
   def qc(self, qc, offset=0):
     """Add another full circuit to this circuit."""
 
@@ -252,7 +252,7 @@ class qc:
                               gate.name, val=gate.val)
 
   def inverse(self):
-    """Return, but don't apply, an inverted circuit."""
+    """Return, but don't apply, the inverse circuit."""
 
     # The order of the gates is reversed and the each gates
     # itself becomes its adjoint. After this, a new circuit
@@ -273,33 +273,25 @@ class qc:
     #    Let's construct the inverse (non-Eager) and add to main (eager)
     #    at an offset.
     #      c_inv = c0.inverse()
-    #      offset=3
-    #      main.qc(c_inv, offset)
+    #      main.qc(c_inv, offset=3)
     #
     newqc = qc(self.name, eager=False)
     inv = self.ir.gates.copy()
     inv.reverse()
     for gate in inv:
+      val=-gate.val if gate.val else None
       if gate.is_single():
-        newqc.apply1(gate.gate.adjoint(), gate.idx0, gate.name+'^-1', val=gate.val)
+        newqc.apply1(gate.gate.adjoint(), gate.idx0, gate.name+'*', val=val)
       if gate.is_ctl():
         newqc.apply_controlled(gate.gate.adjoint(), gate.ctl, gate.idx1,
-                              gate.name+'^-1', val=gate.val)
+                               gate.name+'*', val=val)
     return newqc
 
 
 # --- Debug --------------------------------------------------
-  def dump(self, desc=None, gates=None):
+  def dump(self):
     """Simple dumper for basic debugging of a circuit."""
 
-    if desc:
-      print(desc)
-    for gate in self.ir.gates:
-      if gate.is_single():
-        print('  {}({})'.format(gate.name, gate.idx0))
-        if gates:
-          gate.gate.dump()
-      if gate.is_ctl():
-        print('  {}({}, {})'.format(gate.name, gate.ctl, gate.idx1))
-        if gates:
-          gate.gate.dump()
+    if self.name:
+      print(f'Circuit: {self.name}, Nodes: {len(self.ir.gates)}')
+    print(self.ir, end='')
