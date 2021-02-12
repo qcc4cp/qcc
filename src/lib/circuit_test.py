@@ -118,5 +118,23 @@ class CircuitTest(absltest.TestCase):
     c1.qc(c2, 0)
     self.assertEqual(8, c1.ir.ngates)
 
+  def test_circuit_exec(self):
+    c = circuit.qc('c', eager=False)
+    c.reg(3, 0)
+    c.h(0)
+    c.h(1)
+    c.h(2)
+
+    c.run()
+    self.assertEqual(3, c.ir.ngates)
+    for i in range(8):
+      self.assertGreater(c.psi[i], 0.3)
+
+    c.run()
+    self.assertEqual(3, c.ir.ngates)
+    self.assertGreater(c.psi[0], 0.99)
+    for i in range(1, 8):
+      self.assertLess(c.psi[i], 0.01)
+
 if __name__ == '__main__':
   absltest.main()

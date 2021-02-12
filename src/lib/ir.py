@@ -34,7 +34,7 @@ class Node:
     if self._val:
       s += '({})'.format(helper.pi_fractions(self.val))
     return s
-  
+
   def is_single(self):
     return self._opcode == Op.SINGLE
 

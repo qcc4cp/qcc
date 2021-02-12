@@ -35,6 +35,7 @@ class qc:
     self.name = name
     self.psi = 1.0
     self.ir = ir.Ir()
+    self.build_ir = True
     self.eager = eager
     self.global_reg = 0
 
@@ -104,12 +105,14 @@ class qc:
   def apply1(self, gate, idx, name=None, *, val=None):
     if isinstance(idx, state.Reg):
       for reg in range(idx.nbits):
-        self.ir.single(name, idx[reg], gate, val)
+        if self.build_ir:
+          self.ir.single(name, idx[reg], gate, val)
         if self.eager:
           xgates.apply1(self.psi, gate.reshape(4), self.psi.nbits, idx[reg],
                         tensor.tensor_width)
       return
-    self.ir.single(name, idx, gate, val)
+    if self.build_ir:
+      self.ir.single(name, idx, gate, val)
     if self.eager:
       xgates.apply1(self.psi, gate.reshape(4), self.psi.nbits, idx,
                     tensor.tensor_width)
@@ -117,7 +120,8 @@ class qc:
   def apply_controlled(self, gate, ctl, idx, name=None, *, val=None):
     if isinstance(idx, state.Reg):
       raise AssertionError('controlled register not supported')
-    self.ir.controlled(name, ctl, idx, gate, val)
+    if self.build_ir:
+      self.ir.controlled(name, ctl, idx, gate, val)
     if self.eager:
       xgates.applyc(self.psi, gate.reshape(4), self.psi.nbits, ctl, idx,
                     tensor.tensor_width)
@@ -251,6 +255,17 @@ class qc:
         self.apply_controlled(gate.gate, gate.ctl+offset, gate.idx1+offset,
                               gate.name, val=gate.val)
 
+  def run(self):
+    """Apply gates in this qc, don't rebuild IR."""
+
+    build_ir = self.build_ir
+    eager = self.eager
+    self.build_ir = False
+    self.eager = True
+    self.qc(self)
+    self.build_ir = build_ir
+    self.eager = eager
+        
   def inverse(self):
     """Return, but don't apply, the inverse circuit."""
 
@@ -276,9 +291,7 @@ class qc:
     #      main.qc(c_inv, offset=3)
     #
     newqc = qc(self.name, eager=False)
-    inv = self.ir.gates.copy()
-    inv.reverse()
-    for gate in inv:
+    for gate in self.ir.gates[::-1]:
       val=-gate.val if gate.val else None
       if gate.is_single():
         newqc.apply1(gate.gate.adjoint(), gate.idx0, gate.name+'*', val=val)
