@@ -70,6 +70,11 @@ def make_u(nbits, constant_c) -> ops.Operator:
     if constant_c[idx]:
       op = ops.Identity(idx) * ops.Cnot(idx, nbits-1) @ op
 
+      # Note that the |+> basis, a cnot is the same as a single Z-gate.
+      # This would also work:
+      #   op = (ops.Identity(idx) * ops.PauliZ() *
+      #         ops.Identity(nbits - 1 - idx))  @ op
+
   if not op.is_unitary():
     raise AssertionError('constructed non-unitary operator')
   return op
@@ -123,8 +128,8 @@ def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  run_experiment(7)
-  run_oracle_experiment(7)
+  run_experiment(8)
+  run_oracle_experiment(8)
 
 
 if __name__ == '__main__':
