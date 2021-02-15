@@ -27,12 +27,17 @@ class Node:
     self._val = val
 
   def __str__(self):
+    s = ''
     if self.is_single():
       s = '{}({})'.format(self.name, self.idx0)
     if self.is_ctl():
       s = '{}({}, {})'.format(self.name, self.ctl, self.idx1)
     if self._val:
       s += '({})'.format(helper.pi_fractions(self.val))
+    if self.is_section():
+      s += '--- {} ---'.format(self.name)
+    if self.is_end_section():
+      s += ''
     return s
 
   def is_single(self):
@@ -104,7 +109,7 @@ class Ir:
   def __str__(self):
     s = ''
     for node in self.gates:
-      s += ('  ' + str(node) + '\n')
+      s = s + '  ' + str(node) + '\n'
     return s
 
   def reg(self, size, name, register):

@@ -150,7 +150,7 @@ class qc:
   def ccx(self, idx0, idx1, idx2):
     """Sleator-Weinfurter Construction."""
 
-    with self.scope(self.ir, 'ccx'):
+    with self.scope(self.ir, f'ccx({idx0}, {idx1}, {idx2})'):
       self.cv(idx0, idx2)
       self.cx(idx0, idx1)
       self.cv_adj(idx1, idx2)
@@ -193,11 +193,12 @@ class qc:
   def rz(self, idx, theta):
     self.apply1(ops.RotationZ(theta), idx, 'rz', val=theta)
 
-#  This one is possible, but it is not a 1- or 2-qubit gate, hence
-#  super slow. Do not use (unless really unavoidable)
+#  Appplyinh a random unitary is possible, but it is not a
+#  1- or 2-qubit gate, hence slow.
+#  Do not use (unless really unavoidable)
 #
-#  def unitary(self, op, idx):
-#    self.psi = ops.Operator(op)(self.psi, idx, 'u')
+#    def unitary(self, op, idx):
+#      self.psi = ops.Operator(op)(self.psi, idx, 'u')
 
 # --- Measure ----------------------------------------------------
   def measure_bit(self, idx, tostate=0, collapse=True):
@@ -210,17 +211,52 @@ class qc:
 
 # --- Advanced ---------------------------------------------------
   def swap(self, idx0, idx1):
+    """Simple Swap operation."""
+
     # pylint: disable=arguments-out-of-order
-    with self.scope(self.ir, 'swap'):
+    with self.scope(self.ir, f'swap({idx0}, {idx1})'):
       self.cx(idx1, idx0)
       self.cx(idx0, idx1)
       self.cx(idx1, idx0)
 
   def cswap(self, ctl, idx0, idx1):
-    with self.scope(self.ir, 'cswap'):
+    """Controlled Swap."""
+
+    with self.scope(self.ir, f'cswap({ctl}, {idx0}, {idx1})'):
       self.ccx(ctl, idx1, idx0)
       self.ccx(ctl, idx0, idx1)
       self.ccx(ctl, idx1, idx0)
+
+  def multi_control(self, ctl, idx1, aux, gate, desc):
+    """Multi-Controlled gate, using aux as ancilla."""
+
+    # This is a simpler version that requires n-1 ancillaries, instead of n-2.
+    # The benefit is that the gate can be used as a single-controlled gate,
+    # which means we don't need to take the root (no need to include scipy).
+    #
+    # This can be optimized (later) to become the n-2 version.
+
+    if len(ctl) < 2:
+      raise AssertionError('Multi-control with less than 2 control qubits')
+    self.ccx(ctl[0], ctl[1], aux[0])
+    aux_idx = 0
+    for i in range(2, len(ctl)):
+      self.ccx(ctl[i], aux[aux_idx], aux[aux_idx+1])
+      aux_idx = aux_idx + 1
+
+    self.apply_controlled(gate, aux[aux_idx], idx1, desc)
+
+    aux_idx = aux_idx - 1
+    for i in range(len(ctl)-1, 1, -1):
+      self.ccx(ctl[i], aux[aux_idx], aux[aux_idx+1])
+      aux_idx = aux_idx - 1
+    self.ccx(ctl[0], ctl[1], aux[0])
+
+  def flip(self, reg):
+    """Flip a quantum register via swaps."""
+
+    for idx in range(reg[0], reg[0] + reg.nbits // 2):
+      self.swap(idx, reg[0] + reg.nbits - idx - 1)
 
   def qft_rk(self, reg, swap=True):
     """Apply Qft with Rk gates directly."""
@@ -236,10 +272,8 @@ class qc:
         controlled_from = idx + rk - 1
         self.crk(controlled_from, idx, rk)
 
-    # Now the qubits need to change their order.
     if swap:
-      for idx in range(reg[0], reg[0] + nbits // 2):
-        self.swap(idx, reg[0] + nbits - idx - 1)
+      self.flip(reg)
 
 # --- qc of qc ------------------------------------------
   def qc(self, qc, offset=0):
@@ -265,7 +299,7 @@ class qc:
     self.qc(self)
     self.build_ir = build_ir
     self.eager = eager
-        
+
   def inverse(self):
     """Return, but don't apply, the inverse circuit."""
 

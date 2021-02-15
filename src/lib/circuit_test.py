@@ -136,5 +136,13 @@ class CircuitTest(absltest.TestCase):
     for i in range(1, 8):
       self.assertLess(c.psi[i], 0.01)
 
+  def test_multi(self):
+    c = circuit.qc('mullti', eager=False)
+    comp = c.reg(6)
+    aux = c.reg(6)
+    ctl=[0, 1, 2, 3, 4]
+    c.multi_control(ctl, 5, aux, ops.PauliX(), f'multi-x({ctl}, 5)')
+    self.assertEqual(41, c.ir.ngates)
+    
 if __name__ == '__main__':
   absltest.main()
