@@ -132,6 +132,11 @@ class qc:
   def cv_adj(self, idx0, idx1):
     self.apply_controlled(ops.Vgate().adjoint(), idx0, idx1, 'cv_adj')
 
+  def cx0(self, idx0, idx1):
+    self.x(idx0)
+    self.apply_controlled(ops.PauliX(), idx0, idx1, 'cx')
+    self.x(idx0)
+
   def cx(self, idx0, idx1):
     self.apply_controlled(ops.PauliX(), idx0, idx1, 'cx')
 
@@ -150,12 +155,38 @@ class qc:
   def ccx(self, idx0, idx1, idx2):
     """Sleator-Weinfurter Construction."""
 
+    # if an index is passed as a list, eg [2], this means this controller is
+    # a controlled-by-0 controller.
+    if isinstance(idx0, int):
+      i0 = idx0
+      c0 = 1
+    else:
+      i0 = idx0[0]
+      c0 = 0
+    if isinstance(idx1, int):
+      i1 = idx1
+      c1 = 1
+    else:
+      i1 = idx1[0]
+      c1 = 0
+    i2 = idx2
+
     with self.scope(self.ir, f'ccx({idx0}, {idx1}, {idx2})'):
-      self.cv(idx0, idx2)
-      self.cx(idx0, idx1)
-      self.cv_adj(idx1, idx2)
-      self.cx(idx0, idx1)
-      self.cv(idx1, idx2)
+      if not c0:
+        self.x(i0)
+      if not c1:
+        self.x(i1)
+
+      self.cv(i0, i2)
+      self.cx(i0, i1)
+      self.cv_adj(i1, i2)
+      self.cx(i0, i1)
+      self.cv(i1, i2)
+
+      if not c0:
+        self.x(i0)
+      if not c1:
+        self.x(i1)
 
   def toffoli(self, idx0, idx1, idx2):
     self.ccx(idx0, idx1, idx2)
@@ -233,19 +264,25 @@ class qc:
     # This is a simpler version that requires n-1 ancillaries, instead of n-2.
     # The benefit is that the gate can be used as a single-controlled gate,
     # which means we don't need to take the root (no need to include scipy).
+    # This construction also makes the controlled-by-0 gates a little bit
+    # easier, those controllers are being passed as single-element lists, eg.:
+    #   ctl = [1, 2, [3], [4], 5]
     #
-    # This can be optimized (later) to become the n-2 version.
-
+    # This can be optimized (later) to turn into a space-optimized n-2 version.
     if len(ctl) < 2:
       raise AssertionError('Multi-control with less than 2 control qubits')
+
+    # Compute the predicate.
     self.ccx(ctl[0], ctl[1], aux[0])
     aux_idx = 0
     for i in range(2, len(ctl)):
       self.ccx(ctl[i], aux[aux_idx], aux[aux_idx+1])
       aux_idx = aux_idx + 1
 
+    # Use predicate to control qubit at idx1.
     self.apply_controlled(gate, aux[aux_idx], idx1, desc)
 
+    # Uncompute predicate.
     aux_idx = aux_idx - 1
     for i in range(len(ctl)-1, 1, -1):
       self.ccx(ctl[i], aux[aux_idx], aux[aux_idx+1])
