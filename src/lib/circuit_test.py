@@ -152,5 +152,29 @@ class CircuitTest(absltest.TestCase):
     c.multi_control(ctl, 3, aux, ops.PauliX(), f'multi-x({ctl}, 5)')
     self.assertGreater(c.psi.prob(1, 0, 0, 0, 0, 0, 0, 0), 0.99)
 
+  def test_multi_n(self):
+    c = circuit.qc('multi', eager=True)
+    comp = c.reg(4, (1, 0, 0, 1))
+    aux = c.reg(4)
+    ctl = []
+    c.multi_control(ctl, 3, aux, ops.PauliX(), f'single')
+    self.assertGreater(c.psi.prob(1, 0, 0, 0, 0, 0, 0, 0), 0.99)
+
+    ctl = [0]
+    c.multi_control(ctl, 3, aux, ops.PauliX(), f'single')
+    self.assertGreater(c.psi.prob(1, 0, 0, 1, 0, 0, 0, 0), 0.99)
+
+    ctl = [1]
+    c.multi_control(ctl, 3, aux, ops.PauliX(), f'single')
+    self.assertGreater(c.psi.prob(1, 0, 0, 1, 0, 0, 0, 0), 0.99)
+
+    ctl = [[1]]
+    c.multi_control(ctl, 3, aux, ops.PauliX(), f'single')
+    self.assertGreater(c.psi.prob(1, 0, 0, 0, 0, 0, 0, 0), 0.99)
+
+    ctl = [0, [1], [2]]
+    c.multi_control(ctl, 3, aux, ops.PauliX(), f'single')
+    self.assertGreater(c.psi.prob(1, 0, 0, 1, 0, 0, 0, 0), 0.99)
+
 if __name__ == '__main__':
   absltest.main()

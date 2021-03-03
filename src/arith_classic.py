@@ -5,6 +5,7 @@ from absl import app
 
 from src.lib import circuit
 from src.lib import ops
+from src.lib import helper
 from src.lib import state
 
 
@@ -86,11 +87,37 @@ def add_classic():
     exp_function(1, 1, 1, 1, 1)
 
 
+def incr(qc, idx, nbits, aux):
+  """Increment-by-1 circuit."""
+
+  for i in range(0, nbits):
+    ctl=[]
+    for j in range(nbits-1, i, -1):
+      ctl.append(j+idx)
+    qc.multi_control(ctl, i+idx, aux, ops.PauliX(), "multi-X")
+
+
+def experiment_incr():
+  qc = circuit.qc('incr')
+  x = qc.reg(4, 0)
+  aux = qc.reg(4)
+
+  for val in range(15):
+    incr(qc, 0, 4, aux)
+
+    maxbits, _ = qc.psi.maxprob()
+    res = helper.bits2val(maxbits[0:4])
+    print(f'{val}+1 = {res}')
+    if val+1 != res:
+      raise AssertionError('Invalid Result')
+
+
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
   add_classic()
+  experiment_incr()
 
 
 if __name__ == '__main__':

@@ -101,6 +101,14 @@ class qc:
   def nbits(self):
     return self.psi.nbits
 
+  def ctl_by_0(self, ctl):
+    ctl_qubit = ctl
+    ctl_by_0 = False
+    if not isinstance(ctl, int):
+      ctl_qubit = ctl[0]
+      ctl_by_0 = True
+    return ctl_qubit, ctl_by_0
+
   # --- Gates  ----------------------------------------------------
   def apply1(self, gate, idx, name=None, *, val=None):
     if isinstance(idx, state.Reg):
@@ -120,11 +128,17 @@ class qc:
   def apply_controlled(self, gate, ctl, idx, name=None, *, val=None):
     if isinstance(idx, state.Reg):
       raise AssertionError('controlled register not supported')
+
+    ctl_qubit, by_0 = self.ctl_by_0(ctl)
+    if by_0:
+      self.x(ctl_qubit)
     if self.build_ir:
-      self.ir.controlled(name, ctl, idx, gate, val)
+      self.ir.controlled(name, ctl_qubit, idx, gate, val)
     if self.eager:
-      xgates.applyc(self.psi, gate.reshape(4), self.psi.nbits, ctl, idx,
+      xgates.applyc(self.psi, gate.reshape(4), self.psi.nbits, ctl_qubit, idx,
                     tensor.tensor_width)
+    if by_0:
+      self.x(ctl_qubit)
 
   def cv(self, idx0, idx1):
     self.apply_controlled(ops.Vgate(), idx0, idx1, 'cv')
@@ -133,9 +147,7 @@ class qc:
     self.apply_controlled(ops.Vgate().adjoint(), idx0, idx1, 'cv_adj')
 
   def cx0(self, idx0, idx1):
-    self.x(idx0)
     self.apply_controlled(ops.PauliX(), idx0, idx1, 'cx')
-    self.x(idx0)
 
   def cx(self, idx0, idx1):
     self.apply_controlled(ops.PauliX(), idx0, idx1, 'cx')
@@ -155,26 +167,14 @@ class qc:
   def ccx(self, idx0, idx1, idx2):
     """Sleator-Weinfurter Construction."""
 
-    # if an index is passed as a list, eg [2], this means this controller is
-    # a controlled-by-0 controller.
-    if isinstance(idx0, int):
-      i0 = idx0
-      c0 = 1
-    else:
-      i0 = idx0[0]
-      c0 = 0
-    if isinstance(idx1, int):
-      i1 = idx1
-      c1 = 1
-    else:
-      i1 = idx1[0]
-      c1 = 0
+    i0, c0_by_0 = self.ctl_by_0(idx0)
+    i1, c1_by_0 = self.ctl_by_0(idx1)
     i2 = idx2
 
     with self.scope(self.ir, f'ccx({idx0}, {idx1}, {idx2})'):
-      if not c0:
+      if c0_by_0:
         self.x(i0)
-      if not c1:
+      if c1_by_0:
         self.x(i1)
 
       self.cv(i0, i2)
@@ -183,9 +183,9 @@ class qc:
       self.cx(i0, i1)
       self.cv(i1, i2)
 
-      if not c0:
+      if c0_by_0:
         self.x(i0)
-      if not c1:
+      if c1_by_0:
         self.x(i1)
 
   def toffoli(self, idx0, idx1, idx2):
@@ -269,8 +269,15 @@ class qc:
     #   ctl = [1, 2, [3], [4], 5]
     #
     # This can be optimized (later) to turn into a space-optimized n-2 version.
-    if len(ctl) < 2:
-      raise AssertionError('Multi-control with less than 2 control qubits')
+    if len(ctl) == 0:
+      self.apply1(gate, idx1, desc)
+      return
+    if len(ctl) == 1:
+      self.apply_controlled(gate, ctl[0], idx1, desc)
+      return
+
+    #if len(ctl) < 2:
+    #  raise AssertionError('Multi-control with less than 2 control qubits')
 
     # Compute the predicate.
     self.ccx(ctl[0], ctl[1], aux[0])
