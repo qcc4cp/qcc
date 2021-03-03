@@ -224,12 +224,12 @@ class qc:
   def rz(self, idx, theta):
     self.apply1(ops.RotationZ(theta), idx, 'rz', val=theta)
 
-#  Appplyinh a random unitary is possible, but it is not a
+#  Appplying a random unitary is possible, but it is not a
 #  1- or 2-qubit gate, hence slow.
 #  Do not use (unless really unavoidable)
 #
 #    def unitary(self, op, idx):
-#      self.psi = ops.Operator(op)(self.psi, idx, 'u')
+#      self.psi = ops.Operator(op)(self.psi, idx)
 
 # --- Measure ----------------------------------------------------
   def measure_bit(self, idx, tostate=0, collapse=True):
@@ -259,7 +259,7 @@ class qc:
       self.ccx(ctl, idx1, idx0)
 
   def multi_control(self, ctl, idx1, aux, gate, desc):
-    """Multi-Controlled gate, using aux as ancilla."""
+    """Multi-controlled gate, using aux as ancilla."""
 
     # This is a simpler version that requires n-1 ancillaries, instead of n-2.
     # The benefit is that the gate can be used as a single-controlled gate,
@@ -269,32 +269,37 @@ class qc:
     #   ctl = [1, 2, [3], [4], 5]
     #
     # This can be optimized (later) to turn into a space-optimized n-2 version.
-    if len(ctl) == 0:
-      self.apply1(gate, idx1, desc)
-      return
-    if len(ctl) == 1:
-      self.apply_controlled(gate, ctl[0], idx1, desc)
-      return
+    #
+    # We also generalize to the case where ctl is empty or only has 1
+    # control qubit. This is very flexible and practically any gate
+    # could be expressed this way. This would make bulk control of
+    # whole gate sequences straight-forward, but changes the trivial IR
+    # we're working with here. Something to keep in mind.
 
-    #if len(ctl) < 2:
-    #  raise AssertionError('Multi-control with less than 2 control qubits')
+    with self.scope(self.ir, f'multi({ctl}, {idx1}) # {desc})'):
+      if len(ctl) == 0:
+        self.apply1(gate, idx1, desc)
+        return
+      if len(ctl) == 1:
+        self.apply_controlled(gate, ctl[0], idx1, desc)
+        return
 
-    # Compute the predicate.
-    self.ccx(ctl[0], ctl[1], aux[0])
-    aux_idx = 0
-    for i in range(2, len(ctl)):
-      self.ccx(ctl[i], aux[aux_idx], aux[aux_idx+1])
-      aux_idx = aux_idx + 1
+      # Compute the predicate.
+      self.ccx(ctl[0], ctl[1], aux[0])
+      aux_idx = 0
+      for i in range(2, len(ctl)):
+        self.ccx(ctl[i], aux[aux_idx], aux[aux_idx+1])
+        aux_idx = aux_idx + 1
 
-    # Use predicate to control qubit at idx1.
-    self.apply_controlled(gate, aux[aux_idx], idx1, desc)
+      # Use predicate to single-control qubit at idx1.
+      self.apply_controlled(gate, aux[aux_idx], idx1, desc)
 
-    # Uncompute predicate.
-    aux_idx = aux_idx - 1
-    for i in range(len(ctl)-1, 1, -1):
-      self.ccx(ctl[i], aux[aux_idx], aux[aux_idx+1])
+      # Uncompute predicate.
       aux_idx = aux_idx - 1
-    self.ccx(ctl[0], ctl[1], aux[0])
+      for i in range(len(ctl)-1, 1, -1):
+        self.ccx(ctl[i], aux[aux_idx], aux[aux_idx+1])
+        aux_idx = aux_idx - 1
+      self.ccx(ctl[0], ctl[1], aux[0])
 
   def flip(self, reg):
     """Flip a quantum register via swaps."""
