@@ -35,7 +35,7 @@ class Node:
     if self._val:
       s += '({})'.format(helper.pi_fractions(self.val))
     if self.is_section():
-      s += '--- {} ---'.format(self.name)
+      s += '|-- {} ---'.format(self.name)
     if self.is_end_section():
       s += ''
     return s
@@ -107,9 +107,15 @@ class Ir:
     self.regset = []
 
   def __str__(self):
+    nesting = 0
     s = ''
     for node in self.gates:
-      s = s + '  ' + str(node) + '\n'
+      if node.is_section():
+        nesting = nesting + 1
+      if node.is_end_section():
+        nesting = nesting - 1
+        continue
+      s = s + ('  ' * nesting) + str(node) + '\n'
     return s
 
   def reg(self, size, name, register):
