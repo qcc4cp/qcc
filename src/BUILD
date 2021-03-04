@@ -3,8 +3,8 @@ py_library(
     srcs = [],
     deps = [
         "//src/lib:bell",
-        "//src/lib:circuit",        
-        "//src/lib:helper",     
+        "//src/lib:circuit",
+        "//src/lib:helper",
         "//src/lib:ops",
         "//src/lib:state",
         "//src/lib:tensor",
@@ -20,7 +20,6 @@ py_binary(
         ":qcall",
     ],
 )
-
 
 py_binary(
     name = "arith_quantum",
@@ -112,10 +111,9 @@ py_binary(
     ],
 )
 
-
 py_binary(
-    name = "shor_classic",
-    srcs = ["shor_classic.py"],
+    name = "quantum_walk",
+    srcs = ["quantum_walk.py"],
     python_version = "PY3",
     srcs_version = "PY3",
     deps = [

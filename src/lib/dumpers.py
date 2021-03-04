@@ -159,43 +159,44 @@ def latex(ir) -> str:
   larr = []
   for q in range(ir.nregs):
      larr.append([])
-     for g in range(ir.ngates):
+     for g in range(ir.ngates+1):
        larr[q].append('')
 
   depth = 0
   for op in ir.gates:
     for r in range(ir.nregs):
       larr[r][depth] = '\\qw&'
-      
+
     if op.is_gate():
       parm = ''
       name = op.name
+      name = name.replace('_adj', '^\dagger')
       if op.name == 'h':
         name = 'H'
       if op.name == 'cu1' or op.name == 'u1':
         name = ''
       if op.val is not None:
-        parm = '({})'.format(helper.pi_fractions(op.val, '\pi'))    
+        parm = '({})'.format(helper.pi_fractions(op.val, '\pi'))
       if op.is_single():
         larr[op.idx0][depth] = '\\gate{}{}{}&'.format('{', name + parm, '}')
         depth = depth + 1
       if op.is_ctl():
-        larr[op.idx0][depth] = '\\ctrl{}{}{}&'.format('{', op.idx1 - op.ctl, '}')
+        larr[op.ctl][depth] = '\\ctrl{}{}{}&'.format('{', op.idx1 - op.ctl, '}')
         larr[op.idx1][depth] = '\\gate{}{}{}&'.format('{', name + parm, '}')
         depth = depth + 1
-      
+
       #if op.val is not None:
       #  res += '({})'.format(helper.pi_fractions(op.val))
       #if op.is_single():
       #  res += f' {reg2str(ir, op.idx0)};\n'
       #if op.is_ctl():
       #  res += f' {reg2str(ir, op.ctl)},{reg2str(ir, op.idx1)};\n'
-  
+
   res = "\\begin{qcc}\n"
   for q in range(ir.nregs):
      for d in range(depth):
         res += larr[q][d]
      res += '\\\\ \n'
-       
+
   res += "\\end{qcc}"
   return res
