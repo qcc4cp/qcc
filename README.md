@@ -144,6 +144,7 @@ To run individual algorithms, run any of these command lines (note the missing `
    bazel run order_finding
    bazel run phase_estimation
    bazel run phase_kick
+   bazel run quantum_walk
    bazel run shor_classic
    bazel run simon
    bazel run simon_general   
