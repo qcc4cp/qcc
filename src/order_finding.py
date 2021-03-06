@@ -69,7 +69,7 @@ def add(qc, q, a, n, factor):
 
 
 def cadd(qc, q, ctl, a, n, factor):
-  """Un-controlled add in fourier space."""
+  """Controlled add in fourier space."""
 
   angles = precompute_angles(a, n)
   for i in range(0, n):
@@ -77,7 +77,7 @@ def cadd(qc, q, ctl, a, n, factor):
 
 
 def ccphase(qc, angle, ctl1, ctl2, idx):
-  """Controlled controlled phase gate."""
+  """Controlled-controlled phase gate."""
 
   qc.cu1(ctl1, idx, angle/2)
   qc.cx(ctl2, ctl1)
@@ -87,7 +87,7 @@ def ccphase(qc, angle, ctl1, ctl2, idx):
 
 
 def ccadd(qc, q, ctl1, ctl2, a, n, factor):
-  """Double-controlled add in fourier space."""
+  """Controlled-controlled add in fourier space."""
 
   angles = precompute_angles(a, n)
   for i in range(0, n):
@@ -95,7 +95,7 @@ def ccadd(qc, q, ctl1, ctl2, a, n, factor):
 
 
 def qft(qc, up_reg, n, with_swaps):
-  """Apply the H gates and Cphases."""
+  """QFT."""
 
   for i in range(n-1, -1, -1):
     qc.h(up_reg[i])
@@ -108,7 +108,7 @@ def qft(qc, up_reg, n, with_swaps):
 
 
 def inverse_qft(qc, up_reg, n, with_swaps):
-  """Function to create inverse QFT."""
+  """Inverse QFT."""
 
   if with_swaps == 1:
     for i in range(n // 2):
@@ -123,9 +123,8 @@ def inverse_qft(qc, up_reg, n, with_swaps):
 
 
 def cc_add_mod_n(qc, q, ctl1, ctl2, aux, a, number, n):
-  """Circuit that implements doubly controlled modular addition by a."""
+  """Circuit that implements double controlled modular addition by a."""
 
-  # TODO(rhundt): Add mod N (and its inverse) are not fully understood.
   ccadd(qc, q, ctl1, ctl2, a, n, factor=1.0)
   add(qc, q, number, n, factor=-1.0)
   inverse_qft(qc, q, n, with_swaps=0)
