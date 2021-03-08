@@ -294,7 +294,7 @@ def dump_state(psi, description=None, prob_only=None) -> None:
 
   l = []
   for bits in helper.bitprod(psi.nbits):
-    if prob_only and (psi.prob(*bits) == 0.0):
+    if prob_only and (psi.prob(*bits) < 10e-6):
       continue
 
     l.append('{:s}:  ampl: {:+.2f} prob: {:.2f} Phase: {:5.1f}'.format(
