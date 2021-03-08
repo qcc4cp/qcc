@@ -176,5 +176,40 @@ class CircuitTest(absltest.TestCase):
     c.multi_control(ctl, 3, aux, ops.PauliX(), f'single')
     self.assertGreater(c.psi.prob(1, 0, 0, 1, 0, 0, 0, 0), 0.99)
 
+  def test_shor_9_qubit_correction(self):
+    for i in range(9):
+      qc = circuit.qc('shor-9')
+      print(f'Initialize qubit as 0.60|0> + 0.80|1>, error on qubit {i}')
+      qc.qubit(0.6)
+      qc.reg(8, 0)
+
+      # Left Side.
+      qc.cx(0, 3)
+      qc.cx(0, 6)
+      qc.h(0); qc.h(3); qc.h(6);
+      qc.cx(0, 1); qc.cx(0, 2)
+      qc.cx(3, 4); qc.cx(3, 5)
+      qc.cx(6, 7); qc.cx(6, 8)
+
+      # Error insertion, use x(i), y(i), or z(i)
+      qc.x(i)
+
+      # Fix.
+      qc.cx(0, 1); qc.cx(0, 2); qc.ccx(1, 2, 0)
+      qc.h(0)
+      qc.cx(3, 4); qc.cx(3, 5); qc.ccx(4, 5, 3)
+      qc.h(3)
+      qc.cx(6, 7); qc.cx(6, 8); qc.ccx(7, 8, 6)
+      qc.h(6)
+
+      qc.cx(0, 3); qc.cx(0, 6)
+      qc.ccx(6, 3, 0)
+
+      prob0, s = qc.measure_bit(0, 0)
+      prob1, s = qc.measure_bit(0, 1)
+      self.assertTrue(math.isclose(math.sqrt(prob0), 0.6, abs_tol=0.001))
+      self.assertTrue(math.isclose(math.sqrt(prob1), 0.8, abs_tol=0.001))
+
+
 if __name__ == '__main__':
   absltest.main()

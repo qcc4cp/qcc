@@ -159,7 +159,7 @@ def qubit(alpha=None, beta=None) -> State:
   if alpha is None:
     alpha = math.sqrt(1.0 - np.conj(beta) * beta)
 
-  if abs(np.real(np.conj(alpha) * alpha + np.conj(beta) * beta)) - 1 > 1e-6:
+  if not math.isclose(np.conj(alpha) * alpha + np.conj(beta) * beta, 1.0):
     raise ValueError('Qubit probabilities do not sum to 1.')
 
   t = np.zeros(2, dtype=tensor.tensor_type)
