@@ -142,6 +142,17 @@ py_binary(
 )
 
 py_binary(
+    name = "solovay_kitaev",
+    srcs = ["solovay_kitaev.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)
+
+
+py_binary(
     name = "superdense",
     srcs = ["superdense.py"],
     python_version = "PY3",
