@@ -72,7 +72,7 @@ class qc:
   def bitstring(self, *bits):
     self.psi = self.psi * state.bitstring(*bits)
 
-  def arrange(self, n):
+  def arange(self, n):
     self.zeros(n)
     for i in range(0, 2**n):
       self.psi[i] = float(i)
