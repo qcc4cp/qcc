@@ -179,7 +179,7 @@ class CircuitTest(absltest.TestCase):
   def test_shor_9_qubit_correction(self):
     for i in range(9):
       qc = circuit.qc('shor-9')
-      print(f'Initialize qubit as 0.60|0> + 0.80|1>, error on qubit {i}')
+      # print(f'Initialize qubit as 0.60|0> + 0.80|1>, error on qubit {i}')
       qc.qubit(0.6)
       qc.reg(8, 0)
 
@@ -209,6 +209,26 @@ class CircuitTest(absltest.TestCase):
       prob1, s = qc.measure_bit(0, 1)
       self.assertTrue(math.isclose(math.sqrt(prob0), 0.6, abs_tol=0.001))
       self.assertTrue(math.isclose(math.sqrt(prob1), 0.8, abs_tol=0.001))
+
+
+  def test_opt(self):
+    def decr(qc, idx, nbits, aux, controller=[]):
+      for i in range(0, nbits):
+        ctl=controller.copy()
+        for j in range(nbits-1, i, -1):
+          ctl.append([j+idx])
+      qc.multi_control(ctl, i+idx, aux, ops.PauliX(), "multi-0-X")
+
+    qc = circuit.qc('decr')
+    x = qc.reg(4, 15)
+    aux = qc.reg(4)
+
+    for val in range(15, 0, -1):
+      decr(qc, 0, 4, aux)
+
+    # print(qc.stats())
+    qc.optimize()
+    # print(qc.stats())
 
 
 if __name__ == '__main__':

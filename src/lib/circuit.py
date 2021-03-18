@@ -10,6 +10,7 @@ from absl import flags
 from src.lib import dumpers
 from src.lib import ir
 from src.lib import ops
+from src.lib import optimizer
 from src.lib import state
 from src.lib import tensor
 
@@ -26,6 +27,7 @@ flags.DEFINE_string('libq', '', 'Generate libq output file, or empty')
 flags.DEFINE_string('qasm', '', 'Generate qasm output file, or empty')
 flags.DEFINE_string('cirq', '', 'Generate cirq output file, or empty')
 flags.DEFINE_string('latex', '', 'Generate Latex output file, or empty')
+
 
 
 class qc:
@@ -72,7 +74,7 @@ class qc:
   def bitstring(self, *bits):
     self.psi = self.psi * state.bitstring(*bits)
 
-  def arrange(self, n):
+  def arange(self, n):
     self.zeros(n)
     for i in range(0, 2**n):
       self.psi[i] = float(i)
@@ -96,6 +98,9 @@ class qc:
     self.dump_with_dumper(flags.FLAGS.qasm, dumpers.qasm)
     self.dump_with_dumper(flags.FLAGS.cirq, dumpers.cirq)
     self.dump_with_dumper(flags.FLAGS.latex, dumpers.latex)
+
+  def optimize(self):
+    self. ir = optimizer.optimize(self.ir)
 
   @property
   def nbits(self):

@@ -129,7 +129,7 @@ def simple_walk():
   aux = qc.reg(nbits, 0)
   coin = qc.reg(1, 0)
 
-  for _ in range(128):
+  for _ in range(32):
     # Using a Hadamard coin, others are possible, of course.
     qc.h(coin[0])
     incr(qc, 0, nbits, aux, [coin[0]])

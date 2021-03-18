@@ -91,9 +91,21 @@ py_library(
 
 py_library(
     name = "dumpers",
-    visibility = ["//visibility:public"],    
+    visibility = ["//visibility:public"],
     srcs = [
         "dumpers.py",
+    ],
+    srcs_version = "PY3",
+    deps = [
+        ":ir",
+    ],
+)
+
+py_library(
+    name = "optimizer",
+    visibility = ["//visibility:public"],
+    srcs = [
+        "optimizer.py",
     ],
     srcs_version = "PY3",
     deps = [
@@ -126,6 +138,7 @@ py_library(
         ":helper",
         ":ir",
         ":ops",
+        ":optimizer",
         ":state",
         ":tensor",
     ],

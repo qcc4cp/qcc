@@ -124,6 +124,10 @@ class Ir:
       self.regs.append((self.nregs + i, name, i))
     self.nregs += size
 
+  def add_node(self, node):
+    self.gates.append(node)
+    self._ngates += 1
+
   def single(self, name, idx0, gate, val=None):
     self.gates.append(Node(Op.SINGLE, name, idx0, None, gate, val))
     self._ngates += 1

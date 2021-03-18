@@ -60,7 +60,7 @@ class Tensor(np.ndarray):
   def is_unitary(self):
     """Check if this tensor is unitary - Udag*U = I."""
 
-    return Tensor(np.matmul(np.conj(self.transpose()), self)).is_close(
+    return Tensor(np.conj(self.transpose()) @ self).is_close(
         Tensor(np.eye(self.shape[0])))
 
   def is_density(self):
@@ -78,15 +78,17 @@ class Tensor(np.ndarray):
     if not self.is_density():
       raise ValueError('ispure() can only be applied to a density matrix.')
 
-    tr_rho2 = np.real(np.trace(np.matmul(self, self)))
+    tr_rho2 = np.real(np.trace(self @  self))
     return np.allclose(tr_rho2, 1.0)
 
   def is_permutation(self):
+    """Check whether a tensor is a true permutation matrix."""
+
     x = self
-    return int(x.ndim == 2 and x.shape[0] == x.shape[1] and
-               (x.sum(axis=0) == 1).all() and
-               (x.sum(axis=1) == 1).all() and
-               ((x == 1) | (x == 0)).all())
+    return (x.ndim == 2 and x.shape[0] == x.shape[1] and
+            (x.sum(axis=0) == 1).all() and
+            (x.sum(axis=1) == 1).all() and
+            ((x == 1) | (x == 0)).all())
 
   def kron(self, arg):
     """Return the kronecker product of this object with arg."""

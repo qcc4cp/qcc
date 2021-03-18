@@ -6,6 +6,7 @@ py_library(
         "//src/lib:circuit",
         "//src/lib:helper",
         "//src/lib:ops",
+        "//src/lib:optimizer",
         "//src/lib:state",
         "//src/lib:tensor",
     ],
@@ -114,6 +115,16 @@ py_binary(
 py_binary(
     name = "quantum_walk",
     srcs = ["quantum_walk.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)
+
+py_binary(
+    name = "shor_classic",
+    srcs = ["shor_classic.py"],
     python_version = "PY3",
     srcs_version = "PY3",
     deps = [
