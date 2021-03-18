@@ -21,7 +21,7 @@ class State(tensor.Tensor):
     return s
 
   def __str__(self) -> str:
-    s = '{}-qubit state.'.format(self.nbits)
+    s = f'{self.nbits}-qubit state.'
     s += ' Tensor:\n'
     s += super().__str__()
     return s
@@ -38,19 +38,19 @@ class State(tensor.Tensor):
     dprod = np.sum(np.conj(self) * self)
     self /= np.sqrt(np.real(dprod))
 
-  def ampl(self, *bits):
+  def ampl(self, *bits) -> float:
     """Return amplitude for state indexed by 'bits'."""
 
     idx = helper.bits2val(bits)
     return self[idx]
 
-  def prob(self, *bits):
+  def prob(self, *bits) -> float:
     """Return probability for state indexed by 'bits'."""
 
     amplitude = self.ampl(*bits)
     return np.real(amplitude.conj() * amplitude)
 
-  def phase(self, *bits):
+  def phase(self, *bits) -> float:
     """Return phase of state denoted by state_as_binary."""
 
     amplitude = self.ampl(*bits)
@@ -101,7 +101,7 @@ class State(tensor.Tensor):
     qc = np.sum(d > 1e-10)
     return qc
 
-  def apply(self, gate, index):
+  def apply(self, gate, index) -> None:
     """Apply single-qubit gate to this state."""
 
     # To maintain qubit ordering in this infrastructure,
@@ -120,7 +120,7 @@ class State(tensor.Tensor):
         self[i] = t1
         self[i + two_q] = t2
 
-  def apply_controlled(self, gate, control, target):
+  def apply_controlled(self, gate, control, target) -> None:
     """Apply a controlled 2-qubit gate via explicit indexing."""
 
     # To maintain qubit ordering in this infrastructure,
@@ -148,7 +148,7 @@ class State(tensor.Tensor):
 # be distinguished when multiplied with an arbitrary complex number, aka,
 # global phase.
 #
-def qubit(alpha=None, beta=None) -> State:
+def qubit(alpha:float=None, beta:float=None) -> State:
   """Produce a given state for a single qubit."""
 
   if alpha is None and beta is None:
@@ -211,7 +211,7 @@ def bitstring(*bits) -> State:
   return State(t)
 
 
-def rand(n):
+def rand(n:int):
   """Produce random combination of |0> and |1>."""
 
   bits = [0] * n
