@@ -149,7 +149,7 @@ class State(tensor.Tensor):
 # be distinguished when multiplied with an arbitrary complex number, aka,
 # global phase.
 #
-def qubit(alpha: Optional[float]=None, beta: Optional[float]=None) -> State:
+def qubit(alpha: Optional[np.complexfloating]=None, beta: Optional[np.complexfloating]=None) -> State:
   """Produce a given state for a single qubit."""
 
   if alpha is None and beta is None:
