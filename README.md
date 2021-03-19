@@ -19,22 +19,30 @@ To run the code a few tools are needed:
 
 *  We will need Python's `pip` tool to install packages and `git` to manage the source. 
   Here is one way to install them:
-```
+```bash
     sudo apt-get install python3-pip
     sudo apt-get install git
 ```
 
-*  We need Google's `absl` library, as well as `numpy` and `scipy`. Install with 
-```
-   sudo python3 -m pip install absl-py
-   sudo python3 -m pip install numpy
-   sudo python3 -m pip install scipy
-```    
-   
-* Finally, to get these source onto your computer:
-```
+* Get these source onto your computer:
+```bash
     git clone https://github.com/qcc4cp/qcc.git
 ```
+
+* Let's make a virtual environment to isolate our libraries from the system:
+```bash
+    cd qcc
+    mkvirtualenv qcc
+```
+
+* We can activate our virtual environment at any time by doing `workon qcc`.
+
+* Install the packages we need:
+```bash
+    pip install -r requirements.txt
+```
+   
+
     
 ## Build
 
