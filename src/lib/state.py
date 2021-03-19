@@ -4,7 +4,7 @@
 import cmath
 import math
 import random
-from typing import Optional
+from typing import List, Optional
 
 import numpy as np
 
@@ -27,7 +27,7 @@ class State(tensor.Tensor):
     s += super().__str__()
     return s
 
-  def dump(self, desc=None, prob_only=True) -> None:
+  def dump(self, desc: Optional[str]=None, prob_only: bool=True) -> None:
     dump_state(self, desc, prob_only)
 
   def density(self) -> tensor.Tensor:
@@ -36,26 +36,26 @@ class State(tensor.Tensor):
   def normalize(self) -> None:
     """Renormalize the state so that the sum of squared amplitude eq 1.0."""
 
-    dprod = np.sum(np.conj(self) * self)
+    dprod = np.conj(self) @ self
     self /= np.sqrt(np.real(dprod))
 
-  def ampl(self, *bits) -> float:
+  def ampl(self, *bits: int) -> np.complexfloating:
     """Return amplitude for state indexed by 'bits'."""
 
     idx = helper.bits2val(bits)
     return self[idx]
 
-  def prob(self, *bits) -> float:
+  def prob(self, *bits: int) -> float:
     """Return probability for state indexed by 'bits'."""
 
     amplitude = self.ampl(*bits)
     return np.real(amplitude.conj() * amplitude)
 
-  def phase(self, *bits) -> float:
+  def phase(self, *bits: int) -> float:
     """Return phase of state denoted by state_as_binary."""
 
     amplitude = self.ampl(*bits)
-    return cmath.polar(amplitude)[1] / math.pi * 180.0
+    return math.degrees(cmath.phase(amplitude))
 
   def maxprob(self):
     """Find state with highest probability."""
@@ -178,7 +178,7 @@ def qubit(alpha: Optional[np.complexfloating]=None, beta: Optional[np.complexflo
 #   always [1, 0, 0, ..., 0]T or [0, 0, 0, ..., 1]T
 #
 # The helper function zeros_or_ones expects idx to be set appropriately.
-def zeros_or_ones(d=1, idx=0) -> State:
+def zeros_or_ones(d: int=1, idx: int=0) -> State:
   """Produce the all-zero/one computational basis vector for `d` qubits."""
 
   if d < 1:
@@ -189,12 +189,12 @@ def zeros_or_ones(d=1, idx=0) -> State:
   return State(t)
 
 
-def zeros(d=1) -> State:
+def zeros(d: int=1) -> State:
   """Produce state with 'd' |0>, eg., |0000>."""
   return zeros_or_ones(d, 0)
 
 
-def ones(d=1) -> State:
+def ones(d: int=1) -> State:
   """Produce state with 'd' |1>, eg., |1111>."""
   return zeros_or_ones(d, 2**d - 1)
 
@@ -212,12 +212,10 @@ def bitstring(*bits) -> State:
   return State(t)
 
 
-def rand(n:int):
+def rand(n: int) -> State:
   """Produce random combination of |0> and |1>."""
 
-  bits = [0] * n
-  for i in range(n):
-    bits[i] = random.randint(0, 1)
+  bits = [random.randint(0, 1) for _ in range(n)]
   return bitstring(*bits)
 
 
@@ -284,7 +282,7 @@ def state_to_string(bits) -> str:
   return '|{:s}> (|{:d}>)'.format(s, int(s, 2))
 
 
-def dump_state(psi, description=None, prob_only=None) -> None:
+def dump_state(psi, description: Optional[str]=None, prob_only: bool=False) -> None:
   """Dump probabilities for a state as well as local qubit state."""
 
   if description:
@@ -293,7 +291,7 @@ def dump_state(psi, description=None, prob_only=None) -> None:
       print(i % 10, end='')
     print(f'> \'{description}\'')
 
-  l = []
+  l: List[str] = []
   for bits in helper.bitprod(psi.nbits):
     if prob_only and (psi.prob(*bits) < 10e-6):
       continue
