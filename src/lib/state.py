@@ -38,7 +38,7 @@ class State(tensor.Tensor):
     dprod = np.sum(np.conj(self) * self)
     self /= np.sqrt(np.real(dprod))
 
-  def ampl(self, *bits) -> float:
+  def ampl(self, *bits) -> np.complexfloating:
     """Return amplitude for state indexed by 'bits'."""
 
     idx = helper.bits2val(bits)
