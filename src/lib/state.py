@@ -36,7 +36,7 @@ class State(tensor.Tensor):
   def normalize(self) -> None:
     """Renormalize the state so that the sum of squared amplitude eq 1.0."""
 
-    dprod = np.sum(np.conj(self) * self)
+    dprod = np.conj(self) @ self
     self /= np.sqrt(np.real(dprod))
 
   def ampl(self, *bits: int) -> np.complexfloating:
