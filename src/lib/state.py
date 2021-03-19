@@ -4,6 +4,7 @@
 import cmath
 import math
 import random
+from typing import Optional
 
 import numpy as np
 
@@ -148,7 +149,7 @@ class State(tensor.Tensor):
 # be distinguished when multiplied with an arbitrary complex number, aka,
 # global phase.
 #
-def qubit(alpha:float=None, beta:float=None) -> State:
+def qubit(alpha: Optional[float]=None, beta: Optional[float]=None) -> State:
   """Produce a given state for a single qubit."""
 
   if alpha is None and beta is None:
