@@ -4,6 +4,7 @@
 import cmath
 import math
 import random
+from typing import List, Optional
 
 import numpy as np
 
@@ -26,7 +27,7 @@ class State(tensor.Tensor):
     s += super().__str__()
     return s
 
-  def dump(self, desc=None, prob_only=True) -> None:
+  def dump(self, desc: Optional[str]=None, prob_only: bool=True) -> None:
     dump_state(self, desc, prob_only)
 
   def density(self) -> tensor.Tensor:
@@ -283,7 +284,7 @@ def state_to_string(bits) -> str:
   return '|{:s}> (|{:d}>)'.format(s, int(s, 2))
 
 
-def dump_state(psi, description=None, prob_only=None) -> None:
+def dump_state(psi, description: Optional[str]=None, prob_only: bool=False) -> None:
   """Dump probabilities for a state as well as local qubit state."""
 
   if description:
@@ -292,7 +293,7 @@ def dump_state(psi, description=None, prob_only=None) -> None:
       print(i % 10, end='')
     print(f'> \'{description}\'')
 
-  l = []
+  l: List[str] = []
   for bits in helper.bitprod(psi.nbits):
     if prob_only and (psi.prob(*bits) < 10e-6):
       continue
