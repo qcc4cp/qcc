@@ -38,13 +38,13 @@ class State(tensor.Tensor):
     dprod = np.sum(np.conj(self) * self)
     self /= np.sqrt(np.real(dprod))
 
-  def ampl(self, *bits) -> np.complexfloating:
+  def ampl(self, *bits: int) -> np.complexfloating:
     """Return amplitude for state indexed by 'bits'."""
 
     idx = helper.bits2val(bits)
     return self[idx]
 
-  def prob(self, *bits) -> float:
+  def prob(self, *bits: int) -> float:
     """Return probability for state indexed by 'bits'."""
 
     amplitude = self.ampl(*bits)
