@@ -50,11 +50,11 @@ class State(tensor.Tensor):
     amplitude = self.ampl(*bits)
     return np.real(amplitude.conj() * amplitude)
 
-  def phase(self, *bits) -> float:
+  def phase(self, *bits: int) -> float:
     """Return phase of state denoted by state_as_binary."""
 
     amplitude = self.ampl(*bits)
-    return cmath.polar(amplitude)[1] / math.pi * 180.0
+    return math.degrees(cmath.phase(amplitude))
 
   def maxprob(self):
     """Find state with highest probability."""
