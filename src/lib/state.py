@@ -177,7 +177,7 @@ def qubit(alpha:float=None, beta:float=None) -> State:
 #   always [1, 0, 0, ..., 0]T or [0, 0, 0, ..., 1]T
 #
 # The helper function zeros_or_ones expects idx to be set appropriately.
-def zeros_or_ones(d=1, idx=0) -> State:
+def zeros_or_ones(d: int=1, idx: int=0) -> State:
   """Produce the all-zero/one computational basis vector for `d` qubits."""
 
   if d < 1:
@@ -188,12 +188,12 @@ def zeros_or_ones(d=1, idx=0) -> State:
   return State(t)
 
 
-def zeros(d=1) -> State:
+def zeros(d: int=1) -> State:
   """Produce state with 'd' |0>, eg., |0000>."""
   return zeros_or_ones(d, 0)
 
 
-def ones(d=1) -> State:
+def ones(d: int=1) -> State:
   """Produce state with 'd' |1>, eg., |1111>."""
   return zeros_or_ones(d, 2**d - 1)
 
@@ -211,12 +211,10 @@ def bitstring(*bits) -> State:
   return State(t)
 
 
-def rand(n:int):
+def rand(n: int) -> State:
   """Produce random combination of |0> and |1>."""
 
-  bits = [0] * n
-  for i in range(n):
-    bits[i] = random.randint(0, 1)
+  bits = [random.randint(0, 1) for _ in range(n)]
   return bitstring(*bits)
 
 
