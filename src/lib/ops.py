@@ -5,6 +5,8 @@
 
 import cmath
 import math
+from typing import Optional
+
 import numpy as np
 
 from src.lib import helper
@@ -27,14 +29,14 @@ class Operator(tensor.Tensor):
     s += super().__str__()
     return s
 
-  def dump(self, description=None, zeros=False):
+  def dump(self, description: Optional[str]=None, zeros: bool=False) -> None:
     res = ''
     if description:
       res += f'{description} ({self.nbits}-qubits operator)\n'
     for row in range(self.shape[0]):
       for col in range(self.shape[1]):
         val = self[row, col]
-        res += '{:+.1f}{:+.1f}i  '.format(val.real, val.imag)
+        res += f'{val.real:+.1f}{val.imag:+.1f}i  '
       res += '\n'
     if not zeros:
       res = res.replace('+0.0i', '    ')
