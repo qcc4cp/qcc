@@ -18,11 +18,6 @@ class HelpersTest(absltest.TestCase):
     val = helper.bits2val(bits)
     self.assertEqual(val, 6)
 
-  def test_angles(self):
-    angle = helper.to_deg(math.pi)
-    rad = helper.to_rad(angle)
-    self.assertTrue(math.isclose(rad, math.pi))
-
   def test_density_to_cartesian(self):
     """Test density to cartesian conversion."""
 
