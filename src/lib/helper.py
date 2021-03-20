@@ -7,17 +7,6 @@ from typing import List, Sequence
 
 import numpy as np
 
-def to_rad(angle) -> float:
-  """Convert angle (in degree) to radiants."""
-
-  return math.pi / 180 * angle
-
-
-def to_deg(rad) -> float:
-  """Convert radiants to angle."""
-
-  return rad / math.pi * 180.0
-
 
 def bitprod(nbits):
   """Produce the iterable cartesian of nbits {0, 1}."""
