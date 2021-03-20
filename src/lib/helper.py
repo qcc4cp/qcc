@@ -79,7 +79,7 @@ def pi_fractions(val, pi='pi') -> str:
     return ''
   if val == 0:
     return '0'
-  for pi_multiplier in range(1, 128):
+  for pi_multiplier in range(1, 4):
     for denom in range(-128, 128):
       if denom and math.isclose(val, pi_multiplier * math.pi / denom):
         pi_str = ''
