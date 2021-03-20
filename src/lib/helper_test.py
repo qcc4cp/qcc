@@ -56,5 +56,14 @@ class HelpersTest(absltest.TestCase):
     self.assertEqual(helper.bits2frac((1, 0), 2), 0.5)
     self.assertEqual(helper.bits2frac((1, 1), 2), 0.75)
 
+  def test_pi_fractions(self) -> None:
+    self.assertEqual(helper.pi_fractions(-3 * math.pi / 2), '-3*pi/2')
+    self.assertEqual(helper.pi_fractions(3 * math.pi / 2), '3*pi/2')
+    self.assertEqual(helper.pi_fractions(-3 * math.pi), '-3*pi')
+    self.assertEqual(helper.pi_fractions(math.pi * 3), '3*pi')
+    self.assertEqual(helper.pi_fractions(math.pi / 3), 'pi/3')
+    self.assertEqual(helper.pi_fractions(math.pi / -2), '-pi/2')
+
+
 if __name__ == '__main__':
   absltest.main()
