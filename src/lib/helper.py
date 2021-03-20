@@ -79,19 +79,19 @@ def pi_fractions(val, pi='pi') -> str:
     return ''
   if val == 0:
     return '0'
-  for pi_multiplier in range(1, 2):
-    for frac in range(-128, 128):
-      if frac and math.isclose(val, pi_multiplier * math.pi / frac):
+  for pi_multiplier in range(1, 128):
+    for denom in range(-128, 128):
+      if denom and math.isclose(val, pi_multiplier * math.pi / denom):
         pi_str = ''
         if pi_multiplier != 1:
-          pi_str = '{}*'.format(abs(pi_multiplier))
-        if frac == -1:
-          return '-{}{}'.format(pi_str, pi)
-        if frac < 0:
-          return '-{}{}/{}'.format(pi_str, pi, -frac)
-        if frac == 1:
-          return '{}{}'.format(pi_str, pi)
-        return '{}{}/{}'.format(pi_str, pi, frac)
+          pi_str = f'{abs(pi_multiplier)}*'
+        if denom == -1:
+          return f'-{pi_str}{pi}'
+        if denom < 0:
+          return f'-{pi_str}{pi}/{-denom}'
+        if denom == 1:
+          return f'{pi_str}{pi}'
+        return f'{pi_str}{pi}/{denom}'
 
   # couldn't find fractional, just return original value.
   return f'{val}'
