@@ -199,6 +199,9 @@ class qc:
   def h(self, idx):
     self.apply1(ops.Hadamard(), idx, 'h')
 
+  def s(self, idx):
+    self.apply1(ops.Sgate(), idx, 's')
+
   def t(self, idx):
     self.apply1(ops.Tgate(), idx, 't')
 

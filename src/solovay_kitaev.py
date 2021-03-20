@@ -92,7 +92,8 @@ def gc_decomp(U):
   # We know how to compute theta from u_to_bloch().
   theta = 2.0 * np.arccos(np.real(tr / 2))
   # The angle phi comes from eq 10 in 'The Solovay-Kitaev Algorithm' by
-  # Dawson, Nielsen.
+  # Dawson, Nielsen. It is fully derived in the book section on the
+  # theorem and algorithm.
   phi = 2.0 * np.arcsin(np.sqrt(np.sqrt((0.5 - 0.5 * np.cos(theta / 2)))))
 
   axis, _ = u_to_bloch(U)
@@ -102,12 +103,10 @@ def gc_decomp(U):
   else:
     W = ops.RotationY(phi)
 
-  V1 = diagonalize(U)
-  V2 = diagonalize(V @ W @ V.adjoint() @ W.adjoint())
-  S = V1 @ V2.adjoint()
-  V_tilde = S @ V @ S.adjoint()
-  W_tilde = S @ W @ S.adjoint()
-  return V_tilde, W_tilde
+  S = diagonalize(U) @ diagonalize(V @ W @ V.adjoint() @ W.adjoint())
+  V_hat = S @ V @ S.adjoint()
+  W_hat = S @ W @ S.adjoint()
+  return V_hat, W_hat
 
 
 def sk_algo(U, gates, n):

@@ -33,8 +33,11 @@ class State(tensor.Tensor):
   def density(self) -> tensor.Tensor:
     return tensor.Tensor(np.outer(self.conj(), self))
 
+  def adjoint(self) -> tensor.Tensor:
+    return self.conj().transpose()
+
   def normalize(self) -> None:
-    """Renormalize the state so that the sum of squared amplitude eq 1.0."""
+    """Renormalize the state so that the sum of squared amplitudes eq 1.0."""
 
     dprod = np.conj(self) @ self
     self /= np.sqrt(np.real(dprod))
@@ -52,7 +55,7 @@ class State(tensor.Tensor):
     return np.real(amplitude.conj() * amplitude)
 
   def phase(self, *bits: int) -> float:
-    """Return phase of state denoted by state_as_binary."""
+    """Return phase of a state from the complex amplitude."""
 
     amplitude = self.ampl(*bits)
     return math.degrees(cmath.phase(amplitude))
@@ -149,7 +152,8 @@ class State(tensor.Tensor):
 # be distinguished when multiplied with an arbitrary complex number, aka,
 # global phase.
 #
-def qubit(alpha: Optional[np.complexfloating]=None, beta: Optional[np.complexfloating]=None) -> State:
+def qubit(alpha: Optional[np.complexfloating]=None,
+          beta: Optional[np.complexfloating]=None) -> State:
   """Produce a given state for a single qubit."""
 
   if alpha is None and beta is None:
