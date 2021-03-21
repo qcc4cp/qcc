@@ -184,6 +184,9 @@ def U1(lam):
                             (0.0, cmath.exp(1j * lam))]))
 
 
+_PAULI_VECTOR = np.array([PauliX(), PauliY(), PauliZ()])
+
+
 # Make a single-qubit rotation operator.
 # This is a simple implementation of the mechanism outlined here:
 # http://www.vcpc.univie.ac.at/~ian/hotlist/qc/talks/bloch-sphere-rotations.pdf
@@ -196,7 +199,7 @@ def Rotation(v, theta):
     raise ValueError('Rotation vector v must be a 3D real unit vector.')
 
   return np.cos(theta / 2) * Identity() - 1j * np.sin(theta / 2) * (
-      v[0] * PauliX() + v[1] * PauliY() + v[2] * PauliZ())
+      np.tensordot(v, pauli_vector, axes=1))
 
 
 def RotationX(theta):
