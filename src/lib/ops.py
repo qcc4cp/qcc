@@ -199,7 +199,7 @@ def Rotation(v, theta):
     raise ValueError('Rotation vector v must be a 3D real unit vector.')
 
   return np.cos(theta / 2) * Identity() - 1j * np.sin(theta / 2) * (
-      np.tensordot(v, pauli_vector, axes=1))
+      np.tensordot(v, _PAULI_VECTOR, axes=1))
 
 
 def RotationX(theta):
