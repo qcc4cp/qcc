@@ -202,6 +202,9 @@ class qc:
   def s(self, idx):
     self.apply1(ops.Sgate(), idx, 's')
 
+  def sdag(self, idx):
+    self.apply1(ops.Sgate().adjoint(), idx, 'sdag')
+
   def t(self, idx):
     self.apply1(ops.Tgate(), idx, 't')
 

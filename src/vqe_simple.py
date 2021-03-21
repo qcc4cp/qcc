@@ -160,7 +160,7 @@ def run_zi_experiment():
       print()
 
 
-def run_single_qubit_experiment_greedy():
+def run_single_qubit_mult():
   """Run experiments with single qubits."""
 
   # Construct Hamiltonian.
@@ -185,6 +185,7 @@ def run_single_qubit_experiment_greedy():
 
       # Compute <psi | H | psi>. Find smallest one, which will be
       # the best approximation to the minimal eigenvalue from above.
+      # In this version, we just multiply out the result.
       psi = (H(ansatz.psi))
       psi = np.dot(ansatz.psi.adjoint(), H(ansatz.psi))
       if psi < min_val:
@@ -195,14 +196,62 @@ def run_single_qubit_experiment_greedy():
       eigvals[0], np.real(min_val), np.real(min_val - eigvals[0])))
 
 
+
+def run_single_qubit():
+  """Run measurement experiments with single qubits."""
+
+  # Construct Hamiltonian.
+  a = random.random()
+  b = random.random()
+  c = random.random()
+  H = (a * ops.PauliX() + b * ops.PauliY() + c * ops.PauliZ())
+
+  # Compute known minimal eigenvalue.
+  eigvals = np.linalg.eigvalsh(H)
+
+  min_val = 1000.0
+  for i in range(0, 360, 5):
+    for j in range(0, 180, 5):
+
+      theta = np.pi * i / 360.0
+      phi = np.pi * j / 180.0
+
+      qc = circuit.qc('single-qubit ansatz X')
+      qc.qubit(1.0)
+      qc.rx(0, theta)
+      qc.ry(0, phi)
+      qc.h(0)
+      val_a = a * qc.pauli_expectation(0)
+
+      qc = circuit.qc('single-qubit ansatz Y')
+      qc.qubit(1.0)
+      qc.rx(0, theta)
+      qc.ry(0, phi)
+      qc.sdag(0)
+      qc.h(0)
+      val_b = b * qc.pauli_expectation(0)
+
+      qc = circuit.qc('single-qubit ansatz Z')
+      qc.qubit(1.0)
+      qc.rx(0, theta)
+      qc.ry(0, phi)
+      val_c = c * qc.pauli_expectation(0)
+
+      expectation = val_a + val_b + val_c
+      if expectation < min_val:
+        min_val = expectation
+
+  print(f'Minimal eigenvalue: {eigvals[0]:.3f}, Delta: {min_val - eigvals[0]:.3f}')
+
+
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  for i in range(10):
-    run_single_qubit_experiment_greedy()
-
-  print('Variational Quantum Eigensolver. Approximating Z x I, target: 1.0')
+  for i in range(5):
+    run_single_qubit()
+  for i in range(5):
+    run_single_qubit_mult()
   run_zi_experiment()
 
 
