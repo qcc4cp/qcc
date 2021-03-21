@@ -192,7 +192,7 @@ def Rotation(v, theta):
   """Produce the single-qubit rotation operator."""
 
   v = np.array(v)
-  if v.shape != (3,) or abs(v.dot(v) - 1.0) > 1e-8 or not np.all(np.isreal(v)):
+  if v.shape != (3,) or not np.isclose(a @ a, 1) or not np.all(np.isreal(v)):
     raise ValueError('Rotation vector v must be a 3D real unit vector.')
 
   return np.cos(theta / 2) * Identity() - 1j * np.sin(theta / 2) * (
