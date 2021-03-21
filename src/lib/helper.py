@@ -51,14 +51,21 @@ def density_to_cartesian(rho):
 
 def qubit_to_bloch(psi):
   """Compute Bloch spere coordinates from 2x1 state vector/qubit."""
-  
+
   return density_to_cartesian(psi.density())
 
 
 def dump_bloch(x, y, z):
   """Textual output for Bloch sphere coordinates."""
 
-  print('x: {:.2f}, y: {:.2f}, z: {:.2f}'.format(x, y, z))
+  print(f'x: {x:.2f}, y: {y:.2f}, z: {z:.2f}')
+
+
+def qubit_dump_bloch(psi):
+  """Print Bloch coordinates for state psi."""
+
+  x, y, z = helper.qubit_to_bloch(psi)
+  helper.dump_bloch(x, y, z)
 
 
 def pi_fractions(val, pi='pi') -> str:
@@ -84,5 +91,3 @@ def pi_fractions(val, pi='pi') -> str:
 
   # couldn't find fractional, just return original value.
   return f'{val}'
-
-

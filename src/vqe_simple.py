@@ -34,11 +34,15 @@
 
 import math
 import random
+import numpy as np
 
 from absl import app
 from absl import flags
 
 from src.lib import circuit
+from src.lib import helper
+from src.lib import ops
+from src.lib import state
 
 flags.DEFINE_integer('experiments', 1000, 'Number of experiments')
 flags.DEFINE_integer('shots', 1000, 'Number of random samples')
@@ -95,7 +99,7 @@ def ansatz(qc):
   qc.rz(1, angles[9])
 
 
-def run_experiment():
+def run_zi_experiment():
   """Run VQE experiments with a given ansatz."""
 
   # Best achieved result. Goal is to get as close to +1 as possible.
@@ -110,6 +114,7 @@ def run_experiment():
     # Construct and run the circuit.
     qc = circuit.qc('vqe')
     ansatz(qc)
+    qc.z(0)
 
     # Measure the probablities as computed from the amplitudes.
     # We only do this once per experiment.
@@ -155,12 +160,50 @@ def run_experiment():
       print()
 
 
+def run_single_qubit_experiment_greedy():
+  """Run experiments with single qubits."""
+
+  # Construct Hamiltonian.
+  H = (random.random() * ops.PauliX() +
+       random.random() * ops.PauliY() +
+       random.random() * ops.PauliZ())
+  # Compute known minimal eigenvalue.
+  eigvals = np.linalg.eigvalsh(H)
+
+  # Brute force over the Bloch sphere.
+  min_val = 1000.0
+  for i in range(0, 180, 10):
+    for j in range(0, 180, 10):
+      theta = np.pi * i / 180.0
+      phi = np.pi * j / 180.0
+
+      # Build the ansatz with two rotation gates.
+      ansatz = circuit.qc('single-qubit ansatz vqe')
+      ansatz.qubit(1.0)
+      ansatz.rx(0, theta)
+      ansatz.ry(0, phi)
+
+      # Compute <psi | H | psi>. Find smallest one, which will be
+      # the best approximation to the minimal eigenvalue from above.
+      psi = (H(ansatz.psi))
+      psi = np.dot(ansatz.psi.adjoint(), H(ansatz.psi))
+      if psi < min_val:
+        min_val = psi
+
+  # Result from brute force approach:
+  print('Minimal: {:.4f}, Estimated: {:.4f}, Delta: {:.4f}'.format(
+      eigvals[0], np.real(min_val), np.real(min_val - eigvals[0])))
+
+
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  print('Variational Quantum Eigensolver. Approximating Sz x I, target: 1.0')
-  run_experiment()
+  for i in range(10):
+    run_single_qubit_experiment_greedy()
+
+  print('Variational Quantum Eigensolver. Approximating Z x I, target: 1.0')
+  run_zi_experiment()
 
 
 if __name__ == '__main__':

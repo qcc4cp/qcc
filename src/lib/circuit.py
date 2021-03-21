@@ -243,6 +243,14 @@ class qc:
   def measure_bit(self, idx, tostate=0, collapse=True):
     return ops.Measure(self.psi, idx, tostate, collapse)
 
+  def pauli_expectation(self, idx):
+    """We can compute the Pauli expectation value from probabilities."""
+
+    # Pauli eigenvalues are -1 and +1, hence we can compute the
+    # expectation value like this:
+    p0, _ = self.measure_bit(idx, 0, False)
+    return p0 - (1 - p0)
+
   def sample_state(self, prob_state0):
     if prob_state0 < random.random():
       return 1
