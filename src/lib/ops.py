@@ -188,10 +188,9 @@ def U1(lam):
 # This is a simple implementation of the mechanism outlined here:
 # http://www.vcpc.univie.ac.at/~ian/hotlist/qc/talks/bloch-sphere-rotations.pdf
 #        (page 22)
-def Rotation(v, theta):
+def Rotation(v: np.ndarray, theta: float) -> np.ndarray:
   """Produce the single-qubit rotation operator."""
 
-  v = np.array(v)
   if v.shape != (3,) or not np.isclose(a @ a, 1) or not np.all(np.isreal(v)):
     raise ValueError('Rotation vector v must be a 3D real unit vector.')
 
