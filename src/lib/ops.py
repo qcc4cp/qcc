@@ -40,6 +40,7 @@ class Operator(tensor.Tensor):
       res += '\n'
     if not zeros:
       res = res.replace('+0.0i', '    ')
+      res = res.replace('-0.0i', '    ')
       res = res.replace('+0.0', ' -  ')
       res = res.replace('-0.0', ' -  ')
       res = res.replace('+', ' ')
