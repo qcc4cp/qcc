@@ -175,14 +175,14 @@ def Yroot(d=1):
 
 
 # Rk is the rotation gate used in QFT.
-def Rk(k):
+def Rk(k, d=1):
   return Operator(np.array([(1.0, 0.0),
-                            (0.0, cmath.exp(2.0 * cmath.pi * 1j / 2**k))]))
+                            (0.0, cmath.exp(2.0 * cmath.pi * 1j / 2**k))]))**d
 
 
-def U1(lam):
+def U1(lam, d=1):
   return Operator(np.array([(1.0, 0.0),
-                            (0.0, cmath.exp(1j * lam))]))
+                            (0.0, cmath.exp(1j * lam))]))**d
 
 
 # Make a single-qubit rotation operator.
