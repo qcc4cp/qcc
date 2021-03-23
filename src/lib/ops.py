@@ -29,7 +29,9 @@ class Operator(tensor.Tensor):
     s += super().__str__()
     return s
 
-  def dump(self, description: Optional[str]=None, zeros: bool=False) -> None:
+  def dump(self,
+           description: Optional[str]=None,
+           zeros: bool=False) -> None:
     res = ''
     if description:
       res += f'{description} ({self.nbits}-qubits operator)\n'
@@ -59,11 +61,11 @@ class Operator(tensor.Tensor):
   # following way:
   #    First create Identity ops up to idx
   #    Then tensor in the n-bits operator itself
-  #    The finish up by tensoring Identities until the size of the operator
-  #    matches the size of the state.
+  #    The finish up by tensoring Identities until the size of the
+  #    operator matches the size of the state.
   #
-  # Once the operator has been constructed a simple matmul does the application
-  # and produces a new state.
+  # Once the operator has been constructed a simple matmul does the
+  # application and produces a new state.
   #
   # On Operator:
   # -------------
@@ -80,7 +82,7 @@ class Operator(tensor.Tensor):
         arg = arg * Identity()**(self.nbits - idx - arg_bits)
 
       if self.nbits != arg.nbits:
-        raise AssertionError('Operator(Operator) with mis-matched dimensions.')
+        raise AssertionError('Operator(O) with mis-matched dimensions.')
 
       # Note: We reverse the order in this matmul. So:
       #   x(y) == y @ x
@@ -96,8 +98,8 @@ class Operator(tensor.Tensor):
       #   (YX)(psi)
       #
       # The function call should mirror this semantic, since parameters
-      # are typically evaluated first (and this mirrors the left to right
-      # in the pictorial):
+      # are typically evaluated first (and this mirrors the left to
+      # right in the pictorial):
       #   X(Y) = YX
       #
       return arg @ self
@@ -193,7 +195,8 @@ def Rotation(v: np.ndarray, theta: float) -> np.ndarray:
   """Produce the single-qubit rotation operator."""
 
   v = np.asarray(v)
-  if v.shape != (3,) or abs(v.dot(v) - 1.0) > 1e-8 or not np.all(np.isreal(v)):
+  if (v.shape != (3,) or abs(v.dot(v) - 1.0) > 1e-8 or
+      not np.all(np.isreal(v))):
     raise ValueError('Rotation vector v must be a 3D real unit vector.')
 
   return np.cos(theta / 2) * Identity() - 1j * np.sin(theta / 2) * (
@@ -213,19 +216,20 @@ def RotationZ(theta):
 
 
 def Projector(psi):
-  """Construct projection operator from state by computing outer product."""
+  """Construct projection operator for basis state from outer product."""
   return Operator(psi.density())
 
 
 # Note on indices for controlled operators:
 #
-# The important aspects are direction and difference, not absolute values. In
-# that regards, Op(0, 3, U) is the same as Op(1, 4, U) and Op(2,0) is the same
-# as Op(4, 2). We could have used -3 and +3, but felt this representation was
-# more intuitive.
+# The important aspects are direction and difference, not absolute
+# values. In that regards, Op(0, 3, U) is the same as Op(1, 4, U)
+# and Op(2,0) is the same as Op(4, 2). We could have used
+# -3 and +3, but felt this representation was more intuitive.
 #
-# Operator matrices are stored with all intermittend qubits (as Identities).
-# When applying an operator, the starting qubit index can be specified.
+# Operator matrices are stored with all intermittend qubits
+# (as Identities). When applying an operator, the starting qubit
+# index can be specified.
 def ControlledU(idx0, idx1, u):
   """Control qubit at idx1 via controlling qubit at idx0."""
 
@@ -234,8 +238,10 @@ def ControlledU(idx0, idx1, u):
 
   p0 = Projector(state.zeros(1))
   p1 = Projector(state.ones(1))
-  ifill = Identity(int(math.fabs(idx1 - idx0)) - 1)  # space between qubits
-  ufill = Identity()**u.nbits  # 'width' of U in terms of Identity matrices
+  # space between qubits
+  ifill = Identity(int(math.fabs(idx1 - idx0)) - 1)
+  # 'width' of U in terms of Identity matrices
+  ufill = Identity()**u.nbits
 
   if idx1 > idx0:
     if idx1 - idx0 > 1:
@@ -437,7 +443,7 @@ def TraceOut(rho, index_set):
 
 
 def Measure(psi, idx, tostate=0, collapse=True):
-  """Measure a qubit out of a state via a projector on the density matrix."""
+  """Measure a qubit via a projector on the density matrix."""
 
   # Measure() measure qubit 'idx' in state 'psi'. It both measures the
   # probability of the result being state `tostate` and, if `collapse`
@@ -468,7 +474,8 @@ def Measure(psi, idx, tostate=0, collapse=True):
     if divisor > 1e-10:
       normed = mvmul / np.real(np.linalg.norm(mvmul))
     else:
-      raise AssertionError('Measure() collapses to 0.0 probability state')
+      raise AssertionError(
+          'Measure() collapses to 0.0 probability state')
     return np.real(prob0), state.State(normed)
 
   # Return original state to enable chaining.
