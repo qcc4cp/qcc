@@ -73,8 +73,8 @@ def main(argv):
 
   nbits = 3
   t = 6
-  print('Estimating {} qubits random unitary eigenvalue '.format(nbits) +
-        'with {} bits of accuracy'.format(t))
+  print('Estimating {} qubits random unitary eigenvalue '
+        .format(nbits) + 'with {} bits of accuracy'.format(t))
   for i in range(10):
     run_experiment(nbits, t)
 

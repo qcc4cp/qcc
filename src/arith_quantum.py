@@ -13,24 +13,16 @@ from src.lib import circuit
 from src.lib import helper
 
 # Note: The QFT was constructed when the bit order in the state
-#    initializers was wrongly inverted. After I corrected the bit order,
-#    this code here could change. However, the index expressions appear
-#    to be simpler in this order, so I decided to keep it in this (wrong)
-#    order and instead just invert the in/out bits.
+#    initializers was wrongly inverted. After I corrected the bit
+#    order, this code here could change. However, the index
+#    expressions appear to be simpler in this order, so I decided
+#    to keep it in this order and instead just invert the in/out bits.
 
 # Quantum addition / subtraction / multiplication based on QFT.
-#
-# A nice description can be found here:
-#  https://medium.com/@sashwat.anagolum/qftaddition-ce0a0b2bc4f4
 #
 # The following code is interesting in that the QFT here uses
 # a different initial power of two (ops.qft starts with 2 pi,
 # this one just with pi).
-#
-# This qft would work in phase estimation, even though with slightly
-# worse accuracy, while the opposite is not true.
-#
-# TODO(rhundt): Analyze why exactly.
 
 
 def check_result(psi, a, b, nbits, factor=1.0):
@@ -138,7 +130,7 @@ def main(argv):
 
   print('Check quantum subtraction...')
   for i in range(8):
-    for j in range(0, i):  # Note: Results are 'correct' as 2nd complements.
+    for j in range(0, i):  # Note: Results can be 2nd complements.
       arith_quantum(6, i, j, -1.0)
 
   print('Check quantum (pseudo) multiplication...')

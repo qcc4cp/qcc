@@ -243,10 +243,12 @@ def sim_circuit(states, nbits, depth, target_nbits, target_depth):
     duration = end_time - start_time
 
     if ngates > 0:
-      print('Depth={:2d}, Time: {:.2f} Iter: {:.3f} [Sec] {:.3f}/g {:.3f}/g/b'.
+      print(('Depth={:2d}, Time: {:.2f} Iter: {:.3f} [Sec]' +
+             '{:.3f}/g {:.3f}/g/b').
             format(d, duration, duration / (d + 1),
                    duration / ngates,
-                   1000000000 * duration / ngates / (2 ** (nbits-1) * 16)))
+                   1000000000 * duration / ngates /
+                   (2 ** (nbits-1) * 16)))
 
   qc.dump_to_file()
 
@@ -279,16 +281,22 @@ def sim_circuit(states, nbits, depth, target_nbits, target_depth):
   print('Estimated gate density    : {:.2f}'.format(gate_ratio))
 
   estimated_sim_time_secs = (
-      (duration / ngates / (2**(nbits-1) * 16)) *  # time per gate per byte
-      target_nbits *   # gates
-      gate_ratio *
-      target_depth *   # depth
-      2**(target_nbits-1) * 16 /
-      flags.FLAGS.machines /  # machines
-#      flags.FLAGS.ccfactor /  # Python factor
-      flags.FLAGS.cores)   # Cores
+      # time per gate per byte
+      (duration / ngates / (2**(nbits-1) * 16))
+      # gates
+      * target_nbits
+      # gate ratio scaling factor to circuit size
+      * gate_ratio
+      # depth
+      * target_depth
+      # memory
+      * 2**(target_nbits-1) * 16
+      # number of machines
+      / flags.FLAGS.machines
+      # Active core per machine
+      / flags.FLAGS.cores)
 
-  print('Estimated sim for {} qbits: {:.2f} y or {:.2f} d or ({:.0f} sec)'.
+  print('Estimated for {} qbits: {:.2f} y or {:.2f} d or ({:.0f} sec)'.
         format(target_nbits,
                estimated_sim_time_secs / 3600 / 24 / 365,
                estimated_sim_time_secs / 3600 / 24,

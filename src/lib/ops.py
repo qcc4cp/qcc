@@ -230,7 +230,7 @@ def Projector(psi:state.State) -> Operator:
 # Operator matrices are stored with all intermittend qubits
 # (as Identities). When applying an operator, the starting qubit
 # index can be specified.
-def ControlledU(idx0:int, idx1:int, u) -> Operator:
+def ControlledU(idx0:int, idx1:int, u:Operator) -> Operator:
   """Control qubit at idx1 via controlling qubit at idx0."""
 
   if idx0 == idx1:

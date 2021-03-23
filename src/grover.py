@@ -12,7 +12,7 @@ from src.lib import state
 
 
 def make_f(d=3):
-  """Construct function that will return 1 for only a single bit string."""
+  """Construct function that will return 1 for only one bit string."""
 
   num_inputs = 2**d
   answers = np.zeros(num_inputs, dtype=np.int32)
@@ -55,16 +55,15 @@ def run_experiment(nbits) -> None:
   zero_projector[0, 0] = 1
   op_zero = ops.Operator(zero_projector)
 
-  # Make f and Uf. Note: We reserve space for an ancilla 'y', which is unused
-  # in Grover's algorithm. This allows reuse of the Deutsch Uf builder.
+  # Make f and Uf. Note:
+  # We reserve space for an ancilla 'y', which is unused in
+  # Grover's algorithm. This allows reuse of the Deutsch Uf builder.
   #
-  # We use the Oracle construction for convenience. It is rather slow (full
-  # matrix) for larger qubit counts. Once can construct a 'regular' function
-  # for the grover search algorithms, but this function is different for
-  # each bitstring and that quickly gets quite confusing.
-  #
-  # Good examples for 2-qubit and 3-qubit functions can be found here:
-  #    https://qiskit.org/textbook/ch-algorithms/grover.html#3qubits
+  # We use the Oracle construction for convenience. It is rather
+  # slow (full matrix) for larger qubit counts. Once can construct
+  # a 'regular' function for the grover search algorithms, but this
+  # function is different for each bitstring and that quickly gets
+  # confusing.
   #
   f = make_f(nbits)
   u = ops.OracleUf(nbits+1, f)

@@ -104,7 +104,8 @@ def run_experiment(nbits_phase, nbits_grover, solutions) -> None:
   # as M, the number of solutions, gets closer and closer to N,
   # the total mnumber of states.
   maxbits, maxprob = psi.maxprob()
-  phi_estimate = sum(maxbits[i] * 2**(-i - 1) for i in range(nbits_phase))
+  phi_estimate = (sum(maxbits[i] * 2**(-i - 1)
+                      for i in range(nbits_phase)))
 
   # We know that after phase estimation, this holds:
   #
@@ -116,8 +117,8 @@ def run_experiment(nbits_phase, nbits_grover, solutions) -> None:
   # the 1/2 in above formula cancels out against the 2 and we compute:
   M = round(n * math.sin(phi_estimate * math.pi)**2, 2)
 
-  print('Estimate: {:.4f} prob: {:5.2f}% --> M: {:5.2f}, want: {:2d}'.format(
-      phi_estimate, maxprob * 100.0, M, solutions))
+  print('Estimate: {:.4f} prob: {:5.2f}% --> M: {:5.2f}, want: {:2d}'
+        .format(phi_estimate, maxprob * 100.0, M, solutions))
 
 
 def main(argv):

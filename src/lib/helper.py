@@ -16,7 +16,7 @@ def bitprod(nbits):
 
 
 def bits2val(bits: Sequence[int]) -> int:
-  """For a given enumeratable bits, compute the corresponding decimal integer."""
+  """For given bits, compute the decimal integer."""
 
   # We assume bits are given in high to low order. For example,
   # the bits [1, 1, 0] will produce the value 6.
@@ -32,7 +32,7 @@ def val2bits(val: int, nbits: int) -> List[int]:
 
 
 def bits2frac(bits, length):
-  """For a given enumeratable bits, compute the binary fraction."""
+  """For given bits, compute the binary fraction."""
 
   return sum(bits[i] * 2**(-i-1) for i in range(length))
 
