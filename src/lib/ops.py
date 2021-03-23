@@ -71,7 +71,7 @@ class Operator(tensor.Tensor):
   # -------------
   # Op(op) equals Op @ op equal matmul(Op, op), to produce a new state.
   #
-  def _apply(self, arg, idx):
+  def _apply(self, arg, idx:int) -> state.State:
     """Apply operator to a state or operator."""
 
     if isinstance(arg, Operator):
@@ -122,67 +122,67 @@ class Operator(tensor.Tensor):
 #--------------------------------------------------------------
 # Single Qubit Gates / Generators.
 #--------------------------------------------------------------
-def Identity(d=1):
+def Identity(d:int=1) -> Operator:
   return Operator(np.array([[1.0, 0.0], [0.0, 1.0]]))**d
 
 
-def PauliX(d=1):
+def PauliX(d:int=1) -> Operator:
   return Operator(np.array([[0.0, 1.0], [1.0, 0.0]]))**d
 
 
-def PauliY(d=1):
+def PauliY(d:int=1) -> Operator:
   return Operator(np.array([[0.0, -1.0j], [1.0j, 0.0]]))**d
 
 
-def PauliZ(d=1):
+def PauliZ(d:int=1) -> Operator:
   return Operator(np.array([[1.0, 0.0], [0.0, -1.0]]))**d
 
 
-def Pauli(d=1):
+def Pauli(d:int=1) -> Operator:
   return Identity(d), PauliX(d), PauliY(d), PauliZ(d)
 
 
-def Hadamard(d=1):
+def Hadamard(d:int=1) -> Operator:
   return Operator(
       1 / np.sqrt(2) *
       np.array([[1.0, 1.0], [1.0, -1.0]]))**d
 
 
 # Phase gate, also called S or Z90. Rotate by 90 deg around z-axis.
-def Phase(d=1):
+def Phase(d:int=1) -> Operator:
   return Operator(np.array([[1.0, 0.0], [0.0, 1.0j]]))**d
 
 
 # Phase gate is also called S-gate.
-def Sgate(d=1):
+def Sgate(d:int=1) -> Operator:
   return Phase(d)
 
 
 # T-gate, which is sqrt(S).
-def Tgate(d=1):
+def Tgate(d:int=1) -> Operator:
   return Operator(np.array([[1.0, 0.0],
                             [0.0, cmath.exp(cmath.pi * 1j / 4)]]))**d
 
 
 # V-gate, which is sqrt(X)
-def Vgate(d=1):
+def Vgate(d:int=1) -> Operator:
   return Operator(0.5 * np.array([(1+1j, 1-1j), (1-1j, 1+1j)]))**d
 
 
 # Yroot is sqrt(Y).
-def Yroot(d=1):
+def Yroot(d:int=1) -> Operator:
   """As found in: https://arxiv.org/pdf/quant-ph/0511250.pdf."""
 
   return Operator(0.5 * np.array([(1+1j, -1-1j), (1+1j, 1+1j)]))**d
 
 
 # Rk is the rotation gate used in QFT.
-def Rk(k, d=1):
+def Rk(k:int, d:int=1) -> Operator:
   return Operator(np.array([(1.0, 0.0),
                             (0.0, cmath.exp(2.0 * cmath.pi * 1j / 2**k))]))**d
 
 
-def U1(lam, d=1):
+def U1(lam:float, d:int=1) -> Operator:
   return Operator(np.array([(1.0, 0.0),
                             (0.0, cmath.exp(1j * lam))]))**d
 
@@ -203,19 +203,19 @@ def Rotation(v: np.ndarray, theta: float) -> np.ndarray:
       v[0] * PauliX() + v[1] * PauliY() + v[2] * PauliZ())
 
 
-def RotationX(theta):
+def RotationX(theta:float) -> Operator:
   return Rotation([1., 0., 0.], theta)
 
 
-def RotationY(theta):
+def RotationY(theta:float) -> Operator:
   return Rotation([0., 1., 0.], theta)
 
 
-def RotationZ(theta):
+def RotationZ(theta:float) -> Operator:
   return Rotation([0., 0., 1.], theta)
 
 
-def Projector(psi):
+def Projector(psi:state.State) -> Operator:
   """Construct projection operator for basis state from outer product."""
   return Operator(psi.density())
 
@@ -230,7 +230,7 @@ def Projector(psi):
 # Operator matrices are stored with all intermittend qubits
 # (as Identities). When applying an operator, the starting qubit
 # index can be specified.
-def ControlledU(idx0, idx1, u):
+def ControlledU(idx0:int, idx1:int, u) -> Operator:
   """Control qubit at idx1 via controlling qubit at idx0."""
 
   if idx0 == idx1:
@@ -239,7 +239,7 @@ def ControlledU(idx0, idx1, u):
   p0 = Projector(state.zeros(1))
   p1 = Projector(state.ones(1))
   # space between qubits
-  ifill = Identity(int(math.fabs(idx1 - idx0)) - 1)
+  ifill = Identity(abs(idx1 - idx0) - 1)
   # 'width' of U in terms of Identity matrices
   ufill = Identity()**u.nbits
 
@@ -256,13 +256,13 @@ def ControlledU(idx0, idx1, u):
   return op
 
 
-def Cnot(idx0=0, idx1=1):
+def Cnot(idx0:int=0, idx1:int=1) -> Operator:
   """Controlled Not between idx0 and idx1, controlled by |1>."""
 
   return ControlledU(idx0, idx1, PauliX())
 
 
-def Cnot0(idx0=0, idx1=1):
+def Cnot0(idx0:int=0, idx1:int=1) -> Operator:
   """Controlled Not between idx0 and idx1, controlled by |0>."""
 
   if idx1 > idx0:
@@ -276,7 +276,7 @@ def Cnot0(idx0=0, idx1=1):
 #   https://algassert.com/post/1717 (from fellow Googler Craig Gidney)
 #
 # pylint: disable=arguments-out-of-order
-def Swap(idx0=0, idx1=1):
+def Swap(idx0:int=0, idx1:int=1) -> Operator:
   """Swap qubits at idx0 and idx1 via combination of Cnot gates."""
 
   return Cnot(idx1, idx0) @ Cnot(idx0, idx1) @ Cnot(idx1, idx0)
@@ -289,7 +289,7 @@ def Swap(idx0=0, idx1=1):
 # For a Toffoli gate to control qubit 5 via cnot from 4 and 1:
 #    Toffoli(1, 4, 5)
 #
-def Toffoli(idx0, idx1, idx2):
+def Toffoli(idx0:int, idx1:int, idx2:int) -> Operator:
   """Make a toffoli gate."""
 
   cnot = Cnot(idx1, idx2)
@@ -297,7 +297,7 @@ def Toffoli(idx0, idx1, idx2):
   return toffoli
 
 
-def OracleUf(nbits, f):
+def OracleUf(nbits:int, f) -> Operator:
   """Make an n-qubit Oracle for function f (eg. Deutsch, Grover)."""
 
   # This Oracle is constructed similar to the implementation in
@@ -328,7 +328,7 @@ def OracleUf(nbits, f):
 # This follows the same method as OraceUf, but it does not
 # populate a matrix, it only collects the permutations.
 
-def Permutation(nbits, f):
+def Permutation(nbits:int, f) -> list:
   """Compute a permutation from function f."""
 
   dim = 2**nbits
@@ -358,7 +358,7 @@ def Permutation(nbits, f):
 # collapse to a random state. So this operator is usually only
 # a first step.
 #
-def Qft(nbits):
+def Qft(nbits:int) -> Operator:
   """Make an n-bit QFT operator."""
 
   op = Identity(nbits)
@@ -386,7 +386,7 @@ def Qft(nbits):
 # Trace out a qubit from a density matrix and return the
 # remaining density matrix.
 #
-def TraceOutSingle(rho, index):
+def TraceOutSingle(rho, index:int):
   """Trace out single qubit from density matrix."""
 
   nbits = int(math.log2(rho.shape[0]))
@@ -442,7 +442,7 @@ def TraceOut(rho, index_set):
   return rho
 
 
-def Measure(psi, idx, tostate=0, collapse=True):
+def Measure(psi:state.State, idx:int, tostate:int=0, collapse:bool=True):
   """Measure a qubit via a projector on the density matrix."""
 
   # Measure() measure qubit 'idx' in state 'psi'. It both measures the

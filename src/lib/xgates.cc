@@ -21,7 +21,8 @@ typedef std::complex<float> cmplxf;
 //   |  c  d |  -> | a b c d |
 //
 template <typename cmplx_type>
-void apply1(cmplx_type *psi, cmplx_type gate[4], int nbits, int tgt) {
+void apply1(cmplx_type *psi, cmplx_type gate[4],
+            int nbits, int tgt) {
   tgt = nbits - tgt - 1;
   int q2 = 1 << tgt;
   for (int g = 0; g < 1 << nbits; g += (1 << (tgt+1))) {
@@ -34,10 +35,11 @@ void apply1(cmplx_type *psi, cmplx_type gate[4], int nbits, int tgt) {
   }
 }
 
-// applycd applies a controlled gate to a state.
+// applyc applies a controlled gate to a state.
 //
 template <typename cmplx_type>
-void applyc(cmplx_type *psi, cmplx_type gate[4], int nbits, int ctl, int tgt) {
+void applyc(cmplx_type *psi, cmplx_type gate[4],
+            int nbits, int ctl, int tgt) {
   tgt = nbits - tgt - 1;
   ctl = nbits - ctl - 1;
   int q2 = 1 << tgt;
@@ -58,12 +60,14 @@ void applyc(cmplx_type *psi, cmplx_type gate[4], int nbits, int ctl, int tgt) {
 // Python wrapper functions to call above accelerators.
 
 template <typename cmplx_type, int npy_type>
-void apply1_python(PyObject *param_psi, PyObject *param_gate, int nbits,
-                   int tgt) {
-  PyObject *psi_arr = PyArray_FROM_OTF(param_psi, npy_type, NPY_IN_ARRAY);
+void apply1_python(PyObject *param_psi, PyObject *param_gate,
+                   int nbits, int tgt) {
+  PyObject *psi_arr =
+    PyArray_FROM_OTF(param_psi, npy_type, NPY_IN_ARRAY);
   cmplx_type *psi = ((cmplx_type *)PyArray_GETPTR1(psi_arr, 0));
 
-  PyObject *gate_arr = PyArray_FROM_OTF(param_gate, npy_type, NPY_IN_ARRAY);
+  PyObject *gate_arr =
+    PyArray_FROM_OTF(param_gate, npy_type, NPY_IN_ARRAY);
   cmplx_type *gate = ((cmplx_type *)PyArray_GETPTR1(gate_arr, 0));
 
   apply1<cmplx_type>(psi, gate, nbits, tgt);
@@ -79,24 +83,28 @@ static PyObject *apply1_c(PyObject *dummy, PyObject *args) {
   int tgt;
   int bit_width;
 
-  if (!PyArg_ParseTuple(args, "OOiii", &param_psi, &param_gate, &nbits, &tgt,
-                        &bit_width))
+  if (!PyArg_ParseTuple(args, "OOiii", &param_psi, &param_gate,
+                        &nbits, &tgt, &bit_width))
     return NULL;
   if (bit_width == 128) {
-    apply1_python<cmplxd, NPY_CDOUBLE>(param_psi, param_gate, nbits, tgt);
+    apply1_python<cmplxd, NPY_CDOUBLE>(param_psi,
+                                       param_gate, nbits, tgt);
   } else {
-    apply1_python<cmplxf, NPY_CFLOAT>(param_psi, param_gate, nbits, tgt);
+    apply1_python<cmplxf, NPY_CFLOAT>(param_psi,
+                                      param_gate, nbits, tgt);
   }
   Py_RETURN_NONE;
 }
 
 template <typename cmplx_type, int npy_type>
-void applyc_python(PyObject *param_psi, PyObject *param_gate, int nbits,
-                   int ctl, int tgt) {
-  PyObject *psi_arr = PyArray_FROM_OTF(param_psi, npy_type, NPY_IN_ARRAY);
+void applyc_python(PyObject *param_psi, PyObject *param_gate,
+                   int nbits, int ctl, int tgt) {
+  PyObject *psi_arr =
+    PyArray_FROM_OTF(param_psi, npy_type, NPY_IN_ARRAY);
   cmplx_type *psi = ((cmplx_type *)PyArray_GETPTR1(psi_arr, 0));
 
-  PyObject *gate_arr = PyArray_FROM_OTF(param_gate, npy_type, NPY_IN_ARRAY);
+  PyObject *gate_arr =
+    PyArray_FROM_OTF(param_gate, npy_type, NPY_IN_ARRAY);
   cmplx_type *gate = ((cmplx_type *)PyArray_GETPTR1(gate_arr, 0));
 
   applyc<cmplx_type>(psi, gate, nbits, ctl, tgt);
@@ -113,13 +121,15 @@ static PyObject *applyc_c(PyObject *dummy, PyObject *args) {
   int tgt;
   int bit_width;
 
-  if (!PyArg_ParseTuple(args, "OOiiii", &param_psi, &param_gate, &nbits, &ctl,
-                        &tgt, &bit_width))
+  if (!PyArg_ParseTuple(args, "OOiiii", &param_psi, &param_gate,
+                        &nbits, &ctl, &tgt, &bit_width))
     return NULL;
   if (bit_width == 128) {
-    applyc_python<cmplxd, NPY_CDOUBLE>(param_psi, param_gate, nbits, ctl, tgt);
+    applyc_python<cmplxd, NPY_CDOUBLE>(param_psi,
+                                       param_gate, nbits, ctl, tgt);
   } else {
-    applyc_python<cmplxf, NPY_CFLOAT>(param_psi, param_gate, nbits, ctl, tgt);
+    applyc_python<cmplxf, NPY_CFLOAT>(param_psi,
+                                      param_gate, nbits, ctl, tgt);
   }
   Py_RETURN_NONE;
 }
@@ -148,7 +158,8 @@ PyMODINIT_FUNC PyInit_xgates(void) {
   return PyModule_Create(&xgates_definition);
 }
 
-// To accommodate different build environments, this one might be needed.
+// To accommodate different build environments,
+// this one might be needed.
 PyMODINIT_FUNC PyInit_libxgates(void) {
   return PyInit_xgates();
 }
