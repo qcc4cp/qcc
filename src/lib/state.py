@@ -37,7 +37,7 @@ class State(tensor.Tensor):
     return self.conj().transpose()
 
   def normalize(self) -> None:
-    """Renormalize the state so that the sum of squared amplitudes eq 1.0."""
+    """Renormalize the state. Sum of squared amplitudes eq 1.0."""
 
     dprod = np.conj(self) @ self
     self /= np.sqrt(np.real(dprod))
@@ -164,7 +164,8 @@ def qubit(alpha: Optional[np.complexfloating]=None,
   if alpha is None:
     alpha = math.sqrt(1.0 - np.conj(beta) * beta)
 
-  if not math.isclose(np.conj(alpha) * alpha + np.conj(beta) * beta, 1.0):
+  if not math.isclose(np.conj(alpha) * alpha +
+                      np.conj(beta) * beta, 1.0):
     raise ValueError('Qubit probabilities do not sum to 1.')
 
   t = np.zeros(2, dtype=tensor.tensor_type)
@@ -181,9 +182,8 @@ def qubit(alpha: Optional[np.complexfloating]=None,
 # The result of this tensor product is
 #   always [1, 0, 0, ..., 0]T or [0, 0, 0, ..., 1]T
 #
-# The helper function zeros_or_ones expects idx to be set appropriately.
 def zeros_or_ones(d: int=1, idx: int=0) -> State:
-  """Produce the all-zero/one computational basis vector for `d` qubits."""
+  """Produce the all-0/1 basis vector for `d` qubits."""
 
   if d < 1:
     raise ValueError('Rank must be at least 1.')
@@ -286,8 +286,9 @@ def state_to_string(bits) -> str:
   return '|{:s}> (|{:d}>)'.format(s, int(s, 2))
 
 
-def dump_state(psi, description: Optional[str]=None, prob_only: bool=False) -> None:
-  """Dump probabilities for a state as well as local qubit state."""
+def dump_state(psi, description: Optional[str]=None,
+               prob_only: bool=False) -> None:
+  """Dump probabilities for a state, as well as local qubit state."""
 
   if description:
     print('|', end='')
@@ -300,10 +301,10 @@ def dump_state(psi, description: Optional[str]=None, prob_only: bool=False) -> N
     if prob_only and (psi.prob(*bits) < 10e-6):
       continue
 
-    l.append('{:s}:  ampl: {:+.2f} prob: {:.2f} Phase: {:5.1f}'.format(
-        state_to_string(bits),
-        psi.ampl(*bits),
-        psi.prob(*bits),
-        psi.phase(*bits)))
+    l.append('{:s}:  ampl: {:+.2f} prob: {:.2f} Phase: {:5.1f}'
+             .format(state_to_string(bits),
+                     psi.ampl(*bits),
+                     psi.prob(*bits),
+                     psi.phase(*bits)))
   l.sort()
   print(*l, sep='\n')

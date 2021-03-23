@@ -247,6 +247,12 @@ class OpsTest(absltest.TestCase):
     self.assertTrue(math.isclose(y, 0.0, abs_tol=1e-6))
     self.assertTrue(math.isclose(z, 0.0, abs_tol=1e-6))
 
+  def test_rk_u1(self):
+    for i in range(10):
+      u1 = ops.U1(2*math.pi / (2**i))
+      rk = ops.Rk(i)
+      self.assertTrue(u1.is_close(rk))
+
 
 if __name__ == '__main__':
   absltest.main()
