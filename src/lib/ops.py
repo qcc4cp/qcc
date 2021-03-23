@@ -195,7 +195,7 @@ def Rotation(v: np.ndarray, theta: float) -> np.ndarray:
   """Produce the single-qubit rotation operator."""
 
   v = np.asarray(v)
-  if (v.shape != (3,) or not np.isclose(a @ a, 1) or
+  if (v.shape != (3,) or not np.isclose(v @ v, 1) or
       not np.all(np.isreal(v))):
     raise ValueError('Rotation vector v must be a 3D real unit vector.')
 
