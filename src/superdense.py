@@ -41,7 +41,7 @@ def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  # Step 1: Alice and Bob share an entangled pair and physically separate.
+  # Step 1: Alice and Bob share an entangled pair, and separate.
   psi = bell.bell_state(0, 0)
 
   # Alices manipulates her qubit and sends her 1 qubit back to Bob,

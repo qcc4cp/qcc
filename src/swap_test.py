@@ -63,7 +63,7 @@ def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  print('Swap Test to compare state. 0.5 means different, 1.0 means similar')
+  print('Swap Test. 0.5 means different, 1.0 means similar')
   run_experiment(1.0, 0.0, 0.5)
   run_experiment(0.0, 1.0, 0.5)
   run_experiment(1.0, 1.0, 1.0)

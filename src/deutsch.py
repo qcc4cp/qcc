@@ -11,7 +11,7 @@ from src.lib import state
 
 
 def make_f(flavor):
-  """Return a 1-bit constant or balanced function f, one of the 4 flavors."""
+  """Return a 1-bit constant or balanced function f. 4 flavors."""
 
   # The 4 versions are:
   #    f(0) -> 0, f(1) -> 0  constant

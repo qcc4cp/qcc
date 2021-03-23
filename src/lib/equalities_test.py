@@ -55,7 +55,7 @@ class EqualitiesTest(absltest.TestCase):
     self.assertTrue(z0.is_close(z1))
 
   def test_had_cnot_had(self):
-    """Exercise 4.20 in Nielson, Chuang, H2.Cnot(0,1).H2 == Cnot(1,0)."""
+    """Exercise 4.20 in Nielson, Chuang, H2.Cnot(0,1).H2==Cnot(1,0)."""
 
     h2 = ops.Hadamard(2)
     cnot = ops.Cnot(0, 1)
@@ -94,7 +94,7 @@ class EqualitiesTest(absltest.TestCase):
     h = ops.Hadamard()
     op = h(ops.Tgate()(h))
 
-    # If they are equal up to a global phase, all values should be equal.
+    # If equal up to a global phase, all values should be equal.
     phase = op / ops.RotationX(math.pi/4)
     self.assertTrue(math.isclose(phase[0, 0].real, phase[0, 1].real,
                                  abs_tol=1e-6))

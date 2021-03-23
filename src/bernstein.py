@@ -34,18 +34,19 @@ def check_result(nbits, c, psi) -> None:
 
   print('Expected: {}'.format(c))
 
-  # The state with the 'flipped' bits will have probability of 1.0.
+  # The state with the 'flipped' bits will have probability 1.0.
   # It will be found on the ver first try.
   #
   for bits in helper.bitprod(nbits):
     if psi.prob(*bits) > 0.1:
-      print('Found   : {} = {:.1f}'.format(bits[:-1], psi.prob(*bits)))
+      print('Found   : {} = {:.1f}'
+            .format(bits[:-1], psi.prob(*bits)))
       if bits[:-1] != c:
         raise AssertionError('invalid result')
 
 
 def make_c(nbits):
-  """Make a random constant c from {0,1}. This is the c we try to find."""
+  """Make a random constant c from {0,1}, the c we try to find."""
 
   constant_c = [0] * nbits
   for idx in range(nbits-1):

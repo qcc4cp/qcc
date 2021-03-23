@@ -280,20 +280,22 @@ class qc:
   def multi_control(self, ctl, idx1, aux, gate, desc):
     """Multi-controlled gate, using aux as ancilla."""
 
-    # This is a simpler version that requires n-1 ancillaries, instead of n-2.
-    # The benefit is that the gate can be used as a single-controlled gate,
-    # which means we don't need to take the root (no need to include scipy).
-    # This construction also makes the controlled-by-0 gates a little bit
-    # easier, those controllers are being passed as single-element lists, eg.:
+    # This is a simpler version that requires n-1 ancillaries, instead
+    # of n-2. The benefit is that the gate can be used as a
+    # single-controlled gate, which means we don't need to take the
+    # root (no need to include scipy). This construction also makes
+    # the controlled-by-0 gates a little bit easier, those controllers
+    # are being passed as single-element lists, eg.:
     #   ctl = [1, 2, [3], [4], 5]
     #
-    # This can be optimized (later) to turn into a space-optimized n-2 version.
+    # This can be optimized (later) to turn into a space-optimized
+    # n-2 version.
     #
     # We also generalize to the case where ctl is empty or only has 1
     # control qubit. This is very flexible and practically any gate
     # could be expressed this way. This would make bulk control of
-    # whole gate sequences straight-forward, but changes the trivial IR
-    # we're working with here. Something to keep in mind.
+    # whole gate sequences straight-forward, but changes the trivial
+    # IR we're working with here. Something to keep in mind.
 
     with self.scope(self.ir, f'multi({ctl}, {idx1}) # {desc})'):
       if len(ctl) == 0:

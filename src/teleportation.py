@@ -39,7 +39,7 @@ def alice_measures(alice, expect0, expect1, qubit0, qubit1):
   p1, _ = ops.Measure(alice1, 2, tostate=1, collapse=False)
 
   # Alice should now have 'teleported' the qubit in state 'x'.
-  # We sqrt the probability, as we want to show the (original) amplitudes.
+  # We sqrt() the probability, we want to show (original) amplitudes.
   norm = 1.0 / (p0.real + p1.real)
   bob_a = math.sqrt(p0.real * norm)
   bob_b = math.sqrt(p1.real * norm)
@@ -55,10 +55,11 @@ def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  # Step 1: Alice and Bob share an entangled pair and physically separate.
+  # Step 1: Alice and Bob share an entangled pair, and separate.
   psi = bell.bell_state(0, 0)
 
-  # Step 2: Alice wants to teleport a qubit x to Bob, which is in the state:
+  # Step 2: Alice wants to teleport a qubit x to Bob,
+  #         which is in the state:
   #         |x> = a|0> + b|1> (with a^2 + b^2 == 1)
   a = 0.6
   b = math.sqrt(1.0 - a * a)

@@ -25,9 +25,9 @@ def make_f(dim=1, flavor=exp_constant):
   else:
     bits[np.random.choice(power2, size=power2//2, replace=False)] = 1
 
-  # In this generalization of single-bit Deutsch, the f function accepts
-  # a string of bits. We compute an index from this binary representation
-  # and return the value in bits[] found there.
+  # In this generalization of single-bit Deutsch, the f function
+  # accepts a string of bits. We compute an index from this
+  # binary representation and return the value in bits[] found there.
   #
   def f(*bit_string):
     """Return f(bits) for one of the 2 possible function types."""
@@ -64,14 +64,16 @@ def main(argv):
 
   for qubits in range(2, 8):
     result = run_experiment(qubits, exp_constant)
-    print(f'Found:   {result} ({qubits} qubits) (expected: {exp_constant})')
+    print('Found: {} ({} qubits) (expected: {})'
+          .format(result, qubits, exp_constant))
     if result != exp_constant:
-      raise AssertionError('Invalid Result, expected {}'.format(exp_constant))
+      raise AssertionError('Error, expected {}'.format(exp_constant))
 
     result = run_experiment(qubits, exp_balanced)
-    print(f'Found:   {result} ({qubits} qubits) (expected: {exp_balanced})')
+    print('Found: {} ({} qubits) (expected: {})'
+          .format(result, qubits, exp_balanced))
     if result != exp_balanced:
-      raise AssertionError('Invalid Result, expected {}'.format(exp_balanced))
+      raise AssertionError('Error, expected {}'.format(exp_balanced))
 
 if __name__ == '__main__':
   app.run(main)
