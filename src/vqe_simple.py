@@ -160,6 +160,16 @@ def run_zi_experiment():
       print()
 
 
+def single_qubit_ansatz(theta:float, phi:float):
+  """Generate a single qubit ansatz."""
+
+  qc = circuit.qc('single-qubit ansatz Y')
+  qc.qubit(1.0)
+  qc.rx(0, theta)
+  qc.ry(0, phi)
+  return qc
+
+
 def run_single_qubit_mult():
   """Run experiments with single qubits."""
 
@@ -178,10 +188,7 @@ def run_single_qubit_mult():
       phi = np.pi * j / 180.0
 
       # Build the ansatz with two rotation gates.
-      ansatz = circuit.qc('single-qubit ansatz vqe')
-      ansatz.qubit(1.0)
-      ansatz.rx(0, theta)
-      ansatz.ry(0, phi)
+      ansatz = single_qubit_ansatz(theta, phi)
 
       # Compute <psi | H | psi>. Find smallest one, which will be
       # the best approximation to the minimal eigenvalue from above.
@@ -194,7 +201,6 @@ def run_single_qubit_mult():
   # Result from brute force approach:
   print('Minimal: {:.4f}, Estimated: {:.4f}, Delta: {:.4f}'.format(
       eigvals[0], np.real(min_val), np.real(min_val - eigvals[0])))
-
 
 
 def run_single_qubit():
@@ -216,32 +222,27 @@ def run_single_qubit():
       theta = np.pi * i / 360.0
       phi = np.pi * j / 180.0
 
-      qc = circuit.qc('single-qubit ansatz X')
-      qc.qubit(1.0)
-      qc.rx(0, theta)
-      qc.ry(0, phi)
+      # X Basis
+      qc = single_qubit_ansatz(theta, phi)
       qc.h(0)
       val_a = a * qc.pauli_expectation(0)
 
-      qc = circuit.qc('single-qubit ansatz Y')
-      qc.qubit(1.0)
-      qc.rx(0, theta)
-      qc.ry(0, phi)
+      # Y Basis
+      qc = single_qubit_ansatz(theta, phi)
       qc.sdag(0)
       qc.h(0)
       val_b = b * qc.pauli_expectation(0)
 
-      qc = circuit.qc('single-qubit ansatz Z')
-      qc.qubit(1.0)
-      qc.rx(0, theta)
-      qc.ry(0, phi)
+      # Z Basis
+      qc = single_qubit_ansatz(theta, phi)
       val_c = c * qc.pauli_expectation(0)
 
       expectation = val_a + val_b + val_c
       if expectation < min_val:
         min_val = expectation
 
-  print(f'Minimal eigenvalue: {eigvals[0]:.3f}, Delta: {min_val - eigvals[0]:.3f}')
+  print('Minimal eigenvalue: {:.3f}, Delta: {:.3f}'
+        .format(eigvals[0], min_val - eigvals[0]))
 
 
 def main(argv):
