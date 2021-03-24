@@ -393,7 +393,7 @@ def TraceOutSingle(rho, index:int):
 
   nbits = int(math.log2(rho.shape[0]))
   if index > nbits:
-    raise AssertionError('Invalid use of Ptrace, invalid index (>nbits).')
+    raise AssertionError('Error in TraceOut invalid index (>nbits).')
 
   eye = Identity()
   zero = Operator(np.array([1.0, 0.0]))
@@ -422,7 +422,7 @@ def TraceOut(rho, index_set):
   for index in range(len(index_set)):
     nbits = int(math.log2(rho.shape[0]))
     if index_set[index] > nbits:
-      raise AssertionError('Invalid use of Ptrace, invalid index (>nbits).')
+      raise AssertionError('Error TraceOut, invalid index (>nbits).')
     rho = TraceOutSingle(rho, index_set[index])
 
     # Tracing out a bit means that rho is now 1 bit smaller, the

@@ -27,7 +27,8 @@ def modular_inverse(a, m):
   def egcd(a, b):
     """Extended Euclidian Algorithm."""
 
-    # Explained here: https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm
+    # Explained here:
+    # https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm
     #
     if a == 0:
       return (b, 0, 1)
@@ -166,7 +167,8 @@ def cmultmodn(qc, ctl, q, aux, a, number, n):
   print('Compute...')
   qft(qc, aux, n+1, with_swaps=0)
   for i in range(0, n):
-    cc_add_mod_n(qc, aux, q[i], ctl, aux[n+1], ((2**i)*a) % number, number, n+1)
+    cc_add_mod_n(qc, aux, q[i], ctl, aux[n+1],
+                 ((2**i)*a) % number, number, n+1)
   inverse_qft(qc, aux, n+1, with_swaps=0)
 
   print('Swap...')
@@ -192,14 +194,14 @@ def main(argv):
 
   # The classical part are handled in 'shor_classic.py'
   nbits = number.bit_length()
-  print(f'Shor: N = {number}, a = {a}, n = {nbits} -> qubits: {nbits*4 + 2}')
-
+  print('Shor: N = {}, a = {}, n = {} -> qubits: {}'
+        .format(number, a, nbits, nbits*4 + 2))
   qc = circuit.qc('order_finding')
 
   # Aux register for additional and multiplication.
   aux = qc.reg(nbits+2, name='q0')
 
-  # Register for the sequential QFT. This reg will hold the resulting x-value.
+  # Register for QFT. This reg will hold the resulting x-value.
   up = qc.reg(nbits*2, name='q1')
 
   # Register for multiplications.
@@ -222,12 +224,14 @@ def main(argv):
     prob = qc.psi.prob(*bits)
     if prob > 0.01:
       intval =  helper.bits2val(bits[nbits+2 : nbits+2 + nbits*2][::-1])
-      phase = helper.bits2frac(bits[nbits+2 : nbits+2 + nbits*2][::-1], nbits*2)
+      phase = helper.bits2frac(
+          bits[nbits+2 : nbits+2 + nbits*2][::-1], nbits*2)
 
       r = fractions.Fraction(phase).limit_denominator(8).denominator
-      guesses = [math.gcd(a**(r//2)-1, number), math.gcd(a**(r//2)+1, number)]
+      guesses = [math.gcd(a**(r//2)-1, number),
+                 math.gcd(a**(r//2)+1, number)]
 
-      print('Final x-value int: {:3d} phase: {:3f} prob: {:.3f} factors: {}'.
+      print('Final x: {:3d} phase: {:3f} prob: {:.3f} factors: {}'.
             format(intval, phase, prob.real, guesses))
 
       total_prob += qc.psi.prob(*bits)

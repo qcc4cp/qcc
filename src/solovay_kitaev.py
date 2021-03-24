@@ -94,7 +94,8 @@ def gc_decomp(U):
   # The angle phi comes from eq 10 in 'The Solovay-Kitaev Algorithm' by
   # Dawson, Nielsen. It is fully derived in the book section on the
   # theorem and algorithm.
-  phi = 2.0 * np.arcsin(np.sqrt(np.sqrt((0.5 - 0.5 * np.cos(theta / 2)))))
+  phi = 2.0 * np.arcsin(np.sqrt(
+      np.sqrt((0.5 - 0.5 * np.cos(theta / 2)))))
 
   axis, _ = u_to_bloch(U)
   V = ops.RotationX(phi)
