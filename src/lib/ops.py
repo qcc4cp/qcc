@@ -187,6 +187,12 @@ def U1(lam:float, d:int=1) -> Operator:
                             (0.0, cmath.exp(1j * lam))]))**d
 
 
+# Cache Pauli matrices for performance reasons.
+_PAULI_X = PauliX()
+_PAULI_Y = PauliY()
+_PAULI_Z = PauliZ()
+
+
 # Make a single-qubit rotation operator.
 # This is a simple implementation of the mechanism outlined here:
 # http://www.vcpc.univie.ac.at/~ian/hotlist/qc/talks/bloch-sphere-rotations.pdf
@@ -195,12 +201,12 @@ def Rotation(v: np.ndarray, theta: float) -> np.ndarray:
   """Produce the single-qubit rotation operator."""
 
   v = np.asarray(v)
-  if (v.shape != (3,) or not np.isclose(v @ v, 1) or
+  if (v.shape != (3,) or not math.isclose(v @ v, 1) or
       not np.all(np.isreal(v))):
     raise ValueError('Rotation vector v must be a 3D real unit vector.')
 
   return np.cos(theta / 2) * Identity() - 1j * np.sin(theta / 2) * (
-      v[0] * PauliX() + v[1] * PauliY() + v[2] * PauliZ())
+      v[0] * _PAULI_X + v[1] * _PAULI_Y + v[2] * _PAULI_Z)
 
 
 def RotationX(theta:float) -> Operator:
