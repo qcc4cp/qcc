@@ -223,11 +223,13 @@ def Projector(psi:state.State) -> Operator:
 # Note on indices for controlled operators:
 #
 # The important aspects are direction and difference, not absolute
-# values. In that regards, Op(0, 3, U) is the same as Op(1, 4, U)
-# and Op(2,0) is the same as Op(4, 2). We could have used
-# -3 and +3, but felt this representation was more intuitive.
+# values. In that regards, these are equivalen:
+#  ControlledU(0, 3, U) == ControlledU(1, 4, U)
+#  ControlledU(2, 0, U) == ControlledU(4, 2, U)
+# We could have used -3 and +3, but felt this representation was
+# more intuitive.
 #
-# Operator matrices are stored with all intermittend qubits
+# Operator matrices are stored with all intermittent qubits
 # (as Identities). When applying an operator, the starting qubit
 # index can be specified.
 def ControlledU(idx0:int, idx1:int, u:Operator) -> Operator:

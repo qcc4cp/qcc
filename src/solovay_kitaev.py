@@ -103,7 +103,10 @@ def gc_decomp(U):
   else:
     W = ops.RotationY(phi)
 
-  S = diagonalize(U) @ diagonalize(V @ W @ V.adjoint() @ W.adjoint())
+  Ud = diagonalize(U)
+  VWVdWdd = diagonalize(V @ W @ V.adjoint() @ W.adjoint())
+  S = Ud @ VWVdWdd.adjoint()
+
   V_hat = S @ V @ S.adjoint()
   W_hat = S @ W @ S.adjoint()
   return V_hat, W_hat
@@ -122,20 +125,50 @@ def sk_algo(U, gates, n):
     return V_next @ W_next @ V_next.adjoint() @ W_next.adjoint() @ U_next
 
 
+def random_gates(min_length, max_length, num_experiments):
+  """Just create random sequences, find the best."""
+
+  base = [to_su2(ops.Hadamard()), to_su2(ops.Tgate())]
+
+  U = (ops.RotationX(2.0 * np.pi * random.random()) @
+       ops.RotationY(2.0 * np.pi * random.random()) @
+       ops.RotationZ(2.0 * np.pi * random.random()))
+
+  min_dist = 1000
+  for i in range(num_experiments):
+    seq_length = min_length + random.randint(0, max_length)
+    U_approx = ops.Identity()
+
+    for j in range(seq_length):
+      g = random.randint(0, 1)
+      U_approx = U_approx @ base[g]
+
+    dist = trace_dist(U, U_approx)
+    min_dist = min(dist, min_dist)
+
+  phi1 = U(state.zero)
+  phi2 = U_approx(state.zero)
+  print('Trace Dist: {:.4f} State: {:6.4f}%'.
+        format(min_dist,
+               100.0 * (1.0 - np.real(np.dot(phi1, phi2.conj())))))
+
+
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
   num_experiments = 10
   depth = 8
-  recursion = 4
+  recursion = 3
   print('SK algorithm - depth: {}, recursion: {}, experiments: {}'.
         format(depth, recursion, num_experiments))
 
   base = [to_su2(ops.Hadamard()), to_su2(ops.Tgate())]
+
   gates = create_unitaries(base, depth)
   sum_dist = 0.0
   for i in range(num_experiments):
+
       U = (ops.RotationX(2.0 * np.pi * random.random()) @
            ops.RotationY(2.0 * np.pi * random.random()) @
            ops.RotationZ(2.0 * np.pi * random.random()))
@@ -153,6 +186,14 @@ def main(argv):
 
   print('Gates: {}, Mean Trace Dist:: {:.4f}'.
         format(len(gates), sum_dist / num_experiments))
+
+  min_length=10
+  max_delta=50
+  max_tries=100
+  print('Random Experiment, seq length: {} - {}, tries: {}'
+        .format(min_length, max_delta, max_tries))
+  for i in range(num_experiments):
+    random_gates(min_length, max_delta, max_tries)
 
 
 if __name__ == '__main__':
