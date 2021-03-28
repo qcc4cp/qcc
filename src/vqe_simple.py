@@ -22,15 +22,17 @@
 #    https://www.youtube.com/watch?v=E947xs9-Mso
 # from Pranav Gokhale at ISCA 2018.
 #
-# Another helpful resource is this page:
-#   http://dkopczyk.quantee.co.uk/vqe/
-#
 # Note: In the youtube video the larger matrix H contains a subterm
 #       -1.04*sigma_z*I. So in order to minimize the expectation value
 #       of the larger matrix, one has to maximize the expectation value
 #       for sigma_z*I, which is what we do below. The algorithm works
 #       just the same if we'd look for a minimum (-1.0) instead of 1.0
-
+#
+# Note: The vide also does _not_ actually multiply the ansatz with XxI,
+# as that is the default measurement operator that requires no additional
+# gates or mechanics to make anything work. In the book there is a big
+# chapter on "Measuring in the Pauli Basis", which is important to
+# understand to appreciate the code below.
 
 import math
 import random
@@ -99,7 +101,7 @@ def ansatz(qc):
   qc.rz(1, angles[9])
 
 
-def run_zi_experiment():
+def run_two_qubit_zi_experiment():
   """Run VQE experiments with a given ansatz."""
 
   # Best achieved result. Goal is to get as close to +1 as possible.
@@ -203,7 +205,7 @@ def run_single_qubit_mult():
       eigvals[0], np.real(min_val), np.real(min_val - eigvals[0])))
 
 
-def run_single_qubit():
+def run_single_qubit_measure():
   """Run measurement experiments with single qubits."""
 
   # Construct Hamiltonian.
@@ -250,10 +252,10 @@ def main(argv):
     raise app.UsageError('Too many command-line arguments.')
 
   for i in range(5):
-    run_single_qubit()
+    run_single_qubit_measure()
   for i in range(5):
     run_single_qubit_mult()
-  run_zi_experiment()
+  run_two_qubit_zi_experiment()
 
 
 if __name__ == '__main__':
