@@ -11,13 +11,15 @@ from absl import flags
 from src.lib import helper
 from src.lib import ops
 
-flags.DEFINE_integer('nodes', 5, 'Number of graph nodes')
+flags.DEFINE_integer('nodes', 12, 'Number of graph nodes')
+flags.DEFINE_boolean('graph', False, 'Dump graph in dot format')
+flags.DEFINE_integer('iterations', 10, 'Number of experiments')
 
 
 # Nodes are tuples: (from, to, edge weight).
 #
 def build_graph(num:int=0) -> (int, list):
-    """Build core graph of 4 nodes."""
+    """Build a graph of num nodes."""
 
     if num < 3:
         raise app.UsageError('Must request graph of at least 3 nodes.')
@@ -30,17 +32,23 @@ def build_graph(num:int=0) -> (int, list):
             node1 = np.random.randint(0, 3 + i)
 
         nodes.append((3 + i, node0,
-                      weight*np.random.random()))
+                      weight*(np.random.random()+0.1)))
         nodes.append((3 + i, node1,
-                      weight*np.random.random()))
+                      weight*(np.random.random()+0.1)))
     return num, nodes
 
 
-def graph_to_dot(n:int, nodes:list) -> None:
-    """Convert graph to dot file."""
+
+def graph_to_dot(n:int, nodes:list, max_cut) -> None:
+    """Convert graph (up to 64 nodes) to dot file."""
 
     print('graph {')
-    # TODO: Color Max-Cut sets.
+    print('  {\n    node [  style=filled ]')
+    pattern = bin(max_cut)[2:].zfill(n)
+    for i in range(len(pattern)):
+        if pattern[i] == '0':
+            print(f'    "{i}" [fillcolor=lightgray]')
+    print('  }')
     for node in nodes:
         print('  "{}" -- "{}" [label="{:.1f}",weight="{:.2f}"];'
               .format(node[0], node[1], node[2], node[2]))
@@ -58,7 +66,7 @@ def graph_to_adjacency(n:int, nodes:list) -> ops.Operator:
 
 
 def graph_to_hamiltonian(n:int, nodes:list) -> ops.Operator:
-    """Compute adjacency matrix from graph."""
+    """Compute Hamiltonian matrix from graph."""
 
     H = np.zeros((2**n, 2**n))
     for node in nodes:
@@ -79,32 +87,71 @@ def graph_to_hamiltonian(n:int, nodes:list) -> ops.Operator:
     return ops.Operator(H)
 
 
+def tensor_diag(n:int, fr:int, to:int, w:float):
+    """Construct a tensor product from diagonal matrices."""
+
+    def tensor_product(w1:float, w2:float, diag):
+        l = []
+        for x in diag:
+            l.append(x * w1)
+            l.append(x * w2)
+        return l
+
+    diag = []
+    for i in range(n):
+        # Sigma Z
+        if i == fr or i == to:
+            if diag == []:
+                diag = [w, -w]
+                continue
+            diag = tensor_product(w, -w, diag)
+            continue
+        # Identity
+        if diag == []:
+            diag = [1, 1]
+            continue
+        diag = tensor_product(1, 1, diag)
+    return diag
+
+
+def graph_to_diagonal_h(n:int, nodes:list) -> np.ndarray:
+    """Construct diag(H)."""
+
+    h = [0.0] * 2**n
+    for node in nodes:
+      diag = tensor_diag(n, node[0], node[1], node[2])
+      for i in range(len(diag)):
+          h[i] = h[i] + diag[i]
+    return h
+
+
 def compute_max_cut(n:int, nodes:list) -> None:
     """Compute (inefficiently) the max cut, exhaustively."""
 
     max_cut = -1000
     for bits in helper.bitprod(n):
         # Collect in/out sets.
-        in_set = []
-        out_set = []
+        iset = []
+        oset = []
         for i in range(len(bits)):
-            in_set.append(i) if bits[i] == 0 else out_set.append(i)
+            iset.append(i) if bits[i] == 0 else oset.append(i)
 
         # Compute costs for this cut, record maximum.
         cut = 0
         for node in nodes:
-            if node[0] in in_set and node[1] in out_set:
+            if node[0] in iset and node[1] in oset:
                 cut += node[2]
-            if node[1] in in_set and node[0] in out_set:
+            if node[1] in iset and node[0] in oset:
                 cut += node[2]
         if cut > max_cut:
-            max_cut_in, max_cut_out = in_set.copy(), out_set.copy()
+            max_cut_in, max_cut_out = iset.copy(), oset.copy()
             max_cut  = cut
             max_bits = bits
 
     state = bin(helper.bits2val(max_bits))[2:].zfill(n)
-    print('Max Cut. Nodes: {}, Max H: {:.1f}, {}  -  {}, State: |{}>'
-          .format(n, np.real(max_cut), max_cut_in, max_cut_out, state))
+    print('Max Cut. N: {}, Max: {:.1f}, {}-{}, |{}>'
+          .format(n, np.real(max_cut), max_cut_in, max_cut_out,
+                  state))
     return helper.bits2val(max_bits)
 
 
@@ -126,33 +173,40 @@ def run_experiment(num_nodes):
 
     n, nodes = build_graph(num_nodes)
     max_cut  = compute_max_cut(n, nodes)
-    graph_to_dot(n, nodes)
-    H        = graph_to_hamiltonian(n, nodes)
-    diag     = H.diagonal()
+    #
+    # These two lines are the basic implementation, where
+    # a full matrix is being constructed. However, these
+    # are diagonal, and can be constructed much faster.
+    #  H       = graph_to_hamiltonian(n, nodes)
+    #  diag    = H.diagonal()
+    #
+    diag     = graph_to_diagonal_h(n, nodes)
     min_val  = np.amin(diag)
+    min_idx  = np.argmin(diag)
+    if flags.FLAGS.graph:
+        graph_to_dot(n, nodes, max_cut)
 
     # Results...
-    for i in range(len(diag)):
-        marker = ''
-        if diag[i] == min_val:
-            marker += 'Minimum '
-        if i == max_cut:
-            marker += '= Max Cut'
-        if len(marker):
-            print(f'{np.real(diag[i]):+10.2f} |{bin(i)[2:].zfill(n)}> {marker}')
+    if min_idx == max_cut:
+        print('SUCCESS : {:+10.2f} |{}>'
+              .format(np.real(diag[min_idx]),
+                      bin(min_idx)[2:].zfill(n)))
+    else:
+        print('FAIL    : {:+10.2f} |{}>  '
+              .format(np.real(diag[min_idx]),
+                      bin(min_idx)[2:].zfill(n)),
+              end='')
+        print('Max-Cut: {:+10.2f} |{}>'
+              .format(np.real(diag[max_cut]),
+                      bin(max_cut)[2:].zfill(n)))
 
 
 def main(argv):
     if len(argv) > 1:
         raise app.UsageError('Too many command-line arguments.')
 
-    for i in range(1):
+    for i in range(flags.FLAGS.iterations):
         run_experiment(flags.FLAGS.nodes)
-
-    #(ops.Identity() * ops.Identity() * ops.PauliZ()).dump('IIZ')
-    #(ops.Identity() * ops.PauliZ() * ops.Identity()).dump('IZI')
-    #(ops.Identity() * ops.PauliZ() * ops.PauliZ()).dump('IZZ')
-    #(ops.PauliZ() * ops.Identity() * ops.Identity()).dump('ZII')
 
 
 if __name__ == '__main__':
