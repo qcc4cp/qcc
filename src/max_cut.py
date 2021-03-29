@@ -32,9 +32,9 @@ def build_graph(num:int=0) -> (int, list):
             node1 = np.random.randint(0, 3 + i)
 
         nodes.append((3 + i, node0,
-                      weight*(np.random.random()+0.1)))
+                      weight*np.random.random()))
         nodes.append((3 + i, node1,
-                      weight*(np.random.random()+0.1)))
+                      weight*np.random.random()))
     return num, nodes
 
 
