@@ -91,26 +91,15 @@ def tensor_diag(n:int, fr:int, to:int, w:float):
     """Construct a tensor product from diagonal matrices."""
 
     def tensor_product(w1:float, w2:float, diag):
-        l = []
-        for x in diag:
-            l.append(x * w1)
-            l.append(x * w2)
-        return l
+        return [j for i in zip([x * w1 for x in diag],
+                               [x * w2 for x in diag]) for j in i]
 
-    diag = []
-    for i in range(n):
-        # Sigma Z
+    diag = [w, -w] if (0 == fr or 0 == to) else [1, 1]
+    for i in range(1, n):
         if i == fr or i == to:
-            if diag == []:
-                diag = [w, -w]
-                continue
             diag = tensor_product(w, -w, diag)
-            continue
-        # Identity
-        if diag == []:
-            diag = [1, 1]
-            continue
-        diag = tensor_product(1, 1, diag)
+        else:
+            diag = tensor_product(1, 1, diag)
     return diag
 
 
