@@ -11,7 +11,12 @@ from src.lib import ops
 from src.lib import state
 
 
-def make_f(d=3):
+#
+# This function can be used if there is only 1 solution,
+# which is the simplest case. We keep it here, as it is
+# referenced in the book. It is no longer used in this code.
+#
+def make_f1(d=3):
   """Construct function that will return 1 for only one bit string."""
 
   num_inputs = 2**d
@@ -29,7 +34,31 @@ def make_f(d=3):
   return func
 
 
-def run_experiment(nbits) -> None:
+def make_f(d=3, solutions=1):
+  """Construct function that will return 1 for 'solutions' bits."""
+
+  num_inputs = 2**d
+  answers = np.zeros(num_inputs, dtype=np.int32)
+
+  for i in range(solutions):
+    idx = np.random.randint(0, num_inputs - 1)
+
+    # Avoid collisions.
+    while answers[idx] == 1:
+      idx = np.random.randint(0, num_inputs - 1)
+
+    # Found proper index. Populate 'answer' array.
+    answers[idx] = 1
+
+  # The actual function just returns an array elements.
+  def func(*bits):
+    return answers[helper.bits2val(*bits)]
+
+  # Return the function we just made.
+  return func
+
+
+def run_experiment(nbits, solutions) -> None:
   """Run full experiment for a given flavor of f()."""
 
   hn = ops.Hadamard(nbits)
@@ -65,7 +94,7 @@ def run_experiment(nbits) -> None:
   # function is different for each bitstring and that quickly gets
   # confusing.
   #
-  f = make_f(nbits)
+  f = make_f(nbits, solutions)
   u = ops.OracleUf(nbits+1, f)
 
   # Build state with 1 ancilla of |1>.
@@ -98,7 +127,7 @@ def run_experiment(nbits) -> None:
   #
   # Both produce identical results.
   #
-  iterations = int(math.pi / 4 * math.sqrt(n))
+  iterations = int(math.pi / 4 * math.sqrt(1.0 * n / solutions))
 
   for _ in range(iterations):
     psi = grover(psi)
@@ -109,11 +138,14 @@ def run_experiment(nbits) -> None:
   # for the 'xor-ancillary'. To check the result, we need to
   # ignore this ancilla.
   #
-  maxbits, maxprobs = psi.maxprob()
+  maxbits, maxprob = psi.maxprob()
   result = f(maxbits[:-1])
-  print(f'Got f({maxbits[:-1]}) = {result}, want: 1')
+  print(f'Got f({maxbits[:-1]}) = {result}, want: 1, solutions: {solutions:2d}, found 1 with P: {maxprob:6.4f}')
   if result != 1:
-    raise AssertionError('something went wrong, measured invalid state')
+    if solutions == 1:
+      raise AssertionError('something went wrong, measured invalid state')
+    else:
+      print('    *** Failed to find any solution ***')
 
 
 def main(argv):
@@ -121,7 +153,10 @@ def main(argv):
     raise app.UsageError('Too many command-line arguments.')
 
   for nbits in range(3, 8):
-    run_experiment(nbits)
+    run_experiment(nbits, 1)
+
+  for solutions in range(1, 9):
+    run_experiment(7, solutions)
 
 
 if __name__ == '__main__':
