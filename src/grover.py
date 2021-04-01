@@ -120,14 +120,18 @@ def run_experiment(nbits, solutions) -> None:
   #    that the highest probability of finding the right results occurs
   #    after pi/4 sqrt(n) rotations.
   #
-  # 2) I found this computation in qcircuits:
-  #    angle_to_rotate = np.arccos(np.sqrt(1 / n))
-  #    rotation_angle = 2 * np.arcsin(np.sqrt(1 / n))
-  #    iterations = int(round(angle_to_rotate / rotation_angle))
+  # 2) For grover specifically, with 1 solution the iteration count is:
+  #        int(math.pi / 4 * math.sqrt(n))
   #
-  # Both produce identical results.
+  # 3) For grover with multiple solutions:
+  #        int(math.pi / 4 * math.sqrt(n / solutions))
   #
-  iterations = int(math.pi / 4 * math.sqrt(1.0 * n / solutions))
+  # 4) For amplitude amplification, it's the probability of good
+  #    solutions, which is trivial with the Grover equal
+  #    superposition  here:
+  #        int(math.sqrt(n / solutions))
+  #
+  iterations = int(math.pi / 4 * math.sqrt(n / solutions))
 
   for _ in range(iterations):
     psi = grover(psi)
