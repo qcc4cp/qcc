@@ -1,6 +1,10 @@
 # python3
 """Example: Number set partitioning such set sum(A) == sum(B)."""
 
+# ================================
+# EXPERIMENTAL: Doens't work yet
+# ================================
+
 import math
 import numpy as np
 import random
@@ -121,7 +125,7 @@ def main(argv):
     if len(argv) > 1:
         raise app.UsageError('Too many command-line arguments.')
 
-    print('This code is EXPERIMENTAL, doesn't work yet')
+    print('This code is EXPERIMENTAL, does not work yet')
     n_ok = n_fail = 0
     for i in range(flags.FLAGS.iterations):
         ret = run_experiment()
