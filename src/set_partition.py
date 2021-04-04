@@ -1,9 +1,17 @@
 # python3
 """Example: Number set partitioning such set sum(A) == sum(B)."""
 
-# ================================
-# EXPERIMENTAL: Doens't work yet
-# ================================
+
+# Based on this paper:
+#   https://cds.cern.ch/record/467590/files/0010018.pdf
+#
+# For a set A of integers, can A be partitioned into
+# two sets A1 and A2, such that:
+#    sum(A1) == sum(A2)
+#
+# For this to work, sum(A) must not be odd.
+# We should reach consistent results in the range > 80% success.
+# Theoretically it should always reach >65%.
 
 import math
 import numpy as np
@@ -15,7 +23,7 @@ from absl import flags
 from src.lib import helper
 from src.lib import ops
 
-flags.DEFINE_integer('nmax', 10, 'Maximum number')
+flags.DEFINE_integer('nmax', 15, 'Maximum number')
 flags.DEFINE_integer('nnum',  4, 'Maximum number of set elements [1-nmax]')
 flags.DEFINE_integer('iterations', 20, 'Number of experiments')
 
@@ -24,15 +32,20 @@ flags.DEFINE_integer('iterations', 20, 'Number of experiments')
 #
 def select_numbers() -> list:
   """Build a graph of num nodes."""
-  
-  l = []
 
-  for i in range(flags.FLAGS.nnum):
-    num = random.randint(1, flags.FLAGS.nmax)
-    while num in l:
+  while True:
+    l = []
+    for i in range(flags.FLAGS.nnum):
       num = random.randint(1, flags.FLAGS.nmax)
-    l.append(num)
-  return l
+      while num in l:
+        num = random.randint(1, flags.FLAGS.nmax)
+      l.append(num)
+
+    sum = 0
+    for i in l:
+        sum += i
+    if i % 2 == 0:
+        return l
 
 
 def tensor_diag(n:int, num):
@@ -108,14 +121,14 @@ def run_experiment():
     diag = set_to_diagonal_h(l, flags.FLAGS.nmax)
     for i in range(2**(flags.FLAGS.nmax+1)):
        if diag[i] == 0.0:
-          print('Solution should exist - ', end='')
+          print('Solution should exist.', end='')
           if len(solutions):
-             print('Found Solution:', dump_solution(solutions[0], l))
+             print(' Found Solution:', dump_solution(solutions[0], l))
              return +1
-          print('FALSE Positive')
+          print(' FALSE Positive')
           return -1
     if len(solutions):
-        print('FALSE Negative')
+        print('FALSE Negative -- Solution should NOT exist, but does')
         return -1
 
     return 0
@@ -125,15 +138,13 @@ def main(argv):
     if len(argv) > 1:
         raise app.UsageError('Too many command-line arguments.')
 
-    print('This code is EXPERIMENTAL, does not work yet')
     n_ok = n_fail = 0
     for i in range(flags.FLAGS.iterations):
         ret = run_experiment()
         if ret > 0:
-           n_ok += 1
+            n_ok += 1
         if ret < 0:
-           n_fail += 1
-
+            n_fail += 1
     print(f'Ok: {n_ok}, Fail: {n_fail}, Success: {100.0 * n_ok / (n_ok + n_fail)}')
 
 if __name__ == '__main__':
