@@ -24,27 +24,18 @@ from src.lib import helper
 from src.lib import ops
 
 flags.DEFINE_integer('nmax', 15, 'Maximum number')
-flags.DEFINE_integer('nnum',  4, 'Maximum number of set elements [1-nmax]')
+flags.DEFINE_integer('nnum',  6, 'Maximum number of set elements [1-nmax]')
 flags.DEFINE_integer('iterations', 20, 'Number of experiments')
 
 
 # Select numbers are collected in a list.
 #
-def select_numbers() -> list:
-  """Build a graph of num nodes."""
+def select_numbers(nmax, nnum) -> list:
+  """Select random, unique random number."""
 
   while True:
-    l = []
-    for i in range(flags.FLAGS.nnum):
-      num = random.randint(1, flags.FLAGS.nmax)
-      while num in l:
-        num = random.randint(1, flags.FLAGS.nmax)
-      l.append(num)
-
-    sum = 0
-    for i in l:
-        sum += i
-    if i % 2 == 0:
+    l = random.sample(range(1, nmax), nnum)
+    if sum(l) % 2 == 0:
         return l
 
 
@@ -115,18 +106,19 @@ def dump_solution(bits, l):
 def run_experiment():
     """Run an experiment, compute H, match against 0."""
 
-    l = select_numbers()
+    l = select_numbers(flags.FLAGS.nmax, flags.FLAGS.nnum)
     solutions = compute_partition(l)
-      
+
     diag = set_to_diagonal_h(l, flags.FLAGS.nmax)
-    for i in range(2**(flags.FLAGS.nmax+1)):
-       if diag[i] == 0.0:
-          print('Solution should exist.', end='')
-          if len(solutions):
-             print(' Found Solution:', dump_solution(solutions[0], l))
-             return +1
-          print(' FALSE Positive')
-          return -1
+
+    non_zero = np.count_nonzero(diag)
+    if non_zero != 2**(flags.FLAGS.nmax+1):
+       print('Solution should exist...', end='')
+       if len(solutions):
+           print(' Found Solution:', dump_solution(solutions[0], l))
+           return +1
+       print(' FALSE Positive')
+       return -1
     if len(solutions):
         print('FALSE Negative -- Solution should NOT exist, but does')
         return -1

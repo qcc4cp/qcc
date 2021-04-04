@@ -93,8 +93,8 @@ py_binary(
 )
 
 py_binary(
-    name = "set_partition",
-    srcs = ["set_partition.py"],
+    name = "subset_sum",
+    srcs = ["subset_sum.py"],
     python_version = "PY3",
     srcs_version = "PY3",
     deps = [
