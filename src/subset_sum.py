@@ -10,8 +10,7 @@
 #    sum(A1) == sum(A2)
 #
 # For this to work, sum(A) must not be odd.
-# We should reach consistent results in the range > 80% success.
-# Theoretically it should always reach >65%.
+# We should reach 100% consistent results.
 
 import math
 import numpy as np
@@ -84,8 +83,8 @@ def dump_solution(bits, l):
     iset = []
     oset = []
     for i in range(len(bits)):
-        (iset.append(f'{l[i]:2d}') if bits[0] == 0 else
-         oset.append(f'{l[i]:2d}'))
+        (iset.append(f'{l[i]:d}') if bits[i] == 0  else
+         oset.append(f'{l[i]:d}'))
     return '+'.join(iset) + ' == ' + '+'.join(oset)
 
 
@@ -93,9 +92,7 @@ def run_experiment():
     """Run an experiment, compute H, match against 0."""
 
     nmax = flags.FLAGS.nmax
-    nnum = flags.FLAGS.nnum
-    
-    l = select_numbers(nmax, nnum)
+    l = select_numbers(nmax, flags.FLAGS.nnum)
     solutions = compute_partition(l)
 
     diag = set_to_diagonal_h(l, nmax)
@@ -105,27 +102,20 @@ def run_experiment():
        print('Solution should exist...', end='')
        if len(solutions):
            print(' Found Solution:', dump_solution(solutions[0], l))
-           return +1
-       print(' FALSE Positive')
-       return -1
+           return True
+       raise AssertionError('False positive found')
     if len(solutions):
-        print('FALSE Negative -- Solution should NOT exist, but does')
-        return -1
-    return 0
+       raise AssertionError('False negative found')
+    return False
 
 
 def main(argv):
     if len(argv) > 1:
         raise app.UsageError('Too many command-line arguments.')
 
-    n_ok = n_fail = 0
     for i in range(flags.FLAGS.iterations):
         ret = run_experiment()
-        if ret > 0:
-            n_ok += 1
-        if ret < 0:
-            n_fail += 1
-    print(f'Ok: {n_ok}, Fail: {n_fail}, Success: {100.0 * n_ok / (n_ok + n_fail)}')
+
 
 if __name__ == '__main__':
   app.run(main)
