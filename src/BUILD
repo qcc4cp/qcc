@@ -93,6 +93,16 @@ py_binary(
 )
 
 py_binary(
+    name = "set_partition",
+    srcs = ["set_partition.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)
+
+py_binary(
     name = "order_finding",
     srcs = ["order_finding.py"],
     python_version = "PY3",
