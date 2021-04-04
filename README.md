@@ -150,6 +150,7 @@ To run individual algorithms, run any of these command lines (note the missing `
    bazel run simon
    bazel run simon_general   
    bazel run solovay_kitaev
+   bazel run subset_sum
    bazel run superdense
    bazel run supremacy
    bazel run swap_test
