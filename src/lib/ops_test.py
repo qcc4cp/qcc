@@ -126,6 +126,8 @@ class OpsTest(absltest.TestCase):
 
     t = ops.Vgate()
     self.assertTrue(t(t).is_close(ops.PauliX()))
+    self.assertTrue(t(t.adjoint()).is_close(ops.Identity()))
+    self.assertTrue(t.is_unitary())
 
   def test_yroot_gate(self):
     """Test that Yroot^2 == Y."""

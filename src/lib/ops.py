@@ -294,8 +294,9 @@ def Swap(idx0:int=0, idx1:int=1) -> Operator:
 #    idx1 and idx2 define the 'inner' cnot
 #    idx0 defines the 'outer' cnot.
 #
-# For a Toffoli gate to control qubit 5 via cnot from 4 and 1:
-#    Toffoli(1, 4, 5)
+# For a Toffoli gate to control with qubit 5
+# a Cnot from 4 to 1:
+#    Toffoli(5, 4, 1)
 #
 def Toffoli(idx0:int, idx1:int, idx2:int) -> Operator:
   """Make a toffoli gate."""
