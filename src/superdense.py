@@ -25,7 +25,7 @@ def bob_measures(psi, expect0, expect1):
 
   # Change Hadamard basis back to computational basis.
   psi = ops.Cnot(0, 1)(psi)
-  psi = ops.Hadamard(1)(psi)
+  psi = ops.Hadamard()(psi)
 
   p0, _ = ops.Measure(psi, 0, tostate=expect0)
   p1, _ = ops.Measure(psi, 1, tostate=expect1)
