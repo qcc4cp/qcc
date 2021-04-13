@@ -50,11 +50,11 @@ class HelpersTest(absltest.TestCase):
     self.assertTrue(math.isclose(np.real(z), 0.0, abs_tol=1e-6))
 
   def test_frac(self):
-    self.assertEqual(helper.bits2frac((0,), 1), 0)
-    self.assertEqual(helper.bits2frac((1,), 1), 0.5)
-    self.assertEqual(helper.bits2frac((0, 1), 2), 0.25)
-    self.assertEqual(helper.bits2frac((1, 0), 2), 0.5)
-    self.assertEqual(helper.bits2frac((1, 1), 2), 0.75)
+    self.assertEqual(helper.bits2frac((0,)), 0)
+    self.assertEqual(helper.bits2frac((1,)), 0.5)
+    self.assertEqual(helper.bits2frac((0, 1)), 0.25)
+    self.assertEqual(helper.bits2frac((1, 0)), 0.5)
+    self.assertEqual(helper.bits2frac((1, 1)), 0.75)
 
   def test_pi_fractions(self) -> None:
     self.assertEqual(helper.pi_fractions(-3 * math.pi / 2), '-3*pi/2')
