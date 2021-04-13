@@ -40,9 +40,8 @@ def alice_measures(alice, expect0, expect1, qubit0, qubit1):
 
   # Alice should now have 'teleported' the qubit in state 'x'.
   # We sqrt() the probability, we want to show (original) amplitudes.
-  norm = 1.0 / (p0.real + p1.real)
-  bob_a = math.sqrt(p0.real * norm)
-  bob_b = math.sqrt(p1.real * norm)
+  bob_a = math.sqrt(p0.real)
+  bob_b = math.sqrt(p1.real)
   print('Teleported (|{:d}{:d}>)   a={:.2f}, b={:.2f}'.format(
       qubit0, qubit1, bob_a, bob_b))
 
