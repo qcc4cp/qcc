@@ -10,14 +10,14 @@ from absl import app
 def is_prime(num):
   """Check to see whether num can be factored at all."""
 
-  for i in range(2, num // 2):
+  for i in range(3, num // 2, 2):
     if num % i == 0:
       return False
   return True
 
 
-def is_relative_prime(num, larger_num):
-  """Determine if num is a relative prime to larger_num."""
+def is_coprime(num, larger_num):
+  """Determine if num is a coprime to larger_num."""
 
   return math.gcd(num, larger_num) == 1
 
@@ -33,14 +33,12 @@ def get_odd_non_prime(fr, to):
       return n
 
 
-def get_even_relative_prime(larger_num):
-  """Find a numnber < larger_num which is relative prime to it."""
+def get_coprime(larger_num):
+  """Find a numnber < larger_num which is coprime to it."""
 
   while True:
     val = random.randint(3, larger_num - 1)
-    if val % 2 == 1:
-      continue
-    if is_relative_prime(val, larger_num):
+    if is_coprime(val, larger_num):
       return val
 
 
@@ -59,12 +57,8 @@ def run_experiment(fr, to):
   """Run the classical part of Shor's algorithm."""
 
   n = get_odd_non_prime(fr, to)
-  a = get_even_relative_prime(n)
+  a = get_coprime(n)
   order = classic_order(a, n)
-
-  # TODO(rhundt): This test doesn't seem necessary?
-  if a ** (order // 2) == -1 % n:
-    return None
 
   factor1 = math.gcd(a ** (order // 2) + 1, n)
   factor2 = math.gcd(a ** (order // 2) - 1, n)
