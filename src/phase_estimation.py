@@ -10,8 +10,8 @@ from src.lib import ops
 from src.lib import state
 
 
-def phase1(psi, u, t):
-  """Unpack binary fraction."""
+def expo_u(psi, u, t):
+  """Exponentiate U."""
 
   # Unpack the binary fractions of the phase into the first t qubits.
   #
@@ -51,7 +51,7 @@ def run_experiment(nbits, t=8):
   # Make state + circuit to estimate phi.
   # Pick Eigenvector 'eigen_index' to math the Eigenvalue.
   psi = state.zeros(t) * state.State(eigvecs[:, eigen_index])
-  psi = phase1(psi, u, t)
+  psi = expo_u(psi, u, t)
   psi = ops.Qft(t).adjoint()(psi)
 
   # Find state with highest measurement probability and show results.
