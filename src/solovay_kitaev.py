@@ -50,13 +50,11 @@ def find_closest_u(gate_list, u):
   # Linear search over list of gates - is _very_ slow.
   # This can be optimized by using kd-trees.
   #
-  min_dist = 10
-  min_u = ops.Identity()
+  min_dist, min_u = 10, ops.Identity()
   for gate in gate_list:
     tr_dist = trace_dist(gate, u)
     if tr_dist < min_dist:
-      min_dist = tr_dist
-      min_u = gate
+      min_dist, min_u = tr_dist, gate
   return min_u
 
 
