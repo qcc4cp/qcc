@@ -4,6 +4,7 @@
 import math
 import numpy as np
 import timeit
+import random
 
 from absl import app
 from absl import flags
@@ -26,14 +27,10 @@ def build_graph(num:int=0) -> (int, list):
     weight = 5.0
     nodes = [(0, 1, 1.0), (1, 2, 2.0), (0, 2, 3.0) ]
     for i in range(num-3):
-        node0 = np.random.randint(0, 3 + i)
-        node1 = np.random.randint(0, 3 + i)
-        while node1 == node0:
-            node1 = np.random.randint(0, 3 + i)
-
-        nodes.append((3 + i, node0,
+        l = random.sample(range(0, 3 + i - 1), 2)
+        nodes.append((3 + i, l[0],
                       weight*np.random.random()))
-        nodes.append((3 + i, node1,
+        nodes.append((3 + i, l[1],
                       weight*np.random.random()))
     return num, nodes
 
