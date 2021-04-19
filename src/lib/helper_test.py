@@ -42,11 +42,11 @@ class HelpersTest(absltest.TestCase):
     self.assertTrue(math.isclose(np.real(y), 0.0))
     self.assertTrue(math.isclose(np.real(z), 0.0, abs_tol=1e-6))
 
-    qr = ops.RotationZ(90.0 * math.pi / 180.0)(qh)
+    qr = ops.RotationZ(math.pi/2)(qh)
     rho = qr.density()
     x, y, z = helper.density_to_cartesian(rho)
     self.assertTrue(math.isclose(np.real(x), 0.0, abs_tol=1e-6))
-    self.assertTrue(math.isclose(np.real(y), -1.0, abs_tol=1e-6))
+    self.assertTrue(math.isclose(np.real(y), 1.0, abs_tol=1e-6))
     self.assertTrue(math.isclose(np.real(z), 0.0, abs_tol=1e-6))
 
   def test_frac(self):

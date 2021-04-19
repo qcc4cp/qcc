@@ -31,7 +31,7 @@ class State(tensor.Tensor):
     dump_state(self, desc, prob_only)
 
   def density(self) -> tensor.Tensor:
-    return tensor.Tensor(np.outer(self.conj(), self))
+    return tensor.Tensor(np.outer(self, self.conj()))
 
   def adjoint(self) -> tensor.Tensor:
     return self.conj().transpose()

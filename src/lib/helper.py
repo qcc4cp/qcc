@@ -64,8 +64,8 @@ def dump_bloch(x, y, z):
 def qubit_dump_bloch(psi):
   """Print Bloch coordinates for state psi."""
 
-  x, y, z = helper.qubit_to_bloch(psi)
-  helper.dump_bloch(x, y, z)
+  x, y, z = qubit_to_bloch(psi)
+  dump_bloch(x, y, z)
 
 
 def pi_fractions(val, pi='pi') -> str:

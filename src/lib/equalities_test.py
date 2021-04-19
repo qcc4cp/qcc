@@ -215,7 +215,7 @@ class EqualitiesTest(absltest.TestCase):
     x1, y1, z1 = helper.density_to_cartesian(rho1)
 
     self.assertTrue(math.isclose(-1.0, x0, abs_tol=0.01))
-    self.assertTrue(math.isclose(1.0, y1, abs_tol=0.01))
+    self.assertTrue(math.isclose(-1.0, y1, abs_tol=0.01))
 
 
 if __name__ == '__main__':
