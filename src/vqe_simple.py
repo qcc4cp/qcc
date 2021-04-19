@@ -179,7 +179,7 @@ def run_single_qubit_mult():
   H = (random.random() * ops.PauliX() +
        random.random() * ops.PauliY() +
        random.random() * ops.PauliZ())
-  # Compute known minimal eigenvalue.
+  # Compute known minimum eigenvalue.
   eigvals = np.linalg.eigvalsh(H)
 
   # Brute force over the Bloch sphere.
@@ -193,7 +193,7 @@ def run_single_qubit_mult():
       ansatz = single_qubit_ansatz(theta, phi)
 
       # Compute <psi | H | psi>. Find smallest one, which will be
-      # the best approximation to the minimal eigenvalue from above.
+      # the best approximation to the minimum eigenvalue from above.
       # In this version, we just multiply out the result.
       psi = (H(ansatz.psi))
       psi = np.dot(ansatz.psi.adjoint(), H(ansatz.psi))
@@ -201,7 +201,7 @@ def run_single_qubit_mult():
         min_val = psi
 
   # Result from brute force approach:
-  print('Minimal: {:.4f}, Estimated: {:.4f}, Delta: {:.4f}'.format(
+  print('Minimum: {:.4f}, Estimated: {:.4f}, Delta: {:.4f}'.format(
       eigvals[0], np.real(min_val), np.real(min_val - eigvals[0])))
 
 
@@ -214,7 +214,7 @@ def run_single_qubit_measure():
   c = random.random()
   H = (a * ops.PauliX() + b * ops.PauliY() + c * ops.PauliZ())
 
-  # Compute known minimal eigenvalue.
+  # Compute known minimum eigenvalue.
   eigvals = np.linalg.eigvalsh(H)
 
   min_val = 1000.0
@@ -243,7 +243,7 @@ def run_single_qubit_measure():
       if expectation < min_val:
         min_val = expectation
 
-  print('Minimal eigenvalue: {:.3f}, Delta: {:.3f}'
+  print('Minimum eigenvalue: {:.3f}, Delta: {:.3f}'
         .format(eigvals[0], min_val - eigvals[0]))
 
 
