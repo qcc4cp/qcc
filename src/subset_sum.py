@@ -44,7 +44,7 @@ def tensor_diag(n:int, num):
         return [j for i in zip([x * w1 for x in diag],
                                [x * w2 for x in diag]) for j in i]
 
-    diag = [1, -1] if num == 0 else [1, 1] 
+    diag = [1, -1] if num == 0 else [1, 1]
     for i in range(1, n):
         if i == num:
             diag = tensor_product(i, -i, diag)

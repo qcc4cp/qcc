@@ -12,8 +12,8 @@ from src.lib import circuit
 
 flags.DEFINE_integer('nbits', 20, 'Number of Qubits')
 flags.DEFINE_integer('depth', 20, 'Depth of Circuit')
-flags.DEFINE_integer('target_nbits', 50, 'Number or target qubits')
-flags.DEFINE_integer('target_depth', 50, 'Depth of target circuit')
+flags.DEFINE_integer('target_nbits', 53, 'Number or target qubits')
+flags.DEFINE_integer('target_depth', 20, 'Depth of target circuit')
 flags.DEFINE_integer('machines', 100, 'Number of machines used')
 flags.DEFINE_integer('cores', 255, 'Number of cores per machine')
 #flags.DEFINE_integer('ccfactor', 100, 'C++ is x times faster than Python')

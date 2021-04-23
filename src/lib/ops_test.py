@@ -108,7 +108,7 @@ class OpsTest(absltest.TestCase):
     psi = swap(state.bitstring(1, 0, 0))
     self.assertTrue(psi.is_close(state.bitstring(0, 0, 1)))
 
-    op_manual = ops.Identity()**2 * swap * ops.Identity()
+    op_manual = ops.Identity().kpow(2) * swap * ops.Identity()
     psi = op_manual(state.bitstring(1, 1, 0, 1, 1, 0))
     self.assertTrue(psi.is_close(state.bitstring(1, 1, 1, 1, 0, 0)))
 
@@ -169,7 +169,7 @@ class OpsTest(absltest.TestCase):
 
     for idx in range(8):
       psi = state.zeros(2)
-      psi = (ops.Rk(idx)**2 @ ops.Rk(-idx)**2)(psi)
+      psi = (ops.Rk(idx).kpow(2) @ ops.Rk(-idx).kpow(2))(psi)
       self.assertTrue(psi.is_close(state.zeros(2)))
 
   def test_dft(self):

@@ -11,14 +11,14 @@ class TensorTest(absltest.TestCase):
     self.assertLen(t.shape, 1)
     self.assertEqual(t.shape[0], 2)
 
-    t0 = t ** 0.0
+    t0 = t.kpow(0.0)
     self.assertEqual(t0, 1.0)
 
-    t1 = t ** 1
+    t1 = t.kpow(1)
     self.assertLen(t1.shape, 1)
     self.assertEqual(t1.shape[0], 2)
 
-    t2 = t ** 2
+    t2 = t.kpow(2)
     self.assertLen(t2.shape, 1)
     self.assertEqual(t2.shape[0], 4)
 
@@ -27,15 +27,15 @@ class TensorTest(absltest.TestCase):
     self.assertEqual(m.shape[0], 2)
     self.assertEqual(m.shape[1], 2)
 
-    m0 = m ** 0.0
+    m0 = m.kpow(0.0)
     self.assertEqual(m0, 1.0)
 
-    m1 = m ** 1
+    m1 = m.kpow(1)
     self.assertLen(m1.shape, 2)
     self.assertEqual(m1.shape[0], 2)
     self.assertEqual(m1.shape[1], 2)
 
-    m2 = m ** 2
+    m2 = m.kpow(2)
     self.assertLen(m2.shape, 2)
     self.assertEqual(m2.shape[0], 4)
     self.assertEqual(m2.shape[1], 4)
@@ -48,4 +48,3 @@ class TensorTest(absltest.TestCase):
 
 if __name__ == '__main__':
   absltest.main()
-

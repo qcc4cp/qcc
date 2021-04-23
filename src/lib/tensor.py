@@ -99,7 +99,7 @@ class Tensor(np.ndarray):
     """Inline * operator maps to kronecker product."""
     return self.kron(arg)
 
-  def pow(self, n):
+  def kpow(self, n):
     """Return the tensor product of this object with itself `n` times."""
 
     if n == 0:
@@ -109,7 +109,3 @@ class Tensor(np.ndarray):
     for _ in range(n - 1):
       t = np.kron(t, self)
     return self.__class__(t)
-
-  def __pow__(self, n):
-    """Inline operator ** maps to pow()."""
-    return self.pow(n)

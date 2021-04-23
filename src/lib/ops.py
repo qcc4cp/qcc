@@ -77,9 +77,9 @@ class Operator(tensor.Tensor):
     if isinstance(arg, Operator):
       arg_bits = arg.nbits
       if idx > 0:
-        arg = Identity()**idx * arg
+        arg = Identity().kpow(idx) * arg
       if self.nbits > arg.nbits:
-        arg = arg * Identity()**(self.nbits - idx - arg_bits)
+        arg = arg * Identity().kpow(self.nbits - idx - arg_bits)
 
       if self.nbits != arg.nbits:
         raise AssertionError('Operator(O) with mis-matched dimensions.')
@@ -109,9 +109,9 @@ class Operator(tensor.Tensor):
 
     op = self
     if idx > 0:
-      op = Identity()**idx  * op
+      op = Identity().kpow(idx)  * op
     if arg.nbits - idx - self.nbits > 0:
-      op = op * Identity()**(arg.nbits - idx - self.nbits)
+      op = op * Identity().kpow(arg.nbits - idx - self.nbits)
 
     return state.State(np.matmul(op, arg))
 
@@ -123,19 +123,19 @@ class Operator(tensor.Tensor):
 # Single Qubit Gates / Generators.
 #--------------------------------------------------------------
 def Identity(d:int=1) -> Operator:
-  return Operator(np.array([[1.0, 0.0], [0.0, 1.0]]))**d
+  return Operator(np.array([[1.0, 0.0], [0.0, 1.0]])).kpow(d)
 
 
 def PauliX(d:int=1) -> Operator:
-  return Operator(np.array([[0.0, 1.0], [1.0, 0.0]]))**d
+  return Operator(np.array([[0.0, 1.0], [1.0, 0.0]])).kpow(d)
 
 
 def PauliY(d:int=1) -> Operator:
-  return Operator(np.array([[0.0, -1.0j], [1.0j, 0.0]]))**d
+  return Operator(np.array([[0.0, -1.0j], [1.0j, 0.0]])).kpow(d)
 
 
 def PauliZ(d:int=1) -> Operator:
-  return Operator(np.array([[1.0, 0.0], [0.0, -1.0]]))**d
+  return Operator(np.array([[1.0, 0.0], [0.0, -1.0]])).kpow(d)
 
 
 def Pauli(d:int=1) -> Operator:
@@ -145,12 +145,12 @@ def Pauli(d:int=1) -> Operator:
 def Hadamard(d:int=1) -> Operator:
   return Operator(
       1 / np.sqrt(2) *
-      np.array([[1.0, 1.0], [1.0, -1.0]]))**d
+      np.array([[1.0, 1.0], [1.0, -1.0]])).kpow(d)
 
 
 # Phase gate, also called S or Z90. Rotate by 90 deg around z-axis.
 def Phase(d:int=1) -> Operator:
-  return Operator(np.array([[1.0, 0.0], [0.0, 1.0j]]))**d
+  return Operator(np.array([[1.0, 0.0], [0.0, 1.0j]])).kpow(d)
 
 
 # Phase gate is also called S-gate.
@@ -161,30 +161,30 @@ def Sgate(d:int=1) -> Operator:
 # T-gate, which is sqrt(S).
 def Tgate(d:int=1) -> Operator:
   return Operator(np.array([[1.0, 0.0],
-                            [0.0, cmath.exp(cmath.pi * 1j / 4)]]))**d
+                            [0.0, cmath.exp(cmath.pi * 1j / 4)]])).kpow(d)
 
 
 # V-gate, which is sqrt(X)
 def Vgate(d:int=1) -> Operator:
-  return Operator(0.5 * np.array([(1+1j, 1-1j), (1-1j, 1+1j)]))**d
+  return Operator(0.5 * np.array([(1+1j, 1-1j), (1-1j, 1+1j)])).kpow(d)
 
 
 # Yroot is sqrt(Y).
 def Yroot(d:int=1) -> Operator:
   """As found in: https://arxiv.org/pdf/quant-ph/0511250.pdf."""
 
-  return Operator(0.5 * np.array([(1+1j, -1-1j), (1+1j, 1+1j)]))**d
+  return Operator(0.5 * np.array([(1+1j, -1-1j), (1+1j, 1+1j)])).kpow(d)
 
 
 # Rk is the rotation gate used in QFT.
 def Rk(k:int, d:int=1) -> Operator:
   return Operator(np.array([(1.0, 0.0),
-                            (0.0, cmath.exp(2.0 * cmath.pi * 1j / 2**k))]))**d
+                            (0.0, cmath.exp(2.0 * cmath.pi * 1j / 2**k))])).kpow(d)
 
 
 def U1(lam:float, d:int=1) -> Operator:
   return Operator(np.array([(1.0, 0.0),
-                            (0.0, cmath.exp(1j * lam))]))**d
+                            (0.0, cmath.exp(1j * lam))])).kpow(d)
 
 
 # Cache Pauli matrices for performance reasons.
@@ -249,7 +249,7 @@ def ControlledU(idx0:int, idx1:int, u:Operator) -> Operator:
   # space between qubits
   ifill = Identity(abs(idx1 - idx0) - 1)
   # 'width' of U in terms of Identity matrices
-  ufill = Identity()**u.nbits
+  ufill = Identity().kpow(u.nbits)
 
   if idx1 > idx0:
     if idx1 - idx0 > 1:
@@ -469,9 +469,9 @@ def Measure(psi:state.State, idx:int, tostate:int=0, collapse:bool=True):
 
   # Construct full matrix to apply to density matrix:
   if idx > 0:
-    op = Identity()**idx * op
+    op = Identity().kpow(idx) * op
   if idx < psi.nbits - 1:
-    op = op * Identity()**(psi.nbits - idx -1)
+    op = op * Identity().kpow(psi.nbits - idx -1)
 
   # Probability is the trace.
   prob0 = np.trace(np.matmul(op, rho))
