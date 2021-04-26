@@ -192,10 +192,9 @@ def run_single_qubit_mult():
       # Build the ansatz with two rotation gates.
       ansatz = single_qubit_ansatz(theta, phi)
 
-      # Compute <psi | H | psi>. Find smallest one, which will be
+      # Compute <psi ! H ! psi>. Find smallest one, which will be
       # the best approximation to the minimum eigenvalue from above.
       # In this version, we just multiply out the result.
-      psi = (H(ansatz.psi))
       psi = np.dot(ansatz.psi.adjoint(), H(ansatz.psi))
       if psi < min_val:
         min_val = psi
