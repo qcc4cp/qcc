@@ -24,7 +24,6 @@ def make_f1(d=3):
   answer_true = np.random.randint(0, num_inputs)
 
   bit_string = format(answer_true, '0{}b'.format(d))
-  print(f'Looking for: |{bit_string}>')
   answers[answer_true] = 1
 
   # pylint: disable=no-value-for-parameter
@@ -95,7 +94,7 @@ def run_experiment(nbits, solutions) -> None:
   # confusing.
   #
   f = make_f(nbits, solutions)
-  u = ops.OracleUf(nbits+1, f)
+  uf = ops.OracleUf(nbits+1, f)
 
   # Build state with 1 ancilla of |1>.
   #
@@ -110,7 +109,7 @@ def run_experiment(nbits, solutions) -> None:
   #
   reflection = op_zero * 2.0 - ops.Identity(nbits)
   inversion = hn(reflection(hn)) * ops.Identity()
-  grover = inversion(u)
+  grover = inversion(uf)
 
   # Number of Grover iterations
   #
@@ -144,12 +143,10 @@ def run_experiment(nbits, solutions) -> None:
   #
   maxbits, maxprob = psi.maxprob()
   result = f(maxbits[:-1])
-  print(f'Got f({maxbits[:-1]}) = {result}, want: 1, solutions: {solutions:2d}, found 1 with P: {maxprob:6.4f}')
+  print('Got f({}) = {}, want: 1, #: {:2d}, p: {:6.4f}'
+        .format(maxbits[:-1], result, solutions, maxprob))
   if result != 1:
-    if solutions == 1:
-      raise AssertionError('something went wrong, measured invalid state')
-    else:
-      print('    *** Failed to find any solution ***')
+    raise AssertionError('something went wrong, measured invalid state')
 
 
 def main(argv):
