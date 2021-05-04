@@ -53,7 +53,7 @@ def precompute_angles(a, n):
   s = bin(int(a))[2:].zfill(n)
 
   angles = [0.] * n
-  for i in range(0, n):
+  for i in range(n):
     for j in range(i, n):
       if s[j] == '1':
         angles[n-i-1] += 2**(-(j-i))
@@ -65,7 +65,7 @@ def add(qc, q, a, n, factor):
   """Un-controlled add in fourier space."""
 
   angles = precompute_angles(a, n)
-  for i in range(0, n):
+  for i in range(n):
     qc.u1(q[i], factor * angles[i])
 
 
@@ -73,7 +73,7 @@ def cadd(qc, q, ctl, a, n, factor):
   """Controlled add in fourier space."""
 
   angles = precompute_angles(a, n)
-  for i in range(0, n):
+  for i in range(n):
     qc.cu1(ctl, q[i], factor * angles[i])
 
 
@@ -91,11 +91,11 @@ def ccadd(qc, q, ctl1, ctl2, a, n, factor):
   """Controlled-controlled add in fourier space."""
 
   angles = precompute_angles(a, n)
-  for i in range(0, n):
+  for i in range(n):
     ccphase(qc, factor*angles[i], ctl1, ctl2, q[i])
 
 
-def qft(qc, up_reg, n, with_swaps):
+def qft(qc, up_reg, n:int, with_swaps:bool) -> None:
   """QFT."""
 
   for i in range(n-1, -1, -1):
@@ -103,15 +103,15 @@ def qft(qc, up_reg, n, with_swaps):
     for j in range(i-1, -1, -1):
       qc.cu1(up_reg[i], up_reg[j], math.pi/2**(i-j))
 
-  if with_swaps == 1:
+  if with_swaps:
     for i in range(n // 2):
       qc.swap(up_reg[i], up_reg[n-1-i])
 
 
-def inverse_qft(qc, up_reg, n, with_swaps):
+def inverse_qft(qc, up_reg, n:int, with_swaps:bool) -> None:
   """Inverse QFT."""
 
-  if with_swaps == 1:
+  if with_swaps:
     for i in range(n // 2):
       qc.swap(up_reg[i], up_reg[n-1-i])
 
@@ -166,13 +166,13 @@ def cmultmodn(qc, ctl, q, aux, a, number, n):
 
   print('Compute...')
   qft(qc, aux, n+1, with_swaps=0)
-  for i in range(0, n):
+  for i in range(n):
     cc_add_mod_n(qc, aux, q[i], ctl, aux[n+1],
                  ((2**i)*a) % number, number, n+1)
   inverse_qft(qc, aux, n+1, with_swaps=0)
 
   print('Swap...')
-  for i in range(0, n):
+  for i in range(n):
     qc.cswap(ctl, q[i], aux[i])
   a_inv = modular_inverse(a, number)
 
@@ -209,7 +209,7 @@ def main(argv):
 
   qc.h(up)
   qc.x(down[0])
-  for i in range(0, nbits*2):
+  for i in range(nbits*2):
     cmultmodn(qc, up[i], down, aux, int(a**(2**i)), number, nbits)
   inverse_qft(qc, up, 2*nbits, with_swaps=1)
 

@@ -21,7 +21,7 @@ def incr(qc, idx, nbits, aux, controller=[]):
   #  -o--o--X--
   #  -o--o--o--X--
   #  ...
-  for i in range(0, nbits):
+  for i in range(nbits):
     ctl=controller.copy()
     for j in range(nbits-1, i, -1):
       ctl.append(j+idx)
@@ -41,7 +41,7 @@ def decr(qc, idx, nbits, aux, controller=[]):
   #  -0--0--X--
   #  -0--0--0--X--
   #  ...
-  for i in range(0, nbits):
+  for i in range(nbits):
     ctl=controller.copy()
     for j in range(nbits-1, i, -1):
       ctl.append([j+idx])
@@ -93,7 +93,7 @@ def incr_mod_9(qc, aux):
   #                 |  |  |
   #  ...            X--o--X  -> |0>
   #
-  for i in range(0, 4):
+  for i in range(4):
     ctl=[]
     for j in range(4-1, i, -1):
       ctl.append(j)

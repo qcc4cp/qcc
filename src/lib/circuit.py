@@ -29,11 +29,10 @@ flags.DEFINE_string('cirq', '', 'Generate cirq output file, or empty')
 flags.DEFINE_string('latex', '', 'Generate Latex output file, or empty')
 
 
-
 class qc:
   """Wrapper class to maintain state + operators."""
 
-  def __init__(self, name=None, eager=True):
+  def __init__(self, name=None, eager:bool=True):
     self.name = name
     self.psi = 1.0
     self.ir = ir.Ir()
@@ -62,24 +61,24 @@ class qc:
     self.ir.reg(size, name, ret)
     return ret
 
-  def qubit(self, alpha=None, beta=None):
+  def qubit(self, alpha:float=None, beta:float=None) -> None:
     self.psi = self.psi * state.qubit(alpha, beta)
 
-  def zeros(self, n):
+  def zeros(self, n:int):
     self.psi = self.psi * state.zeros(n)
 
-  def ones(self, n):
+  def ones(self, n:int):
     self.psi = self.psi * state.ones(n)
 
   def bitstring(self, *bits):
     self.psi = self.psi * state.bitstring(*bits)
 
-  def arange(self, n):
+  def arange(self, n:int):
     self.zeros(n)
     for i in range(0, 2**n):
       self.psi[i] = float(i)
 
-  def rand(self, n):
+  def rand(self, n:int):
     self.psi = self.psi * state.rand(n)
 
   def stats(self):

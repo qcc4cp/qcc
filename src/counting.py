@@ -18,7 +18,7 @@ from src.lib import state
 # in the dataset, or the function?
 #
 # In essence we cleverly construct a phase estimation circuit with
-# the Grover Operator as it's unitary.
+# the Grover operator as it's unitary.
 #
 # We will find the phase phi and from it we estimate the number
 # M of solutions out of the N element solution space, with:
@@ -56,7 +56,7 @@ def make_f(d=3, solutions=1):
 def run_experiment(nbits_phase, nbits_grover, solutions) -> None:
   """Run full experiment for a given number of solutions."""
 
-  # Building the Grover Operator, see grover.py
+  # Building the Grover operator, see grover.py
   n = 2**nbits_grover
   zero_projector = np.zeros((n, n))
   zero_projector[0, 0] = 1
@@ -80,13 +80,13 @@ def run_experiment(nbits_phase, nbits_grover, solutions) -> None:
   for i in range(nbits_phase + nbits_grover + 1):
     psi.apply(ops.Hadamard(), i)
 
-  # Construct the Grover Operator.
+  # Construct the Grover operator.
   reflection = op_zero * 2.0 - ops.Identity(nbits_grover)
   hn = ops.Hadamard(nbits_grover)
   inversion = hn(reflection(hn)) * ops.Identity()
   grover = inversion(u)
 
-  # Now that we have the Grover Operator, we have to perform
+  # Now that we have the Grover operator, we have to perform
   # phase estimation. This loop is a copy from phase_estimation.py
   # with more comments there.
   #

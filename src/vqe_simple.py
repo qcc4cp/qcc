@@ -162,7 +162,7 @@ def run_two_qubit_zi_experiment():
       print()
 
 
-def single_qubit_ansatz(theta:float, phi:float):
+def single_qubit_ansatz(theta:float, phi:float) -> circuit.qc:
   """Generate a single qubit ansatz."""
 
   qc = circuit.qc('single-qubit ansatz Y')
