@@ -28,16 +28,16 @@ flags.DEFINE_integer('nnum',  6,
 flags.DEFINE_integer('iterations', 20, 'Number of experiments')
 
 
-def select_numbers(nmax, nnum) -> list:
-  """Select nnum random, unique numbers in range 1..nmax."""
+def select_numbers(nmax:int, nnum:int) -> list:
+  """Select nnum random, unique numbers in range 1 to nmax."""
 
   while True:
-    l = random.sample(range(1, nmax), nnum)
-    if sum(l) % 2 == 0:
-        return l
+    sample = random.sample(range(1, nmax), nnum)
+    if sum(sample) % 2 == 0:
+        return sample
 
 
-def tensor_diag(n:int, num):
+def tensor_diag(n:int, num:int):
     """Construct tensor product from diagonal matrices."""
 
     def tensor_product(w1:float, w2:float, diag):
@@ -103,9 +103,9 @@ def run_experiment():
        if len(solutions):
            print(' Found Solution:', dump_solution(solutions[0], l))
            return True
-       raise AssertionError('False positive found')
+       raise AssertionError('False positive found.')
     if len(solutions):
-       raise AssertionError('False negative found')
+       raise AssertionError('False negative found.')
     return False
 
 
