@@ -66,38 +66,31 @@ def u_to_bloch(U):
   if sin < 1e-10:
     axis = [0, 0, 1]
   else:
-    nx = (U[0, 1] - U[1, 1]) / (2j * sin)
-    ny = (U[0, 1] - U[1, 0]) / (2j * sin)
-    nz = (U[1, 1] - U[0, 0]) / (2j * sin)
+    nx = (U[0, 1] + U[1, 0]) / (2j * sin)
+    ny = (U[0, 1] - U[1, 0]) / (2 * sin)
+    nz = (U[0, 0] - U[1, 1]) / (2j * sin)
     axis = [nx, ny, nz]
-  return axis, angle
+  return axis, 2 * angle
 
 
 def gc_decomp(U):
-  """Group Commutator Decomposition."""
+  """Group commutator decomposition."""
 
   def diagonalize(U):
     _, V = np.linalg.eig(U)
     return ops.Operator(V)
 
-  # Because of moderate numerical instability, it can happen
-  # that the trace is just a tad over 2.000000. If this happens,
-  # we tolerate it and set the trace to exactly 2.000000.
-  tr = np.trace(U)
-  if tr > 2.0:
-    tr = 2.0
+  # Get axis and theta for the operator.
+  axis, theta = u_to_bloch(U)
 
-  # We know how to compute theta from u_to_bloch().
-  theta = 2.0 * np.arccos(np.real(tr / 2))
   # The angle phi comes from eq 10 in 'The Solovay-Kitaev Algorithm' by
   # Dawson, Nielsen. It is fully derived in the book section on the
   # theorem and algorithm.
   phi = 2.0 * np.arcsin(np.sqrt(
       np.sqrt((0.5 - 0.5 * np.cos(theta / 2)))))
 
-  axis, _ = u_to_bloch(U)
   V = ops.RotationX(phi)
-  if axis[2] < 0:
+  if axis[2] > 0:
     W = ops.RotationY(2 * np.pi - phi)
   else:
     W = ops.RotationY(phi)
