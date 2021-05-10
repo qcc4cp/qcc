@@ -9,26 +9,26 @@ from src.lib import bell
 from src.lib import ops
 
 
-def alice_manipulates(psi, bit0, bit1):
+def alice_manipulates(psi, bit0:int, bit1:int):
   """Alice encodes 2 classical bits in her 1 qubit."""
 
   ret = ops.Identity(2)(psi)
   if bit0:
-    ret = ops.PauliZ()(ret)
-  if bit1:
     ret = ops.PauliX()(ret)
+  if bit1:
+    ret = ops.PauliZ()(ret)
   return ret
 
 
-def bob_measures(psi, expect0, expect1):
+def bob_measures(psi, expect0:int, expect1:int):
   """Bob measures both bits (in computational basis)."""
 
   # Change Hadamard basis back to computational basis.
   psi = ops.Cnot(0, 1)(psi)
   psi = ops.Hadamard()(psi)
 
-  p0, _ = ops.Measure(psi, 0, tostate=expect0)
-  p1, _ = ops.Measure(psi, 1, tostate=expect1)
+  p0, _ = ops.Measure(psi, 0, tostate=expect1)
+  p1, _ = ops.Measure(psi, 1, tostate=expect0)
 
   if (not math.isclose(p0, 1.0, abs_tol=1e-6) or
       not math.isclose(p1, 1.0, abs_tol=1e-6)):
