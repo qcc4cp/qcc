@@ -60,10 +60,6 @@ def make_f(d=3, solutions=1):
 def run_experiment(nbits, solutions) -> None:
   """Run full experiment for a given flavor of f()."""
 
-  hn = ops.Hadamard(nbits)
-  h = ops.Hadamard()
-  n = 2**nbits
-
   # Note that op_zero multiplies the diagonal elements of the operator by -1,
   # except for element [0][0]. This can be interpreted as "rotating around
   # the |00..)>" state. More pragmatically, multiplying this op_zero with
@@ -79,7 +75,7 @@ def run_experiment(nbits, solutions) -> None:
   # for every vector element c_x, with u being the mean over the
   # state vector. This is the defintion of inversion about the mean.
   #
-  zero_projector = np.zeros((n, n))
+  zero_projector = np.zeros((2**nbits, 2**nbits))
   zero_projector[0, 0] = 1
   op_zero = ops.Operator(zero_projector)
 
@@ -100,13 +96,14 @@ def run_experiment(nbits, solutions) -> None:
   #
   psi = state.zeros(nbits) * state.ones(1)
   for i in range(nbits + 1):
-    psi.apply(h, i)
+    psi.apply(ops.Hadamard(), i)
 
   # Build Grover operator, note Id() for the ancilla.
   # The Grover operator is the combination of:
   #    - phase inversion via the u unitary
   #    - inversion about the mean (see matrix above)
   #
+  hn = ops.Hadamard(nbits)
   reflection = op_zero * 2.0 - ops.Identity(nbits)
   inversion = hn(reflection(hn)) * ops.Identity()
   grover = inversion(uf)
@@ -130,7 +127,7 @@ def run_experiment(nbits, solutions) -> None:
   #    superposition  here:
   #        int(math.sqrt(n / solutions))
   #
-  iterations = int(math.pi / 4 * math.sqrt(n / solutions))
+  iterations = int(math.pi / 4 * math.sqrt(2**nbits / solutions))
 
   for _ in range(iterations):
     psi = grover(psi)
