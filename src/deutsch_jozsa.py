@@ -29,11 +29,11 @@ def make_f(dim=1, flavor=exp_constant):
   # accepts a string of bits. We compute an index from this
   # binary representation and return the value in bits[] found there.
   #
-  def f(*bit_string):
+  def f(bit_string):
     """Return f(bits) for one of the 2 possible function types."""
 
     # pylint: disable=no-value-for-parameter
-    idx = helper.bits2val(*bit_string)
+    idx = helper.bits2val(bit_string)
     return bits[idx]
 
   return f

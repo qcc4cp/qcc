@@ -174,16 +174,13 @@ def run_experiment(num_nodes):
 
     # Results...
     if min_idx == max_cut:
-        print('SUCCESS : {:+10.2f} |{}>'
-              .format(np.real(diag[min_idx]),
+        print('SUCCESS: {:+10.2f} |{}>'.format(np.real(diag[min_idx]),
                       bin(min_idx)[2:].zfill(n)))
     else:
-        print('FAIL    : {:+10.2f} |{}>  '
-              .format(np.real(diag[min_idx]),
+        print('FAIL   : {:+10.2f} |{}>  '.format(np.real(diag[min_idx]),
                       bin(min_idx)[2:].zfill(n)),
               end='')
-        print('Max-Cut: {:+10.2f} |{}>'
-              .format(np.real(diag[max_cut]),
+        print('Max-Cut: {:+10.2f} |{}>'.format(np.real(diag[max_cut]),
                       bin(max_cut)[2:].zfill(n)))
 
 
