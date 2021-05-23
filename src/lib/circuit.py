@@ -54,7 +54,7 @@ class qc:
       self.ir.end_section()
 
   # --- States ----------------------------------------------------
-  def reg(self, size, it=0, *, name=None):
+  def reg(self, size:int, it=0, *, name:str=None) -> state.Reg:
     ret = state.Reg(size, it, self.global_reg)
     self.global_reg = self.global_reg + size
     self.psi = self.psi * ret.psi()
@@ -102,7 +102,7 @@ class qc:
     self. ir = optimizer.optimize(self.ir)
 
   @property
-  def nbits(self):
+  def nbits(self) -> int:
     return self.psi.nbits
 
   def ctl_by_0(self, ctl):
@@ -114,7 +114,7 @@ class qc:
     return ctl_qubit, ctl_by_0
 
   # --- Gates  ----------------------------------------------------
-  def apply1(self, gate, idx, name=None, *, val=None):
+  def apply1(self, gate, idx:int, name=None, *, val=None):
     if isinstance(idx, state.Reg):
       for reg in range(idx.nbits):
         if self.build_ir:
@@ -129,7 +129,7 @@ class qc:
       xgates.apply1(self.psi, gate.reshape(4), self.psi.nbits, idx,
                     tensor.tensor_width)
 
-  def applyc(self, gate, ctl, idx, name=None, *, val=None):
+  def applyc(self, gate, ctl:int, idx:int, name=None, *, val=None):
     if isinstance(idx, state.Reg):
       raise AssertionError('controlled register not supported')
 
@@ -144,31 +144,31 @@ class qc:
     if by_0:
       self.x(ctl_qubit)
 
-  def cv(self, idx0, idx1):
+  def cv(self, idx0:int, idx1:int):
     self.applyc(ops.Vgate(), idx0, idx1, 'cv')
 
-  def cv_adj(self, idx0, idx1):
+  def cv_adj(self, idx0:int, idx1:int):
     self.applyc(ops.Vgate().adjoint(), idx0, idx1, 'cv_adj')
 
-  def cx0(self, idx0, idx1):
+  def cx0(self, idx0:int, idx1:int):
     self.applyc(ops.PauliX(), idx0, idx1, 'cx')
 
-  def cx(self, idx0, idx1):
+  def cx(self, idx0:int, idx1:int):
     self.applyc(ops.PauliX(), idx0, idx1, 'cx')
 
-  def cy(self, idx0, idx1):
+  def cy(self, idx0:int, idx1:int):
     self.applyc(ops.PauliY(), idx0, idx1, 'cy')
 
-  def cz(self, idx0, idx1):
+  def cz(self, idx0:int, idx1:int):
     self.applyc(ops.PauliZ(), idx0, idx1, 'cz')
 
-  def cu1(self, idx0, idx1, value):
+  def cu1(self, idx0:int, idx1:int, value):
     self.applyc(ops.U1(value), idx0, idx1, 'cu1', val=value)
 
-  def crk(self, idx0, idx1, value):
+  def crk(self, idx0:int, idx1:int, value):
     self.applyc(ops.Rk(value), idx0, idx1, 'crk', val=value)
 
-  def ccx(self, idx0, idx1, idx2):
+  def ccx(self, idx0:int, idx1:int, idx2:int):
     """Sleator-Weinfurter Construction."""
 
     i0, c0_by_0 = self.ctl_by_0(idx0)
@@ -192,46 +192,46 @@ class qc:
       if c1_by_0:
         self.x(i1)
 
-  def toffoli(self, idx0, idx1, idx2):
+  def toffoli(self, idx0:int, idx1:int, idx2:int):
     self.ccx(idx0, idx1, idx2)
 
-  def h(self, idx):
+  def h(self, idx:int):
     self.apply1(ops.Hadamard(), idx, 'h')
 
-  def s(self, idx):
+  def s(self, idx:int):
     self.apply1(ops.Sgate(), idx, 's')
 
-  def sdag(self, idx):
+  def sdag(self, idx:int):
     self.apply1(ops.Sgate().adjoint(), idx, 'sdag')
 
-  def t(self, idx):
+  def t(self, idx:int):
     self.apply1(ops.Tgate(), idx, 't')
 
-  def u1(self, idx, val):
+  def u1(self, idx:int, val):
     self.apply1(ops.U1(val), idx, 'u1', val=val)
 
-  def v(self, idx):
+  def v(self, idx:int):
     self.apply1(ops.Vgate(), idx, 'v')
 
-  def x(self, idx):
+  def x(self, idx:int):
     self.apply1(ops.PauliX(), idx, 'x')
 
-  def y(self, idx):
+  def y(self, idx:int):
     self.apply1(ops.PauliY(), idx, 'y')
 
-  def z(self, idx):
+  def z(self, idx:int):
     self.apply1(ops.PauliZ(), idx, 'z')
 
-  def yroot(self, idx):
+  def yroot(self, idx:int):
     self.apply1(ops.Yroot(), idx, 'yroot')
 
-  def rx(self, idx, theta):
+  def rx(self, idx:int, theta:float):
     self.apply1(ops.RotationX(theta), idx, 'rx', val=theta)
 
-  def ry(self, idx, theta):
+  def ry(self, idx:int, theta:float):
     self.apply1(ops.RotationY(theta), idx, 'ry', val=theta)
 
-  def rz(self, idx, theta):
+  def rz(self, idx:int, theta:float):
     self.apply1(ops.RotationZ(theta), idx, 'rz', val=theta)
 
 #  Appplying a random unitary is possible, but it is not a
@@ -242,10 +242,10 @@ class qc:
 #      self.psi = ops.Operator(op)(self.psi, idx)
 
 # --- Measure ----------------------------------------------------
-  def measure_bit(self, idx, tostate=0, collapse=True):
+  def measure_bit(self, idx:int, tostate=0, collapse=True):
     return ops.Measure(self.psi, idx, tostate, collapse)
 
-  def pauli_expectation(self, idx):
+  def pauli_expectation(self, idx:int):
     """We can compute the Pauli expectation value from probabilities."""
 
     # Pauli eigenvalues are -1 and +1, hence we can compute the
@@ -259,7 +259,7 @@ class qc:
     return 0
 
 # --- Advanced ---------------------------------------------------
-  def swap(self, idx0, idx1):
+  def swap(self, idx0:int, idx1:int):
     """Simple Swap operation."""
 
     # pylint: disable=arguments-out-of-order
@@ -276,7 +276,7 @@ class qc:
       self.ccx(ctl, idx0, idx1)
       self.ccx(ctl, idx1, idx0)
 
-  def multi_control(self, ctl, idx1, aux, gate, desc):
+  def multi_control(self, ctl:int, idx1:int, aux, gate, desc:str):
     """Multi-controlled gate, using aux as ancilla."""
 
     # This is a simpler version that requires n-1 ancillaries, instead
