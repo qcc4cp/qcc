@@ -9,9 +9,12 @@
 # functions this way, which should make compilation to, eg., TPU
 # much more straight-forward.
 
+from __future__ import annotations
+
 import math
 
 import numpy as np
+
 
 
 # All math in this package will use this base type.
@@ -30,25 +33,25 @@ def accuracy_float():
 class Tensor(np.ndarray):
   """Tensor is a numpy array representing a state or operator."""
 
-  def __new__(cls, input_array):
+  def __new__(cls, input_array) -> Tensor:
     return np.asarray(input_array, dtype=tensor_type).view(cls)
 
-  def __array_finalize__(self, obj):
+  def __array_finalize__(self, obj) -> None:
     if obj is None: return
     # np.ndarray has complex construction patterns. Because of this,
     # if new attributes are needed, this is the place to add them, like this:
     #    self.info = getattr(obj, 'info', None)
 
   @property
-  def nbits(self):
+  def nbits(self) -> int:
     return int(math.log2(self.shape[0]))
 
-  def is_close(self, arg):
+  def is_close(self, arg) -> bool:
     """Check that a 1D or 2D tensor is numerically close to arg."""
 
     return np.allclose(self, arg, atol=1e-6)
 
-  def is_hermitian(self):
+  def is_hermitian(self) -> bool:
     """Check if this tensor is hermitian - Udag = U."""
 
     if len(self.shape) != 2:
@@ -57,13 +60,13 @@ class Tensor(np.ndarray):
       return False
     return self.is_close(np.conj(self.transpose()))
 
-  def is_unitary(self):
+  def is_unitary(self) -> bool:
     """Check if this tensor is unitary - Udag*U = I."""
 
     return Tensor(np.conj(self.transpose()) @ self).is_close(
         Tensor(np.eye(self.shape[0])))
 
-  def is_density(self):
+  def is_density(self) -> bool:
     """Check if this tensor is a density operator."""
 
     if not self.is_hermitian():
@@ -72,7 +75,7 @@ class Tensor(np.ndarray):
       return False
     return True
 
-  def is_pure(self):
+  def is_pure(self) -> bool:
     """Check if this tensor describes a pure state (else it is mixed)."""
 
     if not self.is_density():
@@ -81,7 +84,7 @@ class Tensor(np.ndarray):
     tr_rho2 = np.real(np.trace(self @  self))
     return np.allclose(tr_rho2, 1.0)
 
-  def is_permutation(self):
+  def is_permutation(self) -> bool:
     """Check whether a tensor is a true permutation matrix."""
 
     x = self
@@ -90,16 +93,17 @@ class Tensor(np.ndarray):
             (x.sum(axis=1) == 1).all() and
             ((x == 1) | (x == 0)).all())
 
-  def kron(self, arg):
+  def kron(self, arg: Tensor) -> Tensor:
     """Return the kronecker product of this object with arg."""
 
     return self.__class__(np.kron(self, arg))
 
-  def __mul__(self, arg):
+  def __mul__(self, arg: Tensor) -> Tensor:
     """Inline * operator maps to kronecker product."""
+
     return self.kron(arg)
 
-  def kpow(self, n):
+  def kpow(self, n: int) -> Tensor:
     """Return the tensor product of this object with itself `n` times."""
 
     if n == 0:

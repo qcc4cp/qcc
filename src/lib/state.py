@@ -60,7 +60,7 @@ class State(tensor.Tensor):
     amplitude = self.ampl(*bits)
     return math.degrees(cmath.phase(amplitude))
 
-  def maxprob(self):
+  def maxprob(self) -> (List, float):
     """Find state with highest probability."""
 
     maxprob = 0.0

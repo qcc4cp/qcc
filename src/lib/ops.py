@@ -3,6 +3,8 @@
 
 """class Operator represents unitary operators for multi-qubit systems."""
 
+from __future__ import annotations
+
 import cmath
 import math
 from typing import Optional
@@ -48,7 +50,7 @@ class Operator(tensor.Tensor):
       res = res.replace('+', ' ')
     print(res)
 
-  def adjoint(self):
+  def adjoint(self) -> Operator:
     return Operator(np.conj(self.transpose()))
 
 
@@ -71,7 +73,7 @@ class Operator(tensor.Tensor):
   # -------------
   # Op(op) equals Op @ op equal matmul(Op, op), to produce a new state.
   #
-  def _apply(self, arg, idx:int) -> state.State:
+  def apply(self, arg, idx:int) -> state.State:
     """Apply operator to a state or operator."""
 
     if isinstance(arg, Operator):
@@ -115,8 +117,8 @@ class Operator(tensor.Tensor):
 
     return state.State(np.matmul(op, arg))
 
-  def __call__(self, arg, idx=0):
-    return self._apply(arg, idx)
+  def __call__(self, arg, idx=0) -> state.State:
+    return self.apply(arg, idx)
 
 
 #--------------------------------------------------------------
@@ -395,7 +397,7 @@ def Qft(nbits:int) -> Operator:
 # Trace out a qubit from a density matrix and return the
 # remaining density matrix.
 #
-def TraceOutSingle(rho, index:int):
+def TraceOutSingle(rho:Operator, index:int):
   """Trace out single qubit from density matrix."""
 
   nbits = int(math.log2(rho.shape[0]))
@@ -423,7 +425,7 @@ def TraceOutSingle(rho, index:int):
   return rho_reduced
 
 
-def TraceOut(rho, index_set):
+def TraceOut(rho: Operator, index_set: List[int]):
   """Trace out multiple qubits from density matrix."""
 
   for index in range(len(index_set)):
@@ -451,7 +453,8 @@ def TraceOut(rho, index_set):
   return rho
 
 
-def Measure(psi:state.State, idx:int, tostate:int=0, collapse:bool=True):
+def Measure(psi:state.State, idx:int,
+            tostate:int=0, collapse:bool=True):
   """Measure a qubit via a projector on the density matrix."""
 
   # Measure() measure qubit 'idx' in state 'psi'. It both measures the

@@ -78,7 +78,7 @@ def run_experiment(nbits_phase, nbits_grover, solutions) -> None:
 
   # Apply Hadamard to all the qubits.
   for i in range(nbits_phase + nbits_grover + 1):
-    psi.apply(ops.Hadamard(), i)
+    psi.apply1(ops.Hadamard(), i)
 
   # Construct the Grover operator.
   reflection = op_zero * 2.0 - ops.Identity(nbits_grover)

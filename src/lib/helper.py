@@ -37,7 +37,7 @@ def bits2frac(bits):
   return sum(bits[i] * 2**(-i-1) for i in range(len(bits)))
 
 
-def density_to_cartesian(rho):
+def density_to_cartesian(rho) -> (float, float, float):
   """Compute Bloch sphere coordinates from 2x2 density matrix."""
 
   a = rho[0, 0]
@@ -55,7 +55,7 @@ def qubit_to_bloch(psi):
   return density_to_cartesian(psi.density())
 
 
-def dump_bloch(x, y, z):
+def dump_bloch(x:float, y:float, z:float):
   """Textual output for Bloch sphere coordinates."""
 
   print(f'x: {x:.2f}, y: {y:.2f}, z: {z:.2f}')
@@ -68,7 +68,7 @@ def qubit_dump_bloch(psi):
   dump_bloch(x, y, z)
 
 
-def pi_fractions(val, pi='pi') -> str:
+def pi_fractions(val:float, pi:str='pi') -> str:
   """Convert a value in fractions of pi."""
 
   if val is None:

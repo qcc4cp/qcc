@@ -96,7 +96,7 @@ def run_experiment(nbits, solutions) -> None:
   #
   psi = state.zeros(nbits) * state.ones(1)
   for i in range(nbits + 1):
-    psi.apply(ops.Hadamard(), i)
+    psi.apply1(ops.Hadamard(), i)
 
   # Build Grover operator, note Id() for the ancilla.
   # The Grover operator is the combination of:
