@@ -105,7 +105,7 @@ class State(tensor.Tensor):
     qc = np.sum(d > 1e-10)
     return qc
 
-  def apply(self, gate, index) -> None:
+  def apply1(self, gate, index) -> None:
     """Apply single-qubit gate to this state."""
 
     # To maintain qubit ordering in this infrastructure,
@@ -124,7 +124,7 @@ class State(tensor.Tensor):
         self[i] = t1
         self[i + two_q] = t2
 
-  def apply_controlled(self, gate, control, target) -> None:
+  def applyc(self, gate, control, target) -> None:
     """Apply a controlled 2-qubit gate via explicit indexing."""
 
     # To maintain qubit ordering in this infrastructure,
@@ -180,7 +180,7 @@ def qubit(alpha: Optional[np.complexfloating]=None,
 #     |111...1>
 #
 # The result of this tensor product is
-#   always [1, 0, 0, ..., 0]T or [0, 0, 0, ..., 1]T
+#   always [1, 0, 0, ..., 0]^T or [0, 0, 0, ..., 1]^T
 #
 def zeros_or_ones(d: int=1, idx: int=0) -> State:
   """Produce the all-0/1 basis vector for `d` qubits."""
@@ -203,8 +203,6 @@ def ones(d: int=1) -> State:
   return zeros_or_ones(d, 2**d - 1)
 
 
-# Produce a state from a given bit sequence, for example:
-#        bitstring(0, 1, 1) -> |011>
 def bitstring(*bits) -> State:
   """Produce a state from a given bit sequence, eg., |0101>."""
 
@@ -247,8 +245,8 @@ class Reg():
 
   def __str__(self) -> str:
     s = '|'
-    for idx in range(len(self.val)):
-      s += '{}'.format(self.val[idx])
+    for _, val in enumerate(self.val):
+      s += f'{val}'
     return s + '>'
 
   def __getitem__(self, idx):
@@ -296,15 +294,16 @@ def dump_state(psi, description: Optional[str]=None,
       print(i % 10, end='')
     print(f'> \'{description}\'')
 
-  l: List[str] = []
+  state_list: List[str] = []
   for bits in helper.bitprod(psi.nbits):
     if prob_only and (psi.prob(*bits) < 10e-6):
       continue
 
-    l.append('{:s}:  ampl: {:+.2f} prob: {:.2f} Phase: {:5.1f}'
-             .format(state_to_string(bits),
-                     psi.ampl(*bits),
-                     psi.prob(*bits),
-                     psi.phase(*bits)))
-  l.sort()
-  print(*l, sep='\n')
+    state_list.append(
+        '{:s}:  ampl: {:+.2f} prob: {:.2f} Phase: {:5.1f}'
+        .format(state_to_string(bits),
+                psi.ampl(*bits),
+                psi.prob(*bits),
+                psi.phase(*bits)))
+  state_list.sort()
+  print(*state_list, sep='\n')

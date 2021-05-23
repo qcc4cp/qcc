@@ -17,13 +17,13 @@ from src.lib import tensor
 class Operator(tensor.Tensor):
   """Operators are represented by square, unitary matrices."""
 
-  def __repr__(self):
+  def __repr__(self) -> str:
     s = 'Operator('
     s += super().__str__().replace('\n', '\n' + ' ' * len(s))
     s += ')'
     return s
 
-  def __str__(self):
+  def __str__(self) -> str:
     s = f'Operator for {self.nbits}-qubit state space.'
     s += ' Tensor:\n'
     s += super().__str__()

@@ -3,19 +3,19 @@
 
 import itertools
 import math
-from typing import List, Sequence
+from typing import List, Sequence, Iterable
 
 import numpy as np
 
 
-def bitprod(nbits):
+def bitprod(nbits: int) -> Iterable:
   """Produce the iterable cartesian of nbits {0, 1}."""
 
   for bits in itertools.product([0, 1], repeat=nbits):
     yield bits
 
 
-def bits2val(bits: Sequence[int]) -> int:
+def bits2val(bits: List[int]) -> int:
   """For given bits, compute the decimal integer."""
 
   # We assume bits are given in high to low order. For example,

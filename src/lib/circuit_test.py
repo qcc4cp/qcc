@@ -60,16 +60,16 @@ class CircuitTest(absltest.TestCase):
 
     for i in range(4):
       qc.x(i)
-      psi.apply(ops.PauliX(), i)
+      psi.apply1(ops.PauliX(), i)
       qc.y(i)
-      psi.apply(ops.PauliY(), i)
+      psi.apply1(ops.PauliY(), i)
       qc.z(i)
-      psi.apply(ops.PauliZ(), i)
+      psi.apply1(ops.PauliZ(), i)
       qc.h(i)
-      psi.apply(ops.Hadamard(), i)
+      psi.apply1(ops.Hadamard(), i)
       if i:
         qc.cu1(0, i, 1.1)
-        psi.apply_controlled(ops.U1(1.1), 0, i)
+        psi.applyc(ops.U1(1.1), 0, i)
 
     if not psi.is_close(qc.psi):
       raise AssertionError('Numerical Problems')
@@ -80,15 +80,15 @@ class CircuitTest(absltest.TestCase):
 
     for n in range(5):
       qc.h(n)
-      psi.apply(ops.Hadamard(), n)
+      psi.apply1(ops.Hadamard(), n)
       for i in range(0, 5):
         qc.cu1(n-(i+1), n, math.pi/float(2**(i+1)))
-        psi.apply_controlled(ops.U1(math.pi/float(2**(i+1))), n-(i+1), n)
+        psi.applyc(ops.U1(math.pi/float(2**(i+1))), n-(i+1), n)
       for i in range(0, 5):
         qc.cu1(n-(i+1), n, -math.pi/float(2**(i+1)))
-        psi.apply_controlled(ops.U1(-math.pi/float(2**(i+1))), n-(i+1), n)
+        psi.applyc(ops.U1(-math.pi/float(2**(i+1))), n-(i+1), n)
       qc.h(n)
-      psi.apply(ops.Hadamard(), n)
+      psi.apply1(ops.Hadamard(), n)
 
     if not psi.is_close(qc.psi):
       raise AssertionError('Numerical Problems')

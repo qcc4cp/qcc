@@ -25,7 +25,7 @@ def incr(qc, idx, nbits, aux, controller=[]):
     ctl=controller.copy()
     for j in range(nbits-1, i, -1):
       ctl.append(j+idx)
-    qc.multi_control(ctl, i+idx, aux, ops.PauliX(), "multi-1-X")
+    qc.multi_control(ctl, i+idx, aux, ops.PauliX(), 'multi-1-X')
 
 
 def decr(qc, idx, nbits, aux, controller=[]):
@@ -45,7 +45,7 @@ def decr(qc, idx, nbits, aux, controller=[]):
     ctl=controller.copy()
     for j in range(nbits-1, i, -1):
       ctl.append([j+idx])
-    qc.multi_control(ctl, i+idx, aux, ops.PauliX(), "multi-0-X")
+    qc.multi_control(ctl, i+idx, aux, ops.PauliX(), 'multi-0-X')
 
 
 def experiment_incr():
@@ -97,12 +97,12 @@ def incr_mod_9(qc, aux):
     ctl=[]
     for j in range(4-1, i, -1):
       ctl.append(j)
-    qc.multi_control(ctl, i, aux, ops.PauliX(), "multi-X")
+    qc.multi_control(ctl, i, aux, ops.PauliX(), 'multi-X')
 
-  qc.multi_control([0, [1], [2], 3], aux[4], aux, ops.PauliX(), "multi-X")
+  qc.multi_control([0, [1], [2], 3], aux[4], aux, ops.PauliX(), 'multi-X')
   qc.cx(aux[4], 0)
   qc.cx(aux[4], 3)
-  qc.multi_control([[0], [1], [2], [3]], aux[4], aux, ops.PauliX(), "multi-X")
+  qc.multi_control([[0], [1], [2], [3]], aux[4], aux, ops.PauliX(), 'multi-X')
 
 
 def experiment_mod_9():

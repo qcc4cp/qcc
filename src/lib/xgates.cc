@@ -13,7 +13,7 @@
 typedef std::complex<double> cmplxd;
 typedef std::complex<float> cmplxf;
 
-// apply1d applies a single gate to a state.
+// apply1 applies a single gate to a state.
 //
 // Gates are typically 2x2 matrices, but in this implementation they
 // are flattened to a 1x4 array:

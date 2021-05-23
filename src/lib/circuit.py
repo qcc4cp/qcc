@@ -129,7 +129,7 @@ class qc:
       xgates.apply1(self.psi, gate.reshape(4), self.psi.nbits, idx,
                     tensor.tensor_width)
 
-  def apply_controlled(self, gate, ctl, idx, name=None, *, val=None):
+  def applyc(self, gate, ctl, idx, name=None, *, val=None):
     if isinstance(idx, state.Reg):
       raise AssertionError('controlled register not supported')
 
@@ -145,28 +145,28 @@ class qc:
       self.x(ctl_qubit)
 
   def cv(self, idx0, idx1):
-    self.apply_controlled(ops.Vgate(), idx0, idx1, 'cv')
+    self.applyc(ops.Vgate(), idx0, idx1, 'cv')
 
   def cv_adj(self, idx0, idx1):
-    self.apply_controlled(ops.Vgate().adjoint(), idx0, idx1, 'cv_adj')
+    self.applyc(ops.Vgate().adjoint(), idx0, idx1, 'cv_adj')
 
   def cx0(self, idx0, idx1):
-    self.apply_controlled(ops.PauliX(), idx0, idx1, 'cx')
+    self.applyc(ops.PauliX(), idx0, idx1, 'cx')
 
   def cx(self, idx0, idx1):
-    self.apply_controlled(ops.PauliX(), idx0, idx1, 'cx')
+    self.applyc(ops.PauliX(), idx0, idx1, 'cx')
 
   def cy(self, idx0, idx1):
-    self.apply_controlled(ops.PauliY(), idx0, idx1, 'cy')
+    self.applyc(ops.PauliY(), idx0, idx1, 'cy')
 
   def cz(self, idx0, idx1):
-    self.apply_controlled(ops.PauliZ(), idx0, idx1, 'cz')
+    self.applyc(ops.PauliZ(), idx0, idx1, 'cz')
 
   def cu1(self, idx0, idx1, value):
-    self.apply_controlled(ops.U1(value), idx0, idx1, 'cu1', val=value)
+    self.applyc(ops.U1(value), idx0, idx1, 'cu1', val=value)
 
   def crk(self, idx0, idx1, value):
-    self.apply_controlled(ops.Rk(value), idx0, idx1, 'crk', val=value)
+    self.applyc(ops.Rk(value), idx0, idx1, 'crk', val=value)
 
   def ccx(self, idx0, idx1, idx2):
     """Sleator-Weinfurter Construction."""
@@ -301,7 +301,7 @@ class qc:
         self.apply1(gate, idx1, desc)
         return
       if len(ctl) == 1:
-        self.apply_controlled(gate, ctl[0], idx1, desc)
+        self.applyc(gate, ctl[0], idx1, desc)
         return
 
       # Compute the predicate.
@@ -312,7 +312,7 @@ class qc:
         aux_idx = aux_idx + 1
 
       # Use predicate to single-control qubit at idx1.
-      self.apply_controlled(gate, aux[aux_idx], idx1, desc)
+      self.applyc(gate, aux[aux_idx], idx1, desc)
 
       # Uncompute predicate.
       aux_idx = aux_idx - 1
@@ -332,7 +332,7 @@ class qc:
 
     nbits = reg.nbits
     for idx in range(reg[0], reg[0] + nbits):
-      # Each qubit first gets a Hadamard
+      # Each qubit first gets a Hadamard.
       self.had(idx)
 
       # Each qubit now gets a sequence of Rk(2), Rk(3), ..., Rk(nbits)
@@ -355,7 +355,7 @@ class qc:
       if gate.is_single():
         self.apply1(gate.gate, gate.idx0+offset, gate.name, val=gate.val)
       if gate.is_ctl():
-        self.apply_controlled(gate.gate, gate.ctl+offset, gate.idx1+offset,
+        self.applyc(gate.gate, gate.ctl+offset, gate.idx1+offset,
                               gate.name, val=gate.val)
 
   def run(self):
@@ -399,7 +399,7 @@ class qc:
       if gate.is_single():
         newqc.apply1(gate.gate.adjoint(), gate.idx0, gate.name+'*', val=val)
       if gate.is_ctl():
-        newqc.apply_controlled(gate.gate.adjoint(), gate.ctl, gate.idx1,
+        newqc.applyc(gate.gate.adjoint(), gate.ctl, gate.idx1,
                                gate.name+'*', val=val)
     return newqc
 
