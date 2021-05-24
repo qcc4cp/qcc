@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import cmath
 import math
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 
@@ -73,7 +73,9 @@ class Operator(tensor.Tensor):
   # -------------
   # Op(op) equals Op @ op equal matmul(Op, op), to produce a new state.
   #
-  def apply(self, arg, idx:int) -> state.State:
+  def apply(self,
+            arg: Union[state.State, ops.Operator],
+            idx:int) -> state.State:
     """Apply operator to a state or operator."""
 
     if isinstance(arg, Operator):
@@ -101,7 +103,7 @@ class Operator(tensor.Tensor):
       #
       # The function call should mirror this semantic, since parameters
       # are typically evaluated first (and this mirrors the left to
-      # right in the pictorial):
+      # right in the circuit notation):
       #   X(Y) = YX
       #
       return arg @ self
@@ -117,7 +119,9 @@ class Operator(tensor.Tensor):
 
     return state.State(np.matmul(op, arg))
 
-  def __call__(self, arg, idx=0) -> state.State:
+  def __call__(self,
+               arg: Union[state.State, ops.Operator],
+               idx=0) -> state.State:
     return self.apply(arg, idx)
 
 

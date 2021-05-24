@@ -4,8 +4,8 @@
 """class qc (quantum circuit) represents state and operators."""
 
 import random
-
 from absl import flags
+from typing import AnyStr, Callable
 
 from src.lib import dumpers
 from src.lib import ir
@@ -43,7 +43,7 @@ class qc:
   class scope:
     """Scope object to allow grouping of gates in the output."""
 
-    def __init__(self, ir_param, desc):
+    def __init__(self, ir_param, desc:str):
       self.ir = ir_param
       self.desc = desc
 
@@ -81,18 +81,19 @@ class qc:
   def rand(self, n:int):
     self.psi = self.psi * state.rand(n)
 
-  def stats(self):
+  def stats(self) -> str:
     return ('Circuit Statistics\n' +
             '  Qubits: {}\n'.format(self.nbits) +
             '  Gates : {}\n'.format(self.ir.ngates))
 
-  def dump_with_dumper(self, flag, dumper_func):
+  def dump_with_dumper(self, flag:bool,
+                       dumper_func:Callable) -> None:
     if flag:
       result = dumper_func(self.ir)
       with open(flag, 'w') as f:
         print(result, file=f)
 
-  def dump_to_file(self):
+  def dump_to_file(self) -> None:
     self.dump_with_dumper(flags.FLAGS.libq, dumpers.libq)
     self.dump_with_dumper(flags.FLAGS.qasm, dumpers.qasm)
     self.dump_with_dumper(flags.FLAGS.cirq, dumpers.cirq)
@@ -242,7 +243,7 @@ class qc:
 #      self.psi = ops.Operator(op)(self.psi, idx)
 
 # --- Measure ----------------------------------------------------
-  def measure_bit(self, idx:int, tostate=0, collapse=True):
+  def measure_bit(self, idx:int, tostate:int=0, collapse:bool=True):
     return ops.Measure(self.psi, idx, tostate, collapse)
 
   def pauli_expectation(self, idx:int):
@@ -253,7 +254,7 @@ class qc:
     p0, _ = self.measure_bit(idx, 0, False)
     return p0 - (1 - p0)
 
-  def sample_state(self, prob_state0):
+  def sample_state(self, prob_state0:float):
     if prob_state0 < random.random():
       return 1
     return 0
@@ -276,7 +277,7 @@ class qc:
       self.ccx(ctl, idx0, idx1)
       self.ccx(ctl, idx1, idx0)
 
-  def multi_control(self, ctl:int, idx1:int, aux, gate, desc:str):
+  def multi_control(self, ctl, idx1, aux, gate, desc:str):
     """Multi-controlled gate, using aux as ancilla."""
 
     # This is a simpler version that requires n-1 ancillaries, instead
@@ -321,13 +322,13 @@ class qc:
         aux_idx = aux_idx - 1
       self.ccx(ctl[0], ctl[1], aux[0])
 
-  def flip(self, reg):
+  def flip(self, reg:state.Reg):
     """Flip a quantum register via swaps."""
 
     for idx in range(reg[0], reg[0] + reg.nbits // 2):
       self.swap(idx, reg[0] + reg.nbits - idx - 1)
 
-  def qft_rk(self, reg, swap=True):
+  def qft_rk(self, reg, swap:bool=True):
     """Apply Qft with Rk gates directly."""
 
     nbits = reg.nbits
