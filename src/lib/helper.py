@@ -3,7 +3,7 @@
 
 import itertools
 import math
-from typing import List, Sequence, Iterable
+from typing import List, Sequence, Iterable, Tuple
 
 import numpy as np
 
@@ -31,13 +31,13 @@ def val2bits(val: int, nbits: int) -> List[int]:
   return [int(c) for c in format(val, f'0{nbits}b')]
 
 
-def bits2frac(bits):
+def bits2frac(bits: Iterable):
   """For given bits, compute the binary fraction."""
 
   return sum(bits[i] * 2**(-i-1) for i in range(len(bits)))
 
 
-def density_to_cartesian(rho) -> (float, float, float):
+def density_to_cartesian(rho: np.ndarray) -> Tuple[float, float, float]:
   """Compute Bloch sphere coordinates from 2x2 density matrix."""
 
   a = rho[0, 0]
@@ -49,7 +49,7 @@ def density_to_cartesian(rho) -> (float, float, float):
   return np.real(x), np.real(y), np.real(z)
 
 
-def qubit_to_bloch(psi):
+def qubit_to_bloch(psi: np.ndarray):
   """Compute Bloch spere coordinates from 2x1 state vector/qubit."""
 
   return density_to_cartesian(psi.density())
@@ -61,7 +61,7 @@ def dump_bloch(x:float, y:float, z:float):
   print(f'x: {x:.2f}, y: {y:.2f}, z: {z:.2f}')
 
 
-def qubit_dump_bloch(psi):
+def qubit_dump_bloch(psi: np.ndarray):
   """Print Bloch coordinates for state psi."""
 
   x, y, z = qubit_to_bloch(psi)

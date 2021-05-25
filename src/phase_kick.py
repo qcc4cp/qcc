@@ -1,6 +1,8 @@
 # python3
 """Simple test program: Implementation of phase kick."""
 
+import numpy as np
+
 from absl import app
 
 from src.lib import helper
@@ -98,11 +100,11 @@ def basis_changes():
   # Simple PauliX will result in 1/sqrt(2) [-1, 1]
   psi = ops.PauliX()(psi)
 
-  # But back to computational, will result in -|1>, but phases
-  # can be ignored.
+  # But back to computational, will result in -|1>.
+  # Global phases can be ignored.
   psi = ops.Hadamard()(psi)
-  if psi[1] > -0.95:
-    raise AssertionError('Invalid Basis Changes')
+  if not np.allclose(psi[1], -1.0):
+    raise AssertionError("Invalid basis change.")
 
 
 def main(argv):

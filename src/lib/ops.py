@@ -401,12 +401,13 @@ def Qft(nbits:int) -> Operator:
 # Trace out a qubit from a density matrix and return the
 # remaining density matrix.
 #
-def TraceOutSingle(rho:Operator, index:int):
+def TraceOutSingle(rho:Operator, index:int) -> Operator:
   """Trace out single qubit from density matrix."""
 
   nbits = int(math.log2(rho.shape[0]))
   if index > nbits:
-    raise AssertionError('Error in TraceOut invalid index (>nbits).')
+    raise AssertionError(
+        'Error in TraceOutSingle invalid index (>nbits).')
 
   eye = Identity()
   zero = Operator(np.array([1.0, 0.0]))
@@ -429,14 +430,14 @@ def TraceOutSingle(rho:Operator, index:int):
   return rho_reduced
 
 
-def TraceOut(rho: Operator, index_set: List[int]):
+def TraceOut(rho: Operator, index_set: List[int]) -> Operator:
   """Trace out multiple qubits from density matrix."""
 
-  for index in range(len(index_set)):
+  for idx, val in enumerate(index_set):
     nbits = int(math.log2(rho.shape[0]))
-    if index_set[index] > nbits:
+    if val > nbits:
       raise AssertionError('Error TraceOut, invalid index (>nbits).')
-    rho = TraceOutSingle(rho, index_set[index])
+    rho = TraceOutSingle(rho, val)
 
     # Tracing out a bit means that rho is now 1 bit smaller, the
     # indices right to the traced out qubit need to shift left by 1.
@@ -452,7 +453,7 @@ def TraceOut(rho: Operator, index_set: List[int]):
     #    qubit 0  1  2  <-  4
     #    qubit 0  1  2  3
     #          a  b  d  f
-    for i in range(index+1, len(index_set)):
+    for i in range(idx+1, len(index_set)):
       index_set[i] = index_set[i] - 1
   return rho
 
