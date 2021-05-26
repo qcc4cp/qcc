@@ -21,7 +21,7 @@ from src.lib import state
 # circuit form.
 
 
-def fulladder_qc(qc):
+def fulladder_qc(qc: circuit.qc):
   """Non-quantum-exploiting, classic full adder."""
 
   qc.cx(0, 3)
@@ -32,7 +32,7 @@ def fulladder_qc(qc):
   qc.cx(2, 3)
 
 
-def fulladder_matrix(psi):
+def fulladder_matrix(psi: state.State):
   """Non-quantum-exploiting, classic full adder."""
 
   psi = ops.Cnot(0, 3)(psi, 0)
@@ -44,7 +44,8 @@ def fulladder_matrix(psi):
   return psi
 
 
-def experiment_qc(a, b, cin, expected_sum, expected_cout):
+def experiment_qc(a:int, b:int, cin:int,
+                  expected_sum:int, expected_cout:int):
   """Run a simple classic experiment, check results."""
 
   qc = circuit.qc('classic')
@@ -59,7 +60,8 @@ def experiment_qc(a, b, cin, expected_sum, expected_cout):
     raise AssertionError('invalid results')
 
 
-def experiment_matrix(a, b, cin, expected_sum, expected_cout):
+def experiment_matrix(a:int, b:int, cin:int,
+                      expected_sum:int, expected_cout:int):
   """Run a simple classic experiment, check results."""
 
   psi = state.bitstring(a, b, cin, 0, 0)

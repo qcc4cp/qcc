@@ -73,6 +73,7 @@ class EqualitiesTest(absltest.TestCase):
   def test_equalities(self):
     """Exercise 4.13 in Nielson, Chuang."""
 
+    # Generate the Pauli and Hadamard matrices.
     _, x, y, z = ops.Pauli()
     h = ops.Hadamard()
 
@@ -122,12 +123,12 @@ class EqualitiesTest(absltest.TestCase):
     # Make Toffoli out of V = sqrt(X).
     #
     v = ops.Vgate()  # Could be any unitary, in principle!
-    i = ops.Identity()
+    ident = ops.Identity()
     cnot = ops.Cnot(0, 1)
 
-    o0 = i * ops.ControlledU(1, 2, v)
-    c2 = cnot * i
-    o2 = (i * ops.ControlledU(1, 2, v.adjoint()))
+    o0 = ident * ops.ControlledU(1, 2, v)
+    c2 = cnot * ident
+    o2 = (ident * ops.ControlledU(1, 2, v.adjoint()))
     o4 = ops.ControlledU(0, 2, v)
     final = o4 @ c2 @ o2 @ c2 @ o0
 
