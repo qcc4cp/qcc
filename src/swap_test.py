@@ -26,6 +26,7 @@
 # A good overview can be found here:
 #   https://en.wikipedia.org/wiki/Swap_test
 
+import numpy as np
 
 from absl import app
 
@@ -33,7 +34,8 @@ from src.lib import state
 from src.lib import ops
 
 
-def run_experiment(a1, a2, target):
+def run_experiment(a1:np.complexfloating, a2:np.complexfloating,
+                   target: float) -> None:
   """Construct swap test circuit and measure."""
 
   # The circuit is quite simple:
@@ -63,7 +65,7 @@ def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  print('Swap Test. 0.5 means different, 1.0 means similar')
+  print('Swap test. 0.5 means different, 1.0 means similar')
   run_experiment(1.0, 0.0, 0.5)
   run_experiment(0.0, 1.0, 0.5)
   run_experiment(1.0, 1.0, 1.0)
