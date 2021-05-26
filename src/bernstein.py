@@ -2,6 +2,7 @@
 """Example: Bernstein Vasirani Algorithm."""
 
 from absl import app
+from typing import Tuple
 
 import numpy as np
 
@@ -29,7 +30,7 @@ from src.lib import state
 #
 
 
-def check_result(nbits, c, psi) -> None:
+def check_result(nbits:int, c:Tuple[bool], psi:state.State) -> None:
   """Check expected vs achieved results."""
 
   print('Expected: {}'.format(c))
@@ -45,7 +46,7 @@ def check_result(nbits, c, psi) -> None:
         raise AssertionError('invalid result')
 
 
-def make_c(nbits):
+def make_c(nbits:int) -> Tuple[bool]:
   """Make a random constant c from {0,1}, the c we try to find."""
 
   constant_c = [0] * nbits
@@ -54,7 +55,7 @@ def make_c(nbits):
   return tuple(constant_c)
 
 
-def make_u(nbits, constant_c) -> ops.Operator:
+def make_u(nbits:int, constant_c:Tuple[bool]) -> ops.Operator:
   """Make general Bernstein Oracle."""
 
   # For each '1' at index i in the constant_c, build a Cnot from
@@ -81,7 +82,7 @@ def make_u(nbits, constant_c) -> ops.Operator:
   return op
 
 
-def run_experiment(nbits) -> None:
+def run_experiment(nbits:int) -> None:
   """Run full experiment for a given number of bits."""
 
   c = make_c(nbits-1)

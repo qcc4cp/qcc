@@ -2,6 +2,7 @@
 """Example: Quantum Teleportation."""
 
 import math
+import numpy as np
 
 from absl import app
 
@@ -10,11 +11,13 @@ from src.lib import ops
 from src.lib import state
 
 
-def alice_measures(alice, expect0, expect1, qubit0, qubit1):
+def alice_measures(alice:state.State,
+          expect0:np.complexfloating, expect1:np.complexfloating,
+          qubit0:np.complexfloating, qubit1:np.complexfloating):
   """Force measurement and get teleported qubit."""
 
-  # Alices measure her state and got a collapsed |qubit0 qubit1>. She
-  # let's Bob know which one of the 4 combinations she obtained.
+  # Alices measure her state and get a collapsed |qubit0 qubit1>.
+  # She let's Bob know which one of the 4 combinations she obtained.
 
   # We force measurement here, collapsing to a state with the
   # first two qubits collapsed. Bob's qubit is still unmeasured.
@@ -57,7 +60,7 @@ def main(argv):
   # Step 1: Alice and Bob share an entangled pair, and separate.
   psi = bell.bell_state(0, 0)
 
-  # Step 2: Alice wants to teleport a qubit x to Bob,
+  # Step 2: Alice wants to teleport a qubit |x> to Bob,
   #         which is in the state:
   #         |x> = a|0> + b|1> (with a^2 + b^2 == 1)
   a = 0.6
