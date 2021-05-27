@@ -3,9 +3,10 @@
 
 """class qc (quantum circuit) represents state and operators."""
 
+from __future__ import annotations
 import random
+from typing import Callable
 from absl import flags
-from typing import AnyStr, Callable
 
 from src.lib import dumpers
 from src.lib import ir
@@ -32,7 +33,7 @@ flags.DEFINE_string('latex', '', 'Generate Latex output file, or empty')
 class qc:
   """Wrapper class to maintain state + operators."""
 
-  def __init__(self, name=None, eager:bool=True):
+  def __init__(self, name=None, eager: bool = True):
     self.name = name
     self.psi = 1.0
     self.ir = ir.Ir()
@@ -43,7 +44,7 @@ class qc:
   class scope:
     """Scope object to allow grouping of gates in the output."""
 
-    def __init__(self, ir_param, desc:str):
+    def __init__(self, ir_param, desc: str):
       self.ir = ir_param
       self.desc = desc
 
@@ -54,31 +55,33 @@ class qc:
       self.ir.end_section()
 
   # --- States ----------------------------------------------------
-  def reg(self, size:int, it=0, *, name:str=None) -> state.Reg:
+  def reg(self, size: int, it=0, *, name: str = None) -> state.Reg:
     ret = state.Reg(size, it, self.global_reg)
     self.global_reg = self.global_reg + size
     self.psi = self.psi * ret.psi()
     self.ir.reg(size, name, ret)
     return ret
 
-  def qubit(self, alpha:float=None, beta:float=None) -> None:
+  def qubit(self,
+            alpha: np.complexfloating = None,
+            beta: np.complexfloating= None) -> None:
     self.psi = self.psi * state.qubit(alpha, beta)
 
-  def zeros(self, n:int):
+  def zeros(self, n: int) -> state.State:
     self.psi = self.psi * state.zeros(n)
 
-  def ones(self, n:int):
+  def ones(self, n: int):
     self.psi = self.psi * state.ones(n)
 
   def bitstring(self, *bits):
     self.psi = self.psi * state.bitstring(*bits)
 
-  def arange(self, n:int):
+  def arange(self, n: int):
     self.zeros(n)
     for i in range(0, 2**n):
       self.psi[i] = float(i)
 
-  def rand(self, n:int):
+  def rand(self, n: int):
     self.psi = self.psi * state.rand(n)
 
   def stats(self) -> str:
@@ -86,8 +89,8 @@ class qc:
             '  Qubits: {}\n'.format(self.nbits) +
             '  Gates : {}\n'.format(self.ir.ngates))
 
-  def dump_with_dumper(self, flag:bool,
-                       dumper_func:Callable) -> None:
+  def dump_with_dumper(self, flag: bool,
+                       dumper_func: Callable) -> None:
     if flag:
       result = dumper_func(self.ir)
       with open(flag, 'w') as f:
@@ -115,7 +118,9 @@ class qc:
     return ctl_qubit, ctl_by_0
 
   # --- Gates  ----------------------------------------------------
-  def apply1(self, gate, idx:int, name=None, *, val=None):
+  def apply1(self, gate, idx: int, name=None, *, val=None):
+    """Apply single gates."""
+
     if isinstance(idx, state.Reg):
       for reg in range(idx.nbits):
         if self.build_ir:
@@ -130,7 +135,9 @@ class qc:
       xgates.apply1(self.psi, gate.reshape(4), self.psi.nbits, idx,
                     tensor.tensor_width)
 
-  def applyc(self, gate, ctl:int, idx:int, name=None, *, val=None):
+  def applyc(self, gate, ctl: int, idx: int, name=None, *, val=None):
+    """Apply controlled gates."""
+
     if isinstance(idx, state.Reg):
       raise AssertionError('controlled register not supported')
 
@@ -145,31 +152,31 @@ class qc:
     if by_0:
       self.x(ctl_qubit)
 
-  def cv(self, idx0:int, idx1:int):
+  def cv(self, idx0: int, idx1: int):
     self.applyc(ops.Vgate(), idx0, idx1, 'cv')
 
-  def cv_adj(self, idx0:int, idx1:int):
+  def cv_adj(self, idx0: int, idx1: int):
     self.applyc(ops.Vgate().adjoint(), idx0, idx1, 'cv_adj')
 
-  def cx0(self, idx0:int, idx1:int):
+  def cx0(self, idx0: int, idx1: int):
     self.applyc(ops.PauliX(), idx0, idx1, 'cx')
 
-  def cx(self, idx0:int, idx1:int):
+  def cx(self, idx0: int, idx1: int):
     self.applyc(ops.PauliX(), idx0, idx1, 'cx')
 
-  def cy(self, idx0:int, idx1:int):
+  def cy(self, idx0: int, idx1: int):
     self.applyc(ops.PauliY(), idx0, idx1, 'cy')
 
-  def cz(self, idx0:int, idx1:int):
+  def cz(self, idx0: int, idx1: int):
     self.applyc(ops.PauliZ(), idx0, idx1, 'cz')
 
-  def cu1(self, idx0:int, idx1:int, value):
+  def cu1(self, idx0: int, idx1: int, value):
     self.applyc(ops.U1(value), idx0, idx1, 'cu1', val=value)
 
-  def crk(self, idx0:int, idx1:int, value):
+  def crk(self, idx0: int, idx1: int, value):
     self.applyc(ops.Rk(value), idx0, idx1, 'crk', val=value)
 
-  def ccx(self, idx0:int, idx1:int, idx2:int):
+  def ccx(self, idx0: int, idx1: int, idx2: int):
     """Sleator-Weinfurter Construction."""
 
     i0, c0_by_0 = self.ctl_by_0(idx0)
@@ -193,46 +200,46 @@ class qc:
       if c1_by_0:
         self.x(i1)
 
-  def toffoli(self, idx0:int, idx1:int, idx2:int):
+  def toffoli(self, idx0: int, idx1: int, idx2: int):
     self.ccx(idx0, idx1, idx2)
 
-  def h(self, idx:int):
+  def h(self, idx: int):
     self.apply1(ops.Hadamard(), idx, 'h')
 
-  def s(self, idx:int):
+  def s(self, idx: int):
     self.apply1(ops.Sgate(), idx, 's')
 
-  def sdag(self, idx:int):
+  def sdag(self, idx: int):
     self.apply1(ops.Sgate().adjoint(), idx, 'sdag')
 
-  def t(self, idx:int):
+  def t(self, idx: int):
     self.apply1(ops.Tgate(), idx, 't')
 
-  def u1(self, idx:int, val):
+  def u1(self, idx: int, val):
     self.apply1(ops.U1(val), idx, 'u1', val=val)
 
-  def v(self, idx:int):
+  def v(self, idx: int):
     self.apply1(ops.Vgate(), idx, 'v')
 
-  def x(self, idx:int):
+  def x(self, idx: int):
     self.apply1(ops.PauliX(), idx, 'x')
 
-  def y(self, idx:int):
+  def y(self, idx: int):
     self.apply1(ops.PauliY(), idx, 'y')
 
-  def z(self, idx:int):
+  def z(self, idx: int):
     self.apply1(ops.PauliZ(), idx, 'z')
 
-  def yroot(self, idx:int):
+  def yroot(self, idx: int):
     self.apply1(ops.Yroot(), idx, 'yroot')
 
-  def rx(self, idx:int, theta:float):
+  def rx(self, idx: int, theta: float):
     self.apply1(ops.RotationX(theta), idx, 'rx', val=theta)
 
-  def ry(self, idx:int, theta:float):
+  def ry(self, idx: int, theta: float):
     self.apply1(ops.RotationY(theta), idx, 'ry', val=theta)
 
-  def rz(self, idx:int, theta:float):
+  def rz(self, idx: int, theta: float):
     self.apply1(ops.RotationZ(theta), idx, 'rz', val=theta)
 
 #  Appplying a random unitary is possible, but it is not a
@@ -243,10 +250,11 @@ class qc:
 #      self.psi = ops.Operator(op)(self.psi, idx)
 
 # --- Measure ----------------------------------------------------
-  def measure_bit(self, idx:int, tostate:int=0, collapse:bool=True):
+  def measure_bit(self, idx: int, tostate: int = 0,
+                  collapse: bool = True) -> (float, state.State):
     return ops.Measure(self.psi, idx, tostate, collapse)
 
-  def pauli_expectation(self, idx:int):
+  def pauli_expectation(self, idx: int):
     """We can compute the Pauli expectation value from probabilities."""
 
     # Pauli eigenvalues are -1 and +1, hence we can compute the
@@ -254,13 +262,13 @@ class qc:
     p0, _ = self.measure_bit(idx, 0, False)
     return p0 - (1 - p0)
 
-  def sample_state(self, prob_state0:float):
+  def sample_state(self, prob_state0: float):
     if prob_state0 < random.random():
       return 1
     return 0
 
 # --- Advanced ---------------------------------------------------
-  def swap(self, idx0:int, idx1:int):
+  def swap(self, idx0: int, idx1: int):
     """Simple Swap operation."""
 
     # pylint: disable=arguments-out-of-order
@@ -277,7 +285,7 @@ class qc:
       self.ccx(ctl, idx0, idx1)
       self.ccx(ctl, idx1, idx0)
 
-  def multi_control(self, ctl, idx1, aux, gate, desc:str):
+  def multi_control(self, ctl, idx1, aux, gate, desc: str):
     """Multi-controlled gate, using aux as ancilla."""
 
     # This is a simpler version that requires n-1 ancillaries, instead
@@ -298,7 +306,7 @@ class qc:
     # IR we're working with here. Something to keep in mind.
 
     with self.scope(self.ir, f'multi({ctl}, {idx1}) # {desc})'):
-      if len(ctl) == 0:
+      if not ctl:
         self.apply1(gate, idx1, desc)
         return
       if len(ctl) == 1:
@@ -322,13 +330,13 @@ class qc:
         aux_idx = aux_idx - 1
       self.ccx(ctl[0], ctl[1], aux[0])
 
-  def flip(self, reg:state.Reg):
+  def flip(self, reg: state.Reg):
     """Flip a quantum register via swaps."""
 
     for idx in range(reg[0], reg[0] + reg.nbits // 2):
       self.swap(idx, reg[0] + reg.nbits - idx - 1)
 
-  def qft_rk(self, reg, swap:bool=True):
+  def qft_rk(self, reg, swap: bool = True):
     """Apply Qft with Rk gates directly."""
 
     nbits = reg.nbits
@@ -346,18 +354,18 @@ class qc:
       self.flip(reg)
 
 # --- qc of qc ------------------------------------------
-  def qc(self, qc, offset=0):
+  def qc(self, qc_parm: qc, offset=0):
     """Add another full circuit to this circuit."""
 
     # Iterate of the new circuit and add the gates one by one,
     # using this circuit's eager mode.
     #
-    for gate in qc.ir.gates:
+    for gate in qc_parm.ir.gates:
       if gate.is_single():
         self.apply1(gate.gate, gate.idx0+offset, gate.name, val=gate.val)
       if gate.is_ctl():
         self.applyc(gate.gate, gate.ctl+offset, gate.idx1+offset,
-                              gate.name, val=gate.val)
+                    gate.name, val=gate.val)
 
   def run(self):
     """Apply gates in this qc, don't rebuild IR."""
@@ -396,14 +404,13 @@ class qc:
     #
     newqc = qc(self.name, eager=False)
     for gate in self.ir.gates[::-1]:
-      val=-gate.val if gate.val else None
+      val = -gate.val if gate.val else None
       if gate.is_single():
         newqc.apply1(gate.gate.adjoint(), gate.idx0, gate.name+'*', val=val)
       if gate.is_ctl():
         newqc.applyc(gate.gate.adjoint(), gate.ctl, gate.idx1,
-                               gate.name+'*', val=val)
+                     gate.name+'*', val=val)
     return newqc
-
 
 # --- Debug --------------------------------------------------
   def dump(self):

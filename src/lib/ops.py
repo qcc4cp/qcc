@@ -459,7 +459,7 @@ def TraceOut(rho: Operator, index_set: List[int]) -> Operator:
 
 
 def Measure(psi:state.State, idx:int,
-            tostate:int=0, collapse:bool=True):
+            tostate:int=0, collapse:bool=True) -> (float, state.State):
   """Measure a qubit via a projector on the density matrix."""
 
   # Measure() measure qubit 'idx' in state 'psi'. It both measures the
@@ -468,12 +468,9 @@ def Measure(psi:state.State, idx:int,
   # for debugging to have this forcing function, but care must
   # be taken not to collapse the state to one with 0 probability.
 
-  # Compute probability of qubit(idx) to be in state 0 / 1
+  # Compute probability of qubit(idx) to be in state 0 / 1.
   rho = psi.density()
-  if tostate == 0:
-    op = Projector(state.zero)
-  else:
-    op = Projector(state.one)
+  op = Projector(state.zero) if tostate == 0 else Projector(state.one)
 
   # Construct full matrix to apply to density matrix:
   if idx > 0:
@@ -489,10 +486,10 @@ def Measure(psi:state.State, idx:int,
     mvmul = np.dot(op, psi)
     divisor = np.real(np.linalg.norm(mvmul))
     if divisor > 1e-10:
-      normed = mvmul / np.real(np.linalg.norm(mvmul))
+      normed = mvmul / divisor
     else:
       raise AssertionError(
-          'Measure() collapses to 0.0 probability state')
+          'Measure() collapses to 0.0 probability state.')
     return np.real(prob0), state.State(normed)
 
   # Return original state to enable chaining.

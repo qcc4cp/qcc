@@ -229,20 +229,20 @@ one = ones(1)
 class Reg():
   """Simple register class."""
 
-  def __init__(self, size, it=0, global_reg=None):
+  def __init__(self, size: int, it=0, global_reg: int = None):
     self.size = size
     self.global_idx = list(range(global_reg,
                                  global_reg + size))
-    self.val = [0 for x in range(size)]
+    self.val = [0] * size
     global_reg += size
 
     if it:
       if isinstance(it, int):
         it = format(it, '0{}b'.format(size))
       if isinstance(it, (str, tuple, list)):
-        for i in range(len(it)):
-          if it[i] == '1' or it[i] == 1:
-            self.val[i] = 1
+        for idx, val in enumerate(it):
+          if val == '1' or val == 1:
+            self.val[idx] = 1
 
   def __str__(self) -> str:
     s = '|'
@@ -250,17 +250,17 @@ class Reg():
       s += f'{val}'
     return s + '>'
 
-  def __getitem__(self, idx):
+  def __getitem__(self, idx: int) -> int:
     return self.global_idx[idx]
 
-  def __setitem__(self, idx, val):
+  def __setitem__(self, idx: int, val: int) -> None:
     self.val[idx] = val
 
-  def psi(self):
+  def psi(self) -> State:
     return bitstring(*self.val)
 
   @property
-  def nbits(self):
+  def nbits(self) -> int:
     return self.size
 
 
