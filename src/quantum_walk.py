@@ -1,13 +1,11 @@
 # python3
 """Example: Simple quantum walk with Hadamard Coin."""
 
-import numpy as np
 from absl import app
 
 from src.lib import circuit
-from src.lib import ops
 from src.lib import helper
-from src.lib import state
+from src.lib import ops
 
 
 def incr(qc, idx, nbits, aux, controller=[]):
@@ -22,7 +20,7 @@ def incr(qc, idx, nbits, aux, controller=[]):
   #  -o--o--o--X--
   #  ...
   for i in range(nbits):
-    ctl=controller.copy()
+    ctl = controller.copy()
     for j in range(nbits-1, i, -1):
       ctl.append(j+idx)
     qc.multi_control(ctl, i+idx, aux, ops.PauliX(), 'multi-1-X')
@@ -42,7 +40,7 @@ def decr(qc, idx, nbits, aux, controller=[]):
   #  -0--0--0--X--
   #  ...
   for i in range(nbits):
-    ctl=controller.copy()
+    ctl = controller.copy()
     for j in range(nbits-1, i, -1):
       ctl.append([j+idx])
     qc.multi_control(ctl, i+idx, aux, ops.PauliX(), 'multi-0-X')
@@ -94,7 +92,7 @@ def incr_mod_9(qc, aux):
   #  ...            X--o--X  -> |0>
   #
   for i in range(4):
-    ctl=[]
+    ctl = []
     for j in range(4-1, i, -1):
       ctl.append(j)
     qc.multi_control(ctl, i, aux, ops.PauliX(), 'multi-X')
@@ -125,7 +123,7 @@ def simple_walk():
 
   nbits = 8
   qc = circuit.qc('simple_walk')
-  x = qc.reg(nbits, 0b10000000)
+  qc.reg(nbits, 0b10000000)
   aux = qc.reg(nbits, 0)
   coin = qc.reg(1, 0)
 
@@ -138,10 +136,10 @@ def simple_walk():
   # Find and print the non-zero amplitudes for all states
   for bits in helper.bitprod(nbits):
     idx_bits = bits
-    for i in range(nbits):
+    for _ in range(nbits):
         idx_bits = idx_bits + (0,)
     idx_bits0 = idx_bits + (0,)
-    idx_bits1 = idx_bits + (1,)
+    # idx_bits1 = idx_bits + (1,)
 
     # Printing bits0 only, this can be changed, of course.
     if qc.psi.ampl(*idx_bits0) != 0.0:

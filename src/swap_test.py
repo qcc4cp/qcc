@@ -26,15 +26,14 @@
 # A good overview can be found here:
 #   https://en.wikipedia.org/wiki/Swap_test
 
+from absl import app
 import numpy as np
 
-from absl import app
-
-from src.lib import state
 from src.lib import ops
+from src.lib import state
 
 
-def run_experiment(a1:np.complexfloating, a2:np.complexfloating,
+def run_experiment(a1: np.complexfloating, a2: np.complexfloating,
                    target: float) -> None:
   """Construct swap test circuit and measure."""
 

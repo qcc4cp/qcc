@@ -1,11 +1,9 @@
 # python3
 """Simple test program: Implementation of phase kick."""
 
+from absl import app
 import numpy as np
 
-from absl import app
-
-from src.lib import helper
 from src.lib import ops
 from src.lib import state
 
@@ -26,6 +24,7 @@ from src.lib import state
 #
 # This phase kick is what underlies the Quantum Fourier Transform
 # as well as quantum arithmetic.
+
 
 def simple_kick():
   psi = state.bitstring(0, 0, 1)
@@ -104,7 +103,7 @@ def basis_changes():
   # Global phases can be ignored.
   psi = ops.Hadamard()(psi)
   if not np.allclose(psi[1], -1.0):
-    raise AssertionError("Invalid basis change.")
+    raise AssertionError('Invalid basis change.')
 
 
 def main(argv):

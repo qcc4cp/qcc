@@ -7,9 +7,10 @@ from absl import app
 
 from src.lib import bell
 from src.lib import ops
+from src.lib import state
 
 
-def alice_manipulates(psi, bit0:int, bit1:int):
+def alice_manipulates(psi: state.State, bit0: int, bit1: int):
   """Alice encodes 2 classical bits in her 1 qubit."""
 
   ret = ops.Identity(2)(psi)
@@ -20,7 +21,7 @@ def alice_manipulates(psi, bit0:int, bit1:int):
   return ret
 
 
-def bob_measures(psi, expect0:int, expect1:int):
+def bob_measures(psi: state.State, expect0: int, expect1: int):
   """Bob measures both bits (in computational basis)."""
 
   # Change Hadamard basis back to computational basis.

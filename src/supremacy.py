@@ -16,7 +16,6 @@ flags.DEFINE_integer('target_nbits', 53, 'Number or target qubits')
 flags.DEFINE_integer('target_depth', 20, 'Depth of target circuit')
 flags.DEFINE_integer('machines', 100, 'Number of machines used')
 flags.DEFINE_integer('cores', 255, 'Number of cores per machine')
-#flags.DEFINE_integer('ccfactor', 100, 'C++ is x times faster than Python')
 
 
 # This code seeks to implement / simulate the circuit that was

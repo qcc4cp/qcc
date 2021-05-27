@@ -33,7 +33,7 @@ def make_f(d=3, solutions=1):
   num_inputs = 2**d
   answers = np.zeros(num_inputs, dtype=np.int32)
 
-  for i in range(solutions):
+  for _ in range(solutions):
     idx = random.randint(0, num_inputs - 1)
 
     # Avoid collisions.

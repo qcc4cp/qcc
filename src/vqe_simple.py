@@ -36,15 +36,13 @@
 
 import math
 import random
-import numpy as np
 
 from absl import app
 from absl import flags
+import numpy as np
 
 from src.lib import circuit
-from src.lib import helper
 from src.lib import ops
-from src.lib import state
 
 flags.DEFINE_integer('experiments', 1000, 'Number of experiments')
 flags.DEFINE_integer('shots', 1000, 'Number of random samples')
@@ -75,7 +73,7 @@ flags.DEFINE_integer('shots', 1000, 'Number of random samples')
 angles = [0.0] * 10
 
 
-def ansatz(qc):
+def full_ansatz(qc):
   """The Ansatz circuit for this example."""
 
   qc.reg(2, 'r')
@@ -115,7 +113,7 @@ def run_two_qubit_zi_experiment():
 
     # Construct and run the circuit.
     qc = circuit.qc('vqe')
-    ansatz(qc)
+    full_ansatz(qc)
     qc.z(0)
 
     # Measure the probablities as computed from the amplitudes.
@@ -162,7 +160,7 @@ def run_two_qubit_zi_experiment():
       print()
 
 
-def single_qubit_ansatz(theta:float, phi:float) -> circuit.qc:
+def single_qubit_ansatz(theta: float, phi: float) -> circuit.qc:
   """Generate a single qubit ansatz."""
 
   qc = circuit.qc('single-qubit ansatz Y')

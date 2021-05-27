@@ -2,18 +2,18 @@
 """Example: Quantum Teleportation."""
 
 import math
-import numpy as np
 
 from absl import app
+import numpy as np
 
 from src.lib import bell
 from src.lib import ops
 from src.lib import state
 
 
-def alice_measures(alice:state.State,
-          expect0:np.complexfloating, expect1:np.complexfloating,
-          qubit0:np.complexfloating, qubit1:np.complexfloating):
+def alice_measures(alice: state.State,
+                   expect0: np.complexfloating, expect1: np.complexfloating,
+                   qubit0: np.complexfloating, qubit1: np.complexfloating):
   """Force measurement and get teleported qubit."""
 
   # Alices measure her state and get a collapsed |qubit0 qubit1>.
