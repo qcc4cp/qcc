@@ -16,7 +16,6 @@ import math
 import numpy as np
 
 
-
 # All math in this package will use this base type.
 # Valid values can be np.complex128 or np.complex64
 tensor_type = np.complex64

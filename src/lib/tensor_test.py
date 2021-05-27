@@ -4,6 +4,7 @@ from absl.testing import absltest
 
 from src.lib import tensor
 
+
 class TensorTest(absltest.TestCase):
 
   def test_pow(self):

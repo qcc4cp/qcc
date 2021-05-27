@@ -1,9 +1,9 @@
 # python3
 
 import random
-import numpy as np
 
 from absl.testing import absltest
+import numpy as np
 
 from src.lib import state
 
@@ -129,7 +129,7 @@ class StateTest(absltest.TestCase):
     self.assertTrue(np.allclose(np.inner(psi1.conj(), psi1), 1.0))
     self.assertTrue(np.allclose(np.inner(p1.conj(), p1) *
                                 np.inner(x1.conj(), x1), 1.0))
-    
+
   def test_normalize(self) -> None:
     denormalized = state.State([1.0, 1.0])
     denormalized.normalize()

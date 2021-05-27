@@ -27,7 +27,7 @@ class State(tensor.Tensor):
     s += super().__str__()
     return s
 
-  def dump(self, desc: Optional[str]=None, prob_only: bool=True) -> None:
+  def dump(self, desc: Optional[str] = None, prob_only: bool = True) -> None:
     dump_state(self, desc, prob_only)
 
   def density(self) -> tensor.Tensor:
@@ -42,25 +42,25 @@ class State(tensor.Tensor):
     dprod = np.conj(self) @ self
     self /= np.sqrt(np.real(dprod))
 
-  def ampl(self, *bits: int) -> np.complexfloating:
+  def ampl(self, *bits) -> np.complexfloating:
     """Return amplitude for state indexed by 'bits'."""
 
     idx = helper.bits2val(bits)
     return self[idx]
 
-  def prob(self, *bits: int) -> float:
+  def prob(self, *bits) -> float:
     """Return probability for state indexed by 'bits'."""
 
     amplitude = self.ampl(*bits)
     return np.real(amplitude.conj() * amplitude)
 
-  def phase(self, *bits: int) -> float:
+  def phase(self, *bits) -> float:
     """Return phase of a state from the complex amplitude."""
 
     amplitude = self.ampl(*bits)
     return math.degrees(cmath.phase(amplitude))
 
-  def maxprob(self) -> (List, float):
+  def maxprob(self) -> (List[float], float):
     """Find state with highest probability."""
 
     maxprob = 0.0
@@ -152,8 +152,8 @@ class State(tensor.Tensor):
 # be distinguished when multiplied with an arbitrary complex number, aka,
 # global phase.
 #
-def qubit(alpha: Optional[np.complexfloating]=None,
-          beta: Optional[np.complexfloating]=None) -> State:
+def qubit(alpha: Optional[np.complexfloating] = None,
+          beta: Optional[np.complexfloating] = None) -> State:
   """Produce a given state for a single qubit."""
 
   if alpha is None and beta is None:
@@ -182,7 +182,7 @@ def qubit(alpha: Optional[np.complexfloating]=None,
 # The result of this tensor product is
 #   always [1, 0, 0, ..., 0]^T or [0, 0, 0, ..., 1]^T
 #
-def zeros_or_ones(d: int=1, idx: int=0) -> State:
+def zeros_or_ones(d: int = 1, idx: int = 0) -> State:
   """Produce the all-0/1 basis vector for `d` qubits."""
 
   if d < 1:
@@ -193,12 +193,12 @@ def zeros_or_ones(d: int=1, idx: int=0) -> State:
   return State(t)
 
 
-def zeros(d: int=1) -> State:
+def zeros(d: int = 1) -> State:
   """Produce state with 'd' |0>, eg., |0000>."""
   return zeros_or_ones(d, 0)
 
 
-def ones(d: int=1) -> State:
+def ones(d: int = 1) -> State:
   """Produce state with 'd' |1>, eg., |1111>."""
   return zeros_or_ones(d, 2**d - 1)
 
@@ -227,6 +227,7 @@ one = ones(1)
 
 
 class Reg():
+  """Simple register class."""
 
   def __init__(self, size, it=0, global_reg=None):
     self.size = size
@@ -284,8 +285,8 @@ def state_to_string(bits) -> str:
   return '|{:s}> (|{:d}>)'.format(s, int(s, 2))
 
 
-def dump_state(psi, description: Optional[str]=None,
-               prob_only: bool=False) -> None:
+def dump_state(psi, description: Optional[str] = None,
+               prob_only: bool = False) -> None:
   """Dump probabilities for a state, as well as local qubit state."""
 
   if description:

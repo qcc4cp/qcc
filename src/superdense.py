@@ -10,7 +10,7 @@ from src.lib import ops
 from src.lib import state
 
 
-def alice_manipulates(psi: state.State, bit0: int, bit1: int):
+def alice_manipulates(psi: state.State, bit0: int, bit1: int) -> state.State:
   """Alice encodes 2 classical bits in her 1 qubit."""
 
   ret = ops.Identity(2)(psi)
@@ -35,7 +35,7 @@ def bob_measures(psi: state.State, expect0: int, expect1: int):
       not math.isclose(p1, 1.0, abs_tol=1e-6)):
     raise AssertionError(f'Invalid Result p0 {p0} p1 {p1}')
 
-  print(f'Expected/matched: |{expect0}{expect1}>')
+  print(f'Expected/matched: |{expect0}{expect1}>.')
 
 
 def main(argv):
@@ -46,7 +46,7 @@ def main(argv):
   psi = bell.bell_state(0, 0)
 
   # Alices manipulates her qubit and sends her 1 qubit back to Bob,
-  # who measures. In the Hadamard basis he would get b00, b01, etc
+  # who measures. In the Hadamard basis he would get b00, b01, etc.
   # but we're measuring in the computational basis by reverse
   # applying Hadamard and Cnot.
   for bit0 in range(2):
