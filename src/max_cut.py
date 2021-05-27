@@ -1,14 +1,13 @@
 # python3
 """Example: Max Cut Algorithm for bi-directional graph."""
 
-import math
-import numpy as np
-import timeit
 import random
+import timeit
 
 from absl import app
 from absl import flags
 
+import numpy as np
 from src.lib import helper
 from src.lib import ops
 
@@ -19,13 +18,13 @@ flags.DEFINE_integer('iterations', 10, 'Number of experiments')
 
 # Nodes are tuples: (from, to, edge weight).
 #
-def build_graph(num:int=0) -> (int, list):
+def build_graph(num: int = 0) -> (int, list[int]):
     """Build a graph of num nodes."""
 
     if num < 3:
         raise app.UsageError('Must request graph of at least 3 nodes.')
     weight = 5.0
-    nodes = [(0, 1, 1.0), (1, 2, 2.0), (0, 2, 3.0) ]
+    nodes = [(0, 1, 1.0), (1, 2, 2.0), (0, 2, 3.0)]
     for i in range(num-3):
         l = random.sample(range(0, 3 + i - 1), 2)
         nodes.append((3 + i, l[0],
@@ -35,8 +34,7 @@ def build_graph(num:int=0) -> (int, list):
     return num, nodes
 
 
-
-def graph_to_dot(n:int, nodes:list, max_cut) -> None:
+def graph_to_dot(n: int, nodes: list[int], max_cut) -> None:
     """Convert graph (up to 64 nodes) to dot file."""
 
     print('graph {')
@@ -52,7 +50,7 @@ def graph_to_dot(n:int, nodes:list, max_cut) -> None:
     print('}')
 
 
-def graph_to_adjacency(n:int, nodes:list) -> ops.Operator:
+def graph_to_adjacency(n: int, nodes: list[int]) -> ops.Operator:
     """Compute adjacency matrix from graph."""
 
     op = np.zeros((n, n))
@@ -62,7 +60,7 @@ def graph_to_adjacency(n:int, nodes:list) -> ops.Operator:
     return ops.Operator(op)
 
 
-def graph_to_hamiltonian(n:int, nodes:list) -> ops.Operator:
+def graph_to_hamiltonian(n: int, nodes: list[int]) -> ops.Operator:
     """Compute Hamiltonian matrix from graph."""
 
     H = np.zeros((2**n, 2**n))
@@ -72,22 +70,22 @@ def graph_to_hamiltonian(n:int, nodes:list) -> ops.Operator:
         if idx1 > idx2:
             idx1, idx2 = idx2, idx1
         op = 1.0
-        for i in range(idx1):
+        for _ in range(idx1):
             op = op * ops.Identity()
         op = op * (node[2] * ops.PauliZ())
-        for i in range(idx1 + 1, idx2):
+        for _ in range(idx1 + 1, idx2):
             op = op * ops.Identity()
         op = op * (node[2] * ops.PauliZ())
-        for i in range(idx2 + 1, n):
+        for _ in range(idx2 + 1, n):
             op = op * ops.Identity()
         H = H + op
     return ops.Operator(H)
 
 
-def tensor_diag(n:int, fr:int, to:int, w:float):
+def tensor_diag(n: int, fr: int, to: int, w: float):
     """Construct a tensor product from diagonal matrices."""
 
-    def tensor_product(w1:float, w2:float, diag):
+    def tensor_product(w1: float, w2: float, diag):
         return [j for i in zip([x * w1 for x in diag],
                                [x * w2 for x in diag]) for j in i]
 
@@ -100,7 +98,7 @@ def tensor_diag(n:int, fr:int, to:int, w:float):
     return diag
 
 
-def graph_to_diagonal_h(n:int, nodes:list) -> np.ndarray:
+def graph_to_diagonal_h(n: int, nodes: list[int]) -> np.ndarray:
     """Construct diag(H)."""
 
     h = [0.0] * 2**n
@@ -111,7 +109,7 @@ def graph_to_diagonal_h(n:int, nodes:list) -> np.ndarray:
     return h
 
 
-def compute_max_cut(n:int, nodes:list) -> None:
+def compute_max_cut(n: int, nodes: list[int]) -> None:
     """Compute (inefficiently) the max cut, exhaustively."""
 
     max_cut = -1000
@@ -131,7 +129,7 @@ def compute_max_cut(n:int, nodes:list) -> None:
                 cut += node[2]
         if cut > max_cut:
             max_cut_in, max_cut_out = iset.copy(), oset.copy()
-            max_cut  = cut
+            max_cut = cut
             max_bits = bits
 
     state = bin(helper.bits2val(max_bits))[2:].zfill(n)
@@ -154,11 +152,11 @@ def benchmark() -> None:
               .format(num+6, timeit.timeit(compute_max, number=1)))
 
 
-def run_experiment(num_nodes):
+def run_experiment(num_nodes: int):
     """Run an experiment, compute H, match against max-cut."""
 
     n, nodes = build_graph(num_nodes)
-    max_cut  = compute_max_cut(n, nodes)
+    max_cut = compute_max_cut(n, nodes)
     #
     # These two lines are the basic implementation, where
     # a full matrix is being constructed. However, these
@@ -166,21 +164,23 @@ def run_experiment(num_nodes):
     #  H       = graph_to_hamiltonian(n, nodes)
     #  diag    = H.diagonal()
     #
-    diag     = graph_to_diagonal_h(n, nodes)
-    min_val  = np.amin(diag)
-    min_idx  = np.argmin(diag)
+    diag = graph_to_diagonal_h(n, nodes)
+    min_idx = np.argmin(diag)
     if flags.FLAGS.graph:
         graph_to_dot(n, nodes, max_cut)
 
     # Results...
     if min_idx == max_cut:
-        print('SUCCESS: {:+10.2f} |{}>'.format(np.real(diag[min_idx]),
+        print('SUCCESS: {:+10.2f} |{}>'
+              .format(np.real(diag[min_idx]),
                       bin(min_idx)[2:].zfill(n)))
     else:
-        print('FAIL   : {:+10.2f} |{}>  '.format(np.real(diag[min_idx]),
+        print('FAIL   : {:+10.2f} |{}>  '
+              .format(np.real(diag[min_idx]),
                       bin(min_idx)[2:].zfill(n)),
               end='')
-        print('Max-Cut: {:+10.2f} |{}>'.format(np.real(diag[max_cut]),
+        print('Max-Cut: {:+10.2f} |{}>'
+              .format(np.real(diag[max_cut]),
                       bin(max_cut)[2:].zfill(n)))
 
 

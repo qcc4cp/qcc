@@ -23,7 +23,6 @@ def make_f1(d=3):
   answers = np.zeros(num_inputs, dtype=np.int32)
   answer_true = np.random.randint(0, num_inputs)
 
-  bit_string = format(answer_true, '0{}b'.format(d))
   answers[answer_true] = 1
 
   # pylint: disable=no-value-for-parameter
@@ -39,7 +38,7 @@ def make_f(d=3, solutions=1):
   num_inputs = 2**d
   answers = np.zeros(num_inputs, dtype=np.int32)
 
-  for i in range(solutions):
+  for _ in range(solutions):
     idx = np.random.randint(0, num_inputs - 1)
 
     # Avoid collisions.

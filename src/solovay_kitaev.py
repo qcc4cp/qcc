@@ -1,7 +1,6 @@
 # python3
 """Example: Solovay-Kitaev Algorithm for gate approximation."""
 
-import math
 import random
 
 from absl import app
@@ -111,7 +110,7 @@ def sk_algo(U, gates, n):
     return find_closest_u(gates, U)
   else:
     U_next = sk_algo(U, gates, n-1)
-    V, W   = gc_decomp(U @ U_next.adjoint())
+    V, W = gc_decomp(U @ U_next.adjoint())
     V_next = sk_algo(V, gates, n-1)
     W_next = sk_algo(W, gates, n-1)
     return V_next @ W_next @ V_next.adjoint() @ W_next.adjoint() @ U_next
@@ -127,11 +126,11 @@ def random_gates(min_length, max_length, num_experiments):
        ops.RotationZ(2.0 * np.pi * random.random()))
 
   min_dist = 1000
-  for i in range(num_experiments):
+  for _ in range(num_experiments):
     seq_length = min_length + random.randint(0, max_length)
     U_approx = ops.Identity()
 
-    for j in range(seq_length):
+    for _ in range(seq_length):
       g = random.randint(0, 1)
       U_approx = U_approx @ base[g]
 
@@ -179,9 +178,9 @@ def main(argv):
   print('Gates: {}, Mean Trace Dist:: {:.4f}'.
         format(len(gates), sum_dist / num_experiments))
 
-  min_length=10
-  max_delta=50
-  max_tries=100
+  min_length = 10
+  max_delta = 50
+  max_tries = 100
   print('Random Experiment, seq length: {} - {}, tries: {}'
         .format(min_length, max_delta, max_tries))
   for i in range(num_experiments):

@@ -2,9 +2,10 @@
 """Example: Deutsch-Jozsa Algorithm."""
 
 import math
-
+from typing import Callable, List
 from absl import app
 import numpy as np
+
 
 from src.lib import helper
 from src.lib import ops
@@ -15,7 +16,8 @@ exp_constant = 'constant'
 exp_balanced = 'balanced'
 
 
-def make_f(dim=1, flavor=exp_constant):
+def make_f(dim: int = 1,
+           flavor: int = exp_constant) -> Callable[[List[int]], int]:
   """Return a constant or balanced function f over 2**dim bits."""
 
   power2 = 2**dim
@@ -29,7 +31,7 @@ def make_f(dim=1, flavor=exp_constant):
   # accepts a string of bits. We compute an index from this
   # binary representation and return the value in bits[] found there.
   #
-  def f(bit_string):
+  def f(bit_string: List[int]) -> int:
     """Return f(bits) for one of the 2 possible function types."""
 
     # pylint: disable=no-value-for-parameter
@@ -39,7 +41,7 @@ def make_f(dim=1, flavor=exp_constant):
   return f
 
 
-def run_experiment(nbits, flavor):
+def run_experiment(nbits: int, flavor: int):
   """Run full experiment for a given flavor of f()."""
 
   f = make_f(nbits-1, flavor)

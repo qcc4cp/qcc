@@ -44,8 +44,8 @@ def fulladder_matrix(psi: state.State):
   return psi
 
 
-def experiment_qc(a:int, b:int, cin:int,
-                  expected_sum:int, expected_cout:int):
+def experiment_qc(a: int, b: int, cin: int,
+                  expected_sum: int, expected_cout: int):
   """Run a simple classic experiment, check results."""
 
   qc = circuit.qc('classic')
@@ -60,8 +60,8 @@ def experiment_qc(a:int, b:int, cin:int,
     raise AssertionError('invalid results')
 
 
-def experiment_matrix(a:int, b:int, cin:int,
-                      expected_sum:int, expected_cout:int):
+def experiment_matrix(a: int, b: int, cin: int,
+                      expected_sum: int, expected_cout: int):
   """Run a simple classic experiment, check results."""
 
   psi = state.bitstring(a, b, cin, 0, 0)

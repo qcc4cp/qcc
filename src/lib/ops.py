@@ -312,8 +312,8 @@ def Toffoli(idx0:int, idx1:int, idx2:int) -> Operator:
   return toffoli
 
 
-def OracleUf(nbits:int, f) -> Operator:
-  """Make an n-qubit Oracle for function f (eg. Deutsch, Grover)."""
+def OracleUf(nbits:int, f: Callable[[List[int]], int]) -> Operator:
+  """Make an n-qubit Oracle for function f (e.g. Deutsch, Grover)."""
 
   # This Oracle is constructed similar to the implementation in
   # ./deutsch.py, just with an n-bit |x> and a 1-bit |y>
@@ -334,7 +334,7 @@ def OracleUf(nbits:int, f) -> Operator:
 
   op = Operator(u)
   if not op.is_unitary():
-    raise AssertionError('constructed non-unitary operators.')
+    raise AssertionError('Constructed non-unitary operator.')
   return op
 
 

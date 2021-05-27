@@ -95,7 +95,7 @@ def ccadd(qc, q, ctl1, ctl2, a, n, factor):
     ccphase(qc, factor*angles[i], ctl1, ctl2, q[i])
 
 
-def qft(qc, up_reg, n:int, with_swaps:bool) -> None:
+def qft(qc, up_reg, n: int, with_swaps: bool) -> None:
   """QFT."""
 
   for i in range(n-1, -1, -1):
@@ -108,7 +108,7 @@ def qft(qc, up_reg, n:int, with_swaps:bool) -> None:
       qc.swap(up_reg[i], up_reg[n-1-i])
 
 
-def inverse_qft(qc, up_reg, n:int, with_swaps:bool) -> None:
+def inverse_qft(qc, up_reg, n: int, with_swaps: bool) -> None:
   """Inverse QFT."""
 
   if with_swaps:
@@ -223,7 +223,7 @@ def main(argv):
   for bits in helper.bitprod(nbits*4 + 2):
     prob = qc.psi.prob(*bits)
     if prob > 0.01:
-      intval =  helper.bits2val(bits[nbits+2 : nbits+2 + nbits*2][::-1])
+      intval = helper.bits2val(bits[nbits+2 : nbits+2 + nbits*2][::-1])
       phase = helper.bits2frac(bits[nbits+2 : nbits+2 + nbits*2][::-1])
 
       r = fractions.Fraction(phase).limit_denominator(8).denominator

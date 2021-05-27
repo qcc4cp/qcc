@@ -58,8 +58,8 @@ def inverse_qft(qc, reg, n):
   qc.h(reg[n])
 
 
-def arith_quantum(n:int, init_a:int, init_b:int,
-                  factor:float=1.0, dumpit=False):
+def arith_quantum(n: int, init_a: int, init_b: int,
+                  factor: float = 1.0, dumpit: bool = False):
   """Run a quantum add experiment."""
 
   qc = circuit.qc('qadd')

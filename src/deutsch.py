@@ -3,6 +3,7 @@
 
 import math
 
+from typing import Callable
 from absl import app
 import numpy as np
 
@@ -10,7 +11,7 @@ from src.lib import ops
 from src.lib import state
 
 
-def make_f(flavor):
+def make_f(flavor: int) -> Callable[[int], int]:
   """Return a 1-bit constant or balanced function f. 4 flavors."""
 
   # The 4 versions are:
@@ -20,14 +21,14 @@ def make_f(flavor):
   #    f(0) -> 1, f(1) -> 1  constant
   flavors = [[0, 0], [0, 1], [1, 0], [1, 1]]
 
-  def f(bit):
+  def f(bit: int) -> int:
     """Return f(bit) for one of the 4 possible function types."""
     return flavors[flavor][bit]
 
   return f
 
 
-def make_uf(f):
+def make_uf(f: Callable[[int], int]) -> ops.Operator:
   """Simple way to generate the 2-qubit, 4x4 Deutsch Oracle."""
 
   # This is how the Deutsch Oracle is being constructed.
@@ -87,11 +88,11 @@ def make_uf(f):
 
   op = ops.Operator(u)
   if not op.is_unitary():
-    raise AssertionError('produced non-unitary operator')
+    raise AssertionError('Produced non-unitary operator.')
   return op
 
 
-def run_experiment(flavor):
+def run_experiment(flavor: int) -> None:
   """Run full experiment for a given flavor of f()."""
 
   f = make_f(flavor)
@@ -109,11 +110,11 @@ def run_experiment(flavor):
   if math.isclose(p0, 0.0):
     print('  balanced')
     if flavor == 0 or flavor == 3:
-      raise AssertionError('Invalid result, expected balanced')
+      raise AssertionError('Invalid result, expected balanced.')
   else:
     print('  constant')
     if flavor == 1 or flavor == 2:
-      raise AssertionError('Invalid result, expected constant')
+      raise AssertionError('Invalid result, expected constant.')
 
 
 def main(argv):
