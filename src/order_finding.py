@@ -13,6 +13,7 @@ import math
 
 from absl import app
 from absl import flags
+from typing import List
 
 from src.lib import circuit
 from src.lib import helper
@@ -21,10 +22,10 @@ flags.DEFINE_integer('N', 15, 'Number to factor.')
 flags.DEFINE_integer('a', 4, 'Start search with this number.')
 
 
-def modular_inverse(a, m):
+def modular_inverse(a: int, m: int) -> int:
   """Compute Modular Inverse."""
 
-  def egcd(a, b):
+  def egcd(a: int, b: int) -> (int, int, int):
     """Extended Euclidian Algorithm."""
 
     # Explained here:
@@ -41,12 +42,12 @@ def modular_inverse(a, m):
   #
   g, x, _ = egcd(a, m)
   if g != 1:
-    raise Exception(f'modular inverse ({a}, {m}) does not exist')
+    raise Exception(f'Modular inverse ({a}, {m}) does not exist.')
   else:
     return x % m
 
 
-def precompute_angles(a, n):
+def precompute_angles(a: int, n: int) -> List[float]:
   """Pre-compute angles used in the Fourier Transform, for a."""
 
   # Convert 'a' to a string of 0's and 1's.
@@ -61,7 +62,7 @@ def precompute_angles(a, n):
   return angles
 
 
-def add(qc, q, a, n, factor):
+def add(qc, q, a: int, n: int, factor: float) -> None:
   """Un-controlled add in fourier space."""
 
   angles = precompute_angles(a, n)
@@ -69,7 +70,7 @@ def add(qc, q, a, n, factor):
     qc.u1(q[i], factor * angles[i])
 
 
-def cadd(qc, q, ctl, a, n, factor):
+def cadd(qc, q, ctl, a: int, n: int, factor: float) -> None:
   """Controlled add in fourier space."""
 
   angles = precompute_angles(a, n)
@@ -77,7 +78,7 @@ def cadd(qc, q, ctl, a, n, factor):
     qc.cu1(ctl, q[i], factor * angles[i])
 
 
-def ccphase(qc, angle, ctl1, ctl2, idx):
+def ccphase(qc, angle: float, ctl1: int, ctl2: int, idx: int) -> None:
   """Controlled-controlled phase gate."""
 
   qc.cu1(ctl1, idx, angle/2)
@@ -87,7 +88,8 @@ def ccphase(qc, angle, ctl1, ctl2, idx):
   qc.cu1(ctl2, idx, angle/2)
 
 
-def ccadd(qc, q, ctl1, ctl2, a, n, factor):
+def ccadd(qc, q, ctl1: int, ctl2: int,
+          a: int, n: int, factor: float) -> None:
   """Controlled-controlled add in fourier space."""
 
   angles = precompute_angles(a, n)
@@ -187,7 +189,7 @@ def cmultmodn(qc, ctl, q, aux, a, number, n):
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
-  print('Order Finding.')
+  print('Order finding.')
 
   number = flags.FLAGS.N
   a = flags.FLAGS.a

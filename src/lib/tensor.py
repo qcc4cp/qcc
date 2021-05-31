@@ -16,24 +16,32 @@ import math
 import numpy as np
 
 
+# Bit width of complex data types, 64 or 128.
+tensor_width = 64
+
+
 # All math in this package will use this base type.
 # Valid values can be np.complex128 or np.complex64
-tensor_type = np.complex64
+def tensor_type():
+  """Return complex type."""
 
-# Computed from tensor_type.
-tensor_width = 128 if tensor_type == np.complex128 else 64
+  if tensor_width == 64:
+    return np.complex64
+  return np.complex128
 
 
-def accuracy_float():
-  global tensor_type
-  tensor_type = np.complex64
+def float_accuracy(bit_width: int = 64):
+  """Set complex type bit width to 64 or 128."""
+
+  global tensor_width
+  tensor_width = bit_width
 
 
 class Tensor(np.ndarray):
   """Tensor is a numpy array representing a state or operator."""
 
   def __new__(cls, input_array) -> Tensor:
-    return np.asarray(input_array, dtype=tensor_type).view(cls)
+    return np.asarray(input_array, dtype=tensor_type()).view(cls)
 
   def __array_finalize__(self, obj) -> None:
     if obj is None: return

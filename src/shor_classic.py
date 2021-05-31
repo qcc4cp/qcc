@@ -7,7 +7,7 @@ import random
 from absl import app
 
 
-def is_prime(num):
+def is_prime(num: int) -> bool:
   """Check to see whether num can be factored at all."""
 
   for i in range(3, num // 2, 2):
@@ -16,13 +16,13 @@ def is_prime(num):
   return True
 
 
-def is_coprime(num, larger_num):
+def is_coprime(num: int, larger_num: int) -> bool:
   """Determine if num is a coprime to larger_num."""
 
   return math.gcd(num, larger_num) == 1
 
 
-def get_odd_non_prime(fr, to):
+def get_odd_non_prime(fr: int, to: int) -> int:
   """Get a non-prime number in the range."""
 
   while True:
@@ -33,7 +33,7 @@ def get_odd_non_prime(fr, to):
       return n
 
 
-def get_coprime(larger_num):
+def get_coprime(larger_num: int) -> int:
   """Find a numnber < larger_num which is coprime to it."""
 
   while True:
@@ -42,7 +42,7 @@ def get_coprime(larger_num):
       return val
 
 
-def classic_order(num, modulus):
+def classic_order(num: int, modulus: int) -> int:
   """Find the order classically via simple iteration."""
 
   order = 1
@@ -51,9 +51,10 @@ def classic_order(num, modulus):
     if newval == 1:
       return order
     order += 1
+  return order
 
 
-def run_experiment(fr, to):
+def run_experiment(fr: int, to: int) -> (int, int):
   """Run the classical part of Shor's algorithm."""
 
   n = get_odd_non_prime(fr, to)
@@ -70,7 +71,7 @@ def run_experiment(fr, to):
   if factor1 * factor2 != n:
     raise AssertionError('Invalid factoring')
 
-  return (factor1, factor2)
+  return factor1, factor2
 
 
 def main(argv):

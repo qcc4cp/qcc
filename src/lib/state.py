@@ -37,9 +37,11 @@ class State(tensor.Tensor):
     return self.conj().transpose()
 
   def normalize(self) -> None:
-    """Renormalize the state. Sum of squared amplitudes eq 1.0."""
+    """Renormalize the state. Sum of squared amplitudes==1.0."""
 
     dprod = np.conj(self) @ self
+    if (dprod.is_close(0.0)):
+      raise AssertionError('Normalizing to zero-probability state.')
     self /= np.sqrt(np.real(dprod))
 
   def ampl(self, *bits) -> np.complexfloating:
@@ -63,13 +65,11 @@ class State(tensor.Tensor):
   def maxprob(self) -> (List[float], float):
     """Find state with highest probability."""
 
-    maxprob = 0.0
-    maxbits = []
+    maxbits, maxprob = [], 0.0
     for bits in helper.bitprod(self.nbits):
       cur_prob = self.prob(*bits)
       if cur_prob > maxprob:
-        maxprob = cur_prob
-        maxbits = bits
+        maxbits, maxprob = bits, cur_prob
     return maxbits, maxprob
 
   # The Schmidt number is an entanglement measure for a state.
@@ -168,10 +168,10 @@ def qubit(alpha: Optional[np.complexfloating] = None,
                       np.conj(beta) * beta, 1.0):
     raise ValueError('Qubit probabilities do not sum to 1.')
 
-  t = np.zeros(2, dtype=tensor.tensor_type)
-  t[0] = alpha
-  t[1] = beta
-  return State(t)
+  qb = np.zeros(2, dtype=tensor.tensor_type())
+  qb[0] = alpha
+  qb[1] = beta
+  return State(qb)
 
 
 # The functions zeros() and ones() produce the all-zero or all-one
@@ -188,7 +188,7 @@ def zeros_or_ones(d: int = 1, idx: int = 0) -> State:
   if d < 1:
     raise ValueError('Rank must be at least 1.')
   shape = 2**d
-  t = np.zeros(shape, dtype=tensor.tensor_type)
+  t = np.zeros(shape, dtype=tensor.tensor_type())
   t[idx] = 1
   return State(t)
 
@@ -209,7 +209,7 @@ def bitstring(*bits) -> State:
   d = len(bits)
   if d == 0:
     raise ValueError('Rank must be at least 1.')
-  t = np.zeros(1 << d, dtype=tensor.tensor_type)
+  t = np.zeros(1 << d, dtype=tensor.tensor_type())
   t[helper.bits2val(bits)] = 1
   return State(t)
 
@@ -285,18 +285,19 @@ def state_to_string(bits) -> str:
   return '|{:s}> (|{:d}>)'.format(s, int(s, 2))
 
 
-def dump_state(psi, description: Optional[str] = None,
-               prob_only: bool = False) -> None:
+def dump_state(psi, desc: Optional[str] = None,
+               prob_only: bool = True) -> None:
   """Dump probabilities for a state, as well as local qubit state."""
 
-  if description:
+  if desc:
     print('|', end='')
     for i in range(psi.nbits-1, -1, -1):
       print(i % 10, end='')
-    print(f'> \'{description}\'')
+    print(f'> \'{desc}\'')
 
   state_list: List[str] = []
   for bits in helper.bitprod(psi.nbits):
+    print(prob_only)
     if prob_only and (psi.prob(*bits) < 10e-6):
       continue
 

@@ -1,5 +1,8 @@
 # python3
 import math
+import random
+
+import numpy as np
 
 from absl.testing import absltest
 
@@ -256,7 +259,16 @@ class OpsTest(absltest.TestCase):
       self.assertTrue(u1.is_close(rk))
 
   def test_hh(self):
-    (ops.Hadamard(2)).dump()
+    p1 = state.qubit(alpha=random.random())
+    x1 = state.qubit(alpha=random.random())
+    psi = p1 * x1
+    # inner product of full state
+    self.assertTrue(np.allclose(np.inner(psi.conj(), psi), 1.0))
+
+    # inner product of the constituents multiplied
+    self.assertTrue(np.allclose(np.inner(p1.conj(), p1) *
+                    np.inner(x1.conj(), x1), 1.0))
+
 
 if __name__ == '__main__':
   absltest.main()
