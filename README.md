@@ -62,7 +62,7 @@ cc_library(
         "-DNPY_NO_DEPRECATED_API",
         "-DNPY_1_7_API_VERSION",
         # Configure:
-        "-I/usr/include/python3.7m",
+        "-I/usr/include/python3.9",
     ],
     deps = [
         "@third_party_numpy//:numpy",
