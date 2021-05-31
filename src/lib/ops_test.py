@@ -255,6 +255,8 @@ class OpsTest(absltest.TestCase):
       rk = ops.Rk(i)
       self.assertTrue(u1.is_close(rk))
 
+  def test_hh(self):
+    (ops.Hadamard(2)).dump()
 
 if __name__ == '__main__':
   absltest.main()

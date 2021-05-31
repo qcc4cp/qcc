@@ -394,7 +394,7 @@ def Qft(nbits:int) -> Operator:
     op = op(Swap(idx, nbits - idx - 1), idx)
 
   if not op.is_unitary():
-    raise AssertionError('constructed non-unitary operator')
+    raise AssertionError('Constructed non-unitary operator.')
   return op
 
 

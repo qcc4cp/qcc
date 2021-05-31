@@ -8,9 +8,11 @@
 import math
 
 from absl import app
+from typing import List
 
 from src.lib import circuit
 from src.lib import helper
+from src.lib import state
 
 # Note: The QFT was constructed when the bit order in the state
 #    initializers was wrongly inverted. After I corrected the bit
@@ -25,51 +27,52 @@ from src.lib import helper
 # this one just with pi).
 
 
-def check_result(psi, a, b, nbits, factor=1.0):
+def check_result(psi: state.State, a, b,
+                 nbits: int, factor: float = 1.0) -> None:
   """Find most likely result, dump it, compare against expected."""
 
   maxbits, _ = psi.maxprob()
   result = helper.bits2val(maxbits[0:nbits][::-1])
   if result != a + factor * b:
-    print(f'{a} + ({factor} * {b}) = {result}')
-    raise AssertionError('incorrect addition')
+    print(f'{a} + ({factor} * {b}) != {result}')
+    raise AssertionError('Incorrect addition.')
 
 
-def qft(qc, reg, n):
+def qft(qc: circuit.qc, reg: state.Reg, n: int) -> None:
   """qft."""
 
   qc.h(reg[n])
-  for i in range(0, n):
+  for i in range(n):
     qc.cu1(reg[n-(i+1)], reg[n], math.pi/float(2**(i+1)))
 
 
-def evolve(qc, reg_a, reg_b, n, factor):
+def evolve(qc: circuit.qc, reg_a: state.Reg, reg_b: state.Reg,
+           n: int, factor: float) -> None:
   """Rotations."""
 
-  for i in range(0, n+1):
+  for i in range(n+1):
     qc.cu1(reg_b[n-i], reg_a[n], factor * math.pi/float(2**(i)))
 
 
-def inverse_qft(qc, reg, n):
-  """Inverse qft."""
-
-  for i in range(0, n):
+def inverse_qft(qc: circuit.qc, reg: state.Reg, n: int) -> None:
+  for i in range(n):
     qc.cu1(reg[i], reg[n], -1*math.pi/float(2**(n-i)))
   qc.h(reg[n])
 
 
+
 def arith_quantum(n: int, init_a: int, init_b: int,
-                  factor: float = 1.0, dumpit: bool = False):
+                  factor: float = 1.0, dumpit: bool = False) -> None:
   """Run a quantum add experiment."""
 
   qc = circuit.qc('qadd')
   a = qc.reg(n+1, helper.val2bits(init_a, n)[::-1], name='a')
   b = qc.reg(n+1, helper.val2bits(init_b, n)[::-1], name='b')
-  for i in  range(0, n+1):
+  for i in  range(n+1):
     qft(qc, a, n-i)
-  for i in range(0, n+1):
+  for i in range(n+1):
     evolve(qc, a, b, n-i, factor)
-  for i in range(0, n+1):
+  for i in range(n+1):
     inverse_qft(qc, a, i)
   if dumpit:
     qc.dump_to_file()
@@ -79,14 +82,14 @@ def arith_quantum(n: int, init_a: int, init_b: int,
 # If we know which specific constant 'a' to add to a quantum register,
 # we can just apply the rotations, no need for the b register in the
 # general case. We just have to precompute the angles, as done here.
-def precompute_angles(a, n):
+def precompute_angles(a: int, n: int) -> List[float]:
   """Pre-compute angles used in the Fourier Transform, for fixed a."""
 
   # Convert 'a' to a string of 0's and 1's.
   s = bin(int(a))[2:].zfill(n)
 
   angles = [0.] * n
-  for i in range(0, n):
+  for i in range(n):
     for j in range(i, n):
       if s[j] == '1':
         angles[n-i-1] += 2**(-(j-i))
@@ -94,19 +97,19 @@ def precompute_angles(a, n):
   return angles
 
 
-def arith_quantum_constant(n, init_a, c):
+def arith_quantum_constant(n: int, init_a: int, c: int) -> None:
   """Run a quantum add-constant experiment."""
 
   qc = circuit.qc('qadd')
   a = qc.reg(n+1, helper.val2bits(init_a, n)[::-1], name='a')
-  for i in  range(0, n+1):
+  for i in  range(n+1):
     qft(qc, a, n-i)
 
   angles = precompute_angles(c, n)
-  for i in range(0, n):
+  for i in range(n):
     qc.u1(a[i], angles[i])
 
-  for i in range(0, n+1):
+  for i in range(n+1):
     inverse_qft(qc, a, i)
 
   maxbits, _ = qc.psi.maxprob()
@@ -131,12 +134,12 @@ def main(argv):
 
   print('Check quantum subtraction...')
   for i in range(8):
-    for j in range(0, i):  # Note: Results can be 2nd complements.
+    for j in range(i):  # Note: Results can be 2nd complements.
       arith_quantum(6, i, j, -1.0)
 
   print('Check quantum (pseudo) multiplication...')
-  for i in range(0, 6):
-    for j in range(0, 6):
+  for i in range(6):
+    for j in range(6):
       arith_quantum(6, 0, i, j)
 
 if __name__ == '__main__':

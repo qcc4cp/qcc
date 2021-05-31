@@ -10,7 +10,7 @@ from src.lib import ops
 from src.lib import state
 
 
-def expo_u(psi, u, t):
+def expo_u(psi: state.State, u: ops.Operator, t: int) -> state.State:
   """Exponentiate U."""
 
   # Unpack the binary fractions of the phase into the first t qubits.
@@ -33,23 +33,24 @@ def expo_u(psi, u, t):
   return psi
 
 
-def run_experiment(nbits, t=8):
+def run_experiment(nbits: int, t: int = 8):
   """Run single phase estimation experiment."""
 
-  # Make a unitary and find Eigen value/vector to estimate.
+  # Make a unitary and find eigenvalue/vector to estimate.
   #
   umat = scipy.stats.unitary_group.rvs(2**nbits)
   eigvals, eigvecs = np.linalg.eig(umat)
   u = ops.Operator(umat)
 
-  # Pick Eigenvalue 'eigen_index' (any Eigenvalue / Eigenvector pair will work).
+  # Pick eigenvalue at 'eigen_index'
+  # (any eigenvalue / eigenvector pair will work).
   eigen_index = 1
   phi = np.real(np.log(eigvals[eigen_index]) / (2j*np.pi))
   if phi < 0:
     phi += 1
 
   # Make state + circuit to estimate phi.
-  # Pick Eigenvector 'eigen_index' to math the Eigenvalue.
+  # Pick eigenvector 'eigen_index' to math the eigenvalue.
   psi = state.zeros(t) * state.State(eigvecs[:, eigen_index])
   psi = expo_u(psi, u, t)
   psi = ops.Qft(t).adjoint()(psi)
@@ -74,7 +75,7 @@ def main(argv):
   nbits = 3
   t = 6
   print('Estimating {} qubits random unitary eigenvalue '
-        .format(nbits) + 'with {} bits of accuracy'.format(t))
+        .format(nbits) + 'with {} bits of accuracy.'.format(t))
   for i in range(10):
     run_experiment(nbits, t)
 

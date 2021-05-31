@@ -342,7 +342,7 @@ class qc:
     nbits = reg.nbits
     for idx in range(reg[0], reg[0] + nbits):
       # Each qubit first gets a Hadamard.
-      self.had(idx)
+      self.h(idx)
 
       # Each qubit now gets a sequence of Rk(2), Rk(3), ..., Rk(nbits)
       # controlled by qubit (1, 2, ..., nbits-1).

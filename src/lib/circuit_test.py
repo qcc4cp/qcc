@@ -210,7 +210,6 @@ class CircuitTest(absltest.TestCase):
       self.assertTrue(math.isclose(math.sqrt(prob0), 0.6, abs_tol=0.001))
       self.assertTrue(math.isclose(math.sqrt(prob1), 0.8, abs_tol=0.001))
 
-
   def test_opt(self):
     def decr(qc, idx, nbits, aux, controller=[]):
       for i in range(0, nbits):
