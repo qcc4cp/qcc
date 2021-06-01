@@ -8,7 +8,7 @@ from src.lib import helper
 from src.lib import ops
 
 
-def incr(qc, idx, nbits, aux, controller=[]):
+def incr(qc, idx: int, nbits: int, aux, controller=[]):
   """Increment-by-1 circuit."""
 
   # See "Efficient Quantum Circuit Implementation of
@@ -26,7 +26,7 @@ def incr(qc, idx, nbits, aux, controller=[]):
     qc.multi_control(ctl, i+idx, aux, ops.PauliX(), 'multi-1-X')
 
 
-def decr(qc, idx, nbits, aux, controller=[]):
+def decr(qc, idx: int, nbits: int, aux, controller=[]):
   """Decrement-by-1 circuit."""
 
   # See "Efficient Quantum Circuit Implementation of
@@ -137,9 +137,8 @@ def simple_walk():
   for bits in helper.bitprod(nbits):
     idx_bits = bits
     for _ in range(nbits):
-        idx_bits = idx_bits + (0,)
+      idx_bits = idx_bits + (0,)
     idx_bits0 = idx_bits + (0,)
-    # idx_bits1 = idx_bits + (1,)
 
     # Printing bits0 only, this can be changed, of course.
     if qc.psi.ampl(*idx_bits0) != 0.0:

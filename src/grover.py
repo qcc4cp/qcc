@@ -16,7 +16,7 @@ from src.lib import state
 # which is the simplest case. We keep it here, as it is
 # referenced in the book. It is no longer used in this code.
 #
-def make_f1(d=3):
+def make_f1(d: int = 3):
   """Construct function that will return 1 for only one bit string."""
 
   num_inputs = 2**d
@@ -26,13 +26,13 @@ def make_f1(d=3):
   answers[answer_true] = 1
 
   # pylint: disable=no-value-for-parameter
-  def func(*bits):
+  def func(*bits) -> Callable:
     return answers[helper.bits2val(*bits)]
 
   return func
 
 
-def make_f(d=3, solutions=1):
+def make_f(d: int = 3, solutions: int = 1):
   """Construct function that will return 1 for 'solutions' bits."""
 
   num_inputs = 2**d

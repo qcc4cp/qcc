@@ -3,6 +3,7 @@
 
 import math
 import random
+from typing import Callable
 
 from absl import app
 import numpy as np
@@ -27,7 +28,7 @@ from src.lib import state
 #             M = N * sin(phi/2)^2
 
 
-def make_f(d=3, solutions=1):
+def make_f(d: int = 3, solutions: int = 1) -> Callable:
   """Construct function that will return 1 for 'solutions' bits."""
 
   num_inputs = 2**d
@@ -53,7 +54,8 @@ def make_f(d=3, solutions=1):
   return func
 
 
-def run_experiment(nbits_phase, nbits_grover, solutions) -> None:
+def run_experiment(nbits_phase: int, nbits_grover: int,
+                   solutions: int) -> None:
   """Run full experiment for a given number of solutions."""
 
   # Building the Grover operator, see grover.py
@@ -67,12 +69,12 @@ def run_experiment(nbits_phase, nbits_grover, solutions) -> None:
 
   # The state for the counting algorithm.
   # We reserve nbits for the phase estimation.
-  # We also reserve nbits for the Oracle.
+  # We also reserve nbits for the oracle.
   # These numbers could be adjusted to achieve better
   # accuracy. Yet, this keeps the code a little bit simpler,
   # while trading off a few off-by-1 estimation errors.
   #
-  # We also add the |1> for the Oracle.
+  # We also add the |1> for the oracle.
   #
   psi = (state.zeros(nbits_phase) * state.zeros(nbits_grover) * state.ones(1))
 
@@ -96,7 +98,7 @@ def run_experiment(nbits_phase, nbits_grover, solutions) -> None:
       u2 = u2(u2)
     psi = ops.ControlledU(inv, nbits_phase, u2)(psi, inv)
 
-  # Reverse QFT gives us the phase as a fraction of 2*Pi
+  # Reverse QFT gives us the phase as a fraction of 2*pi.
   psi = ops.Qft(nbits_phase).adjoint()(psi)
 
   # Get the state with highest probability and compute the phase
@@ -115,10 +117,10 @@ def run_experiment(nbits_phase, nbits_grover, solutions) -> None:
   # Hence we can compute M. We keep the result to 2 digit to visualize
   # the errors. Note that the phi_estimate is a fraction of 2*PI, hence
   # the 1/2 in above formula cancels out against the 2 and we compute:
-  M = round(n * math.sin(phi_estimate * math.pi)**2, 2)
+  m = round(n * math.sin(phi_estimate * math.pi)**2, 2)
 
   print('Estimate: {:.4f} prob: {:5.2f}% --> M: {:5.2f}, want: {:2d}'
-        .format(phi_estimate, maxprob * 100.0, M, solutions))
+        .format(phi_estimate, maxprob * 100.0, m, solutions))
 
 
 def main(argv):

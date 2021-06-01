@@ -4,10 +4,12 @@
 """class qc (quantum circuit) represents state and operators."""
 
 from __future__ import annotations
+
 import random
 from typing import Callable
-from absl import flags
 
+from absl import flags
+import numpy as np
 from src.lib import dumpers
 from src.lib import ir
 from src.lib import ops
@@ -64,24 +66,24 @@ class qc:
 
   def qubit(self,
             alpha: np.complexfloating = None,
-            beta: np.complexfloating= None) -> None:
+            beta: np.complexfloating = None) -> None:
     self.psi = self.psi * state.qubit(alpha, beta)
 
-  def zeros(self, n: int) -> state.State:
+  def zeros(self, n: int) -> None:
     self.psi = self.psi * state.zeros(n)
 
-  def ones(self, n: int):
+  def ones(self, n: int) -> None:
     self.psi = self.psi * state.ones(n)
 
-  def bitstring(self, *bits):
+  def bitstring(self, *bits) -> None:
     self.psi = self.psi * state.bitstring(*bits)
 
-  def arange(self, n: int):
+  def arange(self, n: int) -> None:
     self.zeros(n)
     for i in range(0, 2**n):
       self.psi[i] = float(i)
 
-  def rand(self, n: int):
+  def rand(self, n: int) -> None:
     self.psi = self.psi * state.rand(n)
 
   def stats(self) -> str:
@@ -118,7 +120,8 @@ class qc:
     return ctl_qubit, ctl_by_0
 
   # --- Gates  ----------------------------------------------------
-  def apply1(self, gate, idx: int, name=None, *, val=None):
+  def apply1(self, gate: ops.Operator, idx: int,
+             name: str  = None, *, val: float = None):
     """Apply single gates."""
 
     if isinstance(idx, state.Reg):
@@ -135,7 +138,8 @@ class qc:
       xgates.apply1(self.psi, gate.reshape(4), self.psi.nbits, idx,
                     tensor.tensor_width)
 
-  def applyc(self, gate, ctl: int, idx: int, name=None, *, val=None):
+  def applyc(self, gate: ops.Operator, ctl: int, idx: int,
+             name: str = None, *, val: float = None):
     """Apply controlled gates."""
 
     if isinstance(idx, state.Reg):

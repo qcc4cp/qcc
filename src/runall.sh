@@ -10,3 +10,5 @@ do
   echo "--- [$testcase] ------------------------"
   bazel run -c opt $testcase || exit 1
 done
+
+bazel run lib/circuit_test
