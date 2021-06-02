@@ -100,7 +100,8 @@ def run_experiment() -> None:
     if non_zero != 2**nmax:
        print('Solution should exist...', end='')
        if solutions:
-           print(' Found Solution:', dump_solution(solutions[0], num_list))
+           print(' Found Solution:',
+                 dump_solution(solutions[0], num_list))
            return True
        raise AssertionError('False positive found.')
     if solutions:

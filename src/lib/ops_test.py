@@ -20,6 +20,7 @@ class OpsTest(absltest.TestCase):
     self.assertEqual(identity[1, 0], 0)
     self.assertEqual(identity[1, 1], 1)
 
+
   def test_unitary(self):
     self.assertTrue(ops.PauliX().is_unitary())
     self.assertTrue(ops.PauliY().is_unitary())
@@ -269,6 +270,17 @@ class OpsTest(absltest.TestCase):
     self.assertTrue(np.allclose(np.inner(p1.conj(), p1) *
                     np.inner(x1.conj(), x1), 1.0))
 
+  def test_diffusion_op(self):
+    nbits = 3
+    op = ops.Hadamard(nbits)
+    op = op @ ops.PauliX(nbits)
+    cz = ops.ControlledU(1, 2, ops.PauliZ())
+    czz = ops.ControlledU(0, 1, cz)
+    op = op @ czz
+    op = op @ ops.PauliX(nbits)
+    op = op @ ops.Hadamard(nbits)
+    self.assertTrue(np.allclose(op[0, 0], 1 - 2/(2**nbits), atol=0.001))
+    self.assertTrue(np.allclose(op[0, 1], -2/(2**nbits), atol=0.001))
 
 if __name__ == '__main__':
   absltest.main()

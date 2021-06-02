@@ -138,42 +138,42 @@ class CircuitTest(absltest.TestCase):
 
   def test_multi1(self):
     c = circuit.qc('multi', eager=False)
-    comp = c.reg(6)
+    c.reg(6)
     aux = c.reg(6)
-    ctl=[0, 1, 2, 3, 4]
+    ctl = [0, 1, 2, 3, 4]
     c.multi_control(ctl, 5, aux, ops.PauliX(), f'multi-x({ctl}, 5)')
     self.assertEqual(41, c.ir.ngates)
 
   def test_multi0(self):
     c = circuit.qc('multi', eager=True)
-    comp = c.reg(4, (1, 0, 0, 1))
+    c.reg(4, (1, 0, 0, 1))
     aux = c.reg(4)
-    ctl=[0, [1], [2]]
+    ctl = [0, [1], [2]]
     c.multi_control(ctl, 3, aux, ops.PauliX(), f'multi-x({ctl}, 5)')
     self.assertGreater(c.psi.prob(1, 0, 0, 0, 0, 0, 0, 0), 0.99)
 
   def test_multi_n(self):
     c = circuit.qc('multi', eager=True)
-    comp = c.reg(4, (1, 0, 0, 1))
+    c.reg(4, (1, 0, 0, 1))
     aux = c.reg(4)
     ctl = []
-    c.multi_control(ctl, 3, aux, ops.PauliX(), f'single')
+    c.multi_control(ctl, 3, aux, ops.PauliX(), 'single')
     self.assertGreater(c.psi.prob(1, 0, 0, 0, 0, 0, 0, 0), 0.99)
 
     ctl = [0]
-    c.multi_control(ctl, 3, aux, ops.PauliX(), f'single')
+    c.multi_control(ctl, 3, aux, ops.PauliX(), 'single')
     self.assertGreater(c.psi.prob(1, 0, 0, 1, 0, 0, 0, 0), 0.99)
 
     ctl = [1]
-    c.multi_control(ctl, 3, aux, ops.PauliX(), f'single')
+    c.multi_control(ctl, 3, aux, ops.PauliX(), 'single')
     self.assertGreater(c.psi.prob(1, 0, 0, 1, 0, 0, 0, 0), 0.99)
 
     ctl = [[1]]
-    c.multi_control(ctl, 3, aux, ops.PauliX(), f'single')
+    c.multi_control(ctl, 3, aux, ops.PauliX(), 'single')
     self.assertGreater(c.psi.prob(1, 0, 0, 0, 0, 0, 0, 0), 0.99)
 
     ctl = [0, [1], [2]]
-    c.multi_control(ctl, 3, aux, ops.PauliX(), f'single')
+    c.multi_control(ctl, 3, aux, ops.PauliX(), 'single')
     self.assertGreater(c.psi.prob(1, 0, 0, 1, 0, 0, 0, 0), 0.99)
 
   def test_shor_9_qubit_correction(self):
@@ -186,43 +186,56 @@ class CircuitTest(absltest.TestCase):
       # Left Side.
       qc.cx(0, 3)
       qc.cx(0, 6)
-      qc.h(0); qc.h(3); qc.h(6);
-      qc.cx(0, 1); qc.cx(0, 2)
-      qc.cx(3, 4); qc.cx(3, 5)
-      qc.cx(6, 7); qc.cx(6, 8)
+      qc.h(0)
+      qc.h(3)
+      qc.h(6)
+      qc.cx(0, 1)
+      qc.cx(0, 2)
+      qc.cx(3, 4)
+      qc.cx(3, 5)
+      qc.cx(6, 7)
+      qc.cx(6, 8)
 
       # Error insertion, use x(i), y(i), or z(i)
       qc.x(i)
 
       # Fix.
-      qc.cx(0, 1); qc.cx(0, 2); qc.ccx(1, 2, 0)
+      qc.cx(0, 1)
+      qc.cx(0, 2)
+      qc.ccx(1, 2, 0)
+
       qc.h(0)
-      qc.cx(3, 4); qc.cx(3, 5); qc.ccx(4, 5, 3)
+      qc.cx(3, 4)
+      qc.cx(3, 5)
+      qc.ccx(4, 5, 3)
       qc.h(3)
-      qc.cx(6, 7); qc.cx(6, 8); qc.ccx(7, 8, 6)
+      qc.cx(6, 7)
+      qc.cx(6, 8)
+      qc.ccx(7, 8, 6)
       qc.h(6)
 
-      qc.cx(0, 3); qc.cx(0, 6)
+      qc.cx(0, 3)
+      qc.cx(0, 6)
       qc.ccx(6, 3, 0)
 
-      prob0, s = qc.measure_bit(0, 0)
-      prob1, s = qc.measure_bit(0, 1)
+      prob0, _ = qc.measure_bit(0, 0)
+      prob1, _ = qc.measure_bit(0, 1)
       self.assertTrue(math.isclose(math.sqrt(prob0), 0.6, abs_tol=0.001))
       self.assertTrue(math.isclose(math.sqrt(prob1), 0.8, abs_tol=0.001))
 
   def test_opt(self):
     def decr(qc, idx, nbits, aux, controller=[]):
       for i in range(0, nbits):
-        ctl=controller.copy()
+        ctl = controller.copy()
         for j in range(nbits-1, i, -1):
           ctl.append([j+idx])
-      qc.multi_control(ctl, i+idx, aux, ops.PauliX(), "multi-0-X")
+      qc.multi_control(ctl, i+idx, aux, ops.PauliX(), 'multi-0-X')
 
     qc = circuit.qc('decr')
-    x = qc.reg(4, 15)
+    qc.reg(4, 15)
     aux = qc.reg(4)
 
-    for val in range(15, 0, -1):
+    for _ in range(15, 0, -1):
       decr(qc, 0, 4, aux)
 
     # print(qc.stats())

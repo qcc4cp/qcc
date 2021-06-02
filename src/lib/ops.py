@@ -53,7 +53,6 @@ class Operator(tensor.Tensor):
   def adjoint(self) -> Operator:
     return Operator(np.conj(self.transpose()))
 
-
   # Operators operate on a state via function invocation, eg:
   #    Hadamard()(psi)
   #

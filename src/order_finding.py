@@ -88,8 +88,8 @@ def ccphase(qc, angle: float, ctl1: int, ctl2: int, idx: int) -> None:
   qc.cu1(ctl2, idx, angle/2)
 
 
-def ccadd(qc, q, ctl1: int, ctl2: int,
-          a: int, n: int, factor: float) -> None:
+def ccadd(qc, q, ctl1: int, ctl2: int, a: int, n: int,
+          factor: float) -> None:
   """Controlled-controlled add in fourier space."""
 
   angles = precompute_angles(a, n)
@@ -97,7 +97,7 @@ def ccadd(qc, q, ctl1: int, ctl2: int,
     ccphase(qc, factor*angles[i], ctl1, ctl2, q[i])
 
 
-def qft(qc, up_reg, n: int, with_swaps: bool) -> None:
+def qft(qc, up_reg, n: int, with_swaps: bool = False) -> None:
   """QFT."""
 
   for i in range(n-1, -1, -1):
@@ -110,7 +110,7 @@ def qft(qc, up_reg, n: int, with_swaps: bool) -> None:
       qc.swap(up_reg[i], up_reg[n-1-i])
 
 
-def inverse_qft(qc, up_reg, n: int, with_swaps: bool) -> None:
+def inverse_qft(qc, up_reg, n: int, with_swaps: bool = False) -> None:
   """Inverse QFT."""
 
   if with_swaps:
