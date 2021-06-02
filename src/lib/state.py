@@ -297,7 +297,6 @@ def dump_state(psi, desc: Optional[str] = None,
 
   state_list: List[str] = []
   for bits in helper.bitprod(psi.nbits):
-    print(prob_only)
     if prob_only and (psi.prob(*bits) < 10e-6):
       continue
 

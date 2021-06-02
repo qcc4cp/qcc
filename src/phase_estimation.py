@@ -37,7 +37,7 @@ def run_experiment(nbits: int, t: int = 8):
   """Run single phase estimation experiment."""
 
   # Make a unitary and find eigenvalue/vector to estimate.
-  #
+  # We use functions from scipy for this purpose.
   umat = scipy.stats.unitary_group.rvs(2**nbits)
   eigvals, eigvecs = np.linalg.eig(umat)
   u = ops.Operator(umat)
