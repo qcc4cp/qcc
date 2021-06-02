@@ -40,9 +40,9 @@ def graph_to_dot(n: int, nodes: list[int], max_cut) -> None:
     print('graph {')
     print('  {\n    node [  style=filled ]')
     pattern = bin(max_cut)[2:].zfill(n)
-    for i in range(len(pattern)):
-        if pattern[i] == '0':
-            print(f'    "{i}" [fillcolor=lightgray]')
+    for idx, val in enumerate(pattern):
+        if val == '0':
+            print(f'    "{idx}" [fillcolor=lightgray]')
     print('  }')
     for node in nodes:
         print('  "{}" -- "{}" [label="{:.1f}",weight="{:.2f}"];'
