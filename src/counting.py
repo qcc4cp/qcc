@@ -119,7 +119,7 @@ def run_experiment(nbits_phase: int, nbits_grover: int,
   # the 1/2 in above formula cancels out against the 2 and we compute:
   m = round(n * math.sin(phi_estimate * math.pi)**2, 2)
 
-  print('Estimate: {:.4f} prob: {:5.2f}% --> M: {:5.2f}, want: {:2d}'
+  print('Estimate: {:.4f} prob: {:5.2f}% --> m: {:5.2f}, want: {:2d}'
         .format(phi_estimate, maxprob * 100.0, m, solutions))
 
 
