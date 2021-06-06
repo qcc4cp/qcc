@@ -2,6 +2,7 @@
 import math
 
 from absl.testing import absltest
+import numpy as np
 
 from src.lib import circuit
 from src.lib import ops
@@ -175,6 +176,54 @@ class CircuitTest(absltest.TestCase):
     ctl = [0, [1], [2]]
     c.multi_control(ctl, 3, aux, ops.PauliX(), 'single')
     self.assertGreater(c.psi.prob(1, 0, 0, 1, 0, 0, 0, 0), 0.99)
+
+  def test_x_error_first_approach(self):
+    error_qubit = 2
+
+    qc = circuit.qc('x-flip / correction')
+    qc.reg(1, 0.6)
+    qc.reg(2, 0)
+    qc.cx(0, 1)
+    qc.cx(0, 2)
+
+    # insert error (index 0, 1, or 2)
+    qc.x(error_qubit)
+
+    syndrom = qc.reg(2, 0)
+    qc.cx(0, syndrom[0])
+    qc.cx(1, syndrom[0])
+    qc.cx(1, syndrom[1])
+    qc.cx(2, syndrom[1])
+
+    # Measure syndrom qubit 3, 4:
+    #   00  - nothing needs to be done
+    #   01  - x(2)
+    #   10  - x(0)
+    #   11  - x(1)
+    qc.x(error_qubit)
+    p2, _ = qc.measure_bit(error_qubit, 0)
+    self.assertTrue(np.allclose(p2, 1.0, atol=0.001))
+
+  def test_x_error(self):
+    qc = circuit.qc('x-flip / correction')
+    qc.qubit(0.6)
+
+    qc.reg(2, 0)
+    qc.cx(0, 2)
+    qc.cx(0, 1)
+    self.assertTrue(np.allclose(qc.psi.prob(0, 0, 0), 0.36, atol=0.001))
+    self.assertTrue(np.allclose(qc.psi.prob(1, 1, 1), 0.64, atol=0.001))
+
+    qc.x(0)
+
+    # Fix
+    qc.cx(0, 1)
+    qc.cx(0, 2)
+    qc.ccx(1, 2, 0)
+    p0, _ = qc.measure_bit(0, 0, collapse = False)
+    self.assertTrue(np.allclose(p0, 0.36))
+    p1, _ = qc.measure_bit(0, 1, collapse = False)
+    self.assertTrue(np.allclose(p1, 0.64))
 
   def test_shor_9_qubit_correction(self):
     for i in range(9):
