@@ -178,10 +178,10 @@ class CircuitTest(absltest.TestCase):
     self.assertGreater(c.psi.prob(1, 0, 0, 1, 0, 0, 0, 0), 0.99)
 
   def test_x_error_first_approach(self):
-    error_qubit = 2
+    error_qubit = 0
 
     qc = circuit.qc('x-flip / correction')
-    qc.reg(1, 0.6)
+    qc.qubit(alpha=0.6)
     qc.reg(2, 0)
     qc.cx(0, 1)
     qc.cx(0, 2)
@@ -202,7 +202,7 @@ class CircuitTest(absltest.TestCase):
     #   11  - x(1)
     qc.x(error_qubit)
     p2, _ = qc.measure_bit(error_qubit, 0)
-    self.assertTrue(np.allclose(p2, 1.0, atol=0.001))
+    self.assertTrue(np.allclose(p2, 0.36, atol=0.001))
 
   def test_x_error(self):
     qc = circuit.qc('x-flip / correction')

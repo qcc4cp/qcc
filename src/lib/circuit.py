@@ -68,23 +68,29 @@ class qc:
             alpha: np.complexfloating = None,
             beta: np.complexfloating = None) -> None:
     self.psi = self.psi * state.qubit(alpha, beta)
+    self.global_reg = self.global_reg + 1
 
   def zeros(self, n: int) -> None:
     self.psi = self.psi * state.zeros(n)
+    self.global_reg = self.global_reg + n
 
   def ones(self, n: int) -> None:
     self.psi = self.psi * state.ones(n)
+    self.global_reg = self.global_reg + n
 
   def bitstring(self, *bits) -> None:
     self.psi = self.psi * state.bitstring(*bits)
+    self.global_reg = self.global_reg + len(bits)
 
   def arange(self, n: int) -> None:
     self.zeros(n)
     for i in range(0, 2**n):
       self.psi[i] = float(i)
+    self.global_reg = self.global_reg + n
 
   def rand(self, n: int) -> None:
     self.psi = self.psi * state.rand(n)
+    self.global_reg = self.global_reg + n
 
   def stats(self) -> str:
     return ('Circuit Statistics\n' +
@@ -423,3 +429,4 @@ class qc:
     if self.name:
       print(f'Circuit: {self.name}, Nodes: {len(self.ir.gates)}')
     print(self.ir, end='')
+    self.psi.dump('Current state')

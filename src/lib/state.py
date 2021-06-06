@@ -291,7 +291,7 @@ def dump_state(psi, desc: Optional[str] = None,
 
   if desc:
     print('|', end='')
-    for i in range(psi.nbits-1, -1, -1):
+    for i in range(psi.nbits):
       print(i % 10, end='')
     print(f'> \'{desc}\'')
 
