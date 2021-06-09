@@ -282,5 +282,20 @@ class OpsTest(absltest.TestCase):
     self.assertTrue(np.allclose(op[0, 0], 1 - 2/(2**nbits), atol=0.001))
     self.assertTrue(np.allclose(op[0, 1], -2/(2**nbits), atol=0.001))
 
+  def test_two_qubit_qft(self):
+    for q1 in range(2):
+      for q0 in range(2):
+        psi = state.bitstring(q1, q0)
+        psi = ops.Hadamard()(psi)
+        psi = ops.ControlledU(0, 1, ops.Sgate())(psi)
+        psi1 = ops.Hadamard()(psi, 1)
+
+        psi = state.bitstring(q1, q0)
+        psi = ops.Hadamard()(psi)
+        psi = ops.ControlledU(1, 0, ops.Sgate())(psi)
+        psi2 = ops.Hadamard()(psi, 1)
+        self.assertTrue(psi1.is_close(psi2))
+
+
 if __name__ == '__main__':
   absltest.main()
