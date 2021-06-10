@@ -296,6 +296,13 @@ class OpsTest(absltest.TestCase):
         psi2 = ops.Hadamard()(psi, 1)
         self.assertTrue(psi1.is_close(psi2))
 
+  def test_ctrl_phase(self):
+    for gate in [ops.Sgate(), ops.Tgate(), ops.Rk(1), ops.Rk(2),
+                 ops.U1(random.random()), ops.U1(random.random())]:
+      op01 = ops.ControlledU(2, 5, gate)
+      op10 = ops.ControlledU(5, 2, gate)
+      self.assertTrue(op01.is_close(op10))
+
 
 if __name__ == '__main__':
   absltest.main()
