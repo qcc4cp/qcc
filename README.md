@@ -1,6 +1,6 @@
 # Quantum Computing for Classical Programmers
 
-Source code for the book project by Robert Hundt. In this project, we build infrastructure from the ground up, implement standard algorithms, such as Quantum Teleportation, Grover's Search, QFT, and Shor's integer factorization. We also implement high performance quantum simulation and a transpilation technique to compile our circuits to other infrastructures, such as Qiskit or Cirq. The book itself details this implementation, its motivation and the underlying math, in great detail. At this point, the book has not yet been published.
+Source code for the book project by Robert Hundt. In this project, we build infrastructure from the ground up, implement standard algorithms, such as Quantum Teleportation, Grover's Search, Quantum counting, Quantum random walks, VQE, QAOA, QFT, Shor's integer factorization, and Solovay-Kitaev. We also implement high performance quantum simulation and a transpilation technique to compile our circuits to other infrastructures, such as Qiskit or Cirq. The book itself details this implementation, its motivation and the underlying math, in great detail. At this point, the book has not yet been published.
 
 The code is organized as follows: 
 *  `src` is the main source directory. All algorithms are in this directory.
