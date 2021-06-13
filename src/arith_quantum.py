@@ -138,8 +138,8 @@ def main(argv):
       arith_quantum(6, i, j, -1.0)
 
   print('Check quantum (pseudo) multiplication...')
-  for i in range(6):
-    for j in range(6):
+  for i in range(7):
+    for j in range(7):
       arith_quantum(6, 0, i, j)
 
 if __name__ == '__main__':

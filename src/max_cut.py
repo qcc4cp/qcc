@@ -109,7 +109,7 @@ def graph_to_diagonal_h(n: int, nodes: list[int]) -> np.ndarray:
     return h
 
 
-def compute_max_cut(n: int, nodes: list[int]) -> None:
+def compute_max_cut(n: int, nodes: list[int]) -> int:
     """Compute (inefficiently) the max cut, exhaustively."""
 
     max_cut = -1000
