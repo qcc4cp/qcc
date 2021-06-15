@@ -16,6 +16,6 @@ do
   testcase=`echo $algo | sed s@\.py@@g`
   echo ""
   echo "--- [$testcase] ------------------------"
-  bazel run -c opt $testcase || exit 1
+  bazel run $@ $testcase || exit 1
 done
 

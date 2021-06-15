@@ -10,5 +10,5 @@ cc_library(
         "**/*.h",
         "**/*.hpp",
     ]),
-    includes = [""],
+    includes = ["include"],
 )

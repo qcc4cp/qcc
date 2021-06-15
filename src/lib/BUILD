@@ -6,7 +6,6 @@ cc_library(
     copts = [
         "-O3",
         "-ffast-math",
-        "-march=skylake",
         "-DNPY_NO_DEPRECATED_API",
         "-DNPY_1_7_API_VERSION",
     ],
