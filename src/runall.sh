@@ -1,4 +1,10 @@
 # Run all .py targets in this directory.
+#
+# Note that this script uses -c opt on the bazel command-line.
+# This can cause problems in some OS'es (MacOS).
+#
+# The option can be removed, things will just run a little
+# slower.
 
 bazel run lib/circuit_test || exit 1
 
