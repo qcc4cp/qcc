@@ -58,13 +58,15 @@ cc_library(
 On MacOS it appears to make a difference whether or not the command-line option `-c opt` is passed
 to build targets. For example the file [`runall.sh`](src/runall.sh) uses this flag. 
 
-Run these commands to verify things work as expected
-(replace ... with the appropriate path in your system):
+Run these commands to verify things work as expected. Replace ... with the appropriate path in your system.
 
 ```
 # This should build libqgates.so in .../qcc/bazel-bin/src/lib
+# Some systems require 
+#    bazel build -c opt [target]
+# on all build/run targets.
+
 cd .../qcc/src/lib
-# on some systems: bazel build -c opt xgates
 bazel build xgates
 
 # Set PYTHONPATH to point to this directory
