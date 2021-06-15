@@ -3,12 +3,12 @@ package(
 )
 
 cc_library(
-    name = "numpy", 
+    name = "numpy",
     srcs = [
     ],
     hdrs = glob([ # the glob takes all the headers needed
-        "include/**/*.h",
-        "include/**/*.hpp",
-    ]), 
-    includes = ["include"], 
+        "**/*.h",
+        "**/*.hpp",
+    ]),
+    includes = [""],
 )

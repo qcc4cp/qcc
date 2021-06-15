@@ -9,11 +9,10 @@ cc_library(
         "-march=skylake",
         "-DNPY_NO_DEPRECATED_API",
         "-DNPY_1_7_API_VERSION",
-        # Configure:
-	"-I/usr/include/python3.9",
     ],
     deps = [
         "@third_party_numpy//:numpy",
+        "@third_party_python//:python",
     ],
 )
 
@@ -115,7 +114,7 @@ py_library(
 
 py_library(
     name = "circuit",
-    visibility = ["//visibility:public"],    
+    visibility = ["//visibility:public"],
     srcs = [
         "circuit.py",
     ],
@@ -162,7 +161,7 @@ py_test(
         ":tensor",
         ":state",
         ":ops",
-        ":bell",		
+        ":bell",
     ],
 )
 

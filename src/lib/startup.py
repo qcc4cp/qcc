@@ -15,4 +15,4 @@ from src.lib import helper
 from src.lib import ops
 from src.lib import state
 from src.lib import tensor
-print('startup.py: qcc initialized')
+print(__file__ + ': qcc initialized')
