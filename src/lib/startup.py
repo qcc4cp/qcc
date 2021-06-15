@@ -8,6 +8,7 @@
 #  python3
 #  >> state.zeros(2)
 #  State([1.+0.j 0.+0.j 0.+0.j 0.+0.j])
+import numpy as np
 
 from src.lib import bell
 from src.lib import circuit
