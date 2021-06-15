@@ -60,6 +60,7 @@ Run these commands to verify things work as expected
 
 ```
 # This should build libqgates.so in .../qcc/bazel-bin/src/lib
+cd .../qcc/src/lib
 bazel build xgates
 
 # Set PYTHONPATH to point to this directory
