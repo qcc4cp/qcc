@@ -64,7 +64,8 @@ Run these commands to verify things work as expected
 ```
 # This should build libqgates.so in .../qcc/bazel-bin/src/lib
 cd .../qcc/src/lib
-bazel build -c opt xgates
+# on some systems: bazel build -c opt xgates
+bazel build xgates
 
 # Set PYTHONPATH to point to this directory
 export PYTHONPATH=.../qcc/bazel-bin/src/lib
