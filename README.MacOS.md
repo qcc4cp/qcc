@@ -1,8 +1,8 @@
-These instructions can help on MacOS.
+These instructions may be helpful for MacOS.
 
 The first problem you encounter may be that the header Python.h cannot be found.
-It may be necessary to expand the file `qcc/WORKSPACE` and add an 'external
-repository', pointing to the Python installation. For example:
+It may be necessary to expand the file [`qcc/WORKSPACE`](WORKSPACE) and add an 'external
+repository', pointing to your Python installation. For example:
 
 ```
 [...]
@@ -13,7 +13,7 @@ new_local_repository(
 )
 ```
 
-With a corresponding file `python.BUILD`. You have to ensure that the paths
+With a corresponding file [`python.BUILD`](python.BUILD). You have to ensure that the paths
 are set according to your setting:
 
 ```
@@ -32,7 +32,7 @@ cc_library(
 )
 ```
 
-Finally, modify `qcc/src/lib/BUILD` to point and use this external
+Finally, modify [`qcc/src/lib/BUILD`](src/lib/BUILD) to point and use this external
 repository:
 
 ```
