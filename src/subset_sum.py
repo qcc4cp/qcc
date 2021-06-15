@@ -17,6 +17,7 @@ import random
 from absl import app
 from absl import flags
 import numpy as np
+from typing import List
 
 from src.lib import helper
 
@@ -26,7 +27,7 @@ flags.DEFINE_integer('nnum', 6,
 flags.DEFINE_integer('iterations', 20, 'Number of experiments')
 
 
-def select_numbers(nmax: int, nnum: int) -> list[int]:
+def select_numbers(nmax: int, nnum: int) -> List[int]:
   """Select nnum random, unique numbers in range 1 to nmax."""
 
   while True:
@@ -51,7 +52,7 @@ def tensor_diag(n: int, num: int):
     return diag
 
 
-def set_to_diagonal_h(num_list: list[int],
+def set_to_diagonal_h(num_list: List[int],
                       nmax: int) -> np.ndarray:
     """Construct diag(H)."""
 
@@ -63,7 +64,7 @@ def set_to_diagonal_h(num_list: list[int],
     return h
 
 
-def compute_partition(num_list: list[int]):
+def compute_partition(num_list: List[int]):
     """Compute paritions that add up."""
 
     solutions = []
@@ -78,7 +79,7 @@ def compute_partition(num_list: list[int]):
     return solutions
 
 
-def dump_solution(bits: list[int], num_list: list[int]):
+def dump_solution(bits: List[int], num_list: List[int]):
     iset = []
     oset = []
     for i in range(len(bits)):

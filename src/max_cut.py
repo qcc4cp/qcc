@@ -3,6 +3,7 @@
 
 import random
 import timeit
+from typing import List
 
 from absl import app
 from absl import flags
@@ -11,6 +12,7 @@ import numpy as np
 from src.lib import helper
 from src.lib import ops
 
+
 flags.DEFINE_integer('nodes', 12, 'Number of graph nodes')
 flags.DEFINE_boolean('graph', False, 'Dump graph in dot format')
 flags.DEFINE_integer('iterations', 10, 'Number of experiments')
@@ -18,7 +20,7 @@ flags.DEFINE_integer('iterations', 10, 'Number of experiments')
 
 # Nodes are tuples: (from, to, edge weight).
 #
-def build_graph(num: int = 0) -> (int, list[int]):
+def build_graph(num: int = 0) -> (int, List[int]):
     """Build a graph of num nodes."""
 
     if num < 3:
@@ -34,7 +36,7 @@ def build_graph(num: int = 0) -> (int, list[int]):
     return num, nodes
 
 
-def graph_to_dot(n: int, nodes: list[int], max_cut) -> None:
+def graph_to_dot(n: int, nodes: List[int], max_cut) -> None:
     """Convert graph (up to 64 nodes) to dot file."""
 
     print('graph {')
@@ -50,7 +52,7 @@ def graph_to_dot(n: int, nodes: list[int], max_cut) -> None:
     print('}')
 
 
-def graph_to_adjacency(n: int, nodes: list[int]) -> ops.Operator:
+def graph_to_adjacency(n: int, nodes: List[int]) -> ops.Operator:
     """Compute adjacency matrix from graph."""
 
     op = np.zeros((n, n))
@@ -60,7 +62,7 @@ def graph_to_adjacency(n: int, nodes: list[int]) -> ops.Operator:
     return ops.Operator(op)
 
 
-def graph_to_hamiltonian(n: int, nodes: list[int]) -> ops.Operator:
+def graph_to_hamiltonian(n: int, nodes: List[int]) -> ops.Operator:
     """Compute Hamiltonian matrix from graph."""
 
     H = np.zeros((2**n, 2**n))
@@ -98,7 +100,7 @@ def tensor_diag(n: int, fr: int, to: int, w: float):
     return diag
 
 
-def graph_to_diagonal_h(n: int, nodes: list[int]) -> np.ndarray:
+def graph_to_diagonal_h(n: int, nodes: List[int]) -> np.ndarray:
     """Construct diag(H)."""
 
     h = [0.0] * 2**n
@@ -109,7 +111,7 @@ def graph_to_diagonal_h(n: int, nodes: list[int]) -> np.ndarray:
     return h
 
 
-def compute_max_cut(n: int, nodes: list[int]) -> int:
+def compute_max_cut(n: int, nodes: List[int]) -> int:
     """Compute (inefficiently) the max cut, exhaustively."""
 
     max_cut = -1000
