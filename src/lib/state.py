@@ -209,6 +209,9 @@ def bitstring(*bits) -> State:
   d = len(bits)
   if d == 0:
     raise ValueError('Rank must be at least 1.')
+  for _, val in enumerate(bits):
+    if val != 0 and val != 1:
+      raise ValueError(f'Bits must be 0 or 1, got: {val}')
   t = np.zeros(1 << d, dtype=tensor.tensor_type())
   t[helper.bits2val(bits)] = 1
   return State(t)
