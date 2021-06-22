@@ -34,6 +34,8 @@ def float_accuracy(bit_width: int = 64):
   """Set complex type bit width to 64 or 128."""
 
   global tensor_width
+  if bit_width != 64 and bit_width != 128:
+    raise AssertionError('Invalid complex width, must be 64 or 128 bit')
   tensor_width = bit_width
 
 

@@ -77,10 +77,12 @@ class State(tensor.Tensor):
   #  -  A separable state has a schmidt number of 1.
   #  -  An entangled state has a schmidt number > 1.
   #
-  # This implementation is borrowed from qcircuits (which has a more
-  # efficient internal representation).
+  # This implementation is borrowed from qcircuits (which has a different
+  # internal representation).
   #
   # TODO(rhundt): Change implementation to use full matrices.
+  #               Use partial trace to trace out 'excluded_indices'
+  #               and perform the SVD decomp, similar to below.
   #
   def schmidt_number(self, indices) -> float:
     """Compute schmidt number of a sub-state for entanglement."""
