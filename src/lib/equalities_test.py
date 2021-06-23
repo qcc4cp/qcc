@@ -1,8 +1,7 @@
 # python3
 import math
-import numpy as np
-
 from absl.testing import absltest
+import numpy as np
 
 from src.lib import bell
 from src.lib import helper
@@ -212,8 +211,8 @@ class EqualitiesTest(absltest.TestCase):
     rho0 = ops.TraceOut(psi.density(), [1])
     rho1 = ops.TraceOut(psi.density(), [0])
 
-    x0, y0, z0 = helper.density_to_cartesian(rho0)
-    x1, y1, z1 = helper.density_to_cartesian(rho1)
+    x0, _, _ = helper.density_to_cartesian(rho0)
+    _, y1, _ = helper.density_to_cartesian(rho1)
 
     self.assertTrue(math.isclose(-1.0, x0, abs_tol=0.01))
     self.assertTrue(math.isclose(-1.0, y1, abs_tol=0.01))

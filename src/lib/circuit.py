@@ -3,28 +3,30 @@
 
 """class qc (quantum circuit) represents state and operators."""
 
+
+# Configure: The following line might have to change, depending on
+#            the current build environment.
+# Google internal:
+# import xgates
+#
+# GitHub Linux:
+# import libxgates as xgates
+
 from __future__ import annotations
 
 import random
 from typing import Callable
 
 from absl import flags
+import libxgates as xgates
 import numpy as np
+
 from src.lib import dumpers
 from src.lib import ir
 from src.lib import ops
 from src.lib import optimizer
 from src.lib import state
 from src.lib import tensor
-
-# Configure: This line might have to change, depending on
-#            the current build environment.
-#
-# Google internal:
-# import xgates
-#
-# GitHub Linux:
-import libxgates as xgates
 
 flags.DEFINE_string('libq', '', 'Generate libq output file, or empty')
 flags.DEFINE_string('qasm', '', 'Generate qasm output file, or empty')
@@ -98,7 +100,7 @@ class qc:
             '  Gates : {}\n'.format(self.ir.ngates))
 
   def dump_with_dumper(self, flag: bool,
-                       dumper_func: Callable) -> None:
+                       dumper_func: Callable[ir.Ir]) -> None:
     if flag:
       result = dumper_func(self.ir)
       with open(flag, 'w') as f:
@@ -127,7 +129,7 @@ class qc:
 
   # --- Gates  ----------------------------------------------------
   def apply1(self, gate: ops.Operator, idx: int,
-             name: str  = None, *, val: float = None):
+             name: str = None, *, val: float = None):
     """Apply single gates."""
 
     if isinstance(idx, state.Reg):

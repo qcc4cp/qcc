@@ -5,7 +5,7 @@ from src.lib import ops
 from src.lib import state
 
 
-def bell_state(a:int, b:int) ->state.State:
+def bell_state(a: int, b: int) ->state.State:
   """Make one of the four bell states with a, b from {0,1}."""
 
   if a not in [0, 1] or b not in [0, 1]:
@@ -16,7 +16,7 @@ def bell_state(a:int, b:int) ->state.State:
   return ops.Cnot()(psi)
 
 
-def ghz_state(nbits:int) -> state.State:
+def ghz_state(nbits: int) -> state.State:
   """Make a maximally entangled nbits state (GHZ State)."""
 
   # Simple construction via:

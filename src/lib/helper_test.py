@@ -1,13 +1,12 @@
 # python3
 import math
-
+from absl.testing import absltest
 import numpy as np
 
 from src.lib import helper
 from src.lib import ops
 from src.lib import state
 
-from absl.testing import absltest
 
 class HelpersTest(absltest.TestCase):
 

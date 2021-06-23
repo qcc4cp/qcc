@@ -220,9 +220,9 @@ class CircuitTest(absltest.TestCase):
     qc.cx(0, 1)
     qc.cx(0, 2)
     qc.ccx(1, 2, 0)
-    p0, _ = qc.measure_bit(0, 0, collapse = False)
+    p0, _ = qc.measure_bit(0, 0, collapse=False)
     self.assertTrue(np.allclose(p0, 0.36))
-    p1, _ = qc.measure_bit(0, 1, collapse = False)
+    p1, _ = qc.measure_bit(0, 1, collapse=False)
     self.assertTrue(np.allclose(p1, 0.64))
 
   def test_shor_9_qubit_correction(self):
@@ -273,7 +273,7 @@ class CircuitTest(absltest.TestCase):
       self.assertTrue(math.isclose(math.sqrt(prob1), 0.8, abs_tol=0.001))
 
   def test_opt(self):
-    def decr(qc, idx, nbits, aux, controller=[]):
+    def decr(qc, idx, nbits, aux, controller):
       for i in range(0, nbits):
         ctl = controller.copy()
         for j in range(nbits-1, i, -1):
@@ -285,7 +285,7 @@ class CircuitTest(absltest.TestCase):
     aux = qc.reg(4)
 
     for _ in range(15, 0, -1):
-      decr(qc, 0, 4, aux)
+      decr(qc, 0, 4, aux, [])
 
     # print(qc.stats())
     qc.optimize()
