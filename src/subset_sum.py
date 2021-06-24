@@ -13,11 +13,11 @@
 # We should reach 100% consistent results.
 
 import random
+from typing import List
 
 from absl import app
 from absl import flags
 import numpy as np
-from typing import List
 
 from src.lib import helper
 
