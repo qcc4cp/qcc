@@ -106,8 +106,8 @@ def graph_to_diagonal_h(n: int, nodes: List[int]) -> np.ndarray:
     h = [0.0] * 2**n
     for node in nodes:
       diag = tensor_diag(n, node[0], node[1], node[2])
-      for i in range(len(diag)):
-          h[i] = h[i] + diag[i]
+      for idx, val in enumerate(diag):
+          h[idx] += val
     return h
 
 
@@ -119,8 +119,8 @@ def compute_max_cut(n: int, nodes: List[int]) -> int:
         # Collect in/out sets.
         iset = []
         oset = []
-        for i in range(len(bits)):
-            iset.append(i) if bits[i] == 0 else oset.append(i)
+        for idx, val in enumerate(bits):
+            iset.append(idx) if val == 0 else oset.append(idx)
 
         # Compute costs for this cut, record maximum.
         cut = 0

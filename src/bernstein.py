@@ -105,8 +105,8 @@ def make_oracle_f(c: Tuple[bool]) -> ops.Operator:
   const_c = c
   def f(bit_string: Tuple[int]) -> int:
     val = 0
-    for idx in range(len(bit_string)):
-      val += const_c[idx] * bit_string[idx]
+    for idx, v in enumerate(bit_string):
+      val += const_c[idx] * v
     return val % 2
   return f
 
@@ -130,8 +130,9 @@ def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  run_experiment(8)
-  run_oracle_experiment(8)
+  for i in range(5):
+    run_experiment(8)
+    run_oracle_experiment(8)
 
 
 if __name__ == '__main__':

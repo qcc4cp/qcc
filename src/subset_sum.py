@@ -59,8 +59,8 @@ def set_to_diagonal_h(num_list: List[int],
     h = [0.0] * 2**nmax
     for num in num_list:
       diag = tensor_diag(nmax, num)
-      for i in range(len(diag)):
-          h[i] = h[i] + diag[i]
+      for idx, val in enumerate(diag):
+          h[idx] += val
     return h
 
 
@@ -71,9 +71,9 @@ def compute_partition(num_list: List[int]):
     for bits in helper.bitprod(len(num_list)):
        iset = []
        oset = []
-       for i in range(len(bits)):
-           (iset.append(num_list[i]) if bits[i] == 0 else
-            oset.append(num_list[i]))
+       for idx, val in enumerate(bits):
+           (iset.append(num_list[idx]) if val == 0 else
+            oset.append(num_list[idx]))
        if sum(iset) == sum(oset):
            solutions.append(bits)
     return solutions
@@ -82,9 +82,9 @@ def compute_partition(num_list: List[int]):
 def dump_solution(bits: List[int], num_list: List[int]):
     iset = []
     oset = []
-    for i in range(len(bits)):
-        (iset.append(f'{num_list[i]:d}') if bits[i] == 0  else
-         oset.append(f'{num_list[i]:d}'))
+    for idx, val in enumerate(bits):
+        (iset.append(f'{num_list[idx]:d}') if val == 0  else
+         oset.append(f'{num_list[idx]:d}'))
     return '+'.join(iset) + ' == ' + '+'.join(oset)
 
 
