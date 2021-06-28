@@ -1,9 +1,9 @@
 # python3
 import math
+from absl.testing import absltest
 
 import numpy as np
 
-from absl.testing import absltest
 
 from src.lib import bell
 from src.lib import ops

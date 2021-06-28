@@ -26,7 +26,7 @@ def make_f1(d: int = 3):
   answers[answer_true] = 1
 
   # pylint: disable=no-value-for-parameter
-  def func(*bits) -> Callable:
+  def func(*bits) -> int:
     return answers[helper.bits2val(*bits)]
 
   return func

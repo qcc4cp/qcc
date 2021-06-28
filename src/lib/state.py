@@ -40,7 +40,7 @@ class State(tensor.Tensor):
     """Renormalize the state. Sum of squared amplitudes==1.0."""
 
     dprod = np.conj(self) @ self
-    if (dprod.is_close(0.0)):
+    if dprod.is_close(0.0):
       raise AssertionError('Normalizing to zero-probability state.')
     self /= np.sqrt(np.real(dprod))
 

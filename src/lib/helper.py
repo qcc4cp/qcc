@@ -3,12 +3,12 @@
 
 import itertools
 import math
-from typing import List, Sequence, Iterable, Tuple
+from typing import List, Iterable, Tuple
 
 import numpy as np
 
 
-def bitprod(nbits: int) -> Iterable:
+def bitprod(nbits: int) -> Iterable[int]:
   """Produce the iterable cartesian of nbits {0, 1}."""
 
   for bits in itertools.product([0, 1], repeat=nbits):
@@ -31,7 +31,7 @@ def val2bits(val: int, nbits: int) -> List[int]:
   return [int(c) for c in format(val, f'0{nbits}b')]
 
 
-def bits2frac(bits: Iterable) -> float:
+def bits2frac(bits: Iterable[int]) -> float:
   """For given bits, compute the binary fraction."""
 
   return sum(bits[i] * 2**(-i-1) for i in range(len(bits)))
@@ -55,7 +55,7 @@ def qubit_to_bloch(psi: np.ndarray):
   return density_to_cartesian(psi.density())
 
 
-def dump_bloch(x:float, y:float, z:float):
+def dump_bloch(x: float, y: float, z: float):
   """Textual output for Bloch sphere coordinates."""
 
   print(f'x: {x:.2f}, y: {y:.2f}, z: {z:.2f}')
@@ -68,7 +68,7 @@ def qubit_dump_bloch(psi: np.ndarray):
   dump_bloch(x, y, z)
 
 
-def pi_fractions(val:float, pi:str='pi') -> str:
+def pi_fractions(val: float, pi: str = 'pi') -> str:
   """Convert a value in fractions of pi."""
 
   if val is None:

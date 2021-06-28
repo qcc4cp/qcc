@@ -7,6 +7,7 @@ import enum
 
 from src.lib import helper
 
+
 class Op(enum.Enum):
   UNK = 0
   SINGLE = 1

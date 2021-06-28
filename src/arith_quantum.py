@@ -6,13 +6,14 @@
 
 
 import math
+from typing import List
 
 from absl import app
-from typing import List
 
 from src.lib import circuit
 from src.lib import helper
 from src.lib import state
+
 
 # Note: The QFT was constructed when the bit order in the state
 #    initializers was wrongly inverted. After I corrected the bit
@@ -58,7 +59,6 @@ def inverse_qft(qc: circuit.qc, reg: state.Reg, n: int) -> None:
   for i in range(n):
     qc.cu1(reg[i], reg[n], -1*math.pi/float(2**(n-i)))
   qc.h(reg[n])
-
 
 
 def arith_quantum(n: int, init_a: int, init_b: int,

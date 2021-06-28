@@ -10,10 +10,10 @@
 #
 import fractions
 import math
+from typing import List
 
 from absl import app
 from absl import flags
-from typing import List
 
 from src.lib import circuit
 from src.lib import helper

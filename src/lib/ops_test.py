@@ -1,10 +1,8 @@
 # python3
 import math
 import random
-
-import numpy as np
-
 from absl.testing import absltest
+import numpy as np
 
 from src.lib import helper
 from src.lib import ops
@@ -19,7 +17,6 @@ class OpsTest(absltest.TestCase):
     self.assertEqual(identity[0, 1], 0)
     self.assertEqual(identity[1, 0], 0)
     self.assertEqual(identity[1, 1], 1)
-
 
   def test_unitary(self):
     self.assertTrue(ops.PauliX().is_unitary())
@@ -268,7 +265,7 @@ class OpsTest(absltest.TestCase):
 
     # inner product of the constituents multiplied
     self.assertTrue(np.allclose(np.inner(p1.conj(), p1) *
-                    np.inner(x1.conj(), x1), 1.0))
+                                np.inner(x1.conj(), x1), 1.0))
 
   def test_diffusion_op(self):
     nbits = 3
