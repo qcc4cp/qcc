@@ -1,6 +1,8 @@
-# Quantum Computing for Classical Programmers
+# Quantum Computing for Programmers
 
-In this project, we build vendor-independent infrastructure from the ground up and implement standard algorithms, such as Quantum Teleportation, Quantum Phase estimation (QPE), Grover's Search, Quantum counting, Quantum random walks, VQE, QAOA, Max-Cut, Subset-Sum, Quantum Fourier Transform (QFT), Shor's integer factorization, and Solovay-Kitaev. We also implement high performance quantum simulation and a transpilation technique to compile our circuits to other infrastructures, such as Qiskit or Cirq. This is part of a book project by Robert Hundt (the book has not yet been published, estimated Christmas 2021). The book describes this implementation, its motivation and the underlying math, in great detail.
+In this project, we build vendor-independent infrastructure from the ground up and implement standard algorithms, such as Quantum Teleportation, Quantum Phase estimation (QPE), Grover's Search, Quantum counting, Quantum random walks, VQE, QAOA, Max-Cut, Subset-Sum, Quantum Fourier Transform (QFT), Shor's integer factorization, and Solovay-Kitaev. We also implement high performance quantum simulation and a transpilation technique to compile our circuits to other infrastructures, such as Qiskit or Cirq. 
+
+This is the open-source repository for the book [Quantum Computing for Programmers](https://www.cambridge.org/us/academic/subjects/computer-science/algorithmics-complexity-computer-algebra-and-computational-g/quantum-computing-programmers?format=HB) by Robert Hundt, Cambridge University Press, estimated arrival April 2022. The book describes this implementation, its motivation and the underlying math, in great detail.
 
 The code is organized as follows:
 *  `src` is the main source directory. All algorithms are in this directory.
