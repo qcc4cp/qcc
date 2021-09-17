@@ -217,9 +217,6 @@ def main(argv):
 
   qc.dump_to_file()
 
-  # -- Results. An x-value of 128 would result in
-  #    the correct continuous fractions.
-
   print('Measurement...')
   total_prob = 0.0
   for bits in helper.bitprod(nbits*4 + 2):

@@ -267,8 +267,8 @@ class CircuitTest(absltest.TestCase):
       qc.cx(0, 6)
       qc.ccx(6, 3, 0)
 
-      prob0, _ = qc.measure_bit(0, 0)
-      prob1, _ = qc.measure_bit(0, 1)
+      prob0, _ = qc.measure_bit(0, 0, collapse=False)
+      prob1, _ = qc.measure_bit(0, 1, collapse=False)
       self.assertTrue(math.isclose(math.sqrt(prob0), 0.6, abs_tol=0.001))
       self.assertTrue(math.isclose(math.sqrt(prob1), 0.8, abs_tol=0.001))
 

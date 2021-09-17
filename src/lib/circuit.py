@@ -264,7 +264,8 @@ class qc:
 # --- Measure ----------------------------------------------------
   def measure_bit(self, idx: int, tostate: int = 0,
                   collapse: bool = True) -> (float, state.State):
-    return ops.Measure(self.psi, idx, tostate, collapse)
+    prob, self.psi = ops.Measure(self.psi, idx, tostate, collapse)
+    return prob, self.psi
 
   def pauli_expectation(self, idx: int):
     """We can compute the Pauli expectation value from probabilities."""
@@ -425,9 +426,11 @@ class qc:
     return newqc
 
 # --- Debug --------------------------------------------------
-  def dump(self):
+  def dump(self, desc=None):
     """Simple dumper for basic debugging of a circuit."""
 
+    if desc:
+      print(desc)
     if self.name:
       print(f'Circuit: {self.name}, Nodes: {len(self.ir.gates)}')
     print(self.ir, end='')

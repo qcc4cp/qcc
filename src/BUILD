@@ -73,6 +73,16 @@ py_binary(
 )
 
 py_binary(
+    name = "entanglement_swap",
+    srcs = ["entanglement_swap.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)
+
+py_binary(
     name = "grover",
     srcs = ["grover.py"],
     python_version = "PY3",
