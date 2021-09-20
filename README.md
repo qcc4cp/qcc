@@ -154,6 +154,7 @@ To run individual algorithms, run any of these command lines (note the missing `
    bazel run grover
    bazel run max_cut
    bazel run order_finding
+   bazel run pauli_rep
    bazel run phase_estimation
    bazel run phase_kick
    bazel run quantum_walk
