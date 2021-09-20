@@ -103,8 +103,8 @@ py_binary(
 )
 
 py_binary(
-    name = "subset_sum",
-    srcs = ["subset_sum.py"],
+    name = "order_finding",
+    srcs = ["order_finding.py"],
     python_version = "PY3",
     srcs_version = "PY3",
     deps = [
@@ -113,8 +113,8 @@ py_binary(
 )
 
 py_binary(
-    name = "order_finding",
-    srcs = ["order_finding.py"],
+    name = "pauli_rep",
+    srcs = ["pauli_rep.py"],
     python_version = "PY3",
     srcs_version = "PY3",
     deps = [
@@ -192,6 +192,15 @@ py_binary(
     ],
 )
 
+py_binary(
+    name = "subset_sum",
+    srcs = ["subset_sum.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)
 
 py_binary(
     name = "superdense",
