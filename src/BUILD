@@ -251,3 +251,13 @@ py_binary(
         ":qcall",
     ],
 )
+
+py_binary(
+    name = "zy_decompose",
+    srcs = ["zy_decompose.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)
