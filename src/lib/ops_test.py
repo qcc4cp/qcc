@@ -300,6 +300,17 @@ class OpsTest(absltest.TestCase):
       op10 = ops.ControlledU(5, 2, gate)
       self.assertTrue(op01.is_close(op10))
 
+  def test_rho(self):
+    for i in range(100):
+       q = state.qubit(alpha=random.random())
+       rho = q.density()
+       ident, x, y, z = ops.Pauli()
+       u = (rho +
+            x @ rho @ x +
+            y @ rho @ y +
+            z @ rho @ z) / 2
+       self.assertTrue(np.allclose(u, ident))
 
+  
 if __name__ == '__main__':
   absltest.main()
