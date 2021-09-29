@@ -2,8 +2,6 @@
 """Z-Y dcomposition of a unitary U."""
 
 import cmath
-import math
-import random
 
 from absl import app
 import numpy as np
@@ -11,13 +9,13 @@ import scipy.stats
 
 from src.lib import ops
 
-# The "Z-Y decomposition for a single qubit" shows that 
+# The "Z-Y decomposition for a single qubit" shows that
 # any unitary U can be decomposed into Rz and Ry rotations
 # with 4 parameters alpha, beta, gamma, delta as follows:
 #
 #   U = e^(i*alpha) * Rz(beta) * Ry(gamma) * Rz(delta)
 #
-# The question is how to find the 4 parameters for 
+# The question is how to find the 4 parameters for
 # a given U?
 #
 # One answer was provided here - it solves correctly for alpha and gamma:
@@ -35,20 +33,19 @@ from src.lib import ops
 
 def make_u(alpha, beta, gamma, delta):
   """Construct unitary from the 4 parameters."""
-  
+
   return ((ops.RotationZ(beta) @
            ops.RotationY(gamma) @
            ops.RotationZ(delta)) *
-           cmath.exp(1.0j * alpha)) 
+          cmath.exp(1.0j * alpha))
 
 
 def zy_decompose(umat):
   """Perform Z-Y decomposition of unitary operator in SU(2)."""
-  
-  a = umat[0][0]  
-  b = umat[0][1]  
+
+  a = umat[0][0]
+  b = umat[0][1]
   c = umat[1][0]
-  d = umat[1][1]
 
   det = np.linalg.det(umat)
   alpha = 0.5 * np.arctan2(det.imag, det.real)
@@ -58,8 +55,8 @@ def zy_decompose(umat):
   else:
     gamma = 2 * np.arcsin(abs(b))
 
-  # TODO: Handle cases with gamma very close to 0 or Pi
-  
+  # TODO(rhundt): Handle cases with gamma very close to 0 or Pi
+
   beta = cmath.phase(c) - cmath.phase(a)
   delta = cmath.phase(-b) - cmath.phase(a)
 
@@ -72,14 +69,14 @@ def main(argv):
 
   iterations = 10000
   print(f'Perform {iterations} random Z-Y decompositions.')
-  
+
   for i in range(iterations):
     #
     # Construct a random unitary operator and put into SU(2).
     #
-    U = scipy.stats.unitary_group.rvs(2)
-    umat = np.sqrt(1 / np.linalg.det(U)) * U
-    
+    u = scipy.stats.unitary_group.rvs(2)
+    umat = np.sqrt(1 / np.linalg.det(u)) * u
+
     #
     # Now decompose this operator and find the four parameters.
     #
@@ -91,14 +88,13 @@ def main(argv):
     # operator matches the one from above.
     #
     unew = make_u(alpha, beta, gamma, delta)
-    
+
     if not np.allclose(umat, unew, atol=1e-4):
-       print(f'decomp : {i:2d}: {alpha:.3f} {beta:.3f} {gamma:.3f} {delta:.3f}')
-       raise AssertionError('Z-Y decomposition failed')
-       
+      print(f'decomp : {i:2d}: {alpha:.3f} {beta:.3f} {gamma:.3f} {delta:.3f}')
+      raise AssertionError('Z-Y decomposition failed')
+
   print('Success')
 
 
 if __name__ == '__main__':
   app.run(main)
-
