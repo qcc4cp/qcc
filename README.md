@@ -168,6 +168,7 @@ To run individual algorithms, run any of these command lines (note the missing `
    bazel run swap_test
    bazel run teleportation
    bazel run vqe_simple
+   bazel run zy_decompose
 ```
 
 or, more general:
