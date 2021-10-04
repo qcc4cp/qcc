@@ -174,11 +174,11 @@ def run_single_qubit_mult():
   """Run experiments with single qubits."""
 
   # Construct Hamiltonian.
-  H = (random.random() * ops.PauliX() +
-       random.random() * ops.PauliY() +
-       random.random() * ops.PauliZ())
+  hamil = (random.random() * ops.PauliX() +
+           random.random() * ops.PauliY() +
+           random.random() * ops.PauliZ())
   # Compute known minimum eigenvalue.
-  eigvals = np.linalg.eigvalsh(H)
+  eigvals = np.linalg.eigvalsh(hamil)
 
   # Brute force over the Bloch sphere.
   min_val = 1000.0
@@ -193,7 +193,7 @@ def run_single_qubit_mult():
       # Compute <psi ! H ! psi>. Find smallest one, which will be
       # the best approximation to the minimum eigenvalue from above.
       # In this version, we just multiply out the result.
-      psi = np.dot(ansatz.psi.adjoint(), H(ansatz.psi))
+      psi = np.dot(ansatz.psi.adjoint(), hamil(ansatz.psi))
       if psi < min_val:
         min_val = psi
 
@@ -209,10 +209,10 @@ def run_single_qubit_measure():
   a = random.random()
   b = random.random()
   c = random.random()
-  H = (a * ops.PauliX() + b * ops.PauliY() + c * ops.PauliZ())
+  hamil = (a * ops.PauliX() + b * ops.PauliY() + c * ops.PauliZ())
 
   # Compute known minimum eigenvalue.
-  eigvals = np.linalg.eigvalsh(H)
+  eigvals = np.linalg.eigvalsh(hamil)
 
   min_val = 1000.0
   for i in range(0, 360, 5):

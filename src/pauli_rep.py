@@ -12,6 +12,8 @@ from src.lib import ops
 
 
 def single_qubit():
+  """Compute Pauli representation of single qubit."""
+
   for i in range(10):
     # First we construct a circuit with just one, very random qubit.
     #
@@ -36,15 +38,15 @@ def single_qubit():
     rho = qc.psi.density()
     i = np.trace(ops.Identity() @ rho)
     x = np.trace(ops.PauliX() @ rho)
-    y = np.trace(ops.PauliY() @ rho)        
-    z = np.trace(ops.PauliZ() @ rho)    
+    y = np.trace(ops.PauliY() @ rho)
+    z = np.trace(ops.PauliZ() @ rho)
 
     # Let's verify the result and construct a density matrix
     # from the Pauli matrices using the computed factors:
     #
     new_rho = 0.5 * (i * ops.Identity() + x * ops.PauliX() +
                      y * ops.PauliY() + z * ops.PauliZ())
-    if (not np.allclose(rho, new_rho)):
+    if not np.allclose(rho, new_rho):
       raise AssertionError('Invalid Pauli Representation')
 
     print(f'qubit({qc.psi[0]:11.2f}, {qc.psi[1]:11.2f}) = ', end='')
@@ -52,8 +54,10 @@ def single_qubit():
 
 
 def two_qubit():
-  for iter in range(10):
-  
+  """Compute Pauli representation for two-qubit system."""
+
+  for iteration in range(10):
+
     # First we construct a circuit with two, very random qubits.
     #
     qc = circuit.qc('random qubit')
@@ -89,19 +93,19 @@ def two_qubit():
     c = np.zeros((4, 4), dtype=np.complex64)
     for i in range(4):
       for j in range(4):
-         tprod = paulis[i] * paulis[j]
-         c[i][j] = np.trace(rho @ tprod)
+        tprod = paulis[i] * paulis[j]
+        c[i][j] = np.trace(rho @ tprod)
 
     # To test whether the two qubits are entangled, the diagonal factors
     # (without c[0][0]) are added up. If the sum is < 1.0, the qubit
     # states are still seperable.
     #
     diag = np.abs(c[1][1]) + np.abs(c[2][2]) + np.abs(c[3][3])
-    print(f'{iter}: diag: {diag:5.2f} ', end='')
+    print(f'{iteration}: diag: {diag:5.2f} ', end='')
     if diag > 1.0:
-       print('--> Entangled')
+      print('--> Entangled')
     else:
-       print('Seperable')
+      print('Seperable')
 
     # Let's verify the result and construct a density matrix
     # from the Pauli matrices using the computed factors:
@@ -109,17 +113,17 @@ def two_qubit():
     new_rho = np.zeros((4, 4), dtype=np.complex64)
     for i in range(4):
       for j in range(4):
-         tprod = paulis[i] * paulis[j]
-         new_rho = new_rho + c[i][j] * tprod
+        tprod = paulis[i] * paulis[j]
+        new_rho = new_rho + c[i][j] * tprod
 
-    if (not np.allclose(rho, new_rho / 4, atol=1e-5)):
+    if not np.allclose(rho, new_rho / 4, atol=1e-5):
       raise AssertionError('Invalid Pauli Representation')
 
 
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
-    
+
   single_qubit()
   two_qubit()
 

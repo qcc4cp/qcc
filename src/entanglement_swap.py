@@ -19,7 +19,7 @@ def main(argv):
   reg = qc.reg(4, 0)
 
   # Qubits 1 and 2 are entangled, and so are qubits 3 and 4:
-  #       
+  #
   # Alice  1        4
   #        |        |
   # Bob    2        3
@@ -34,10 +34,10 @@ def main(argv):
   # Bob takes qubits 2 and 3 to the Moon.
 
   # ... travel, space ships, etc...
-  
+
   # Alice performs a Bell measurement between qubits 1 and 4,
   # which means to apply a reverse entangler circuit:
-  #       
+  #
   # Alice  1~~~BM~~~4
   #        |        |
   # Bob    2        3
@@ -69,28 +69,28 @@ def main(argv):
   #
   # qubits   0  1  2  3       1  2   factor
   #-----------------------------------------
-  cases = [ [0, 0, 0, 0, 1.0, 1, 1,  1.0],
-            [0, 0, 1, 1, 1.0, 1, 0,  1.0],
-            [1, 0, 0, 0, 1.0, 1, 1, -1.0],
-            [1, 0, 1, 1, 1.0, 1, 0, -1.0]]
+  cases = [[0, 0, 0, 0, 1.0, 1, 1, 1.0],
+           [0, 0, 1, 1, 1.0, 1, 0, 1.0],
+           [1, 0, 0, 0, 1.0, 1, 1, -1.0],
+           [1, 0, 1, 1, 1.0, 1, 0, -1.0]]
 
   c07 = 1/math.sqrt(2)
   psi = qc.psi
   for c in cases:
-     qc.psi = psi
-     
-     qc.measure_bit(0, c[0], collapse=True)
-     qc.measure_bit(3, c[3], collapse=True)
-     qc.psi.dump(f'after measuring |{c[0]}..{c[3]}>')
-     
-     if not math.isclose(
-           np.real(qc.psi.ampl(c[0], c[1], c[2], c[3])),
-           c07, abs_tol=1e-5):
-        raise AssertionError('Invalid measurement results')
-     if not math.isclose(
-           np.real(qc.psi.ampl(c[0], c[5], c[6], c[3])),
-           c07 * c[7], abs_tol=1e-5):
-        raise AssertionError('Invalid measurement results')
+    qc.psi = psi
+
+    qc.measure_bit(0, c[0], collapse=True)
+    qc.measure_bit(3, c[3], collapse=True)
+    qc.psi.dump(f'after measuring |{c[0]}..{c[3]}>')
+
+    if not math.isclose(
+        np.real(qc.psi.ampl(c[0], c[1], c[2], c[3])),
+        c07, abs_tol=1e-5):
+      raise AssertionError('Invalid measurement results')
+    if not math.isclose(
+        np.real(qc.psi.ampl(c[0], c[5], c[6], c[3])),
+        c07 * c[7], abs_tol=1e-5):
+      raise AssertionError('Invalid measurement results')
 
 
 if __name__ == '__main__':
