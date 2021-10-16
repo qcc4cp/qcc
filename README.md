@@ -2,7 +2,7 @@
 
 In this project, we build vendor-independent infrastructure from the ground up and implement standard algorithms, such as Quantum Teleportation, Quantum Phase estimation (QPE), Grover's Search, Quantum counting, Quantum random walks, VQE, QAOA, Max-Cut, Subset-Sum, Quantum Fourier Transform (QFT), Shor's integer factorization, and Solovay-Kitaev. We also implement high performance quantum simulation and a transpilation technique to compile our circuits to other infrastructures, such as Qiskit or Cirq. 
 
-This is the open-source repository for the book [Quantum Computing for Programmers](https://www.cambridge.org/us/academic/subjects/computer-science/algorithmics-complexity-computer-algebra-and-computational-g/quantum-computing-programmers?format=HB) by Robert Hundt, Cambridge University Press, estimated arrival April 2022. The book describes this implementation, its motivation and the underlying math, in great detail.
+This is the open-source repository for the book [Quantum Computing for Programmers](https://www.cambridge.org/us/academic/subjects/computer-science/algorithmics-complexity-computer-algebra-and-computational-g/quantum-computing-programmers?format=HB) by Robert Hundt, Cambridge University Press, estimated arrival April 2022. The book describes this implementation in great detail, including all the underlying math and derivations.
 
 The code is organized as follows:
 *  `src` is the main source directory. All algorithms are in this directory.
@@ -162,6 +162,7 @@ To run individual algorithms, run any of these command lines (note the missing `
    bazel run simon
    bazel run simon_general
    bazel run solovay_kitaev
+   bazel run spectral_decomp
    bazel run subset_sum
    bazel run superdense
    bazel run supremacy
@@ -203,4 +204,4 @@ at Google.
 
 Reach Robert at
 *  https://www.linkedin.com/in/robert-hundt-2000/
-*  qcc4cp@gmail.com (site specific email account)
+*  qcc4cp@gmail.com (site-specific email account)
