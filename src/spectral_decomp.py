@@ -1,8 +1,6 @@
 # python3
 """Spectral Decomposition."""
 
-import cmath
-
 from absl import app
 import numpy as np
 import scipy.stats
@@ -56,7 +54,7 @@ def spectral_decomp(ndim: int):
     for j in range(i+1, ndim):
       dot = np.dot(v[:, i], v[:, j].adjoint())
       if not np.allclose(dot, 0.0, atol=1e-5):
-         raise AssertionError('invalid, non-orthogonal basis found')
+        raise AssertionError('invalid, non-orthogonal basis found')
 
   # Construct a matrix following the spectral theorem and
   # check equivalance.
