@@ -54,7 +54,13 @@ def spectral_decomp(ndim: int):
     for j in range(i+1, ndim):
       dot = np.dot(v[:, i], v[:, j].adjoint())
       if not np.allclose(dot, 0.0, atol=1e-5):
-        raise AssertionError('invalid, non-orthogonal basis found')
+        raise AssertionError('Invalid, non-orthogonal basis found')
+
+  # Check that eigenvectors are orthonormal.
+  for i in range(ndim):
+    dot = np.dot(v[:, i], v[:, i].adjoint())
+    if not np.allclose(dot, 1.0, atol=1e-5):
+      raise AssertionError('Found non-orthonormal basis vectors')
 
   # Construct a matrix following the spectral theorem and
   # check equivalance.
