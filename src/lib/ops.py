@@ -40,11 +40,11 @@ class Operator(tensor.Tensor):
     for row in range(self.shape[0]):
       for col in range(self.shape[1]):
         val = self[row, col]
-        res += f'{val.real:+.1f}{val.imag:+.1f}i  '
+        res += f'{val.real:+.1f}{val.imag:+.1f}j  '
       res += '\n'
     if not zeros:
-      res = res.replace('+0.0i', '    ')
-      res = res.replace('-0.0i', '    ')
+      res = res.replace('+0.0j', '    ')
+      res = res.replace('-0.0j', '    ')
       res = res.replace('+0.0', ' -  ')
       res = res.replace('-0.0', ' -  ')
       res = res.replace('+', ' ')

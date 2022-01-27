@@ -4,6 +4,14 @@
 """class qc (quantum circuit) represents state and operators."""
 
 
+from __future__ import annotations
+
+import random
+from typing import Callable
+
+from absl import flags
+import numpy as np
+
 # Configure: The following line might have to change, depending on
 #            the current build environment.
 # Google internal:
@@ -11,15 +19,53 @@
 #
 # GitHub Linux:
 # import libxgates as xgates
+try:
+  import libxgates as xgates
+  apply1 = xgates.apply1
+  applyc = xgates.applyc
+except:
+  print("""
+**************************************************************
+WARNING: Could not find 'libxgates.so'.
+Please build it and point PYTHONPATH to it.
+Execution is being re-directed to a Python implementation,
+performance may suffer greatly.
+**************************************************************
+""")
 
-from __future__ import annotations
+  #
+  # These are the Python fallback functions.
+  #
+  def apply1(psi, gate, nbits, qubit, bitwidth=0):
+    """Apply a single-qubit gate via explicit indexing."""
 
-import random
-from typing import Callable
+    qubit = nbits - qubit - 1
+    two_q = 2**qubit
+    for g in range(0, 2**nbits, 2**(qubit+1)):
+      for i in range(g, g + two_q):
+        t1 = gate[0] * psi[i] + gate[1] * psi[i + two_q]
+        t2 = gate[2] * psi[i] + gate[3] * psi[i + two_q]
+        psi[i] = t1
+        psi[i + two_q] = t2
+    return psi
 
-from absl import flags
-import libxgates as xgates
-import numpy as np
+
+  def applyc(psi, gate, nbits, control, target, bitwidth=64):
+    """Apply a controlled 2-qubit gate via explicit indexing."""
+
+    qubit = nbits - target - 1
+    two_q = 2**qubit
+    control = nbits - control - 1
+    for g in range(0, 2**nbits, 2**(qubit+1)):
+      for i in range(g, g + two_q):
+        idx = g * 2**nbits + i
+        if idx & (1 << control):
+          t1 = gate[0] * psi[i] + gate[1] * psi[i + two_q]
+          t2 = gate[2] * psi[i] + gate[3] * psi[i + two_q]
+          psi[i] = t1
+          psi[i + two_q] = t2
+    return psi
+
 
 from src.lib import dumpers
 from src.lib import ir
@@ -137,14 +183,14 @@ class qc:
         if self.build_ir:
           self.ir.single(name, idx[reg], gate, val)
         if self.eager:
-          xgates.apply1(self.psi, gate.reshape(4), self.psi.nbits, idx[reg],
-                        tensor.tensor_width)
+          apply1(self.psi, gate.reshape(4), self.psi.nbits, idx[reg],
+                 tensor.tensor_width)
       return
     if self.build_ir:
       self.ir.single(name, idx, gate, val)
     if self.eager:
-      xgates.apply1(self.psi, gate.reshape(4), self.psi.nbits, idx,
-                    tensor.tensor_width)
+      apply1(self.psi, gate.reshape(4), self.psi.nbits, idx,
+             tensor.tensor_width)
 
   def applyc(self, gate: ops.Operator, ctl: int, idx: int,
              name: str = None, *, val: float = None):
@@ -159,8 +205,8 @@ class qc:
     if self.build_ir:
       self.ir.controlled(name, ctl_qubit, idx, gate, val)
     if self.eager:
-      xgates.applyc(self.psi, gate.reshape(4), self.psi.nbits, ctl_qubit, idx,
-                    tensor.tensor_width)
+      applyc(self.psi, gate.reshape(4), self.psi.nbits, ctl_qubit, idx,
+             tensor.tensor_width)
     if by_0:
       self.x(ctl_qubit)
 
