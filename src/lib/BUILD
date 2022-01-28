@@ -142,6 +142,10 @@ py_library(
     ],
 )
 
+# Depending on the build environment, it can be difficult to build
+# the target 'xgates'. If you fail to build it, you may simply delete
+# the corresponding entry in this filegroup. Execution will be re-directed
+# to a working but slow Python implementation.
 filegroup(
   name = "all",
   srcs = [
@@ -241,10 +245,15 @@ py_test(
 
 
 # This test depends on xgates. However, bazel doesn't allow dependencies
-# to cc_libraries. This means this test should NOT run with bazel test ...
+# to cc_libraries. This means this test should NOT be run with
+#     bazel test circuit_test
 #
-# It has to be run manually, via
+# Instead, it has to be run manually, via
 #     bazel run circuit_test
+#
+# If the target 'xgates' fails to build, you may still run all algorithms
+# using a slower Python fallback implementation. In this case (which,
+# hopefully, you will not encounter), simply ignore this particular test.
 #
 py_binary(
     name = "circuit_test",

@@ -12,12 +12,17 @@ from typing import Callable
 from absl import flags
 import numpy as np
 
+# Many of the algorithm implementation rely on the fast performance
+# provided by libxgates. However, it can be difficult to build,
+# depending on your environment. To enable a quick start on this codebase
+# we provide Python fallback functions. They work, but are slow.
+#
 # Configure: The following line might have to change, depending on
 #            the current build environment.
 # Google internal:
 # import xgates
 #
-# GitHub Linux:
+# GitHub / Linux:
 # import libxgates as xgates
 try:
   import libxgates as xgates
@@ -25,17 +30,14 @@ try:
   applyc = xgates.applyc
 except:
   print("""
-**************************************************************
-WARNING: Could not find 'libxgates.so'.
-Please build it and point PYTHONPATH to it.
-Execution is being re-directed to a Python implementation,
-performance may suffer greatly.
-**************************************************************
-""")
+  **************************************************************
+  WARNING: Could not find 'libxgates.so'.
+  Please build it and point PYTHONPATH to it.
+  Execution is being re-directed to a Python implementation,
+  performance may suffer greatly.
+  **************************************************************
+  """)
 
-  #
-  # These are the Python fallback functions.
-  #
   def apply1(psi, gate, nbits, qubit, bitwidth=0):
     """Apply a single-qubit gate via explicit indexing."""
 
