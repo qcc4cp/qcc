@@ -11,6 +11,7 @@ cc_library(
         "-ffast-math",
         "-march=skylake",
         "-fstrict-aliasing",
+        "-Wno-class-memaccess",
     ],
 )
 
@@ -27,6 +28,7 @@ cc_library(
         "-ffast-math",
         "-march=skylake",
         "-fstrict-aliasing",
+        "-Wno-class-memaccess",
     ],
 )
 

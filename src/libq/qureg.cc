@@ -64,7 +64,7 @@ void delete_qureg(qureg *reg) {
 void print_qureg(qureg *reg) {
   printf("States with non-zero probability:\n");
   for (int i = 0; i < reg->size; ++i) {
-    printf("  % f %+fi|%lli> (%e) (|", reg->amplitude[i].real(),
+    printf("  % f %+fi|%llu> (%e) (|", reg->amplitude[i].real(),
            reg->amplitude[i].imag(), reg->state[i],
            probability(reg->amplitude[i]));
     for (int j = reg->width - 1; j >= 0; --j) {
