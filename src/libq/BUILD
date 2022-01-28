@@ -12,6 +12,7 @@ cc_library(
         "-march=skylake",
         "-fstrict-aliasing",
         "-Wno-class-memaccess",
+        "-Wno-unknown-warning-option", 
     ],
 )
 
@@ -29,6 +30,7 @@ cc_library(
         "-march=skylake",
         "-fstrict-aliasing",
         "-Wno-class-memaccess",
+        "-Wno-unknown-warning-option",         
     ],
 )
 
