@@ -72,9 +72,13 @@ class Operator(tensor.Tensor):
   # -------------
   # Op(op) equals Op @ op equal matmul(Op, op), to produce a new state.
   #
+  # Note: Note that in the book the return type was marked as
+  #       -> state.State, which is incorrect. (Un-)fortunately, the
+  #       type annotations are being ignored by the runtime.
+  #
   def apply(self,
             arg: Union[state.State, Operator],
-            idx: int) -> state.State:
+            idx: int) -> Union[state.State, Operator]:
     """Apply operator to a state or operator."""
 
     if isinstance(arg, Operator):
@@ -120,7 +124,7 @@ class Operator(tensor.Tensor):
 
   def __call__(self,
                arg: Union[state.State, Operator],
-               idx=0) -> state.State:
+               idx=0) -> Union[state.State, Operator]:
     return self.apply(arg, idx)
 
 
