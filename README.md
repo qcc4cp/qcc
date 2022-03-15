@@ -9,6 +9,7 @@ The code is organized as follows:
 *  `src/lib` contains the library functions for tensors, states, operators, circuits, and so on, as well as their corresponding tests. All algorithms depend on these library functions.
 *  `src/libq` contains the sparse implementation.
 *  `src/benchmarks` contains a few benchmarks, as they are mentioned in the book.
+*  `resources` contains additional text, sections and chapters. 
 
 ## Installation
 
