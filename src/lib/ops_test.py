@@ -273,8 +273,10 @@ class OpsTest(absltest.TestCase):
     self.assertTrue(np.allclose(ops.U(np.pi/2, 0, np.pi), ops.Hadamard()))
     self.assertTrue(np.allclose(ops.U(0, 0, 0), ops.Identity()))
     self.assertTrue(np.allclose(ops.U(np.pi, 0, np.pi), ops.PauliX()))
-    self.assertTrue(np.allclose(ops.U(np.pi, np.pi/2, -np.pi/2), ops.PauliY()))
+    self.assertTrue(np.allclose(ops.U(np.pi, np.pi/2, np.pi/2), ops.PauliY()))
     self.assertTrue(np.allclose(ops.U(0, 0, np.pi), ops.PauliZ()))
+    self.assertTrue(np.allclose(ops.U(val, -np.pi/2, np.pi/2), ops.RotationX(val)))
+    self.assertTrue(np.allclose(ops.U(val, 0, 0), ops.RotationY(val)))
 
   def test_diffusion_op(self):
     nbits = 3
