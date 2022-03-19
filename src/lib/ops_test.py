@@ -267,6 +267,15 @@ class OpsTest(absltest.TestCase):
     self.assertTrue(np.allclose(np.inner(p1.conj(), p1) *
                                 np.inner(x1.conj(), x1), 1.0))
 
+  def test_u(self):
+    val = random.random()
+    self.assertTrue(np.allclose(ops.U(0, 0, val), ops.U1(val)))
+    self.assertTrue(np.allclose(ops.U(np.pi/2, 0, np.pi), ops.Hadamard()))
+    self.assertTrue(np.allclose(ops.U(0, 0, 0), ops.Identity()))
+    self.assertTrue(np.allclose(ops.U(np.pi, 0, np.pi), ops.PauliX()))
+    self.assertTrue(np.allclose(ops.U(np.pi, np.pi/2, -np.pi/2), ops.PauliY()))
+    self.assertTrue(np.allclose(ops.U(0, 0, np.pi), ops.PauliZ()))
+
   def test_diffusion_op(self):
     nbits = 3
     op = ops.Hadamard(nbits)
@@ -311,6 +320,6 @@ class OpsTest(absltest.TestCase):
             z @ rho @ z) / 2
        self.assertTrue(np.allclose(u, ident))
 
-  
+
 if __name__ == '__main__':
   absltest.main()
