@@ -4,9 +4,11 @@ issues in the print version of book.
 
 Note that this material has not (yet) been copy edited.
 
+chap_2_3_3:
+  Added: More color on tensor products of qubits written as a|0> + b|1>
 chap_2_9_1:
   Added: Pauli representation of 1-qubit or 2-qubit density matrices
 chap_2_12:
-  Added: No Deletion Theorem
+  Added: No Delete Theorem
 
 
