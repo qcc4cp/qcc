@@ -1,0 +1,3 @@
+A little bit more color on how to compute the tensor product
+of qubits when they are written as expressions, such as
+  (a|0> + b|1>)  kron  (c|0> + d|1>)
