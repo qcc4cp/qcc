@@ -6,6 +6,7 @@ py_library(
         "//src/lib:circuit",
         "//src/lib:helper",
         "//src/lib:ops",
+        "//src/lib:optimizer",
         "//src/lib:state",
         "//src/lib:tensor",
     ],
