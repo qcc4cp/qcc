@@ -162,9 +162,9 @@ def qubit(alpha: Optional[np.complexfloating] = None,
     raise ValueError('Both alpha and beta need to be specified')
 
   if beta is None:
-    beta = math.sqrt(1.0 - np.conj(alpha) * alpha)
+    beta = cmath.sqrt(1.0 - np.conj(alpha) * alpha)
   if alpha is None:
-    alpha = math.sqrt(1.0 - np.conj(beta) * beta)
+    alpha = cmath.sqrt(1.0 - np.conj(beta) * beta)
 
   if not math.isclose(np.conj(alpha) * alpha +
                       np.conj(beta) * beta, 1.0):
