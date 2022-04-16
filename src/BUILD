@@ -93,6 +93,16 @@ py_binary(
 )
 
 py_binary(
+    name = "hadamard_test",
+    srcs = ["hadamard_test.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)
+
+py_binary(
     name = "max_cut",
     srcs = ["max_cut.py"],
     python_version = "PY3",
