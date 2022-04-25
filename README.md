@@ -155,6 +155,7 @@ To run individual algorithms, run any of these command lines (note the missing `
    bazel run entanglement_swap
    bazel run grover
    bazel run hadamard_test
+   bazel run inversion_test
    bazel run max_cut
    bazel run order_finding
    bazel run pauli_rep
