@@ -161,13 +161,16 @@ def qubit(alpha: Optional[np.complexfloating] = None,
   if alpha is None and beta is None:
     raise ValueError('Both alpha and beta need to be specified')
 
+  # Note tha multiplying a complex conjugate with its non-conjugate
+  # is a real number, but we still have to type-cast it to avoid
+  # Python warnings (hence the use of np.real()).
   if beta is None:
-    beta = cmath.sqrt(1.0 - np.conj(alpha) * alpha)
+    beta = math.sqrt(1.0 - np.real(np.conj(alpha) * alpha))
   if alpha is None:
-    alpha = cmath.sqrt(1.0 - np.conj(beta) * beta)
+    alpha = math.sqrt(1.0 - np.real(np.conj(beta) * beta))
 
-  if not math.isclose(np.conj(alpha) * alpha +
-                      np.conj(beta) * beta, 1.0):
+  if not math.isclose(np.real(np.conj(alpha) * alpha) +
+                      np.real(np.conj(beta) * beta), 1.0):
     raise ValueError('Qubit probabilities do not sum to 1.')
 
   qb = np.zeros(2, dtype=tensor.tensor_type())
