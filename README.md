@@ -14,7 +14,7 @@ The code is organized as follows:
 
 ## Installation
 
-These instructions focus on Debian Linux. For MacOS, see [README.MacOS.md](README.MacOS.md).
+These instructions focus on Debian Linux. For MacOS, see [README.MacOS.md](README.MacOS.md). For Windows (partially supported), see [README.Windows.md](README.Windows.md).
 CentOS is also supported (see [README.CentOS.md](README.CentOS.md)).
 We may add other OS'es in the future.
 
