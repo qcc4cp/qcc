@@ -13,5 +13,8 @@ chap_2_9_1:
   Added: Pauli representation of 1-qubit or 2-qubit density matrices
 chap_2_12:
   Added: No Delete Theorem
+chap_3_4_1:
+  Added: Hadamard test to determine state similarity
+  Added: Inversion test to determine state similarity
 
 
