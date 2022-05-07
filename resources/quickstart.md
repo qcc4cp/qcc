@@ -146,5 +146,44 @@ State([0.70710677+0.j 0.        +0.j 0.        +0.j 0.70710677+0.j])
 ```
 We created the entangled Bell state `1/sqrt(2) [1 0 0 1]^T`!
 
+#### Classical Adder  
+Now let's build something more complex - a classical 1-bit adder, constructed with qubits and quantum gates. As described in the book, the quantum circuit has several Controlled X-gates and also Controlled-Controlled X-gates!
+
+```
+a    ----o-----o---o-------
+b    ----|--o--o---|--o----
+cin  ----|--|--|---o--o--o-
+sum  ----X--X--|---|--|--X-
+cout ----------X---X--X----
+```
+
+We define a routine to apply the gates to a given state. Note how we use `Cnot` as well as `ControlledU` to further control some of the `Cnot` gates:
+```
+def fulladder_matrix(psi: state.State):
+  psi = ops.Cnot(0, 3)(psi, 0)
+  psi = ops.Cnot(1, 3)(psi, 1)
+  psi = ops.ControlledU(0, 1, ops.Cnot(1, 4))(psi, 0)
+  psi = ops.ControlledU(0, 2, ops.Cnot(2, 4))(psi, 0)
+  psi = ops.ControlledU(1, 2, ops.Cnot(2, 4))(psi, 1)
+  psi = ops.Cnot(2, 3)(psi, 2)
+  return psi
+```
+
+To test this circuit, we can create a state with the corresponding inputs for `a`, `b`, `cin`, as well as `|0>` for `sum` and `cout`. For example, for a=0, b=1, and the carry-in = 1, the sum will be 1 + 1 = 0 mod 2, and the carry-out should be 1:
+```
+# a = 0, b = 1, cin = 1
+psi = state.bitstring(0, 1, 1, 0, 0)
+psi = fulladder_matrix(psi)
+
+bsum, _ = ops.Measure(psi, 3, tostate=1, collapse=False)
+bout, _ = ops.Measure(psi, 4, tostate=1, collapse=False)
+
+>>> bsum
+0.0
+>>> bout
+1.0
+```
+
+
 #### Conclusion
 This concludes this short quick start guide, I hope it was useful. Please let me know if you wanted to see other or additional content here (qcc4cp@gmail.com).
