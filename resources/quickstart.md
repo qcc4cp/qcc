@@ -4,21 +4,34 @@ This quick start guide may help you getting started on this
 code base by going through just a few core concepts and
 function calls.
 
+#### Setup
 This guide assumes you were successful in
 downloading the Python sources from github and installing the
 Python dependencies, such as `absl-py` and `numpy`. No need for `blaze` or
 compilation of the accelerated C++ routines. Make sure you 
 point Python to the sources by setting the enviroment
 variable `PYTHONPATH` to the root directory (`qcc`) of the sources.
-For example (Linux):
+For example, Linux:
 ```
   export PYTHONPATH=/Users/rhundt/qcc
 ```
-Windows (cmd.exe)
+Windows:
 ```
+  # cmd.exe
   set  PYTHONPATH = C:\Users\rhundt\qcc
+  
+  # Powershell
+  $Env:PYTHONPATH = C:\users\rhundt\qcc
 ```
 
+Note that the main installation instruction use `blaze` to run the algorithms. This is strictly not necessary, you can run the algorithms individually just by invoking them on the Python command-line, such as:
+```
+   $ cd qcc/src
+   $ python ./arith_classic.py   # or any of the other Python algorithms
+   $ ...
+```
+   
+#### First Steps
 Let's start Python from the root directory - we will always `$` as the shell command-prompt and `>>>` as the Python
 prompt. Note that your Python version may be different, it shouldn't matter:
 ```
