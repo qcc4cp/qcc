@@ -111,7 +111,7 @@ Given this state `psi`, what is now the probability of measureing `|00>`? We can
 0.0
 ```
 
-The second qubit remained in state `|0>`, so the probability of finding it in state `|1>` is zero. We can also similate an actual measurement with or without state collapse. In this example we measure qubit 0 and force it to be measured as `|1>` (it is currently in superposition because of the prior Hadamard gate). We also want the state to collapse (and renormalize):
+The second qubit remained in state `|0>`, so the probability of finding it in state `|1>` is zero. We can also simulate an actual measurement with or without state collapse. In this example we measure qubit 0 and force it to be measured as `|1>` (it is currently in superposition because of the prior Hadamard gate). We also want the state to collapse (and renormalize):
 ```
 >>> prob, new_state = ops.Measure(psi, idx=0, tostate=1, collapse=True)
 >>> prob
@@ -124,4 +124,27 @@ State([0.        +0.j 0.        +0.j 0.99999994+0.j 0.        +0.j])
 
 The state is now `|10>` with close to 1.0 probability.
 
+#### Bell State
+Let's extend the previous example a litte bit and add a Controlled-Not gate from qubit 0 to qubit 1:
+```
+>>> from src.lib import state
+>>> from src.lib import ops
+>>> psi = state.bitstring(0, 0)
+>>> op = ops.Hadamard() * ops.Identity()
+>>> psi = op(psi)
+>>> psi = ops.Cnot(0, 1)(psi)
+>>> psi
+State([0.70710677+0.j 0.        +0.j 0.        +0.j 0.70710677+0.j])
+>>> psi.prob(0, 0)
+0.49999997
+>>> psi.prob(1, 0)
+0.0
+>>> psi.prob(0, 1)
+0.0
+>>> psi.prob(1, 1)
+0.49999997
+```
+We created the entangled Bell state `1/sqrt(2) [1 0 0 1]^T`!
+
+#### Conclusion
 This concludes this short quick start guide, I hope it was useful. Please let me know if you wanted to see other or additional content here (qcc4cp@gmail.com).
