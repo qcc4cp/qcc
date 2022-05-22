@@ -1,21 +1,25 @@
-# Quick Start Guide for "Quantum Computing for Programmers"
+# Quickstart Guide for "Quantum Computing for Programmers"
 
-This quick start guide may help you getting started on this
-code base by going through just a few core concepts and
+This quick start guide may help you getting started using this
+code base by going through a few core concepts and
 function calls.
 
 #### Setup
 This guide assumes you were successful in
-downloading the Python sources from github and installing the
-Python dependencies, such as `absl-py` and `numpy`. No need for `blaze` or
-compilation of the accelerated C++ routines. Make sure you 
+downloading the Python sources from github
+(`git clone https://github.com/qcc4cp/qcc.git))
+and installing the
+Python dependencies, such as `absl-py` and `numpy` (for example, with `sudo pip install absl-py`).
+
+You don't need `blaze` or
+compile the accelerated C++ routines for this guide, or most of the algorithms, for that matter. Make sure you 
 point Python to the sources by setting the enviroment
 variable `PYTHONPATH` to the root directory (`qcc`) of the sources.
-For example, Linux:
+For example, on Linux:
 ```
   export PYTHONPATH=/Users/rhundt/qcc
 ```
-Windows:
+On Windows:
 ```
   # cmd.exe
   set  PYTHONPATH = C:\Users\rhundt\qcc
@@ -24,10 +28,10 @@ Windows:
   $Env:PYTHONPATH = C:\users\rhundt\qcc
 ```
 
-Note that the main installation instruction use `blaze` to run the algorithms. This is strictly not necessary, you can run the algorithms individually just by invoking them on the Python command-line, such as:
+Note that the main installation instruction use `blaze` to run the algorithms. This is not strictly necessary, you can run the algorithms individually just by invoking them on the Python command-line, such as:
 ```
    $ cd qcc/src
-   $ python ./arith_classic.py   # or any of the other Python algorithms
+   $ python ./arith_classic.py   # and any of the other Python algorithms
    $ ...
 ```
    
