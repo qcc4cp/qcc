@@ -7,12 +7,12 @@ function calls.
 #### Setup
 This guide assumes you were successful in
 downloading the Python sources from github
-(`git clone https://github.com/qcc4cp/qcc.git))
+(`git clone https://github.com/qcc4cp/qcc.git`)
 and installing the
-Python dependencies, such as `absl-py` and `numpy` (for example, with `sudo pip install absl-py`).
+Python dependencies `absl-py` and `numpy` (for example, with `sudo pip install absl-py` and similar for `numpy`).
 
-You don't need `blaze` or
-compile the accelerated C++ routines for this guide, or most of the algorithms, for that matter. Make sure you 
+For this guide, you don't need `blaze` or
+compile the accelerated C++ routines. Make sure you 
 point Python to the sources by setting the enviroment
 variable `PYTHONPATH` to the root directory (`qcc`) of the sources.
 For example, on Linux:
