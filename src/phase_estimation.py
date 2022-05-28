@@ -6,6 +6,7 @@ from absl import app
 import numpy as np
 import scipy.stats
 
+from src.lib import helper
 from src.lib import ops
 from src.lib import state
 
@@ -42,7 +43,7 @@ def run_experiment(nbits: int, t: int = 8):
   eigvals, eigvecs = np.linalg.eig(umat)
   u = ops.Operator(umat)
 
-  # Pick eigenvalue at 'eigen_index'
+  # Pick single eigenvalue at 'eigen_index'
   # (any eigenvalue / eigenvector pair will work).
   eigen_index = 1
   phi = np.real(np.log(eigvals[eigen_index]) / (2j*np.pi))
@@ -50,13 +51,12 @@ def run_experiment(nbits: int, t: int = 8):
     phi += 1
 
   # Make state + circuit to estimate phi.
-  # Pick eigenvector 'eigen_index' to math the eigenvalue.
+  # Pick eigenvector 'eigen_index' to match the eigenvalue.
   psi = state.zeros(t) * state.State(eigvecs[:, eigen_index])
   psi = expo_u(psi, u, t)
   psi = ops.Qft(t).adjoint()(psi)
 
   # Find state with highest measurement probability and show results.
-  #
   maxbits, maxprob = psi.maxprob()
   phi_estimate = sum(maxbits[i] * 2**(-i-1) for i in range(t))
 
@@ -68,16 +68,87 @@ def run_experiment(nbits: int, t: int = 8):
     print('*** Warning: Delta is large')
 
 
+def run_experiment_multi(nbits: int, t: int = 8):
+  """Run single phase estimation experiment."""
+
+  # This code is very similar to the above version
+  # (which should be studied first).
+  #
+  # Above we initialized the eigenstate |u> with a
+  # single eigenvector.
+  #
+  # Here we initialize the eigenstate |u> as a state
+  # in superposition of multiple, equally weighted eigenvectors.
+  #
+  # This means that phase estimation should find multiple
+  # states with high probability, each serving as an
+  # estimate for one of the corresponding eigenvalues
+  # (as binary fractions). The code in this routine is hence 
+  # a generalization of the above routine.
+  
+  # Make a unitary and find eigenvalue/vector to estimate.
+  # We use functions from scipy for this purpose.
+  # This is identical to above.
+  umat = scipy.stats.unitary_group.rvs(2**nbits)
+  eigvals, eigvecs = np.linalg.eig(umat)
+  u = ops.Operator(umat)
+
+  # Collect all eigenvalues, not just the one at 'eigen_index'
+  # as above.
+  phi = []
+  for v in eigvals:
+    val = np.real(np.log(v) / (2j*np.pi))
+    if val < 0:
+      val += 1
+    phi.append(val)
+  phi = sorted(phi, key=float)
+
+  # Superposition is equally weighted.
+  fac = np.sqrt(1 / 2**nbits)
+
+  # Create a state as a superposition of all the
+  # eigenvectors, weighted by 'fac'.
+  psi = np.zeros(2**nbits, dtype=np.complex128)
+  for idx in range(2**nbits):
+    psi += fac * eigvecs[:, idx]
+
+  # Make state + circuit to estimate phi (similar to above).
+  psi = state.zeros(t) * state.State(psi)
+  psi = expo_u(psi, u, t)
+  psi = ops.Qft(t).adjoint()(psi)
+
+  # Find states with highest measurement probability and show results.
+  estimates = []
+  for bits in helper.bitprod(psi.nbits):
+    # The value of 0.05 is a good guestimate for the given
+    # values of 't' and 'nbits' (derived experimentally).
+    if psi.prob(*bits) < 0.05:
+       continue
+    phi_estimate = sum(bits[i] * 2**(-i-1) for i in range(t))
+    estimates.append(phi_estimate)
+  estimates = sorted(list(set(estimates)), key=float)
+
+  for i in range(len(phi)):
+    print(f'Phase : {phi[i]:.4f} ', end='')
+  print('')
+  for i in range(len(estimates)):
+      print(f'Estim : {estimates[i]:.4f} ', end='')
+  marker = 'Ok' if len(phi) == len(estimates) else ''
+  print(marker)
+
+
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  nbits = 3
-  t = 6
-  print('Estimating {} qubits random unitary eigenvalue '
-        .format(nbits) + 'with {} bits of accuracy.'.format(t))
+  nbits = 2
+  t = 7
+  print(f'Estimating {nbits} qubits random unitary eigenvalue '
+        + f'with {t} bits of accuracy.')
   for i in range(10):
     run_experiment(nbits, t)
+  for i in range(10):
+    run_experiment_multi(nbits, t)
 
 
 if __name__ == '__main__':
