@@ -83,9 +83,9 @@ def run_experiment_multi(nbits: int, t: int = 8):
   # This means that phase estimation should find multiple
   # states with high probability, each serving as an
   # estimate for one of the corresponding eigenvalues
-  # (as binary fractions). The code in this routine is hence 
+  # (as binary fractions). The code in this routine is hence
   # a generalization of the above routine.
-  
+
   # Make a unitary and find eigenvalue/vector to estimate.
   # We use functions from scipy for this purpose.
   # This is identical to above.
@@ -123,7 +123,7 @@ def run_experiment_multi(nbits: int, t: int = 8):
     # The value of 0.05 is a good guestimate for the given
     # values of 't' and 'nbits' (derived experimentally).
     if psi.prob(*bits) < 0.05:
-       continue
+      continue
     phi_estimate = sum(bits[i] * 2**(-i-1) for i in range(t))
     estimates.append(phi_estimate)
   estimates = sorted(list(set(estimates)), key=float)
@@ -132,7 +132,7 @@ def run_experiment_multi(nbits: int, t: int = 8):
     print(f'Phase : {phi[i]:.4f} ', end='')
   print('')
   for i in range(len(estimates)):
-      print(f'Estim : {estimates[i]:.4f} ', end='')
+    print(f'Estim : {estimates[i]:.4f} ', end='')
   marker = 'Ok' if len(phi) == len(estimates) else ''
   print(marker)
 
@@ -143,11 +143,11 @@ def main(argv):
 
   nbits = 2
   t = 7
-  print(f'Estimating {nbits} qubits random unitary eigenvalue '
-        + f'with {t} bits of accuracy.')
-  for i in range(10):
+  print(f'Estimating {nbits} qubits random unitary eigenvalue(s) ' +
+        f'with {t} bits of accuracy.')
+  for _ in range(10):
     run_experiment(nbits, t)
-  for i in range(10):
+  for _ in range(10):
     run_experiment_multi(nbits, t)
 
 
