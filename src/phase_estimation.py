@@ -12,17 +12,17 @@ from src.lib import state
 
 
 def expo_u(psi: state.State, u: ops.Operator, t: int) -> state.State:
-  """Exponentiate U."""
+  """Exponentiate U and control it from the t register."""
 
   # Unpack the binary fractions of the phase into the first t qubits.
   #
-  # t qubits
+  # 't' qubits
   # |0> - H -------------------- ... ----o --
   # |0> - H -----------------o-- ... --- | --
   # |0> - H ---------o-------|-- ... --- | --
   # |0> - H -o-------|-------|-- ... --- | --
   #          |       |       |           |
-  # nbits qubits     |       |           |
+  # 'nbits' qubits   |       |           |
   # |u> --- U^1 --- U^2 --- U^4 ... --- U^s^(t-1)
   #
   psi = ops.Hadamard(t)(psi)
@@ -39,24 +39,37 @@ def run_experiment(nbits: int, t: int = 8):
 
   # Make a unitary and find eigenvalue/vector to estimate.
   # We use functions from scipy for this purpose.
+  #
   umat = scipy.stats.unitary_group.rvs(2**nbits)
   eigvals, eigvecs = np.linalg.eig(umat)
   u = ops.Operator(umat)
 
+  # Eigenvalues will be of the form e^(2 i pi phi) and we want to
+  # determine that value of the factor 'phi'.
+  #
   # Pick single eigenvalue at 'eigen_index'
   # (any eigenvalue / eigenvector pair will work).
+  #
   eigen_index = 1
   phi = np.real(np.log(eigvals[eigen_index]) / (2j*np.pi))
   if phi < 0:
     phi += 1
 
-  # Make state + circuit to estimate phi.
+  #------------------------------------------
+  # Make state and circuit to estimate phi.
+  #------------------------------------------
+  
   # Pick eigenvector 'eigen_index' to match the eigenvalue.
+  # Combine the 't' register with a register wide enough to hold
+  # the unitary and construct contolled gates. Also apply
+  # inverse QFT.
+  #
   psi = state.zeros(t) * state.State(eigvecs[:, eigen_index])
   psi = expo_u(psi, u, t)
   psi = ops.Qft(t).adjoint()(psi)
 
   # Find state with highest measurement probability and show results.
+  #
   maxbits, maxprob = psi.maxprob()
   phi_estimate = sum(maxbits[i] * 2**(-i-1) for i in range(t))
 
@@ -84,17 +97,21 @@ def run_experiment_multi(nbits: int, t: int = 8):
   # states with high probability, each serving as an
   # estimate for one of the corresponding eigenvalues
   # (as binary fractions). The code in this routine is hence
-  # a generalization of the above routine.
+  # a generalization of the above routine. Note that probability
+  # is at play, sometimes this algorithm find 2 values that closely
+  # match an eigenvalue, which appars to mismatch the phi's and
+  # their eigenvalues. Visual inspection should be enough.
 
   # Make a unitary and find eigenvalue/vector to estimate.
-  # We use functions from scipy for this purpose.
   # This is identical to above.
+  #
   umat = scipy.stats.unitary_group.rvs(2**nbits)
   eigvals, eigvecs = np.linalg.eig(umat)
   u = ops.Operator(umat)
 
   # Collect all eigenvalues, not just the one at 'eigen_index'
   # as above.
+  #
   phi = []
   for v in eigvals:
     val = np.real(np.log(v) / (2j*np.pi))
@@ -103,31 +120,47 @@ def run_experiment_multi(nbits: int, t: int = 8):
     phi.append(val)
   phi = sorted(phi, key=float)
 
-  # Superposition is equally weighted.
+  # Superposition will be equally weighted (other probability
+  # distributions are possible, but not essential for this
+  # implementation).
+  #
   fac = np.sqrt(1 / 2**nbits)
 
   # Create a state as a superposition of all the
-  # eigenvectors, weighted by 'fac'.
+  # eigenvectors, equally weighted by 'fac'.
+  #
   psi = np.zeros(2**nbits, dtype=np.complex128)
   for idx in range(2**nbits):
     psi += fac * eigvecs[:, idx]
 
-  # Make state + circuit to estimate phi (similar to above).
+  # Make state and circuit to estimate phi (similar to above).
+  #
   psi = state.zeros(t) * state.State(psi)
   psi = expo_u(psi, u, t)
   psi = ops.Qft(t).adjoint()(psi)
 
-  # Find states with highest measurement probability and show results.
+  # Find states with highest measurement probabilities and show results.
+  # This should match in 'most' cases. A more sophisticated analysis to
+  # match estimates and phi's is possible, but not essential for our
+  # purposes here.
+  #
   estimates = []
   for bits in helper.bitprod(psi.nbits):
     # The value of 0.05 is a good guestimate for the given
     # values of 't' and 'nbits' (derived experimentally).
     if psi.prob(*bits) < 0.05:
       continue
+      
     phi_estimate = sum(bits[i] * 2**(-i-1) for i in range(t))
     estimates.append(phi_estimate)
+
+  # Sort and make unique the values in 'estimates'.
+  #
   estimates = sorted(list(set(estimates)), key=float)
 
+  # Finally, print the phi's and estimates. They will not
+  # always match perfectly.
+  #
   for i in range(len(phi)):
     print(f'Phase : {phi[i]:.4f} ', end='')
   print('')
