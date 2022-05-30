@@ -1,6 +1,8 @@
 # python3
 """Generators for various entangled states, eg., the Bell states."""
 
+import numpy as np
+
 from src.lib import ops
 from src.lib import state
 
@@ -29,4 +31,19 @@ def ghz_state(nbits: int) -> state.State:
   psi = ops.Hadamard()(psi)
   for offset in range(nbits-1):
     psi = ops.Cnot(0, 1)(psi, offset)
+  return psi
+
+
+def w_state() -> state.State:
+  """Make a 3-qubit W state)."""
+
+  # A W-state (named after Wolfgang Duerr (2002)) is this state:
+  #   1/sqrt(2)(|001> + |010> + |100>)
+  #
+  psi = state.zeros(3)
+  psi = ops.RotationY(2 * np.arccos(1 / np.sqrt(3)))(psi, 0)
+  psi = ops.ControlledU(0, 1, ops.Hadamard())(psi, 0)
+  psi = ops.Cnot(1, 2)(psi, 1)
+  psi = ops.Cnot(0, 1)(psi, 0)
+  psi = ops.PauliX()(psi, 0)
   return psi

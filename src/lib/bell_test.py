@@ -103,6 +103,11 @@ class BellTest(absltest.TestCase):
 
     self.assertTrue(np.allclose(bell_xz, bell_iy))
 
+  def test_w_state(self):
+    psi = bell.w_state()
+    self.assertTrue(psi.prob(0, 0, 1) > 0.3)
+    self.assertTrue(psi.prob(0, 1, 0) > 0.3)
+    self.assertTrue(psi.prob(1, 0, 0) > 0.3)    
 
 if __name__ == '__main__':
   absltest.main()
