@@ -35,13 +35,22 @@ def ghz_state(nbits: int) -> state.State:
 
 
 def w_state() -> state.State:
-  """Make a 3-qubit W state)."""
+  """Make a 4-qubit |W> state)."""
 
-  # A W-state (named after Wolfgang Duerr (2002)) is this state:
-  #   1/sqrt(2)(|001> + |010> + |100>)
+  # A 3-qubit |W> state (named after Wolfgang Duerr (2002)) is this state:
+  #   1/sqrt(3)(|001> + |010> + |100>)
+  #
+  # This construction follows https://en.wikipedia.org/wiki/W_state:
+  #
+  # |0> -- Ry(phi3) - o ------o - X --
+  #                   |       |
+  # |0> ------------- H - o - X ------
+  #                       |   
+  # |0> ----------------- X ----------
   #
   psi = state.zeros(3)
-  psi = ops.RotationY(2 * np.arccos(1 / np.sqrt(3)))(psi, 0)
+  phi3 = 2 * np.arccos(1 / np.sqrt(3))
+  psi = ops.RotationY(phi3)(psi, 0)
   psi = ops.ControlledU(0, 1, ops.Hadamard())(psi, 0)
   psi = ops.Cnot(1, 2)(psi, 1)
   psi = ops.Cnot(0, 1)(psi, 0)
