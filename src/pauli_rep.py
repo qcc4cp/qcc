@@ -46,7 +46,7 @@ def single_qubit():
     #
     new_rho = 0.5 * (i * ops.Identity() + x * ops.PauliX() +
                      y * ops.PauliY() + z * ops.PauliZ())
-    if not np.allclose(rho, new_rho):
+    if not np.allclose(rho, new_rho, atol=1e-06):
       raise AssertionError('Invalid Pauli Representation')
 
     print(f'qubit({qc.psi[0]:11.2f}, {qc.psi[1]:11.2f}) = ', end='')
@@ -97,7 +97,7 @@ def two_qubit():
         c[i][j] = np.trace(rho @ tprod)
 
     # To test whether the two qubits are entangled, the diagonal factors
-    # (without c[0][0]) are added up. If the sum is < 1.0, the qubit
+    # (without c[0][0]) are added up. If the sum is <= 1.0, the qubit
     # states are still seperable.
     #
     diag = np.abs(c[1][1]) + np.abs(c[2][2]) + np.abs(c[3][3])
