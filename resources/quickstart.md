@@ -11,7 +11,7 @@ downloading the Python sources from github
 and installing the
 Python dependencies `absl-py` and `numpy` (for example, with `sudo pip install absl-py` and similar for `numpy`).
 
-For this guide, you don't need `blaze` or
+For this guide, you don't need `bazel` or
 compile the accelerated C++ routines. Make sure you 
 point Python to the sources by setting the enviroment
 variable `PYTHONPATH` to the root directory (`qcc`) of the sources.
@@ -28,7 +28,7 @@ On Windows:
   $Env:PYTHONPATH = C:\users\rhundt\qcc
 ```
 
-Note that the main installation instruction use `blaze` to run the algorithms. This is not strictly necessary, you can run the algorithms individually just by invoking them on the Python command-line, such as:
+Note that the main installation instruction use `bazel` to run the algorithms. This is not strictly necessary, you can run the algorithms individually just by invoking them on the Python command-line, such as:
 ```
    $ cd qcc/src
    $ python ./arith_classic.py   # and any of the other Python algorithms
