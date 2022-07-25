@@ -215,3 +215,4 @@ Reach Robert at
 Colin Zhu, for pointing to coding problems.  
 Kevin Crook, Univ. of CA, Berkeley, for feedback and discussion of the Chinese Remainder Theorem.  
 [Moez A. AbdelGawad](http://eng.staff.alexu.edu.eg/~moez/), Alexandria University, Egypt, for suggesting Windows and SageMath ports.  
+Stefanie Scherzinger, Universitaet Passau, for corrections and suggesting Docker.
