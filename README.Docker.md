@@ -3,7 +3,7 @@
 If you can run docker in your environment, the setup is very simple. 
 It is all contained in the `Dockerfile`, which was gratefully provided by
 Abdolhamid Pourghazi (<pourgh01@ads.uni-passau.de>) and 
-Stefan Klessinger (<stefan.klessinger@uni-passau.de>, both from the 
+Stefan Klessinger (<stefan.klessinger@uni-passau.de>), both from the 
 University of Passau, Germany.
 
 From the main directory `qcc` (which is the directory that contains the `Dockerfile`), simply run:
