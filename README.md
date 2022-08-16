@@ -17,12 +17,12 @@ The code is organized as follows:
 There are several ways to get started on this code base:
 
 *   Instructions for a **Python-only**, minimal setup can be found [here](https://github.com/qcc4cp/qcc/blob/main/resources/quickstart.md#setup).
-*   If you have access to **Docker**, the corresponding simple instructions are [here](README.Docker.md)
-*   Manual installation on **Linux** (Debian / Ubuntu) are [here](README.Linux.md)
-*   For **MacOS**, see [README.MacOS.md](README.MacOS.md). 
-*   For **Windows** (partially supported), see [README.Windows.md](README.Windows.md). 
-*   For interactive **SageMath**, see [README.SageMath.md](README.SageMath.md). 
-*   **CentOS** is also supported (see [README.CentOS.md](README.CentOS.md)).
+*   If you have access to **Docker**, the corresponding simple instructions are [here](resources/README.Docker.md)
+*   Manual installation on **Linux** (Debian / Ubuntu) are [here](resources/README.Linux.md)
+*   For **MacOS**, see [README.MacOS.md](resource/README.MacOS.md). 
+*   For **Windows** (partially supported), see [README.Windows.md](resources/README.Windows.md). 
+*   For interactive **SageMath**, see [README.SageMath.md](resources/README.SageMath.md). 
+*   **CentOS** is also supported (see [README.CentOS.md](resources/README.CentOS.md)).
 
 
 ## Run
