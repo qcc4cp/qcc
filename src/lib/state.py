@@ -65,12 +65,23 @@ class State(tensor.Tensor):
   def maxprob(self) -> (List[float], float):
     """Find state with highest probability."""
 
-    maxbits, maxprob = [], 0.0
-    for bits in helper.bitprod(self.nbits):
-      cur_prob = self.prob(*bits)
-      if cur_prob > maxprob:
-        maxbits, maxprob = bits, cur_prob
+    # This is the as described in the book, which is good
+    # for learning:
+    # maxbits, maxprob = [], 0.0
+    # for bits in helper.bitprod(self.nbits):
+    #   cur_prob = self.prob(*bits)
+    #   if cur_prob > maxprob:
+    #     maxbits, maxprob = bits, cur_prob
+
+    # However, we can do a lot faster. We just iterate
+    # over the state vector, find the index of the maximum
+    # amplitude with a numpy function, and return the probability
+    # and the index as a bitstring.
+    idx = np.argmax(self)
+    maxprob = np.real(self[idx].conj() * self[idx])
+    maxbits = helper.val2bits(idx, self.nbits)
     return maxbits, maxprob
+
 
   # The Schmidt number is an entanglement measure for a state.
   #
