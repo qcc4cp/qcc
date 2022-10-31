@@ -173,6 +173,16 @@ py_binary(
 )
 
 py_binary(
+    name = "sat3",
+    srcs = ["sat3.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)
+
+py_binary(
     name = "shor_classic",
     srcs = ["shor_classic.py"],
     python_version = "PY3",
