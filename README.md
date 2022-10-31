@@ -48,6 +48,7 @@ To run individual algorithms via `bazel`, run any of these command lines (note t
    bazel run phase_kick
    bazel run quantum_walk
    bazel run shor_classic
+   bazel run sat3
    bazel run simon
    bazel run simon_general
    bazel run solovay_kitaev
