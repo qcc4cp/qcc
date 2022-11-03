@@ -6,6 +6,7 @@ import math
 from absl import app
 import numpy as np
 
+from src.lib import circuit
 from src.lib import helper
 from src.lib import ops
 from src.lib import state
@@ -20,7 +21,7 @@ def make_f1(d: int = 3):
   """Construct function that will return 1 for only one bit string."""
 
   num_inputs = 2**d
-  answers = np.zeros(num_inputs, dtype=np.int32)
+  answers = np.zeros(num_inputs, dtype=np.int8)
   answer_true = np.random.randint(0, num_inputs)
 
   answers[answer_true] = 1
@@ -36,7 +37,7 @@ def make_f(d: int = 3, solutions: int = 1):
   """Construct function that will return 1 for 'solutions' bits."""
 
   num_inputs = 2**d
-  answers = np.zeros(num_inputs, dtype=np.int32)
+  answers = np.zeros(num_inputs, dtype=np.int8)
 
   for _ in range(solutions):
     idx = np.random.randint(0, num_inputs - 1)
@@ -57,7 +58,7 @@ def make_f(d: int = 3, solutions: int = 1):
 
 
 def run_experiment(nbits, solutions) -> None:
-  """Run full experiment for a given flavor of f()."""
+  """Run oracle-based experiment."""
 
   # Note that op_zero multiplies the diagonal elements of the operator by -1,
   # except for element [0][0]. This can be interpreted as "rotating around
@@ -145,10 +146,56 @@ def run_experiment(nbits, solutions) -> None:
     raise AssertionError('something went wrong, measured invalid state')
 
 
+def run_experiment_circuit(nbits, solutions) -> None:
+  """Run circuit-based experiment."""
+
+  def multi(qc: circuit.qc, gate: ops.Operator, fr: int, to: int):
+    for i in range(fr, to):
+      qc.apply1(gate, i, "multi")
+
+  def multi_masked(qc:circuit.qc, gate: ops.Operator, fr: int, to: int,
+                   mask, allow: int):
+    for i in range(fr, to):
+      if mask[i] == allow:
+        qc.apply1(gate, i, "multi-mask")
+
+  # For reference, oracle based progression.
+  #
+  zero_projector = np.zeros((2**nbits, 2**nbits))
+  zero_projector[0, 0] = 1
+  op_zero = ops.Operator(zero_projector)
+  f = make_f(nbits, 1)
+  uf = ops.OracleUf(nbits+1, f)
+
+  # Build state with 1 ancilla of |1>.
+  psi = state.zeros(nbits) * state.ones(1)
+  for i in range(nbits + 1):
+    psi.apply1(ops.Hadamard(), i)
+  psi2 = uf(psi)
+
+  # Start of circuit-based progression.
+  #
+  qc = circuit.qc('Grover')
+  reg = qc.reg(nbits, 0)
+  y   = qc.reg(1, 1)
+  aux = qc.reg(nbits-1, 0)
+
+  multi(qc, ops.Hadamard(), 0, nbits + 1)
+  bits = helper.val2bits(5, nbits)
+  ps2_save = qc.psi.copy()
+
+  multi_masked(qc, ops.PauliX(), 0, len(bits), bits, 0)
+  qc.multi_control(reg, nbits, aux, ops.PauliX(), 'Multi-X')
+  multi_masked(qc, ops.PauliX(), 0, len(bits), bits, 0)
+  qc.psi.diff(ps2_save)
+
+
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
+  run_experiment_circuit(3, 1)
+  
   for nbits in range(3, 8):
     run_experiment(nbits, 1)
 
