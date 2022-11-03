@@ -146,16 +146,16 @@ def run_experiment(nbits, solutions) -> None:
     raise AssertionError('something went wrong, measured invalid state')
 
 
-def run_experiment_circuit(nbits, solutions) -> None:
+def run_experiment_circuit(nbits) -> None:
   """Run circuit-based experiment."""
 
-  def multi(qc: circuit.qc, gate: ops.Operator, fr: int, to: int):
-    for i in range(fr, to):
+  def multi(qc: circuit.qc, gate: ops.Operator, idx: list[int]):
+    for i in idx:
       qc.apply1(gate, i, 'multi')
 
-  def multi_masked(qc: circuit.qc, gate: ops.Operator, fr: int, to: int,
+  def multi_masked(qc: circuit.qc, gate: ops.Operator, idx: list[int],
                    mask, allow: int):
-    for i in range(fr, to):
+    for i in idx:
       if mask[i] == allow:
         qc.apply1(gate, i, 'multi-mask')
 
@@ -172,28 +172,30 @@ def run_experiment_circuit(nbits, solutions) -> None:
   aux = qc.reg(nbits-1, 0)
   f, bits = make_f1(nbits)
 
-  multi(qc, ops.Hadamard(), 0, nbits + 1)
+  multi(qc, ops.Hadamard(), [i for i in range(nbits + 1)])
 
-  iterations = int(math.pi / 4 * math.sqrt(2**nbits / solutions))
+  iterations = int(math.pi / 4 * math.sqrt(2**nbits))
   for _ in range(iterations):
     # Phase Inversion
-    multi_masked(qc, ops.PauliX(), 0, len(bits), bits, 0)
+    idx = [i for i in range(len(bits))]
+    multi_masked(qc, ops.PauliX(), idx, bits, 0)
     qc.multi_control(reg, nbits, aux, ops.PauliX(), 'Phase Inversion')
-    multi_masked(qc, ops.PauliX(), 0, len(bits), bits, 0)
+    multi_masked(qc, ops.PauliX(), idx, bits, 0)
 
     # Mean Inversion
-    multi(qc, ops.Hadamard(), 0, nbits)
-    multi(qc, ops.PauliX(), 0, nbits)
+    idx = [i for i in range(nbits)]
+    multi(qc, ops.Hadamard(), idx)
+    multi(qc, ops.PauliX(), idx)
     qc.multi_control(reg, nbits, aux, ops.PauliZ(), 'Mean Inversion')
-    multi(qc, ops.PauliX(), 0, nbits)
-    multi(qc, ops.Hadamard(), 0, nbits)
+    multi(qc, ops.PauliX(), idx)
+    multi(qc, ops.Hadamard(), idx)
 
   print(qc.stats(), end='')
   qc.run()
   maxbits, maxprob = qc.psi.maxprob()
   result = f(maxbits[:nbits])
-  print('Circuit: Got f({}) = {}, want: 1, #: {:2d}, p: {:6.4f}'
-        .format(maxbits[:nbits], result, solutions, maxprob))
+  print('Circuit: Got f({}) = {}, want: 1, p: {:6.4f}'
+        .format(maxbits[:nbits], result, maxprob))
   if result != 1:
     raise AssertionError('something went wrong, measured invalid state')
 
@@ -205,7 +207,7 @@ def main(argv):
   for nbits in range(3, 10):
     run_experiment(nbits, 1)
   for nbits in range(9, 10):
-    run_experiment_circuit(nbits, 1)
+    run_experiment_circuit(nbits)
   for solutions in range(1, 9):
     run_experiment(7, solutions)
 
