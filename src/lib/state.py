@@ -62,6 +62,15 @@ class State(tensor.Tensor):
     amplitude = self.ampl(*bits)
     return math.degrees(cmath.phase(amplitude))
 
+  def diff(self, psi):
+    "Print element-wise differences to another state."""
+
+    for i in range(len(self)):
+      if self[i] != psi[i]:
+        print(f'State{helper.val2bits(i, self.nbits)} (|{i}>) differs:',
+              end='')
+        print(f'{self[i]:+.3f}  {psi[i]:+.3f}')
+
   def maxprob(self) -> (List[float], float):
     """Find state with highest probability."""
 
@@ -277,6 +286,10 @@ class Reg():
 
   def psi(self) -> State:
     return bitstring(*self.val)
+
+  @property
+  def reg(self):
+    return self.global_idx
 
   @property
   def nbits(self) -> int:
