@@ -30,7 +30,7 @@ def make_f1(d: int = 3):
   def func(*bits) -> int:
     return answers[helper.bits2val(*bits)]
 
-  return func
+  return func, helper.val2bits(answer_true, d)
 
 
 def make_f(d: int = 3, solutions: int = 1):
@@ -140,7 +140,7 @@ def run_experiment(nbits, solutions) -> None:
   #
   maxbits, maxprob = psi.maxprob()
   result = f(maxbits[:-1])
-  print('Got f({}) = {}, want: 1, #: {:2d}, p: {:6.4f}'
+  print('Matrix : Got f({}) = {}, want: 1, #: {:2d}, p: {:6.4f}'
         .format(maxbits[:-1], result, solutions, maxprob))
   if result != 1:
     raise AssertionError('something went wrong, measured invalid state')
@@ -151,54 +151,61 @@ def run_experiment_circuit(nbits, solutions) -> None:
 
   def multi(qc: circuit.qc, gate: ops.Operator, fr: int, to: int):
     for i in range(fr, to):
-      qc.apply1(gate, i, "multi")
+      qc.apply1(gate, i, 'multi')
 
-  def multi_masked(qc:circuit.qc, gate: ops.Operator, fr: int, to: int,
+  def multi_masked(qc: circuit.qc, gate: ops.Operator, fr: int, to: int,
                    mask, allow: int):
     for i in range(fr, to):
       if mask[i] == allow:
-        qc.apply1(gate, i, "multi-mask")
+        qc.apply1(gate, i, 'multi-mask')
 
-  # For reference, oracle based progression.
+  # This implementation uses the 'trivial' multi-controlled gates,
+  # which introduce _a lot_ of ancilla gates. As a result, there
+  # are practically no benefits over the matrix-based implementation.
+  # Once an optimized multi-controlled implementation is available,
+  # then the circuit-based performance for many qubits will do
+  # much better!.
   #
-  zero_projector = np.zeros((2**nbits, 2**nbits))
-  zero_projector[0, 0] = 1
-  op_zero = ops.Operator(zero_projector)
-  f = make_f(nbits, 1)
-  uf = ops.OracleUf(nbits+1, f)
-
-  # Build state with 1 ancilla of |1>.
-  psi = state.zeros(nbits) * state.ones(1)
-  for i in range(nbits + 1):
-    psi.apply1(ops.Hadamard(), i)
-  psi2 = uf(psi)
-
-  # Start of circuit-based progression.
-  #
-  qc = circuit.qc('Grover')
+  qc = circuit.qc('Grover', eager=False)
   reg = qc.reg(nbits, 0)
-  y   = qc.reg(1, 1)
+  qc.reg(1, 1)
   aux = qc.reg(nbits-1, 0)
+  f, bits = make_f1(nbits)
 
   multi(qc, ops.Hadamard(), 0, nbits + 1)
-  bits = helper.val2bits(5, nbits)
-  ps2_save = qc.psi.copy()
 
-  multi_masked(qc, ops.PauliX(), 0, len(bits), bits, 0)
-  qc.multi_control(reg, nbits, aux, ops.PauliX(), 'Multi-X')
-  multi_masked(qc, ops.PauliX(), 0, len(bits), bits, 0)
-  qc.psi.diff(ps2_save)
+  iterations = int(math.pi / 4 * math.sqrt(2**nbits / solutions))
+  for _ in range(iterations):
+    # Phase Inversion
+    multi_masked(qc, ops.PauliX(), 0, len(bits), bits, 0)
+    qc.multi_control(reg, nbits, aux, ops.PauliX(), 'Phase Inversion')
+    multi_masked(qc, ops.PauliX(), 0, len(bits), bits, 0)
+
+    # Mean Inversion
+    multi(qc, ops.Hadamard(), 0, nbits)
+    multi(qc, ops.PauliX(), 0, nbits)
+    qc.multi_control(reg, nbits, aux, ops.PauliZ(), 'Mean Inversion')
+    multi(qc, ops.PauliX(), 0, nbits)
+    multi(qc, ops.Hadamard(), 0, nbits)
+
+  print(qc.stats(), end='')
+  qc.run()
+  maxbits, maxprob = qc.psi.maxprob()
+  result = f(maxbits[:nbits])
+  print('Circuit: Got f({}) = {}, want: 1, #: {:2d}, p: {:6.4f}'
+        .format(maxbits[:nbits], result, solutions, maxprob))
+  if result != 1:
+    raise AssertionError('something went wrong, measured invalid state')
 
 
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  run_experiment_circuit(3, 1)
-  
-  for nbits in range(3, 8):
+  for nbits in range(3, 10):
     run_experiment(nbits, 1)
-
+  for nbits in range(9, 10):
+    run_experiment_circuit(nbits, 1)
   for solutions in range(1, 9):
     run_experiment(7, solutions)
 
