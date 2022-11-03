@@ -363,8 +363,8 @@ class qc:
   def multi_control(self, ctl, idx1, aux, gate, desc: str):
     """Multi-controlled gate, using aux as ancilla."""
 
-    # This is a simpler version that requires n-1 ancillaries, instead
-    # of n-2. The benefit is that the gate can be used as a
+    # This is a simple version that requires n-1 ancillaries, instead
+    # of possibly n-2. The benefit is that the gate can be used as a
     # single-controlled gate, which means we don't need to take the
     # root (no need to include scipy). This construction also makes
     # the controlled-by-0 gates a little bit easier, those controllers
@@ -384,6 +384,8 @@ class qc:
       if not ctl:
         self.apply1(gate, idx1, desc)
         return
+      if type(ctl) == state.Reg:
+        ctl = ctl.reg
       if len(ctl) == 1:
         self.applyc(gate, ctl[0], idx1, desc)
         return
