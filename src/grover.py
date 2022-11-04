@@ -149,11 +149,11 @@ def run_experiment(nbits, solutions) -> None:
 def run_experiment_circuit(nbits) -> None:
   """Run circuit-based experiment."""
 
-  def multi(qc: circuit.qc, gate: ops.Operator, idx: list[int]):
+  def multi(qc: circuit.qc, gate: ops.Operator, idx: list):
     for i in idx:
       qc.apply1(gate, i, 'multi')
 
-  def multi_masked(qc: circuit.qc, gate: ops.Operator, idx: list[int],
+  def multi_masked(qc: circuit.qc, gate: ops.Operator, idx: list,
                    mask, allow: int):
     for i in idx:
       if mask[i] == allow:
@@ -175,15 +175,15 @@ def run_experiment_circuit(nbits) -> None:
   multi(qc, ops.Hadamard(), [i for i in range(nbits + 1)])
 
   iterations = int(math.pi / 4 * math.sqrt(2**nbits))
+  idx = [i for i in range(nbits)]
+
   for _ in range(iterations):
     # Phase Inversion
-    idx = [i for i in range(len(bits))]
     multi_masked(qc, ops.PauliX(), idx, bits, 0)
     qc.multi_control(reg, nbits, aux, ops.PauliX(), 'Phase Inversion')
     multi_masked(qc, ops.PauliX(), idx, bits, 0)
 
     # Mean Inversion
-    idx = [i for i in range(nbits)]
     multi(qc, ops.Hadamard(), idx)
     multi(qc, ops.PauliX(), idx)
     qc.multi_control(reg, nbits, aux, ops.PauliZ(), 'Mean Inversion')
@@ -206,7 +206,7 @@ def main(argv):
 
   for nbits in range(3, 10):
     run_experiment(nbits, 1)
-  for nbits in range(9, 10):
+  for nbits in range(8, 10):
     run_experiment_circuit(nbits)
   for solutions in range(1, 9):
     run_experiment(7, solutions)
