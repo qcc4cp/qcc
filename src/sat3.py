@@ -2,10 +2,16 @@
 """Example: 3-Sat solver via Grover's Algorithm."""
 
 import itertools
+import math
 import random
 
 from absl import app
+import numpy as np
+
 from src.lib import circuit
+from src.lib import helper
+from src.lib import state
+from src.lib import ops
 
 
 # ! ! ! This is Work In Progress (WIP) and not complete yet. ! ! !
@@ -176,12 +182,12 @@ def make_cnf_circuit(variables: int, clauses: int, formula):
 
 
 def num_qubits(variables: int, clauses: int) -> int:
-  """Compute the number of gates needed for the circuit."""
+  """Compute the number of gates needed for the inner circuit."""
 
   # An OR gate is a toffoli gate with all inputs [X]'ed.
-  # Hence each OR needs 1 ancillary.
-  # There are variables - 1 OR's per clause.
-  # Similar for AND, which also needs 1 ancillary.
+  # Each OR needs 1 ancillary.
+  # There are 3 variables - 2 OR's per clause.
+  # Clauses are connected with AND, which also needs 1 ancillary.
   qubits = variables + clauses * (variables - 1) + (clauses - 1)
   return qubits
 
@@ -196,7 +202,140 @@ def make_full_circuit(qubits: int, bits, qc_inner):
     if bits[b] == 1:
       qc.x(b)
   qc.qc(qc_inner)
+
+  # Let's add a final X-gate to reverse the output.
+  # (There are more true's than false's with low numbers
+  # of clauses)
+  qc.x(qc.nbits - 1)
   return qc
+
+
+def make_f(variables: int, formula):
+  """Construct function that evaluates formula."""
+
+  # This is the simplest approach where we construct
+  # an operator. However, this construction requires
+  # that we evaluate the formula for each input, so
+  # we don't gain anything. Nevertheless, let's use this
+  # to first prove out that Grover would work on this
+  # kind of input function (of course it does!).
+  #
+  num_inputs = 1 << variables
+  answers = np.zeros(num_inputs, dtype=np.int8)
+  # answer_true = np.random.randint(0, num_inputs)
+
+  for bits in itertools.product([0, 1], repeat=variables):
+    res = eval_formula(bits, formula)
+    # Note: We negate the result, as for small numbers
+    # of clauses there are more positives than negatives.
+    #
+    answers[helper.bits2val(bits)] = not res
+
+  # pylint: disable=no-value-for-parameter
+  def func(*bits) -> int:
+    return answers[helper.bits2val(*bits)]
+
+  return func
+
+
+def find_solutions(variables: int, formula):
+  """Find number of (negative) solutions."""
+
+  solutions = []
+  for bits in itertools.product([0, 1], repeat=variables):
+    res = eval_formula(bits, formula)
+
+    # Note again the negation here.
+    if not res:
+      solutions.append(bits)
+  return solutions
+
+
+def grover_with_oracle(variables: int, clauses: int, solutions: int):
+  """Oracle-based Grover."""
+
+  formula = make_formula(variables, clauses)
+
+  nbits = variables
+  f = make_f(variables, formula)
+  uf = ops.OracleUf(nbits+1, f)
+
+  zero_projector = np.zeros((2**nbits, 2**nbits))
+  zero_projector[0, 0] = 1
+  op_zero = ops.Operator(zero_projector)
+
+  psi = state.zeros(nbits) * state.ones(1)
+  for i in range(nbits + 1):
+    psi.apply1(ops.Hadamard(), i)
+
+  hn = ops.Hadamard(nbits)
+  reflection = op_zero * 2.0 - ops.Identity(nbits)
+  inversion = hn(reflection(hn)) * ops.Identity()
+  grover = inversion(uf)
+
+  iterations = int(math.pi / 4 * math.sqrt(2**nbits / solutions))
+  for _ in range(iterations):
+    psi = grover(psi)
+
+  maxbits, maxprob = psi.maxprob()
+  result = f(maxbits[:-1])
+  print('Got f({}) = {}, want: 1, #: {:2d}, p: {:6.4f}'
+        .format(maxbits[:-1], result, solutions, maxprob))
+  if result != 1:
+    raise AssertionError('Wrong result in Grover.')
+
+
+def grover_with_circuit(variables: int, clauses: int):
+  """Oracle-based Grover."""
+
+  def multi(qc: circuit.qc, gate: ops.Operator, idx: list):
+    for i in idx:
+      qc.apply1(gate, i, 'multi')
+
+  def multi_masked(qc: circuit.qc, gate: ops.Operator, idx: list,
+                   mask, allow: int):
+    for i in idx:
+      if mask[i] == allow:
+        qc.apply1(gate, i, 'multi-mask')
+
+  formula = make_formula(variables, clauses)
+  solutions = find_solutions(variables, formula)
+  print('Solutions', solutions)
+
+  nbits = num_qubits(variables, clauses)
+  qc_inner = make_cnf_circuit(variables, clauses, formula)
+
+  qc = circuit.qc('Outer', eager=False)
+  qc.reg(nbits, 0)
+  qc.reg(1, 1)
+  aux = qc.reg(nbits - 1, 0)
+  iterations = int(math.pi / 4 * math.sqrt(2**nbits))
+
+  multi(qc, ops.Hadamard(), [i for i in range(nbits + 1)])
+  print('nbits', nbits, 'iterations', iterations)
+
+  for i in range(iterations):
+    qc.qc(qc_inner)
+    qc.x(qc.nbits - 1)
+
+    idx = [i for i in range(nbits)]
+    idx = [nbits - 1]
+
+    # Phase Inversion
+    qc.multi_control([nbits - 1], nbits,
+                     aux, ops.PauliX(), 'Phase Inversion')
+
+    # Mean Inversion
+    multi(qc, ops.Hadamard(), idx)
+    multi(qc, ops.PauliX(), idx)
+    qc.multi_control(idx, nbits, aux, ops.PauliZ(), 'Mean Inversion')
+    multi(qc, ops.PauliX(), idx)
+    multi(qc, ops.Hadamard(), idx)
+
+  qc.run()
+  # qc.psi.dump()
+  maxbits, maxprob = qc.psi.maxprob()
+  print('->', formula, maxbits[:3], maxprob)
 
 
 def run_tests(variables: int, clauses: int) -> None:
@@ -216,8 +355,10 @@ def run_tests(variables: int, clauses: int) -> None:
 
     # Note that 0/1 and 1/0 have the opposite meaning in
     # Classic vs Quantum. This measurement would assert
-    # if an unexpected results appeared.
-    tostate = 1 if res == TRUE else 0
+    # if an unexpected results appeared. We added an
+    # X-gate above to map classical 0 to quantum |0>.
+    #
+    tostate = 0 if res == TRUE else 1
     prob = qc.measure_bit_iterative(qc_inner.nbits-1, tostate)
     if prob < 0.99:
       raise AssertionError('Incorrect result.')
@@ -231,11 +372,25 @@ def main(argv):
     raise app.UsageError('Too many command-line arguments.')
 
   print('Quantum 3-SAT Solver. WIP, Not complete yet!')
-  for _ in range(5):
+
+  grover_with_circuit(3, 1)
+  return
+
+  # Oracle-based.
+  for _ in range(2):
+    grover_with_oracle(3, 1, 1)
+    grover_with_oracle(3, 2, 1)
+    grover_with_oracle(3, 3, 1)
+
+  # Construct and check quantum circuits.
+  for _ in range(2):
     run_tests(3, 1)
     run_tests(3, 2)
     run_tests(3, 3)
     run_tests(3, 4)
+
+  # Now with full circuit construction.
+  # TODO(rhundt)
 
 
 if __name__ == '__main__':
