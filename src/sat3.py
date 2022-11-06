@@ -238,7 +238,7 @@ def test_2sat_1():
   # Execute this subcircuit.
   qc.qc(cc)
 
-  # w1 and w2 -> checker.
+  # not w1 and w2 -> checker.
   cc.x(w1)
   cc.toffoli(w1, w2, chk)
   cc.x(w1)
@@ -317,6 +317,9 @@ def grover_with_circuit_3_1():
   # Construct the circuit.
   for iter in range(iterations):
     cc = circuit.qc('Gates', eager=False)
+
+    # First we negate each literal if it was not already negated.
+    #
     if clause[0] == 1:
       cc.x(x)
       cc.cx(x, ancx)
@@ -335,16 +338,20 @@ def grover_with_circuit_3_1():
       cc.x(z)
     else:
       cc.cx(z, ancz)
+
+    # Next we compute the AND between the (possibly negated)
+    # literals:
+    #
     cc.toffoli(ancx, ancy, w0)
     cc.toffoli(ancz, w0, w1)
 
-    # Add sub=circuit.
+    # Add and execute the sub-circuit.
     qc.qc(cc)
 
-    # Phase inversion.
+    # Phase inversion - connect the result to the chk qubit.
     qc.cx(w1, chk)
 
-    # Uncompute.
+    # Uncompute the sub-circuit.
     qc.qc(cc.inverse())
 
     # Mean inversion.
