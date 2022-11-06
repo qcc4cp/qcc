@@ -14,8 +14,6 @@ from src.lib import state
 from src.lib import ops
 
 
-# ! ! ! This is Work In Progress (WIP) and not complete yet. ! ! !
-#
 # 3-Sat Satisfyability Decision Problem:
 #
 # Given a Boolean formula in Conjunctive Normal Form (CNF), does
@@ -42,6 +40,9 @@ from src.lib import ops
 #
 # The idea here is - can we use Grover's algorithm to find a positive
 # solution in sqrt(N) time.
+
+# For the solution using circuits, we ONLY evaluate a single clause.
+# This can be extended quite easily, of course.
 
 # In C/C++, a return value of 0 is considered False. However,
 # in Quantum computing, states are initialized as |0> and
@@ -96,8 +97,9 @@ def eval_formula(bits, clauses: int):
 def make_clause(variables: int):
   """Make an individual clause from 'variables' variables."""
 
-  # Here, clauses are just lists of int's, position in the list
-  # indicates the corresponding variable to use.
+  # Here, clauses are just lists of int's. Position in the list
+  # indicates the corresponding variable to use (x0, x1, ...).
+  #
   # We represent negation as int 0, unmodified as int 1.
   #   Ex: A list of [1 0 1] corresponds to (x0 or -x1 or x2)
   #
@@ -116,100 +118,6 @@ def make_formula(variables: int, clauses: int):
   return formula
 
 
-def make_or(qc, op0, op1, ancillary):
-  """Make a single OR gate (ancillary initialized as |0>)."""
-
-  # print(f'OR  from {op0} or {op1} -> {ancillary}')
-  qc.x(op0)
-  qc.x(op1)
-  qc.x(ancillary)
-  qc.toffoli(op0, op1, ancillary)
-  qc.x(op1)
-  qc.x(op0)
-
-
-def make_and(qc, op0, op1, ancillary):
-  """Make a single AND gate (ancillary initialized as |0>)."""
-
-  # print(f'AND from {op0} to {op1} -> {ancillary}')
-  qc.toffoli(op0, op1, ancillary)
-
-
-def make_cnf_circuit(variables: int, clauses: int, formula):
-  """Make the 'inside' of the CFG formula."""
-
-  qubits = num_qubits(variables, clauses)
-  print(f'Making {qubits:2d}-qubits circuit for: {print_formula(formula)}')
-
-  qc = circuit.qc('3SAT Inner', eager=False)
-  qc.reg(qubits)
-
-  # First create all the OR's for each clause.
-  anc = variables
-  for cidx in range(len(formula)):
-    clause = formula[cidx]
-
-    # Negate gates, if necessary.
-    for i in range(len(clause)):
-      if clause[i] == FALSE:
-        qc.x(i)
-
-    # TODO(rhundt): Generalize for more than 3 variables.
-    make_or(qc, 0, 1, anc)
-    make_or(qc, 2, anc, anc + 1)
-    anc += 2
-
-    # Undo the negation, if necessary.
-    for i in range(len(clause)):
-      if clause[i] == FALSE:
-        qc.x(i)
-
-  # Now add the connecting AND gates.
-  if len(formula) > 1:
-    base = variables + 1
-    make_and(qc, base, base+2, anc)
-    base += 4
-
-    for cidx in range(1, len(formula) - 1):
-      make_and(qc, base, anc, anc+1)
-      base += 2
-      anc += 1
-  else:
-    # If there is no AND gate, we have to correct the last ancilla by 1.
-    anc -= 1
-
-  return qc
-
-
-def num_qubits(variables: int, clauses: int) -> int:
-  """Compute the number of gates needed for the inner circuit."""
-
-  # An OR gate is a toffoli gate with all inputs [X]'ed.
-  # Each OR needs 1 ancillary.
-  # There are 3 variables - 2 OR's per clause.
-  # Clauses are connected with AND, which also needs 1 ancillary.
-  qubits = variables + clauses * (variables - 1) + (clauses - 1)
-  return qubits
-
-
-def make_full_circuit(qubits: int, bits, qc_inner):
-  """Make the full circuit, connect input bits."""
-
-  # Quantum Evaluation.
-  qc = circuit.qc('Outer', eager=False)
-  qc.reg(qubits, 0)
-  for b in range(len(bits)):
-    if bits[b] == 1:
-      qc.x(b)
-  qc.qc(qc_inner)
-
-  # Let's add a final X-gate to reverse the output.
-  # (There are more true's than false's with low numbers
-  # of clauses)
-  qc.x(qc.nbits - 1)
-  return qc
-
-
 def make_f(variables: int, formula):
   """Construct function that evaluates formula."""
 
@@ -222,7 +130,6 @@ def make_f(variables: int, formula):
   #
   num_inputs = 1 << variables
   answers = np.zeros(num_inputs, dtype=np.int8)
-  # answer_true = np.random.randint(0, num_inputs)
 
   for bits in itertools.product([0, 1], repeat=variables):
     res = eval_formula(bits, formula)
@@ -279,102 +186,185 @@ def grover_with_oracle(variables: int, clauses: int, solutions: int):
 
   maxbits, maxprob = psi.maxprob()
   result = f(maxbits[:-1])
-  print('Got f({}) = {}, want: 1, #: {:2d}, p: {:6.4f}'
+  print('Oracle: Got f({}) = {}, want: 1, #: {:2d}, p: {:6.4f}'
         .format(maxbits[:-1], result, solutions, maxprob))
   if result != 1:
     raise AssertionError('Wrong result in Grover.')
 
 
-def grover_with_circuit(variables: int, clauses: int):
-  """Oracle-based Grover."""
+def diffuser(qc: circuit.qc, reg, checker, aux):
+  """Simple diffuser gate. Input qubits are in a register."""
 
-  def multi(qc: circuit.qc, gate: ops.Operator, idx: list):
-    for i in idx:
-      qc.apply1(gate, i, 'multi')
+  qc.h(reg)
+  qc.x(reg)
+  qc.multi_control(reg, checker,
+                   aux, ops.PauliX(), 'Diffuser Gate')
+  qc.x(reg)
+  qc.h(reg)
 
-  def multi_masked(qc: circuit.qc, gate: ops.Operator, idx: list,
-                   mask, allow: int):
-    for i in idx:
-      if mask[i] == allow:
-        qc.apply1(gate, i, 'multi-mask')
 
-  formula = make_formula(variables, clauses)
-  solutions = find_solutions(variables, formula)
-  print('Solutions', solutions)
+def test_2sat_1():
+  """Test (x or y) and not y."""
 
-  nbits = num_qubits(variables, clauses)
-  qc_inner = make_cnf_circuit(variables, clauses, formula)
+  # Note: De Morgan allows us to rewrite this as:
+  #       not (not x and not y) and not y.
+  #
+  qc = circuit.qc('2Sat Circuit')
 
-  qc = circuit.qc('Outer', eager=False)
-  qc.reg(nbits, 0)
-  qc.reg(1, 1)
-  aux = qc.reg(nbits - 1, 0)
-  iterations = int(math.pi / 4 * math.sqrt(2**nbits))
+  reg = qc.reg(2, 0)
+  x = reg[0]
+  y = reg[1]
+  w1 = qc.reg(1, 0)[0]
+  w2 = qc.reg(1, 0)[0]
+  chk = qc.reg(1, 0)[0]
+  aux = qc.reg(1, 0)
 
-  multi(qc, ops.Hadamard(), [i for i in range(nbits + 1)])
-  print('nbits', nbits, 'iterations', iterations)
+  # Equal superposition of inputs.
+  qc.h(reg)
 
-  for i in range(iterations):
-    qc.qc(qc_inner)
-    qc.x(qc.nbits - 1)
+  # Make a subcircuit.
+  cc = circuit.qc('Gates', eager=False)
 
-    idx = [i for i in range(nbits)]
-    idx = [nbits - 1]
+  # not x and not y -> w1.
+  cc.x(reg)
+  cc.toffoli(x, y, w1)
+  cc.x(reg)
 
-    # Phase Inversion
-    qc.multi_control([nbits - 1], nbits,
-                     aux, ops.PauliX(), 'Phase Inversion')
+  # not y -> w2.
+  cc.x(y)
+  cc.cx(y, w2)
+  cc.x(y)
 
-    # Mean Inversion
-    multi(qc, ops.Hadamard(), idx)
-    multi(qc, ops.PauliX(), idx)
-    qc.multi_control(idx, nbits, aux, ops.PauliZ(), 'Mean Inversion')
-    multi(qc, ops.PauliX(), idx)
-    multi(qc, ops.Hadamard(), idx)
+  # Execute this subcircuit.
+  qc.qc(cc)
 
-  qc.run()
-  # qc.psi.dump()
+  # w1 and w2 -> checker.
+  cc.x(w1)
+  cc.toffoli(w1, w2, chk)
+  cc.x(w1)
+
+  # Uncompute the subcircuit.
+  qc.qc(cc.inverse())
+
+  # Diffuser
+  diffuser(qc, reg, chk, aux)
+
   maxbits, maxprob = qc.psi.maxprob()
-  print('->', formula, maxbits[:3], maxprob)
+  print('Test: (x and y) and (not y) ', end='')
+  print('Want:', [1, 0], 'Got:', maxbits[:2], 'p:', maxprob)
+  if maxbits[:2] != [1, 0]:
+    raise AssertionError('Incorrect Result.')
 
 
-def run_tests(variables: int, clauses: int) -> None:
-  """Run a few tests to ensure correct circuit construction."""
+def grover_with_circuit_3_1():
+  """Circuit-based Grover for single 3-variable clause."""
 
-  qubits = num_qubits(variables, clauses)
-  formula = make_formula(variables, clauses)
-  qc_inner = make_cnf_circuit(variables, clauses, formula)
+  # Step 1: Make a single clause of 3 literals
+  #         that are all OR'ed together.
+  variables = 3
+  formula = make_formula(variables, 1)
+  clause = formula[0]
 
-  for bits in itertools.product([0, 1], repeat=variables):
-    # Classic Evaluation.
-    res = eval_formula(bits, formula)
+  # For single OR-clauses, there is only 1 negative solution,
+  # which is the one where every single literatal is False.
+  # Let's verify (solutions will just be the formula inverted).
+  solution = find_solutions(variables, formula)
 
-    # Quantum Evaluation.
-    qc = make_full_circuit(qubits, bits, qc_inner)
-    qc.run()
+  # Let's compute the number of iterations we will need.
+  iterations = int(math.pi / 4 * math.sqrt(2**variables))
 
-    # Note that 0/1 and 1/0 have the opposite meaning in
-    # Classic vs Quantum. This measurement would assert
-    # if an unexpected results appeared. We added an
-    # X-gate above to map classical 0 to quantum |0>.
-    #
-    tostate = 0 if res == TRUE else 1
-    prob = qc.measure_bit_iterative(qc_inner.nbits-1, tostate)
-    if prob < 0.99:
-      raise AssertionError('Incorrect result.')
+  # We have clauses of 3 OR'ed together literals:
+  #    x0 or x1 or x2
+  # where each literal can also be negated.
+  #
+  # Since Grover works best if only 1 solution is present,
+  # we want to find the 1 assignment where the clause becomes
+  # False. For a single clause, that the assignment where
+  # each single literal is False.
+  #
+  # De-Morgan tells us:
+  #    not (x or y) == (not x and not y)
+  #
+  #    not (x or y or z) =
+  #    not (x or (y or z)) =
+  #    not x and not (y or z) =
+  #    not x and not y and not z
+  #
+  # In terms of circuit construction, we have to negate each
+  # literal. If the literal is already negated in the clause
+  # we don't have to do anything!
+  #
+  # We are very generous spending ancillae, this can be totally
+  # optimized.
+  #
+  qc = circuit.qc('Outer')
+  reg = qc.reg(variables, 0)
+  x = reg[0]
+  y = reg[1]
+  z = reg[2]
+  aux = qc.reg(variables + 2, 0)
+  ancx = aux[0]
+  ancy = aux[1]
+  ancz = aux[2]
+  w0 = aux[3]
+  w1 = aux[4]
+  aux2 = qc.reg(variables-1)
+  chk = qc.reg(1, 0)[0]
 
-    # print(f'Bits: {bits} -> C: {res} ', end='')
-    # print(f'Q: {"False" if tostate == 0 else "True"}, prop: {prob:.1f}')
+  # Equal superposition.
+  qc.h(reg)
+
+  # Construct the circuit.
+  for iter in range(iterations):
+    cc = circuit.qc('Gates', eager=False)
+    if clause[0] == 1:
+      cc.x(x)
+      cc.cx(x, ancx)
+      cc.x(x)
+    else:
+      cc.cx(x, ancx)
+    if clause[1] == 1:
+      cc.x(y)
+      cc.cx(y, ancy)
+      cc.x(y)
+    else:
+      cc.cx(y, ancy)
+    if clause[2] == 1:
+      cc.x(z)
+      cc.cx(z, ancz)
+      cc.x(z)
+    else:
+      cc.cx(z, ancz)
+    cc.toffoli(ancx, ancy, w0)
+    cc.toffoli(ancz, w0, w1)
+
+    # Add sub=circuit.
+    qc.qc(cc)
+
+    # Phase inversion.
+    qc.cx(w1, chk)
+
+    # Uncompute.
+    qc.qc(cc.inverse())
+
+    # Mean inversion.
+    diffuser(qc, reg, w1, aux2)
+
+  maxbits, maxprob = qc.psi.maxprob()
+  print(f'Circuit: Want: {list(solution[0])}, ', end='')
+  print(f'Got: {list(maxbits[:3])}, p: {maxprob:.2f}')
+  if list(solution[0]) != maxbits[:3]:
+    raise AssertionError('Incorrect Result')
 
 
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  print('Quantum 3-SAT Solver. WIP, Not complete yet!')
+  print('Quantum 3-SAT Solver.')
 
-  grover_with_circuit(3, 1)
-  return
+  # Quick simple tests.
+  test_2sat_1()
 
   # Oracle-based.
   for _ in range(2):
@@ -382,15 +372,9 @@ def main(argv):
     grover_with_oracle(3, 2, 1)
     grover_with_oracle(3, 3, 1)
 
-  # Construct and check quantum circuits.
-  for _ in range(2):
-    run_tests(3, 1)
-    run_tests(3, 2)
-    run_tests(3, 3)
-    run_tests(3, 4)
-
-  # Now with full circuit construction.
-  # TODO(rhundt)
+  # Single 3-variable clause.
+  for _ in range(10):
+    grover_with_circuit_3_1()
 
 
 if __name__ == '__main__':
