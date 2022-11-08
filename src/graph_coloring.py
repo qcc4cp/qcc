@@ -126,7 +126,7 @@ def test_qubit_equality_circuit():
 class Graph:
   """Hold a graph definition."""
 
-  def __init__(self, num_vertices: int, desc: str, edges: list[int]):
+  def __init__(self, num_vertices: int, desc: str, edges: list):
     self.num = num_vertices
     self.edges = edges
     self.desc = desc
