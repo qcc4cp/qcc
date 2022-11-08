@@ -92,6 +92,7 @@ class qc:
     self.build_ir = True
     self.eager = eager
     self.global_reg = 0
+    self.sub_circuits = 0
 
   class scope:
     """Scope object to allow grouping of gates in the output."""
@@ -168,12 +169,12 @@ class qc:
     return self.psi.nbits
 
   def ctl_by_0(self, ctl):
-    ctl_qubit = ctl
-    ctl_by_0 = False
+    ctl_qubit_ = ctl
+    ctl_by_0_ = False
     if not isinstance(ctl, int):
-      ctl_qubit = ctl[0]
-      ctl_by_0 = True
-    return ctl_qubit, ctl_by_0
+      ctl_qubit_ = ctl[0]
+      ctl_by_0_ = True
+    return ctl_qubit_, ctl_by_0_
 
   # --- Gates  ----------------------------------------------------
   def apply1(self, gate: ops.Operator, idx: int,
@@ -219,7 +220,10 @@ class qc:
     self.applyc(ops.Vgate().adjoint(), idx0, idx1, 'cv_adj')
 
   def cx0(self, idx0: int, idx1: int):
+    xgate = ops.PauliX()
+    self.apply1(xgate, idx0, 'x')
     self.applyc(ops.PauliX(), idx0, idx1, 'cx')
+    self.apply1(xgate, idx0, 'x')
 
   def cx(self, idx0: int, idx1: int):
     self.applyc(ops.PauliX(), idx0, idx1, 'cx')
@@ -239,9 +243,9 @@ class qc:
   def ccx(self, idx0: int, idx1: int, idx2: int):
     """Sleator-Weinfurter Construction."""
 
+    # Enable Control-By-0 (via idx being passes as [idx])
     i0, c0_by_0 = self.ctl_by_0(idx0)
     i1, c1_by_0 = self.ctl_by_0(idx1)
-    i2 = idx2
 
     with self.scope(self.ir, f'ccx({idx0}, {idx1}, {idx2})'):
       if c0_by_0:
@@ -249,16 +253,16 @@ class qc:
       if c1_by_0:
         self.x(i1)
 
-      self.cv(i0, i2)
+      self.cv(i0, idx2)
       self.cx(i0, i1)
-      self.cv_adj(i1, i2)
+      self.cv_adj(i1, idx2)
       self.cx(i0, i1)
-      self.cv(i1, i2)
+      self.cv(i1, idx2)
 
-      if c0_by_0:
-        self.x(i0)
       if c1_by_0:
         self.x(i1)
+      if c0_by_0:
+        self.x(i0)
 
   def toffoli(self, idx0: int, idx1: int, idx2: int):
     self.ccx(idx0, idx1, idx2)
@@ -488,6 +492,13 @@ class qc:
         newqc.applyc(gate.gate.adjoint(), gate.ctl, gate.idx1,
                      gate.name+'*', val=val)
     return newqc
+
+  def sub(self, name: str = ''):
+    """Make a subcircuit, which is a simple non-eager circuit."""
+
+    sub = qc(f'inner_{self.sub_circuits}', eager=False)
+    self.sub_circuits += 1
+    return sub
 
 # --- Debug --------------------------------------------------
   def dump(self, desc=None):
