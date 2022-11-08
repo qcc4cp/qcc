@@ -127,33 +127,22 @@ class Graph:
   """Hold a graph definition."""
 
   def __init__(self, num_vertices: int, desc: str, edges: list[int]):
-    self.num_vertices_ = num_vertices
-    self.edges_ = edges
+    self.num = num_vertices
+    self.edges = edges
     self.desc = desc
 
   def verify(self, bits, n=2):
     """Verify that no connected vertices have the same color."""
 
-    # bits: are the measured bits from the quantum state.
-    # n   : number of bits used to encode colors.
-    #
     # For each edge, we check whether the colors assigned to fr/to
     # are different.
+    #   bits: are the measured bits from the quantum state.
+    #   n   : number of bits used to encode colors.
     different = 0
-    for edge in self.edges_:
-      fr = bits[edge[0]*n: edge[0]*n + n]
-      to = bits[edge[1]*n: edge[1]*n + n]
-      if fr != to:
+    for edge in self.edges:
+      if bits[edge[0]*n: edge[0]*n + n] != bits[edge[1]*n: edge[1]*n + n]:
         different += 1
     return different
-
-  @property
-  def edges(self):
-    return self.edges_
-
-  @property
-  def num(self):
-    return self.num_vertices_
 
 
 def diffuser(qc: circuit.qc, reg, checker, aux):
@@ -172,28 +161,21 @@ def build_circuit(g: Graph):
 
   qc = circuit.qc('Graph Circuit')
   reg = qc.reg(g.num*2)
-  #aux = qc.reg(2)
   chk = qc.reg(len(g.edges))
   res = qc.reg(1)[0]
   tmp = qc.reg(g.num*2 - 1)
   print(f'Solving [{g.desc}]: ', end='')
   print(f'{g.num} vertices, {len(g.edges)} edges -> {qc.nbits} qubits')
-
-  # We look for all colors being the same.
-  # There are only 4 cases, 1 for each 2-bit combo of values.
-  solutions = 4
-  iterations = int(math.pi / 4 * math.sqrt(g.num**2 / solutions))
-  if iterations < 1:
-    iterations = 1
+  iterations = 1
 
   qc.h(reg)
   sc = qc.sub()
+
   for _ in range(iterations + 1):
-    for i in range(len(g.edges)):
-      edge = g.edges[i]
+    for idx, edge in enumerate(g.edges):
       fr = edge[0] * 2
       to = edge[1] * 2
-      compare_pairs_equal(sc, fr, fr + 1, to, to + 1, tmp[0], tmp[1], chk[i])
+      compare_pairs_equal(sc, fr, fr + 1, to, to + 1, tmp[0], tmp[1], chk[idx])
 
     qc.qc(sc)
     qc.multi_control(chk, res, tmp, ops.PauliX(), 'multi')
@@ -205,20 +187,17 @@ def build_circuit(g: Graph):
   # the res qubit set to |1>. These will be the possible
   # solutions to the (inverse) graph coloring problem, which
   # is to find the coloring with all colors being the same.
-  #
-  for i in range(len(qc.psi)):
-    val = qc.psi[i]
-    bits = helper.val2bits(i, qc.nbits)
+  for idx, val in enumerate(qc.psi):
+    bits = helper.val2bits(idx, qc.nbits)
     if bits[res] == 1 and val > 0.01:
       print('  Color Assignment:',
-            helper.val2bits(i, qc.nbits)[0:g.num * 2])
+            helper.val2bits(idx, qc.nbits)[0:g.num * 2])
       differences = g.verify(bits)
       if differences:
         raise AssertionError('Incorrect color assignment found.')
 
 
 # Define a few sample graphs.
-#
 g2c = Graph(2, 'simple line', [(0, 1)])
 g3c = Graph(3, 'simple triangle', [(0, 1), (1, 2), (2, 0)])
 g4s = Graph(4, 'star formation', [(0, 1), (0, 2), (0, 3)])
@@ -238,7 +217,6 @@ def main(argv):
   # Hence, to make Grover work better, we search for negative
   # color assignments - assignments where _all_ colors are the
   # same.
-  #
   test_qubit_equality_circuit()
   build_circuit(g2c)
   build_circuit(g3c)
