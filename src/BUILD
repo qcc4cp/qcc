@@ -83,6 +83,16 @@ py_binary(
 )
 
 py_binary(
+    name = "graph_coloring",
+    srcs = ["graph_coloring.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)
+
+py_binary(
     name = "grover",
     srcs = ["grover.py"],
     python_version = "PY3",
