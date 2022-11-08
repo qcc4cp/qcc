@@ -172,7 +172,7 @@ def build_circuit(g: Graph):
 
   qc = circuit.qc('Graph Circuit')
   reg = qc.reg(g.num*2)
-  aux = qc.reg(2)
+  #aux = qc.reg(2)
   chk = qc.reg(len(g.edges))
   res = qc.reg(1)[0]
   tmp = qc.reg(g.num*2 - 1)
@@ -193,7 +193,7 @@ def build_circuit(g: Graph):
       edge = g.edges[i]
       fr = edge[0] * 2
       to = edge[1] * 2
-      compare_pairs_equal(sc, fr, fr + 1, to, to + 1, aux[0], aux[1], chk[i])
+      compare_pairs_equal(sc, fr, fr + 1, to, to + 1, tmp[0], tmp[1], chk[i])
 
     qc.qc(sc)
     qc.multi_control(chk, res, tmp, ops.PauliX(), 'multi')
@@ -244,8 +244,7 @@ def main(argv):
   build_circuit(g3c)
   build_circuit(g4s)
   build_circuit(g4l)
-  # This one uses 22 qubits and may run a bit slow.
-  #    build_circuit(g4c)
+  build_circuit(g4c)
 
 
 if __name__ == '__main__':
