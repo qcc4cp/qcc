@@ -10,6 +10,7 @@
 
 import itertools
 import math
+import numpy as np
 from absl import app
 
 from src.lib import circuit
@@ -164,14 +165,14 @@ def build_circuit(g: Graph):
   chk = qc.reg(len(g.edges))
   res = qc.reg(1)[0]
   tmp = qc.reg(g.num*2 - 1)
+  
   print(f'Solving [{g.desc}]: ', end='')
   print(f'{g.num} vertices, {len(g.edges)} edges -> {qc.nbits} qubits')
   iterations = 1
-
+  
   qc.h(reg)
-  sc = qc.sub()
-
-  for _ in range(iterations + 1):
+  for _ in range(iterations):
+    sc = qc.sub()
     for idx, edge in enumerate(g.edges):
       fr = edge[0] * 2
       to = edge[1] * 2
@@ -183,17 +184,17 @@ def build_circuit(g: Graph):
 
     diffuser(qc, reg, res, tmp)
 
-  # Now let's 'measure' and find the states that have the
-  # the res qubit set to |1>. These will be the possible
+  # Now let's measure and find all states that have the highest
+  # probability. These will be the possible
   # solutions to the (inverse) graph coloring problem, which
   # is to find the coloring with all colors being the same.
+  #
+  maxbits, maxprob = qc.psi.maxprob()
   for idx, val in enumerate(qc.psi):
     bits = helper.val2bits(idx, qc.nbits)
-    if bits[res] == 1 and val > 0.01:
-      print('  Color Assignment:',
-            helper.val2bits(idx, qc.nbits)[0:g.num * 2])
-      differences = g.verify(bits)
-      if differences:
+    if np.real(val.conj() * val) > (maxprob - 0.005):   
+      print('  Color:', bits[0:g.num * 2])
+      if g.verify(bits):
         raise AssertionError('Incorrect color assignment found.')
 
 
