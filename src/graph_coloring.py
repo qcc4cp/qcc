@@ -39,10 +39,10 @@ def compare_pairs_equal(qc, a, b, c, d, w0, w1, chk):
   # If two qubits are the same, the cx will result in a |0>
   # on the second qubit!
   #
-  # We then Controlled-Not-By-0 that register to the work registers
-  # amd AND the work registers. If both qubits were# equal, the chk
-  # register will be |1>. Of course we have to uncompute this to
-  # restore b at the end.
+  # We then Controlled-Not-By-0 the 2nd register to the work registers
+  # add fiunally AND the work registers. If both qubits were equal, the
+  # chk register will turn into |1>. Of course, we have to uncompute this to
+  # restore b at the end to its previous state.
   #
   qc.cx(a, c)
   qc.cx0(c, w0)
@@ -209,9 +209,13 @@ def main(argv):
 
   build_circuit(Graph(2,'simple line', [(0, 1)]))
   build_circuit(Graph(3,'simple triangle', [(0, 1), (1, 2), (2, 0)]))
+  
+  # These may run too slow, disable if that's the case
   build_circuit(Graph(4,'star formation', [(0, 1), (0, 2), (0, 3)]))
   build_circuit(Graph(4,'rectangle', [(0, 1), (1, 2), (2, 3)]))
-  build_circuit(Graph(4,'rectangle+diag', [(0, 1), (1, 2), (2, 3), (3, 0)]))
+
+  # This is the slowest. Disabled by default.
+  # build_circuit(Graph(4,'rectangle+diag', [(0, 1), (1, 2), (2, 3), (3, 0)]))
 
 
 if __name__ == '__main__':

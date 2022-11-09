@@ -60,10 +60,10 @@ def print_formula(clauses):
   for expr in clauses:
     # convert each clause to string.
     substr = []
-    for j in range(len(expr)):
+    for idx, exp in enumerate(expr):
       # An int of 0 means negation.
-      res = '-' if expr[j] == FALSE else ' '
-      substr.append(res + 'x' + str(j))
+      res = '-' if expr == FALSE else ' '
+      substr.append(res + 'x' + str(idx))
     expstr.append('(' + ' '.join(substr) + ')')
 
   # produce final formula.
@@ -87,8 +87,8 @@ def eval_formula(bits, clauses: int):
   for clause in clauses:
     # Compute result of a clause (logical or)
     value = False
-    for b in range(len(bits)):
-      value = value or match_bit(bits[b], clause[b])
+    for idx, bit in enumerate(bits):
+      value = value or match_bit(bit, clause[idx])
     # Compute conjuction (logical and)
     res = res and value
   return res

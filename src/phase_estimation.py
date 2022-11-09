@@ -161,11 +161,11 @@ def run_experiment_multi(nbits: int, t: int = 8):
   # Finally, print the phi's and estimates. They will not
   # always match perfectly.
   #
-  for i in range(len(phi)):
-    print(f'Phase : {phi[i]:.4f} ', end='')
+  for p in phi:
+    print(f'Phase : {p:.4f} ', end='')
   print('')
-  for i in range(len(estimates)):
-    print(f'Estim : {estimates[i]:.4f} ', end='')
+  for est in estimates:
+    print(f'Estim : {est:.4f} ', end='')
   marker = 'Ok' if len(phi) == len(estimates) else ''
   print(marker)
 
