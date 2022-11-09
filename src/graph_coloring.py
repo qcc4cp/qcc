@@ -198,14 +198,6 @@ def build_circuit(g: Graph):
         raise AssertionError('Incorrect color assignment found.')
 
 
-# Define a few sample graphs.
-g2c = Graph(2, 'simple line', [(0, 1)])
-g3c = Graph(3, 'simple triangle', [(0, 1), (1, 2), (2, 0)])
-g4s = Graph(4, 'star formation', [(0, 1), (0, 2), (0, 3)])
-g4l = Graph(4, 'rectangle', [(0, 1), (1, 2), (2, 3)])
-g4c = Graph(4, 'rectangle+diag', [(0, 1), (1, 2), (2, 3), (3, 0)])
-
-
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
@@ -213,17 +205,13 @@ def main(argv):
   print('Graph coloring via Grover\'s Search. ', end='')
   print('Find identical colors (2 qubits each).')
 
-  # For small and unconstrained graphs, the number of solutions
-  # may be much larger then the number of invalid assignments.
-  # Hence, to make Grover work better, we search for negative
-  # color assignments - assignments where _all_ colors are the
-  # same.
   test_qubit_equality_circuit()
-  build_circuit(g2c)
-  build_circuit(g3c)
-  build_circuit(g4s)
-  build_circuit(g4l)
-  build_circuit(g4c)
+
+  build_circuit(Graph(2,'simple line', [(0, 1)]))
+  build_circuit(Graph(3,'simple triangle', [(0, 1), (1, 2), (2, 0)]))
+  build_circuit(Graph(4,'star formation', [(0, 1), (0, 2), (0, 3)]))
+  build_circuit(Graph(4,'rectangle', [(0, 1), (1, 2), (2, 3)]))
+  build_circuit(Graph(4,'rectangle+diag', [(0, 1), (1, 2), (2, 3), (3, 0)]))
 
 
 if __name__ == '__main__':
