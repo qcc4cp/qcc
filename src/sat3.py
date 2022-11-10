@@ -257,7 +257,7 @@ def test_2sat_1():
 
 
 def grover_with_circuit(variables: int = 3):
-  """Circuit-based Grover for single 3-variable clause."""
+  """Circuit-based Grover for single n-variable clause."""
 
   # Step 1: Make a single clause of literals
   #         that are all OR'ed together.
@@ -271,8 +271,8 @@ def grover_with_circuit(variables: int = 3):
 
   # Let's compute the number of iterations we will need.
   iterations = int(math.pi / 4 * math.sqrt(2**variables))
-
-  # We have clauses of 3 OR'ed together literals:
+  
+  # We have clauses of 3 (or more) OR'ed together literals:
   #    x0 or x1 or x2
   # where each literal can also be negated.
   #
@@ -293,12 +293,13 @@ def grover_with_circuit(variables: int = 3):
   # literal. If the literal is already negated in the clause
   # we don't have to do anything!
   #
-  # We are very generous spending ancillae, this can be totally
-  # optimized.
+  # We are generously spending on ancillae. Strictly speaking,
+  # the 'aux' register is not needed, computation can be done
+  # on 'reg' itself. However, this version is easier to read.
   #
   qc = circuit.qc('Outer')
   reg = qc.reg(variables, 0)
-  aux = qc.reg(variables, 0)
+  aux = qc.reg(variables, 0)  # can be optimized away.
   w = qc.reg(variables-1, 0)
   chk = qc.reg(1, 0)[0]
 
