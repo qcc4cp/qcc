@@ -256,12 +256,11 @@ def test_2sat_1():
     raise AssertionError('Incorrect Result.')
 
 
-def grover_with_circuit_3_1():
+def grover_with_circuit(variables: int = 3):
   """Circuit-based Grover for single 3-variable clause."""
 
-  # Step 1: Make a single clause of 3 literals
+  # Step 1: Make a single clause of literals
   #         that are all OR'ed together.
-  variables = 3
   formula = make_formula(variables, 1)
   clause = formula[0]
 
@@ -299,16 +298,8 @@ def grover_with_circuit_3_1():
   #
   qc = circuit.qc('Outer')
   reg = qc.reg(variables, 0)
-  x = reg[0]
-  y = reg[1]
-  z = reg[2]
-  aux = qc.reg(variables + 2, 0)
-  ancx = aux[0]
-  ancy = aux[1]
-  ancz = aux[2]
-  w0 = aux[3]
-  w1 = aux[4]
-  aux2 = qc.reg(variables-1)
+  aux = qc.reg(variables, 0)
+  w = qc.reg(variables-1, 0)
   chk = qc.reg(1, 0)[0]
 
   # Equal superposition.
@@ -320,47 +311,37 @@ def grover_with_circuit_3_1():
 
     # First we negate each literal if it was not already negated.
     #
-    if clause[0] == 1:
-      cc.x(x)
-      cc.cx(x, ancx)
-      cc.x(x)
-    else:
-      cc.cx(x, ancx)
-    if clause[1] == 1:
-      cc.x(y)
-      cc.cx(y, ancy)
-      cc.x(y)
-    else:
-      cc.cx(y, ancy)
-    if clause[2] == 1:
-      cc.x(z)
-      cc.cx(z, ancz)
-      cc.x(z)
-    else:
-      cc.cx(z, ancz)
+    for idx in range(variables):
+      if clause[idx] == 1:
+        cc.x(reg[idx])
+        cc.cx(reg[idx], aux[idx])
+        cc.x(reg[idx])
+      else:
+        cc.cx(reg[idx], aux[idx])
 
     # Next we compute the AND between the (possibly negated)
     # literals:
     #
-    cc.toffoli(ancx, ancy, w0)
-    cc.toffoli(ancz, w0, w1)
+    cc.toffoli(aux[0], aux[1], w[0])
+    for idx in range(2, variables):
+      cc.toffoli(aux[idx], w[idx-2], w[idx-1])
 
     # Add and execute the sub-circuit.
     qc.qc(cc)
 
     # Phase inversion - connect the result to the chk qubit.
-    qc.cx(w1, chk)
+    qc.cx(w[idx-1], chk)
 
     # Uncompute the sub-circuit.
     qc.qc(cc.inverse())
 
     # Mean inversion.
-    diffuser(qc, reg, w1, aux2)
+    diffuser(qc, reg, chk, aux)
 
   maxbits, maxprob = qc.psi.maxprob()
   print(f'Circuit: Want: {list(solution[0])}, ', end='')
-  print(f'Got: {list(maxbits[:3])}, p: {maxprob:.2f}')
-  if list(solution[0]) != maxbits[:3]:
+  print(f'Got: {list(maxbits[:variables])}, p: {maxprob:.2f}')
+  if list(solution[0]) != maxbits[:variables]:
     raise AssertionError('Incorrect Result')
 
 
@@ -368,20 +349,23 @@ def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  print('Quantum 3-SAT Solver.')
+  print('Quantum N-SAT Solver.')
 
   # Quick simple tests.
   test_2sat_1()
 
   # Oracle-based.
-  for _ in range(2):
-    grover_with_oracle(3, 1, 1)
-    grover_with_oracle(3, 2, 1)
-    grover_with_oracle(3, 3, 1)
+  for idx in range(1, 4):
+    grover_with_oracle(3, idx, 1)
 
   # Single 3-variable clause.
-  for _ in range(10):
-    grover_with_circuit_3_1()
+  for _ in range(3):
+    grover_with_circuit(3)
+
+  # More literals per clause
+  for variables in range(4, 7):
+    for _ in range(3):
+      grover_with_circuit(variables)
 
 
 if __name__ == '__main__':
