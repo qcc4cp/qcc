@@ -306,6 +306,15 @@ class qc:
   def rz(self, idx: int, theta: float):
     self.apply1(ops.RotationZ(theta), idx, 'rz', val=theta)
 
+  def crx(self, ctl:int, idx: int, theta: float):
+    self.applyc(ops.RotationX(theta), ctl, idx, 'rx', val=theta)
+
+  def cry(self, ctl:int, idx: int, theta: float):
+    self.applyc(ops.RotationY(theta), ctl, idx, 'ry', val=theta)
+
+  def crz(self, ctl:int, idx: int, theta: float):
+    self.applyc(ops.RotationZ(theta), ctl, idx, 'rz', val=theta)
+
 #  Appplying a random unitary is possible, but it is not a
 #  1- or 2-qubit gate, hence slow.
 #  Do not use (unless really unavoidable)
