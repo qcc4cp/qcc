@@ -1,6 +1,8 @@
 # python3
 """Example: Arithmetic with Quantum Circuits used classically."""
 
+import math
+
 from absl import app
 
 from src.lib import circuit
@@ -55,8 +57,9 @@ def experiment_qc(a: int, b: int, cin: int,
 
   bsum, _ = qc.measure_bit(3, tostate=1, collapse=False)
   bout, _ = qc.measure_bit(4, tostate=1, collapse=False)
-  print(f'a: {a} b: {b} cin: {cin} sum: {bsum} cout: {bout}')
-  if bsum != expected_sum or bout != expected_cout:
+  print(f'a: {a} b: {b} cin: {cin} sum: {bsum:.0f} cout: {bout:.0f}')
+  if (not math.isclose(bsum, expected_sum, abs_tol=1e-5) or
+      not math.isclose(bout,expected_cout, abs_tol=1e-5)):
     raise AssertionError('invalid results')
 
 
@@ -69,8 +72,9 @@ def experiment_matrix(a: int, b: int, cin: int,
 
   bsum, _ = ops.Measure(psi, 3, tostate=1, collapse=False)
   bout, _ = ops.Measure(psi, 4, tostate=1, collapse=False)
-  print(f'a: {a} b: {b} cin: {cin} sum: {bsum} cout: {bout}')
-  if bsum != expected_sum or bout != expected_cout:
+  print(f'a: {a} b: {b} cin: {cin} sum: {bsum:.0f} cout: {bout:.0f}')
+  if (not math.isclose(bsum, expected_sum) or
+      not math.isclose(bout,expected_cout)):
     raise AssertionError('invalid results')
 
 
