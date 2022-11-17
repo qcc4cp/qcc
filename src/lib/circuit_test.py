@@ -291,6 +291,32 @@ class CircuitTest(absltest.TestCase):
     qc.optimize()
     # print(qc.stats())
 
+  def test_to_ctl_single(self):
+    qc = circuit.qc('test')
+    qc.reg(2)
+
+    sc = qc.sub()
+    sc.x(1)
+    sc.ry(1, 1.0)
+    sc.z(1)
+    sc.control_by(0)
+
+    qc.qc(sc)
+    self.assertTrue(qc.ir.gates[0].is_ctl())
+    self.assertTrue(qc.ir.gates[1].is_ctl())
+    self.assertTrue(qc.ir.gates[2].is_ctl())
+
+  def test_to_ctl_multi(self):
+    qc = circuit.qc('test')
+    qc.reg(3)
+
+    sc = qc.sub()
+    sc.cx(0, 1)
+    sc.control_by(2)
+
+    qc.qc(sc)
+    self.assertTrue(len(qc.ir.gates) == 5)
+
 
 if __name__ == '__main__':
   absltest.main()

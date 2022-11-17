@@ -12,6 +12,7 @@ from typing import Callable
 from absl import flags
 import numpy as np
 
+
 # Many of the algorithm implementation rely on the fast performance
 # provided by libxgates. However, it can be difficult to build,
 # depending on your environment. To enable a quick start on this codebase
@@ -240,6 +241,36 @@ class qc:
   def crk(self, idx0: int, idx1: int, value):
     self.applyc(ops.Rk(value), idx0, idx1, 'crk', val=value)
 
+  def cu(self, idx0: int, idx1: int, op: ops.Operator, desc: str = None):
+    self.applyc(op, idx0, idx1, desc)
+
+  def ccu(self, idx0: int, idx1: int, idx2: int, op: ops.Operator, desc = ''):
+    """Sleator-Weinfurter Construction."""
+
+    # Enable Control-By-0 (via idx being passes as [idx])
+    i0, c0_by_0 = self.ctl_by_0(idx0)
+    i1, c1_by_0 = self.ctl_by_0(idx1)
+
+    with self.scope(self.ir, f'cc{desc}({idx0}, {idx1}, {idx2})'):
+      if c0_by_0:
+        self.x(i0)
+      if c1_by_0:
+        self.x(i1)
+
+      from scipy.linalg import sqrtm
+      v = ops.Operator(sqrtm(op))
+
+      self.cu(i0, idx2, v, desc + '^1/2')
+      self.cu(i0, i1, op, desc)
+      self.cu(i1, idx2, v.adjoint(), desc + '^t')
+      self.cu(i0, i1, op, desc)
+      self.cu(i1, idx2, v, desc + '^1/2')
+
+      if c1_by_0:
+        self.x(i1)
+      if c0_by_0:
+        self.x(i0)
+
   def ccx(self, idx0: int, idx1: int, idx2: int):
     """Sleator-Weinfurter Construction."""
 
@@ -330,7 +361,6 @@ class qc:
     prob, self.psi = ops.Measure(self.psi, idx, tostate, collapse)
     return prob, self.psi
 
-
   def measure_bit_iterative(self, idx: int, tostate: int = 0) -> float:
     """Iterate over all states, match states at idx, add up amplitudes."""
     import itertools
@@ -340,7 +370,6 @@ class qc:
       if bits[idx] == tostate:
         sum_ampl += self.psi.ampl(*bits)
     return sum_ampl
-
 
   def pauli_expectation(self, idx: int):
     """We can compute the Pauli expectation value from probabilities."""
@@ -401,6 +430,9 @@ class qc:
         ctl = ctl.reg
       if len(ctl) == 1:
         self.applyc(gate, ctl[0], idx1, desc)
+        return
+      if len(ctl) == 2:
+        self.ccu(ctl[0], ctl[1], idx1, gate, desc)
         return
 
       # Compute the predicate.
@@ -501,6 +533,25 @@ class qc:
         newqc.applyc(gate.gate.adjoint(), gate.ctl, gate.idx1,
                      gate.name+'*', val=val)
     return newqc
+
+  def control_by(self, ctl: int):
+    """Control a full circuit by qubit 'ctl'."""
+
+    if self.eager == True:
+      raise AssertionError('control_by() only permitted on non-eager circuits.')
+
+    res = ir.Ir()
+    for idx, gate in enumerate(self.ir.gates):
+      if gate.is_single():
+        gate.to_ctl(ctl)
+        res.add_node(gate)
+        continue
+      if gate.is_ctl():
+        sub = qc('multi', eager = False)
+        sub.multi_control([ctl, gate.ctl], gate.idx1, None, gate.gate, 'c' + gate.desc),
+        for gate in sub.ir.gates:
+           res.add_node(gate)
+    self.ir = res
 
   def sub(self, name: str = ''):
     """Make a subcircuit, which is a simple non-eager circuit."""
