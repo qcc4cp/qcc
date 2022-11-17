@@ -41,6 +41,12 @@ class Node:
       s += ''
     return s
 
+  def to_ctl(self, ctl):
+    self._opcode = Op.CTL
+    self._idx1 = self._idx0
+    self._idx0 = ctl
+    self._name = 'c' + self._name
+
   def is_single(self):
     return self._opcode == Op.SINGLE
 
