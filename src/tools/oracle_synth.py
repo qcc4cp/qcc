@@ -5,6 +5,10 @@
 # produce those Oracle matrices.
 #
 # This needs BQSKit to be installed.
+#
+# Run (without bazel) as:
+#    python3 oracle_synth.py
+
 from bqskit import compile
 
 from src.lib import ops
@@ -38,8 +42,8 @@ circuits = [
            ]
 
 
-# We upfront compare the (generated) gates to the
-# intended gates.
+# We upfront compare the (generated) operators to the
+# intended operators.
 #
 for idx, gate in enumerate(deutsch):
   for i in range(4):
@@ -50,7 +54,7 @@ for idx, gate in enumerate(deutsch):
   print(f'Gate[{idx}]: Match')
 
 
-# We generate the gates here.
+# We synthesize the circuit gates here via BQSKit's compile().
 #
 print('\nRe-generate the gates')
 for idx, gate in enumerate(deutsch):
