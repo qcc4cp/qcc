@@ -245,7 +245,7 @@ class qc:
     self.applyc(op, idx0, idx1, desc)
 
   def ccu(self, idx0: int, idx1: int, idx2: int, op: ops.Operator, desc = ''):
-    """Sleator-Weinfurter Construction."""
+    """Sleator-Weinfurter Construction for general operators."""
 
     # Enable Control-By-0 (via idx being passes as [idx])
     i0, c0_by_0 = self.ctl_by_0(idx0)
@@ -261,9 +261,9 @@ class qc:
       v = ops.Operator(sqrtm(op))
 
       self.cu(i0, idx2, v, desc + '^1/2')
-      self.cu(i0, i1, op, desc)
+      self.cx(i0, i1)
       self.cu(i1, idx2, v.adjoint(), desc + '^t')
-      self.cu(i0, i1, op, desc)
+      self.cx(i0, i1)
       self.cu(i1, idx2, v, desc + '^1/2')
 
       if c1_by_0:
@@ -272,7 +272,7 @@ class qc:
         self.x(i0)
 
   def ccx(self, idx0: int, idx1: int, idx2: int):
-    """Sleator-Weinfurter Construction."""
+    """Sleator-Weinfurter Construction for CCX."""
 
     # Enable Control-By-0 (via idx being passes as [idx])
     i0, c0_by_0 = self.ctl_by_0(idx0)
@@ -338,13 +338,13 @@ class qc:
     self.apply1(ops.RotationZ(theta), idx, 'rz', val=theta)
 
   def crx(self, ctl:int, idx: int, theta: float):
-    self.applyc(ops.RotationX(theta), ctl, idx, 'rx', val=theta)
+    self.applyc(ops.RotationX(theta), ctl, idx, 'crx', val=theta)
 
   def cry(self, ctl:int, idx: int, theta: float):
-    self.applyc(ops.RotationY(theta), ctl, idx, 'ry', val=theta)
+    self.applyc(ops.RotationY(theta), ctl, idx, 'cry', val=theta)
 
   def crz(self, ctl:int, idx: int, theta: float):
-    self.applyc(ops.RotationZ(theta), ctl, idx, 'rz', val=theta)
+    self.applyc(ops.RotationZ(theta), ctl, idx, 'crz', val=theta)
 
 #  Appplying a random unitary is possible, but it is not a
 #  1- or 2-qubit gate, hence slow.
@@ -548,7 +548,7 @@ class qc:
         continue
       if gate.is_ctl():
         sub = qc('multi', eager = False)
-        sub.multi_control([ctl, gate.ctl], gate.idx1, None, gate.gate, 'c' + gate.desc),
+        sub.multi_control([ctl, gate.ctl], gate.idx1, None, gate.gate, gate.desc),
         for gate in sub.ir.gates:
            res.add_node(gate)
     self.ir = res

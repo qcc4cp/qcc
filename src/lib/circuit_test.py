@@ -317,6 +317,33 @@ class CircuitTest(absltest.TestCase):
     qc.qc(sc)
     self.assertTrue(len(qc.ir.gates) == 5)
 
+  def test_to_ctl_qft(self):
+    def qft(qc: circuit.qc, reg: state.Reg, n: int) -> None:
+      qc.h(reg[n])
+      for i in range(n):
+        qc.cu1(reg[n-(i+1)], reg[n], math.pi/float(2**(i+1)))
+
+    def make_qc(nbits: int, init_val: int):
+      qc = circuit.qc('test')
+      ctl = qc.reg(1, init_val)
+      rg = qc.reg(nbits, 3)
+      sc = qc.sub()
+      for i in range(nbits):
+        qft(sc, rg, i)
+      return qc, sc
+
+    qc0, sc = make_qc(2, 0)
+    qc0.qc(sc)
+
+    qc1, sc = make_qc(2, 1)
+    sc.control_by(0)
+    qc1.qc(sc)
+
+    self.assertTrue(abs(qc0.psi.ampl(0, 0, 0) - qc1.psi.ampl(1, 0, 0)) < 1e-5)
+    self.assertTrue(abs(qc0.psi.ampl(0, 0, 1) - qc1.psi.ampl(1, 0, 1)) < 1e-5)
+    self.assertTrue(abs(qc0.psi.ampl(0, 1, 0) - qc1.psi.ampl(1, 1, 0)) < 1e-5)
+    self.assertTrue(abs(qc0.psi.ampl(0, 1, 1) - qc1.psi.ampl(1, 1, 1)) < 1e-5)
+
 
 if __name__ == '__main__':
   absltest.main()
