@@ -40,8 +40,6 @@ def check_result(psi: state.State, a, b,
 
 
 def qft(qc: circuit.qc, reg: state.Reg, n: int) -> None:
-  """qft."""
-
   qc.h(reg[n])
   for i in range(n):
     qc.cu1(reg[n-(i+1)], reg[n], math.pi/float(2**(i+1)))
@@ -49,8 +47,6 @@ def qft(qc: circuit.qc, reg: state.Reg, n: int) -> None:
 
 def evolve(qc: circuit.qc, reg_a: state.Reg, reg_b: state.Reg,
            n: int, factor: float) -> None:
-  """Rotations."""
-
   for i in range(n+1):
     qc.cu1(reg_b[n-i], reg_a[n], factor * math.pi/float(2**(i)))
 
@@ -119,6 +115,47 @@ def arith_quantum_constant(n: int, init_a: int, c: int) -> None:
     raise AssertionError('incorrect addition')
 
 
+def arith_quantum_mult(nbits_a: int, init_a: int, nbits_b: int, init_b: int) -> None:
+  """Run a true quantum multiplication, c = a * b."""
+
+  def add_src_to_targ(qc, nbits: int, src, targ, factor: float = 1.0):
+    """Add the value of (src * factor) to targ, as shown above."""
+
+    for i in range(nbits):
+      qft(qc, targ, nbits-i)
+    for i in range(nbits):
+      evolve(qc, targ, src, nbits-i, factor)
+    for i in range(nbits):
+      inverse_qft(qc, targ, i)
+
+  # Compute  c = a * b
+  #
+  # We have learned about how to add a term (factor * b) to c. We
+  # use the same technique but control the execution of factors being
+  # powers of two by the individual qubits of 'a'. As we go through
+  # the qubits of 'a', we multiply 'factor' by 2 to model the binary
+  # values of 'a' individual qubit positions.
+  #
+  qc = circuit.qc('qmult', eager = False)
+  a = qc.reg(nbits_a, helper.val2bits(init_a, nbits_a)[::-1], name='a')
+  b = qc.reg(nbits_b*2 + 1, helper.val2bits(init_b, nbits_b)[::-1], name='b')
+  c = qc.reg(nbits_b*2 + 1, 0, name='c')
+
+  factor = 1.0
+  for idx in range(nbits_a):
+    sc = qc.sub()
+    add_src_to_targ(sc, nbits_b * 2, b, c, factor)
+    sc.control_by(a[idx])
+    qc.qc(sc)
+    factor *= 2
+  qc.run()
+
+  maxbits, _ = qc.psi.maxprob()
+  result = helper.bits2val(maxbits[c[0] : c[0 + nbits_b*2]][::-1])
+  if result != init_a * init_b:
+    raise AssertionError('incorrect addition')
+
+
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
@@ -141,6 +178,12 @@ def main(argv):
   for i in range(7):
     for j in range(7):
       arith_quantum(6, 0, i, j)
+
+  print('Check quantum true multiplication...')
+  for b in range(4):
+    for a in range(3):
+      arith_quantum_mult(2, a, 3, b)
+
 
 if __name__ == '__main__':
   app.run(main)
