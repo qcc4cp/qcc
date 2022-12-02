@@ -2,7 +2,7 @@
 
 This is the open-source repository for the book [Quantum Computing for Programmers](https://www.cambridge.org/us/academic/subjects/computer-science/algorithmics-complexity-computer-algebra-and-computational-g/quantum-computing-programmers?format=HB) by Robert Hundt, Cambridge University Press. The book describes this implementation in great detail, including all the underlying math and derivations. To get started quickly on the Python sources, you may find the [Quickstart Guide](https://github.com/qcc4cp/qcc/blob/main/resources/quickstart.md) helpful.
 
-This project builds vendor-independent infrastructure from the ground up and implements standard algorithms, such as Quantum Teleportation, Quantum Phase estimation (QPE), Grover's Search, Quantum counting, Quantum random walks, VQE, QAOA, Max-Cut, Subset-Sum, Quantum Fourier Transform (QFT), Shor's integer factorization, and Solovay-Kitaev. It also implements high performance quantum simulation and a transpilation technique to compile circuits to other infrastructures, such as Qiskit or Cirq. 
+This project builds vendor-independent infrastructure from the ground up and implements standard algorithms, such as Quantum Teleportation, Quantum Phase estimation (QPE), Grover's Search (with application to Quantum counting, 3SAT, and Graph Coloring), Quantum random walks, VQE, Max-Cut, Subset-Sum, Quantum Fourier Transform (QFT), Shor's integer factorization, Solovay-Kitaev, and a few more. It also implements high performance quantum simulation and a transpilation technique to compile circuits to other infrastructures, such as Qiskit or Cirq. 
 
 The code is organized as follows:
 *  `src` is the main source directory. All algorithms are in this directory.
@@ -38,6 +38,7 @@ To run individual algorithms via `bazel`, run any of these command lines (note t
    bazel run deutsch
    bazel run deutsch_jozsa
    bazel run entanglement_swap
+   bazel run graph_coloring
    bazel run grover
    bazel run hadamard_test
    bazel run inversion_test
