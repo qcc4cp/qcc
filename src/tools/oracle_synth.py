@@ -30,13 +30,13 @@ deutsch= [
 #
 circuits = [
               ops.Identity() * ops.Identity(),
-              
+
               ops.Cnot(0, 1),
-              
+
               ops.Cnot(0, 1) @
               (ops.Identity() *
                ops.U(9.4247779, 3.1415926, 6.2831852)),
-              
+
               ops.Identity() *
               ops.U(3.1415926, 0.0, 3.1415926)
            ]
@@ -62,9 +62,12 @@ for idx, gate in enumerate(deutsch):
   try:
     circ = compile(gate, optimization_level=3)
   except:
-    print('  Compilation failed (expected for Gate[0]).')
+    print('  Compilation failed (expected at opt-level=3 for Gate[0]).')
     continue
+
   filename = '/tmp/deutsch' + str(idx) + '.qasm'
-  print('  Gates:', circ.gate_counts, ' write to:', filename)
+  print('Gates  :', circ.gate_counts, ' write to:', filename)
   circ.save(filename)
 
+  file = open(filename,"r+")
+  print(file.read())
