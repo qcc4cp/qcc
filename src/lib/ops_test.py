@@ -196,7 +196,7 @@ class OpsTest(absltest.TestCase):
     psi = ops.Qft(6)(psi)
     psi = ops.Qft(6).adjoint()(psi)
     maxbits, _ = psi.maxprob()
-    self.assertEqual(maxbits, tuple(bits))
+    self.assertEqual(maxbits, bits)
 
   def test_padding(self):
     ident = ops.Identity(3)
