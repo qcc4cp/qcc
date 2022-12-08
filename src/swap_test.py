@@ -16,7 +16,7 @@
 #    psi = 0.2|0> + x|1>  # 0.2^2 + x^2 = 1.0
 #    phi = 0.8|0> + y|1>  # 0.8^2 + y^2 = 1.0
 #
-# The measurement probability of qubit to be in state |0> is
+# The measurement probability of the ancillary qubit to be in state |0> is
 #    1/2 + 1/2 * |<psi|phi>|^2
 #
 # Because of the dot product:
@@ -33,8 +33,8 @@ from src.lib import ops
 from src.lib import state
 
 
-def run_experiment(a1: np.complexfloating, a2: np.complexfloating,
-                   target: float) -> None:
+def run_experiment_single(a1: np.complexfloating, a2: np.complexfloating,
+                          target: float) -> None:
   """Construct swap test circuit and measure."""
 
   # The circuit is quite simple:
@@ -60,22 +60,64 @@ def run_experiment(a1: np.complexfloating, a2: np.complexfloating,
         .format(a1, a2, 100.0 * p0))
 
 
+def run_experiment_double(a0: np.complexfloating, a1: np.complexfloating,
+                          b0: np.complexfloating, b1: np.complexfloating,
+                          target: float) -> None:
+  """Construct multi-qubit swap test circuit and measure."""
+
+  # The circuit is quite simple:
+  #
+  # |0> --- H --- o --- o --- H --- Measure
+  #               |     |
+  # a0  --------- x --- | ----
+  #               |     |
+  # a1  ----------| --- x ----
+  #               |     |
+  # b0  --------- x --- | ----
+  #                     |
+  # b1  ----------------x ----
+
+  psi_a = state.qubit(a0) * state.qubit(a1)
+  psi_a = ops.Cnot(0, 1)(psi_a)
+  psi_b = state.qubit(b0) * state.qubit(b1)
+  psi_b = ops.Cnot(0, 1)(psi_b)
+
+  psi = state.bitstring(0) * psi_a * psi_b
+
+  psi = ops.Hadamard()(psi, 0)
+  psi = ops.ControlledU(0, 1, ops.Swap(1, 3))(psi)
+  psi = ops.ControlledU(0, 2, ops.Swap(2, 4))(psi)
+  psi = ops.Hadamard()(psi, 0)
+
+  # Measure once.
+  p0, _ = ops.Measure(psi, 0)
+  print('Similarity of (a0: {:.2f}, a1: {:.2f}) (b0: {:.2f}, b1: {:.2f}) ==>  %: {:.2f}'
+        .format(a0, a1, b0, b1, 100.0 * p0))
+  if abs(p0 - target) > 0.05:
+    raise AssertionError(
+        'Probability {:.2f} off more than 5% from target {:.2f}'
+        .format(p0, target))
+
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
   print('Swap test. 0.5 means different, 1.0 means similar')
-  run_experiment(1.0, 0.0, 0.5)
-  run_experiment(0.0, 1.0, 0.5)
-  run_experiment(1.0, 1.0, 1.0)
-  run_experiment(0.0, 0.0, 1.0)
-  run_experiment(0.1, 0.9, 0.65)
-  run_experiment(0.2, 0.8, 0.8)
-  run_experiment(0.3, 0.7, 0.9)
-  run_experiment(0.4, 0.6, 0.95)
-  run_experiment(0.5, 0.5, 0.97)
-  run_experiment(0.1, 0.1, 1.0)
-  run_experiment(0.8, 0.8, 1.0)
+  run_experiment_single(1.0, 0.0, 0.5)
+  run_experiment_single(0.0, 1.0, 0.5)
+  run_experiment_single(1.0, 1.0, 1.0)
+  run_experiment_single(0.0, 0.0, 1.0)
+  run_experiment_single(0.1, 0.9, 0.65)
+  run_experiment_single(0.2, 0.8, 0.8)
+  run_experiment_single(0.3, 0.7, 0.9)
+  run_experiment_single(0.4, 0.6, 0.95)
+  run_experiment_single(0.5, 0.5, 0.97)
+  run_experiment_single(0.1, 0.1, 1.0)
+  run_experiment_single(0.8, 0.8, 1.0)
+
+  probs = [0.5, 0.5, 0.5, 0.52, 0.55, 0.59, 0.65, 0.72, 0.80, 0.90]
+  for i in range(10):
+    run_experiment_double(1.0, 0.0, 0.0 + i * 0.1, 1.0 - i * 0.1, probs[i])
 
 
 if __name__ == '__main__':
