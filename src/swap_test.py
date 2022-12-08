@@ -98,6 +98,7 @@ def run_experiment_double(a0: np.complexfloating, a1: np.complexfloating,
         'Probability {:.2f} off more than 5% from target {:.2f}'
         .format(p0, target))
 
+
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
@@ -115,9 +116,28 @@ def main(argv):
   run_experiment_single(0.1, 0.1, 1.0)
   run_experiment_single(0.8, 0.8, 1.0)
 
+  # 2 qubits:
   probs = [0.5, 0.5, 0.5, 0.52, 0.55, 0.59, 0.65, 0.72, 0.80, 0.90]
   for i in range(10):
     run_experiment_double(1.0, 0.0, 0.0 + i * 0.1, 1.0 - i * 0.1, probs[i])
+
+  # An experiment with superposition, as mentioned in the literature:
+  psi = state.bitstring(0, 0, 0, 0, 0)
+
+  psi = ops.Hadamard()(psi, 0)
+  psi = ops.Hadamard()(psi, 1)
+  psi = ops.Hadamard()(psi, 2)  
+  psi = ops.ControlledU(0, 1, ops.Swap(1, 3))(psi)
+  psi = ops.ControlledU(0, 2, ops.Swap(2, 4))(psi)
+  psi = ops.Hadamard()(psi, 0)
+  p0, _ = ops.Measure(psi, 0)
+
+  # P(|0>) = 1/2 + 1/2<a|b>^2.
+  # Hence (dot product)^2 = 2 * (p0 - 0.5)
+  #
+  if abs(p0 - 0.624999) > 0.5:
+    raise AssertionError('Incorrect math on example.')
+  print(f'Similarity from literature: p={p0:.3f}, dot={2 * (p0 - 0.5):.3f} (correct)')
 
 
 if __name__ == '__main__':
