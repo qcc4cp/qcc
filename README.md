@@ -38,6 +38,7 @@ To run individual algorithms via `bazel`, run any of these command lines (note t
    bazel run deutsch
    bazel run deutsch_jozsa
    bazel run entanglement_swap
+   bazel run euclidian_distance
    bazel run graph_coloring
    bazel run grover
    bazel run hadamard_test
