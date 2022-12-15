@@ -1,4 +1,0 @@
-This file expands on fundamental gates:
-  - first it explains where the term 'pi/8-gate' comes from.
-  - then it implements IBM's U-gate and shows how to construct
-    many of the other standard gates from it.
