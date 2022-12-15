@@ -1,5 +1,6 @@
-# Additional Resource
+# Additional Resources
 
+## New Chapters
 This directory contains [additional](additional_chapters.pdf) (non-printed) sections and chapters
 of the book. They are meant to clarify, sharpen, expand, and correct
 issues in the print version of book.
@@ -22,4 +23,6 @@ Note that this material has not (yet) been copy-edited.
    *  6.16.2 Graph Coloring
    *  6.16.3 HHL Algorithm (WIP)
 
+## Readme Files
+All the README files for the various platforms are located in this director.
 
