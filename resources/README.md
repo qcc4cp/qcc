@@ -20,6 +20,6 @@ Note that this material has not (yet) been copy-edited.
 *  6.16 Additional Algorithms
    *  6.16.1 3-SAT
    *  6.16.2 Graph Coloring
-   *  6.16.3 HHL Algorithm 
+   *  6.16.3 HHL Algorithm (WIP)
 
 
