@@ -9,9 +9,35 @@
 # Run (without bazel) as:
 #    python3 oracle_synth.py
 
-from bqskit import compile
+import sys
 
 from src.lib import ops
+
+
+# =========================================================
+# First, let's make sure bqskit has been installed.
+#
+try:
+  from bqskit import compile
+except:
+  print('*** WARNING ***')
+  print('Could not import bqskit.')
+  print('Please install before trying to run this script.\n')
+  sys.exit(0)
+
+# bqskit relies on 'dask-scheduler', let's make sure it can be found
+#
+try:
+  import shutil
+  sched = shutil.which('dask-scheduler')
+  if sched == None:
+    print('*** WARNING ***')
+    print('Could not locate binary "dask-scheduler", required by bqskit')
+    sys.exit(0)
+except:
+  print('Something wrong with importing "shutil"')
+  sys.exit(0)
+# =========================================================
 
 
 # The four possible Deutsch Oracles:
@@ -24,7 +50,8 @@ deutsch= [
            [ [ 0, 1, 0, 0], [1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]],
          ]
 
-# The circuits as they are being produced by BQSKit.
+# The circuits as they were being produced by BQSKit.
+#
 # We list the circuits here and ensure they are correct.
 # Below in this script we re-generate the circuits.
 #
@@ -35,7 +62,7 @@ circuits = [
 
               ops.Cnot(0, 1) @
               (ops.Identity() *
-               ops.U(9.4247779, 3.1415926, 6.2831852)),
+               ops.U(3.1415926, 0.0, 3.1415926)),
 
               ops.Identity() *
               ops.U(3.1415926, 0.0, 3.1415926)
@@ -56,7 +83,7 @@ for idx, gate in enumerate(deutsch):
 
 # We synthesize the circuit gates here via BQSKit's compile().
 #
-print('\nRe-generate the gates')
+print('Re-generate the gates')
 for idx, gate in enumerate(deutsch):
   print(f'Gate[{idx}]:', gate)
   try:
@@ -67,7 +94,10 @@ for idx, gate in enumerate(deutsch):
 
   filename = '/tmp/deutsch' + str(idx) + '.qasm'
   print('Gates  :', circ.gate_counts, ' write to:', filename)
-  circ.save(filename)
-
-  file = open(filename,"r+")
-  print(file.read())
+  try:
+    circ.save(filename)
+    file = open(filename,"r+")
+    print(file.read())
+  except:
+    print('*** WARNING ***')
+    print('Cannot write to file:', filename)

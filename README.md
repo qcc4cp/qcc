@@ -45,6 +45,7 @@ To run individual algorithms via `bazel`, run any of these command lines (note t
    bazel run inversion_test
    bazel run max_cut
    bazel run minimum_finding   
+   bazel run oracle_synth
    bazel run order_finding
    bazel run pauli_rep
    bazel run phase_estimation
