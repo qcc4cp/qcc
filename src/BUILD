@@ -233,6 +233,16 @@ py_binary(
 )
 
 py_binary(
+    name = "schmidt_decomposition",
+    srcs = ["schmidt_decomposition.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)
+
+py_binary(
     name = "shor_classic",
     srcs = ["shor_classic.py"],
     python_version = "PY3",
