@@ -94,42 +94,6 @@ class State(tensor.Tensor):
     maxbits = helper.val2bits(idx, self.nbits)
     return maxbits, maxprob
 
-
-  # The Schmidt number is an entanglement measure for a state.
-  #
-  #  -  A separable state has a schmidt number of 1.
-  #  -  An entangled state has a schmidt number > 1.
-  #
-  # This implementation is borrowed from qcircuits (which has a different
-  # internal representation).
-  #
-  # TODO(rhundt): Change implementation to use full matrices.
-  #               Use partial trace to trace out 'excluded_indices'
-  #               and perform the SVD decomp, similar to below.
-  #
-  def schmidt_number(self, indices) -> float:
-    """Compute schmidt number of a sub-state for entanglement."""
-
-    if len(indices) in [0, self.nbits]:
-      raise ValueError('At least one qubit index should be included '
-                       'and at least one should be excluded')
-    if min(indices) < 0 or max(indices) >= self.nbits:
-      raise ValueError('Indices must be between 0 and d-1 for a d-qubit state.')
-    if not all([isinstance(idx, int) for idx in indices]):
-      raise ValueError('Indices should be integers.')
-
-    included_indices = set(indices)
-    excluded_indices = set(range(self.nbits)) - included_indices
-    permutation = list(included_indices) + list(excluded_indices)
-    twos = self.reshape([2] * self.nbits)
-    m = twos.transpose(permutation).reshape(
-        (2**len(included_indices), 2**len(excluded_indices))
-    )
-
-    _, d, _ = np.linalg.svd(m)
-    qc = np.sum(d > 1e-10)
-    return qc
-
   def apply1(self, gate, index) -> None:
     """Apply single-qubit gate to this state."""
 
