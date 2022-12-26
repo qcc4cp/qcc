@@ -79,7 +79,7 @@ def main(argv):
     raise app.UsageError('Too many command-line arguments.')
 
   print('Classic Part of Shors Algorithm.')
-  for i in range(25):
+  for _ in range(25):
     run_experiment(21, 9999)
 
 

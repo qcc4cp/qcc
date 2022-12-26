@@ -126,7 +126,7 @@ def main(argv):
 
   psi = ops.Hadamard()(psi, 0)
   psi = ops.Hadamard()(psi, 1)
-  psi = ops.Hadamard()(psi, 2)  
+  psi = ops.Hadamard()(psi, 2)
   psi = ops.ControlledU(0, 1, ops.Swap(1, 3))(psi)
   psi = ops.ControlledU(0, 2, ops.Swap(2, 4))(psi)
   psi = ops.Hadamard()(psi, 0)

@@ -130,7 +130,7 @@ def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  for i in range(5):
+  for _ in range(5):
     run_experiment(8)
     run_oracle_experiment(8)
 

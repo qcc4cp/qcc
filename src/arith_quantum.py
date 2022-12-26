@@ -79,7 +79,7 @@ def arith_quantum(n: int, init_a: int, init_b: int,
 # we can just apply the rotations, no need for the b register in the
 # general case. We just have to precompute the angles, as done here.
 def precompute_angles(a: int, n: int) -> List[float]:
-  """Pre-compute angles used in the Fourier Transform, for fixed a."""
+  """Pre-compute angles for the Fourier Transform, for fixed a."""
 
   # Convert 'a' to a string of 0's and 1's.
   s = bin(int(a))[2:].zfill(n)
@@ -115,7 +115,8 @@ def arith_quantum_constant(n: int, init_a: int, c: int) -> None:
     raise AssertionError('incorrect addition')
 
 
-def arith_quantum_mult(nbits_a: int, init_a: int, nbits_b: int, init_b: int) -> None:
+def arith_quantum_mult(nbits_a: int, init_a: int,
+                       nbits_b: int, init_b: int) -> None:
   """Run a true quantum multiplication, c = a * b."""
 
   def add_src_to_targ(qc, nbits: int, src, targ, factor: float = 1.0):
@@ -136,7 +137,7 @@ def arith_quantum_mult(nbits_a: int, init_a: int, nbits_b: int, init_b: int) -> 
   # the qubits of 'a', we multiply 'factor' by 2 to model the binary
   # values of 'a' individual qubit positions.
   #
-  qc = circuit.qc('qmult', eager = False)
+  qc = circuit.qc('qmult', eager=False)
   a = qc.reg(nbits_a, helper.val2bits(init_a, nbits_a)[::-1], name='a')
   b = qc.reg(nbits_b*2 + 1, helper.val2bits(init_b, nbits_b)[::-1], name='b')
   c = qc.reg(nbits_b*2 + 1, 0, name='c')

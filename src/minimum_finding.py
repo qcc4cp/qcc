@@ -6,7 +6,6 @@ import math
 from absl import app
 import numpy as np
 
-from src.lib import circuit
 from src.lib import helper
 from src.lib import ops
 from src.lib import state
@@ -31,7 +30,7 @@ from src.lib import state
 #    However, there is a little twist: We only mark a value if it is
 #    smaller than a given maximum.
 #
-# 3) The thirst step is now identical to what is found in grover.py
+# 3) The third step is now identical to what is found in grover.py
 #    We simply use Grover to find one of the marked items. Using our
 #    oracle approach, this works like a charm.
 #
@@ -71,6 +70,7 @@ def get_distro(min_value: int, max_value: int, num_vals: int):
   return sorted(np.random.choice(np.arange(min_value, max_value), num_vals))
 
 
+# pylint: disable=g-bare-generic
 def make_f(d: int, numbers: list, max_value: int):
   """Construct function that will return 1 for each number up to max."""
 
@@ -80,7 +80,7 @@ def make_f(d: int, numbers: list, max_value: int):
   for _, val in enumerate(numbers):
     if val >= max_value:
       continue
-      
+
     # Populate 'answer' array.
     answers[val] = 1
 
@@ -92,7 +92,9 @@ def make_f(d: int, numbers: list, max_value: int):
   return func
 
 
-def run_experiment(nbits, numbers: list, max_value: int, solutions: int) -> None:
+# pylint: disable=g-bare-generic
+def run_experiment(nbits: int, numbers: list, max_value: int,
+                   solutions: int) -> None:
   """Run oracle-based experiment."""
 
   # The following is commented extensively in grover.py
@@ -121,14 +123,14 @@ def run_experiment(nbits, numbers: list, max_value: int, solutions: int) -> None
   # Measurement - pick elements with highest probability.
   # For n marked numbers there should be n results.
   #
-  maxbits, maxprob = psi.maxprob()
+  _, maxprob = psi.maxprob()
   results = []
   for idx in range(len(psi)):
     if psi[idx] * psi[idx].conj() >= maxprob - 0.01:
-       bits = helper.val2bits(idx, 8)[:-1]
-       val = helper.bits2val(bits)
-       results.append(val)
-       
+      bits = helper.val2bits(idx, 8)[:-1]
+      val = helper.bits2val(bits)
+      results.append(val)
+
   # Compute new max limit by randomly selecting one of the results,
   # this simulating an actual, random measurement result:
   #
@@ -145,44 +147,44 @@ def run_experiment(nbits, numbers: list, max_value: int, solutions: int) -> None
 
 def run_search(marked_numbers: int, qubits: int):
   """Run a single search for the minimum."""
-  
+
   numbers = get_distro(3, 1 << qubits, marked_numbers)
-  
+
   max_value = 1 << qubits
   print('Find minimum in:', numbers)
-  
+
   for i in range(qubits):
-     max_value = run_experiment(qubits, numbers, max_value, marked_numbers)
-     
-     if not max_value in numbers:
-       raise AssertionError('*** Grover search failed')
+    max_value = run_experiment(qubits, numbers, max_value, marked_numbers)
 
-     # Here we cheat a little bit. We terminate the search as we have
-     # found the smallest number. Without this shortcut, we would somehow
-     # have to identify that no solution has been marked, eg., via
-     # quantum counting.
-     #
-     if max_value == numbers[0]:
-       print(f'*** SUCCESS, found smallest element, {i + 1} iterations', max_value)
-       break
+    if max_value not in numbers:
+      raise AssertionError('*** Grover search failed')
 
-     # In order to adjust the number of Grover iterations, we must know
-     # how many marked elements there are. This is also a bit of cheating.
-     # To make this fully quantum, we would have to employ techniques such
-     # as quantum counting here as well.
-     #
-     marked = 0
-     for i in range(marked_numbers):
-       if max_value > i:
-         marked += 1
-     marked_numbers = marked - 1
+    # Here we cheat a little bit. We terminate the search as we have
+    # found the smallest number. Without this shortcut, we would somehow
+    # have to identify that no solution has been marked, eg., via
+    # quantum counting.
+    #
+    if max_value == numbers[0]:
+      print(f'*** SUCCESS, smallest element, {i + 1} iters', max_value)
+      break
+
+    # In order to adjust the number of Grover iterations, we must know
+    # how many marked elements there are. This is also a bit of cheating.
+    # To make this fully quantum, we would have to employ techniques such
+    # as quantum counting here as well.
+    #
+    marked = 0
+    for i in range(marked_numbers):
+      if max_value > i:
+        marked += 1
+    marked_numbers = marked - 1
 
 
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  for i in range(10):
+  for _ in range(10):
     run_search(10, 8)
 
 

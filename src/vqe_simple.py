@@ -248,9 +248,9 @@ def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  for i in range(5):
+  for _ in range(5):
     run_single_qubit_measure()
-  for i in range(5):
+  for _ in range(5):
     run_single_qubit_mult()
   run_two_qubit_zi_experiment()
 

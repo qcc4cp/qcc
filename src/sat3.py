@@ -10,8 +10,8 @@ import numpy as np
 
 from src.lib import circuit
 from src.lib import helper
-from src.lib import state
 from src.lib import ops
+from src.lib import state
 
 
 # 3-Sat Satisfyability Decision Problem:
@@ -60,7 +60,7 @@ def print_formula(clauses):
   for expr in clauses:
     # convert each clause to string.
     substr = []
-    for idx, exp in enumerate(expr):
+    for idx, _ in enumerate(expr):
       # An int of 0 means negation.
       res = '-' if expr == FALSE else ' '
       substr.append(res + 'x' + str(idx))
@@ -271,7 +271,7 @@ def grover_with_circuit(variables: int = 3):
 
   # Let's compute the number of iterations we will need.
   iterations = int(math.pi / 4 * math.sqrt(2**variables))
-  
+
   # We have clauses of 3 (or more) OR'ed together literals:
   #    x0 or x1 or x2
   # where each literal can also be negated.
@@ -307,7 +307,7 @@ def grover_with_circuit(variables: int = 3):
   qc.h(reg)
 
   # Construct the circuit.
-  for iter in range(iterations):
+  for _ in range(iterations):
     cc = circuit.qc('Gates', eager=False)
 
     # First we negate each literal if it was not already negated.

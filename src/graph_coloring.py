@@ -9,9 +9,8 @@
 
 
 import itertools
-import math
-import numpy as np
 from absl import app
+import numpy as np
 
 from src.lib import circuit
 from src.lib import helper
@@ -127,6 +126,7 @@ def test_qubit_equality_circuit():
 class Graph:
   """Hold a graph definition."""
 
+  # pylint: disable=g-bare-generic
   def __init__(self, num_vertices: int, desc: str, edges: list):
     self.num = num_vertices
     self.edges = edges
@@ -165,11 +165,11 @@ def build_circuit(g: Graph):
   chk = qc.reg(len(g.edges))
   res = qc.reg(1)[0]
   tmp = qc.reg(g.num*2 - 1)
-  
+
   print(f'Solving [{g.desc}]: ', end='')
   print(f'{g.num} vertices, {len(g.edges)} edges -> {qc.nbits} qubits')
   iterations = 1
-  
+
   qc.h(reg)
   for _ in range(iterations):
     sc = qc.sub()
@@ -189,10 +189,10 @@ def build_circuit(g: Graph):
   # solutions to the (inverse) graph coloring problem, which
   # is to find the coloring with all colors being the same.
   #
-  maxbits, maxprob = qc.psi.maxprob()
+  _, maxprob = qc.psi.maxprob()
   for idx, val in enumerate(qc.psi):
     bits = helper.val2bits(idx, qc.nbits)
-    if np.real(val.conj() * val) > (maxprob - 0.005):   
+    if np.real(val.conj() * val) > (maxprob - 0.005):
       print('  Color:', bits[0:g.num * 2])
       if g.verify(bits):
         raise AssertionError('Incorrect color assignment found.')
@@ -207,15 +207,15 @@ def main(argv):
 
   test_qubit_equality_circuit()
 
-  build_circuit(Graph(2,'simple line', [(0, 1)]))
-  build_circuit(Graph(3,'simple triangle', [(0, 1), (1, 2), (2, 0)]))
-  
+  build_circuit(Graph(2, 'simple line', [(0, 1)]))
+  build_circuit(Graph(3, 'simple triangle', [(0, 1), (1, 2), (2, 0)]))
+
   # These may run too slow, disable if that's the case
-  build_circuit(Graph(4,'star formation', [(0, 1), (0, 2), (0, 3)]))
-  build_circuit(Graph(4,'rectangle', [(0, 1), (1, 2), (2, 3)]))
+  build_circuit(Graph(4, 'star formation', [(0, 1), (0, 2), (0, 3)]))
+  build_circuit(Graph(4, 'rectangle', [(0, 1), (1, 2), (2, 3)]))
 
   # This is the slowest. Disabled by default.
-  # build_circuit(Graph(4,'rectangle+diag', [(0, 1), (1, 2), (2, 3), (3, 0)]))
+  # build_circuit(Graph(4, 'rectangle+diag', [(0, 1), (1, 2), (2, 3), (3, 0)]))
 
 
 if __name__ == '__main__':

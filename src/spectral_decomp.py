@@ -90,7 +90,7 @@ def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  for i in range(20):
+  for _ in range(20):
     spectral_decomp(32)
   print('Spectral decomposition: Success')
 

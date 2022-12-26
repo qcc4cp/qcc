@@ -59,7 +59,7 @@ def experiment_qc(a: int, b: int, cin: int,
   bout, _ = qc.measure_bit(4, tostate=1, collapse=False)
   print(f'a: {a} b: {b} cin: {cin} sum: {bsum:.0f} cout: {bout:.0f}')
   if (not math.isclose(bsum, expected_sum, abs_tol=1e-5) or
-      not math.isclose(bout,expected_cout, abs_tol=1e-5)):
+      not math.isclose(bout, expected_cout, abs_tol=1e-5)):
     raise AssertionError('invalid results')
 
 
@@ -74,7 +74,7 @@ def experiment_matrix(a: int, b: int, cin: int,
   bout, _ = ops.Measure(psi, 4, tostate=1, collapse=False)
   print(f'a: {a} b: {b} cin: {cin} sum: {bsum:.0f} cout: {bout:.0f}')
   if (not math.isclose(bsum, expected_sum) or
-      not math.isclose(bout,expected_cout)):
+      not math.isclose(bout, expected_cout)):
     raise AssertionError('invalid results')
 
 

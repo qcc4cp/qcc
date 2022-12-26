@@ -58,7 +58,7 @@ def run_experiment(nbits: int, t: int = 8):
   #------------------------------------------
   # Make state and circuit to estimate phi.
   #------------------------------------------
-  
+
   # Pick eigenvector 'eigen_index' to match the eigenvalue.
   # Combine the 't' register with a register wide enough to hold
   # the unitary and construct contolled gates. Also apply
@@ -150,7 +150,7 @@ def run_experiment_multi(nbits: int, t: int = 8):
     # values of 't' and 'nbits' (derived experimentally).
     if psi.prob(*bits) < 0.05:
       continue
-      
+
     phi_estimate = sum(bits[i] * 2**(-i-1) for i in range(t))
     estimates.append(phi_estimate)
 
