@@ -149,10 +149,12 @@ def run_experiment(nbits, solutions) -> None:
 def run_experiment_circuit(nbits) -> None:
   """Run circuit-based experiment."""
 
+  # pylint disable=g-bare-generic
   def multi(qc: circuit.qc, gate: ops.Operator, idx: list):
     for i in idx:
       qc.apply1(gate, i, 'multi')
 
+  # pylint disable=g-bare-generic
   def multi_masked(qc: circuit.qc, gate: ops.Operator, idx: list,
                    mask, allow: int):
     for i in idx:

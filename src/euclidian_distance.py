@@ -2,9 +2,9 @@
 """Example: Euclidian Distance."""
 
 
+import random
 from absl import app
 import numpy as np
-import random
 
 from src.lib import ops
 from src.lib import state
@@ -14,19 +14,19 @@ def run_experiment(a, b):
   """Compute Euclidian Distance between vectors a and b."""
 
   print(f'Quantum Euclidian Distance between a={a} b={b}')
-  
+
   norm_a = np.linalg.norm(a)
   norm_b = np.linalg.norm(b)
   if norm_a == 0 or norm_b == 0:
     return
   normed_a = a / norm_a
   normed_b = b / norm_b
-  Z = (norm_a ** 2) + (norm_b ** 2)
+  z = (norm_a ** 2) + (norm_b ** 2)
 
   # Create state phi:
-  #  |phi> = 1 / sqrt(Z) (||a|| |0> - ||b|| |1>)
+  #  |phi> = 1 / sqrt(z) (||a|| |0> - ||b|| |1>)
   #
-  phi = state.State(1 / np.sqrt(Z) * np.array([norm_a, -norm_b]))
+  phi = state.State(1 / np.sqrt(z) * np.array([norm_a, -norm_b]))
 
   # Create state psi:
   #  |psi> = 1 / sqrt(2) |0>|a> + |1>|b>)
@@ -37,7 +37,7 @@ def run_experiment(a, b):
   # Make a combined state with an ancilla (|0>), phi, and psi:
   #
   combo = state.bitstring(0) * phi * psi
-  
+
   # Construct a swap test and find the measurement probability
   # of the ancilla.
   #
@@ -49,7 +49,7 @@ def run_experiment(a, b):
 
   # Now compute the euclidian norm from the probability.
   #
-  eucl_dist_q = (4 * Z * (p0 - 0.5)) ** 0.5
+  eucl_dist_q = (4 * z * (p0 - 0.5)) ** 0.5
 
   # We can also compute the euclidian distance classically.
   #
@@ -63,15 +63,15 @@ def run_experiment(a, b):
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
-    
+
   print('Compute Quantum Euclidian Distance.')
 
-  for iter in range(10):
+  for _ in range(10):
     a = np.array(random.choices(range(10), k=4))
     b = np.array(random.choices(range(10), k=4))
     run_experiment(a, b)
 
-  for iter in range(10):
+  for _ in range(10):
     a = np.array(random.choices(range(100), k=8))
     b = np.array(random.choices(range(100), k=8))
     run_experiment(a, b)

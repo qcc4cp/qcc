@@ -16,7 +16,7 @@ def main(argv):
   # Alice has qubits 1 and 4
   # Bob   has qubits 2 and 3
   qc = circuit.qc('swap the entanglement', eager=True)
-  reg = qc.reg(4, 0)
+  qc.reg(4, 0)
 
   # Qubits 1 and 2 are entangled, and so are qubits 3 and 4:
   #

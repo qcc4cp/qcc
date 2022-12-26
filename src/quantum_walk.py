@@ -8,7 +8,7 @@ from src.lib import helper
 from src.lib import ops
 
 
-def incr(qc, idx: int, nbits: int, aux, controller=[]):
+def incr(qc, idx: int, nbits: int, aux, controller):
   """Increment-by-1 circuit."""
 
   # See "Efficient Quantum Circuit Implementation of
@@ -26,7 +26,7 @@ def incr(qc, idx: int, nbits: int, aux, controller=[]):
     qc.multi_control(ctl, i+idx, aux, ops.PauliX(), 'multi-1-X')
 
 
-def decr(qc, idx: int, nbits: int, aux, controller=[]):
+def decr(qc, idx: int, nbits: int, aux, controller):
   """Decrement-by-1 circuit."""
 
   # See "Efficient Quantum Circuit Implementation of
@@ -50,11 +50,11 @@ def experiment_incr():
   """Run a few incr experiments."""
 
   qc = circuit.qc('incr')
-  x = qc.reg(4, 0)
+  qc.reg(4, 0)
   aux = qc.reg(4)
 
   for val in range(15):
-    incr(qc, 0, 4, aux)
+    incr(qc, 0, 4, aux, [])
 
     maxbits, _ = qc.psi.maxprob()
     res = helper.bits2val(maxbits[0:4])
@@ -65,11 +65,11 @@ def experiment_incr():
 def experiment_decr():
   """Run a few decr experiments."""
   qc = circuit.qc('decr')
-  x = qc.reg(4, 15)
+  qc.reg(4, 15)
   aux = qc.reg(4)
 
   for val in range(15, 0, -1):
-    decr(qc, 0, 4, aux)
+    decr(qc, 0, 4, aux, [])
 
     maxbits, _ = qc.psi.maxprob()
     res = helper.bits2val(maxbits[0:4])
@@ -107,7 +107,7 @@ def experiment_mod_9():
   """Run a few incr-mod-9 experiments."""
 
   qc = circuit.qc('incr')
-  x = qc.reg(4, 0)
+  qc.reg(4, 0)
   aux = qc.reg(5)  # extra aux
 
   for val in range(18):

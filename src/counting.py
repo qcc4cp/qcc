@@ -28,6 +28,7 @@ from src.lib import state
 #             M = N * sin(phi/2)^2
 
 
+# pylint disable=g-bare-generic
 def make_f(d: int = 3, solutions: int = 1) -> Callable:
   """Construct function that will return 1 for 'solutions' bits."""
 
