@@ -35,7 +35,7 @@ def ghz_state(nbits: int) -> state.State:
 
 
 def w_state() -> state.State:
-  """Make a 4-qubit |W> state)."""
+  """Make a 3-qubit |W> state)."""
 
   # A 3-qubit |W> state (named after Wolfgang Duerr (2002)) is this state:
   #   1/sqrt(3)(|001> + |010> + |100>)

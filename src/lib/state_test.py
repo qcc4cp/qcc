@@ -11,11 +11,11 @@ from src.lib import state
 class StateTest(absltest.TestCase):
 
   def test_simple_state(self):
-    psi = state.zero
+    psi = state.zeros(1)
     self.assertEqual(psi[0], 1)
     self.assertEqual(psi[1], 0)
 
-    psi = state.one
+    psi = state.ones(1)
     self.assertEqual(psi[0], 0)
     self.assertEqual(psi[1], 1)
 
@@ -32,6 +32,28 @@ class StateTest(absltest.TestCase):
     psi = state.rand(8)
     self.assertEqual(psi.nbits, 8)
 
+  def test_state_gen(self):
+    hadamard = (1 / np.sqrt(2) * np.array([[1.0, 1.0], [1.0, -1.0]]))
+    sgate = np.array([[1.0, 0.0], [0.0, 1.0j]])
+    
+    psi = state.zeros(1)
+    psi = hadamard @ psi
+    self.assertTrue(psi.is_close(state.plus()))
+
+    psi = state.ones(1)
+    psi = hadamard @ psi
+    self.assertTrue(psi.is_close(state.minus()))
+
+    psi = state.zeros(1)
+    psi = hadamard @ psi
+    psi = sgate @ psi
+    self.assertTrue(psi.is_close(state.plusi()))
+
+    psi = state.ones(1)
+    psi = hadamard @ psi
+    psi = sgate @ psi
+    self.assertTrue(psi.is_close(state.minusi()))
+
   def test_probabilities(self):
     psi = state.bitstring(0, 1, 1)
     self.assertEqual(psi.prob(0, 0, 0), 0.0)
@@ -42,16 +64,6 @@ class StateTest(absltest.TestCase):
     self.assertEqual(psi.prob(1, 0, 1), 0.0)
     self.assertEqual(psi.prob(1, 1, 0), 0.0)
     self.assertEqual(psi.prob(1, 1, 1), 0.0)
-
-  def test_schmidt(self):
-    psi = state.zeros(2)
-    self.assertEqual(psi.schmidt_number([1]), 1.0)
-
-    psi = state.bitstring(0, 1, 1, 0, 1, 0, 1, 1)
-    self.assertEqual(psi.schmidt_number([1]), 1.0)
-
-    psi = state.State(np.array([1.0, 1.0, 0.0, 1.0]))
-    self.assertNotEqual(psi.schmidt_number([1]), 1.0)
 
   def test_density(self):
     psi = state.bitstring(1, 0)

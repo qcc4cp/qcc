@@ -13,10 +13,9 @@ from src.lib import state
 class BellTest(absltest.TestCase):
 
   def test_bell(self):
-    """Check successful entanglement by computing the schmidt_number."""
+    """Check successful entanglement."""
 
     b00 = bell.bell_state(0, 0)
-    self.assertGreater(b00.schmidt_number([1]), 1.0)
     self.assertTrue(b00.is_close((state.zeros(2) + state.ones(2))/math.sqrt(2)))
 
     # Note the order is reversed from pictorials.
@@ -25,14 +24,6 @@ class BellTest(absltest.TestCase):
     b00_exp = op_exp(state.zeros(2))
     self.assertTrue(b00.is_close(b00_exp))
 
-    b01 = bell.bell_state(0, 1)
-    self.assertGreater(b01.schmidt_number([1]), 1.0)
-
-    b10 = bell.bell_state(1, 0)
-    self.assertGreater(b10.schmidt_number([1]), 1.0)
-
-    b11 = bell.bell_state(1, 1)
-    self.assertGreater(b11.schmidt_number([1]), 1.0)
 
   def test_not_pure(self):
     """Bell states are pure states."""

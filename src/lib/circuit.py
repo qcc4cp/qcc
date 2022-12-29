@@ -350,8 +350,8 @@ class qc:
 #  1- or 2-qubit gate, hence slow.
 #  Do not use (unless really unavoidable)
 #
-#    def unitary(self, op, idx):
-#      self.psi = ops.Operator(op)(self.psi, idx)
+  def unitary(self, op, idx):
+    self.psi = ops.Operator(op)(self.psi, idx)
 
 # --- Measure ----------------------------------------------------
   def measure_bit(self, idx: int, tostate: int = 0,

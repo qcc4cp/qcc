@@ -187,12 +187,38 @@ def zeros_or_ones(d: int = 1, idx: int = 0) -> State:
 
 def zeros(d: int = 1) -> State:
   """Produce state with 'd' |0>, eg., |0000>."""
+  
   return zeros_or_ones(d, 0)
 
 
 def ones(d: int = 1) -> State:
   """Produce state with 'd' |1>, eg., |1111>."""
+  
   return zeros_or_ones(d, 2**d - 1)
+
+
+def plus(d: int = 1) -> State:
+  """Product state |+>."""
+
+  return State([1/np.sqrt(2), 1/np.sqrt(2)]).kpow(d)
+
+
+def minus(d: int = 1) -> State:
+  """Product state |->."""
+
+  return State([1/np.sqrt(2), -1/np.sqrt(2)]).kpow(d)
+
+
+def plusi(d: int = 1) -> State:
+  """Product state |i>."""
+
+  return State([1/np.sqrt(2), 1j/np.sqrt(2)]).kpow(d)
+
+
+def minusi(d: int = 1) -> State:
+  """Product state |-i>."""
+
+  return State([1/np.sqrt(2), -1j/np.sqrt(2)]).kpow(d)
 
 
 def bitstring(*bits) -> State:
