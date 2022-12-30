@@ -55,10 +55,10 @@ class Tensor(np.ndarray):
   def nbits(self) -> int:
     return int(math.log2(self.shape[0]))
 
-  def is_close(self, arg) -> bool:
+  def is_close(self, arg, tolerance: float = 1e-6) -> bool:
     """Check that a 1D or 2D tensor is numerically close to arg."""
 
-    return np.allclose(self, arg, atol=1e-6)
+    return np.allclose(self, arg, atol=tolerance)
 
   def is_hermitian(self) -> bool:
     """Check if this tensor is hermitian - Udag = U."""
