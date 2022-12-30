@@ -9,6 +9,7 @@ import numpy as np
 
 from src.lib import circuit
 from src.lib import ops
+from src.lib import state
 
 
 def single_qubit():
@@ -51,6 +52,23 @@ def single_qubit():
 
     print(f'qubit({qc.psi[0]:11.2f}, {qc.psi[1]:11.2f}) = ', end='')
     print(f'{i:11.2f} I + {x:11.2f} X + {y:11.2f} Y + {z:11.2f} Z')
+
+    # There is another way to decompose 2x2 matrices in terms of
+    # Pauli matrices and rank-one projectors. See:
+    #   https://quantumcomputing.stackexchange.com/q/29497/11582
+    #
+    zero_projector = state.zeros(1).density()
+    one_projector = state.ones(1).density()
+    plus_projector = state.plus(1).density()
+    i_projector = state.plusi(1).density()
+
+    a1 = (i + z) * zero_projector
+    a2 = (i - z) * one_projector
+    a3 = x * (2 * plus_projector - zero_projector - one_projector)
+    a4 = y * (2 * i_projector - zero_projector - one_projector)
+    a = 0.5 * (a1 + a2 + a3 + a4)
+    if not np.allclose(rho, a, atol=1e-06):
+      raise AssertionError('Invalid representation as projectors')
 
 
 def two_qubit():
@@ -100,12 +118,16 @@ def two_qubit():
     # (without c[0][0]) are added up. If the sum is <= 1.0, the qubit
     # states are still seperable.
     #
-    diag = np.abs(c[1][1]) + np.abs(c[2][2]) + np.abs(c[3][3])
-    print(f'{iteration}: diag: {diag:5.2f} ', end='')
-    if diag > 1.0:
-      print('--> Entangled')
-    else:
-      print('Seperable')
+    # Note: According to this answer following,
+    #       this entanglement test is incorrect (hence commented):
+    #       https://quantumcomputing.stackexchange.com/a/26667/11582
+    #
+    # diag = np.abs(c[1][1]) + np.abs(c[2][2]) + np.abs(c[3][3])
+    # print(f'{iteration}: diag: {diag:5.2f} ', end='')
+    # if diag > 1.0:
+    #   print('--> Entangled')
+    # else:
+    #   print('Seperable')
 
     # Let's verify the result and construct a density matrix
     # from the Pauli matrices using the computed factors:
