@@ -74,7 +74,7 @@ def single_qubit():
 def two_qubit():
   """Compute Pauli representation for two-qubit system."""
 
-  for iteration in range(10):
+  for _ in range(10):
 
     # First we construct a circuit with two, very random qubits.
     #

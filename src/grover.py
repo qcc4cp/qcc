@@ -2,6 +2,7 @@
 """Example: Grover Algorithm."""
 
 import math
+from typing import List
 
 from absl import app
 import numpy as np
@@ -150,12 +151,12 @@ def run_experiment_circuit(nbits) -> None:
   """Run circuit-based experiment."""
 
   # pylint disable=g-bare-generic
-  def multi(qc: circuit.qc, gate: ops.Operator, idx: list):
+  def multi(qc: circuit.qc, gate: ops.Operator, idx: List[int]):
     for i in idx:
       qc.apply1(gate, i, 'multi')
 
   # pylint disable=g-bare-generic
-  def multi_masked(qc: circuit.qc, gate: ops.Operator, idx: list,
+  def multi_masked(qc: circuit.qc, gate: ops.Operator, idx: List[int],
                    mask, allow: int):
     for i in idx:
       if mask[i] == allow:

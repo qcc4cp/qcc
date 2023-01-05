@@ -11,16 +11,16 @@ from src.lib import ops
 from src.lib import state
 
 
-def to_su2(U):
+def to_su2(u):
   """Convert a 2x2 unitary to a unitary with determinant 1.0."""
 
-  return np.sqrt(1 / np.linalg.det(U)) * U
+  return np.sqrt(1 / np.linalg.det(u)) * u
 
 
-def trace_dist(U, V):
+def trace_dist(u, v):
   """Compute trace distance between two 2x2 matrices."""
 
-  return np.real(0.5 * np.trace(np.sqrt((U - V).adjoint() @ (U - V))))
+  return np.real(0.5 * np.trace(np.sqrt((u - v).adjoint() @ (u - v))))
 
 
 def create_unitaries(base, limit):
@@ -36,10 +36,10 @@ def create_unitaries(base, limit):
   gate_list = []
   for width in range(limit):
     for bits in helper.bitprod(width):
-      U = ops.Identity()
+      u = ops.Identity()
       for bit in bits:
-        U = U @ base[bit]
-      gate_list.append(U)
+        u = u @ base[bit]
+      gate_list.append(u)
   return gate_list
 
 
@@ -57,30 +57,30 @@ def find_closest_u(gate_list, u):
   return min_u
 
 
-def u_to_bloch(U):
+def u_to_bloch(u):
   """Compute angle and axis for a unitary."""
 
-  angle = np.real(np.arccos((U[0, 0] + U[1, 1])/2))
+  angle = np.real(np.arccos((u[0, 0] + u[1, 1])/2))
   sin = np.sin(angle)
   if sin < 1e-10:
     axis = [0, 0, 1]
   else:
-    nx = (U[0, 1] + U[1, 0]) / (2j * sin)
-    ny = (U[0, 1] - U[1, 0]) / (2 * sin)
-    nz = (U[0, 0] - U[1, 1]) / (2j * sin)
+    nx = (u[0, 1] + u[1, 0]) / (2j * sin)
+    ny = (u[0, 1] - u[1, 0]) / (2 * sin)
+    nz = (u[0, 0] - u[1, 1]) / (2j * sin)
     axis = [nx, ny, nz]
   return axis, 2 * angle
 
 
-def gc_decomp(U):
+def gc_decomp(u):
   """Group commutator decomposition."""
 
-  def diagonalize(U):
-    _, V = np.linalg.eig(U)
-    return ops.Operator(V)
+  def diagonalize(u):
+    _, v = np.linalg.eig(u)
+    return ops.Operator(v)
 
   # Get axis and theta for the operator.
-  axis, theta = u_to_bloch(U)
+  axis, theta = u_to_bloch(u)
 
   # The angle phi comes from eq 10 in 'The Solovay-Kitaev Algorithm' by
   # Dawson, Nielsen. It is fully derived in the book section on the
@@ -88,32 +88,32 @@ def gc_decomp(U):
   phi = 2.0 * np.arcsin(np.sqrt(
       np.sqrt((0.5 - 0.5 * np.cos(theta / 2)))))
 
-  V = ops.RotationX(phi)
+  v = ops.RotationX(phi)
   if axis[2] > 0:
-    W = ops.RotationY(2 * np.pi - phi)
+    w = ops.RotationY(2 * np.pi - phi)
   else:
-    W = ops.RotationY(phi)
+    w = ops.RotationY(phi)
 
-  Ud = diagonalize(U)
-  VWVdWdd = diagonalize(V @ W @ V.adjoint() @ W.adjoint())
-  S = Ud @ VWVdWdd.adjoint()
+  ud = diagonalize(u)
+  vwvdwd = diagonalize(v @ w @ v.adjoint() @ w.adjoint())
+  s = ud @ vwvdwd.adjoint()
 
-  V_hat = S @ V @ S.adjoint()
-  W_hat = S @ W @ S.adjoint()
-  return V_hat, W_hat
+  v_hat = s @ v @ s.adjoint()
+  w_hat = s @ w @ s.adjoint()
+  return v_hat, w_hat
 
 
-def sk_algo(U, gates, n):
+def sk_algo(u, gates, n):
   """Solovay-Kitaev Algorithm."""
 
   if n == 0:
-    return find_closest_u(gates, U)
+    return find_closest_u(gates, u)
   else:
-    U_next = sk_algo(U, gates, n-1)
-    V, W = gc_decomp(U @ U_next.adjoint())
-    V_next = sk_algo(V, gates, n-1)
-    W_next = sk_algo(W, gates, n-1)
-    return V_next @ W_next @ V_next.adjoint() @ W_next.adjoint() @ U_next
+    u_next = sk_algo(u, gates, n-1)
+    v, w = gc_decomp(u @ u_next.adjoint())
+    v_next = sk_algo(v, gates, n-1)
+    w_next = sk_algo(w, gates, n-1)
+    return v_next @ w_next @ v_next.adjoint() @ w_next.adjoint() @ u_next
 
 
 def random_gates(min_length, max_length, num_experiments):
@@ -121,24 +121,24 @@ def random_gates(min_length, max_length, num_experiments):
 
   base = [to_su2(ops.Hadamard()), to_su2(ops.Tgate())]
 
-  U = (ops.RotationX(2.0 * np.pi * random.random()) @
+  u = (ops.RotationX(2.0 * np.pi * random.random()) @
        ops.RotationY(2.0 * np.pi * random.random()) @
        ops.RotationZ(2.0 * np.pi * random.random()))
 
   min_dist = 1000
   for _ in range(num_experiments):
     seq_length = min_length + random.randint(0, max_length)
-    U_approx = ops.Identity()
+    u_approx = ops.Identity()
 
     for _ in range(seq_length):
       g = random.randint(0, 1)
-      U_approx = U_approx @ base[g]
+      u_approx = u_approx @ base[g]
 
-    dist = trace_dist(U, U_approx)
+    dist = trace_dist(u, u_approx)
     min_dist = min(dist, min_dist)
 
-  phi1 = U(state.zero)
-  phi2 = U_approx(state.zero)
+  phi1 = u(state.zero)
+  phi2 = u_approx(state.zero)
   print('Trace Dist: {:.4f} State: {:6.4f}%'.
         format(min_dist,
                100.0 * (1.0 - np.real(np.dot(phi1, phi2.conj())))))
@@ -160,20 +160,20 @@ def main(argv):
   sum_dist = 0.0
   for i in range(num_experiments):
 
-      U = (ops.RotationX(2.0 * np.pi * random.random()) @
-           ops.RotationY(2.0 * np.pi * random.random()) @
-           ops.RotationZ(2.0 * np.pi * random.random()))
+    u = (ops.RotationX(2.0 * np.pi * random.random()) @
+         ops.RotationY(2.0 * np.pi * random.random()) @
+         ops.RotationZ(2.0 * np.pi * random.random()))
 
-      U_approx = sk_algo(U, gates, recursion)
+    u_approx = sk_algo(u, gates, recursion)
 
-      dist = trace_dist(U, U_approx)
-      sum_dist += dist
+    dist = trace_dist(u, u_approx)
+    sum_dist += dist
 
-      phi1 = U(state.zero)
-      phi2 = U_approx(state.zero)
-      print('[{:2d}]: Trace Dist: {:.4f} State: {:6.4f}%'.
-            format(i, dist,
-                   100.0 * (1.0 - np.real(np.dot(phi1, phi2.conj())))))
+    phi1 = u(state.zero)
+    phi2 = u_approx(state.zero)
+    print('[{:2d}]: Trace Dist: {:.4f} State: {:6.4f}%'.
+          format(i, dist,
+                 100.0 * (1.0 - np.real(np.dot(phi1, phi2.conj())))))
 
   print('Gates: {}, Mean Trace Dist:: {:.4f}'.
         format(len(gates), sum_dist / num_experiments))

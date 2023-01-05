@@ -56,7 +56,7 @@ def run_experiment_single(a1: np.complexfloating, a2: np.complexfloating,
     raise AssertionError(
         'Probability {:.2f} off more than 5% from target {:.2f}'
         .format(p0, target))
-  print('Similarity of a1: {:.2f}, a2: {:.2f} ==>  %: {:.2f}'
+  print('Similarity of a1: {:.2f}, a2: {:.2f} => %: {:.2f}'
         .format(a1, a2, 100.0 * p0))
 
 
@@ -91,7 +91,7 @@ def run_experiment_double(a0: np.complexfloating, a1: np.complexfloating,
 
   # Measure once.
   p0, _ = ops.Measure(psi, 0)
-  print('Similarity of (a0: {:.2f}, a1: {:.2f}) (b0: {:.2f}, b1: {:.2f}) ==>  %: {:.2f}'
+  print('Sim of (a0: {:.2f}, a1: {:.2f}) (b0: {:.2f}, b1: {:.2f}) => %: {:.2f}'
         .format(a0, a1, b0, b1, 100.0 * p0))
   if abs(p0 - target) > 0.05:
     raise AssertionError(
@@ -137,7 +137,7 @@ def main(argv):
   #
   if abs(p0 - 0.624999) > 0.5:
     raise AssertionError('Incorrect math on example.')
-  print(f'Similarity from literature: p={p0:.3f}, dot={2 * (p0 - 0.5):.3f} (correct)')
+  print(f'Similarity from literature: p={p0:.3f}, dot={2*(p0-0.5):.3f} (ok)')
 
 
 if __name__ == '__main__':

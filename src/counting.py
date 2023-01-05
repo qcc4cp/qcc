@@ -3,7 +3,6 @@
 
 import math
 import random
-from typing import Callable
 
 from absl import app
 import numpy as np
@@ -29,7 +28,7 @@ from src.lib import state
 
 
 # pylint disable=g-bare-generic
-def make_f(d: int = 3, solutions: int = 1) -> Callable:
+def make_f(d: int = 3, solutions: int = 1):
   """Construct function that will return 1 for 'solutions' bits."""
 
   num_inputs = 2**d
