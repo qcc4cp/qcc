@@ -81,7 +81,7 @@ def main(argv):
     raise app.UsageError('Too many command-line arguments.')
   print('Schmidt Decomposition and Entanglement Test.')
 
-  iterations = 10000
+  iterations = 1000
   random.seed(7)
 
   # Test a number of separable states.

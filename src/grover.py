@@ -58,7 +58,7 @@ def make_f(d: int = 3, solutions: int = 1):
   return func
 
 
-def run_experiment(nbits, solutions) -> None:
+def run_experiment(nbits: int, solutions: int) -> None:
   """Run oracle-based experiment."""
 
   # Note that op_zero multiplies the diagonal elements of the operator by -1,
@@ -147,7 +147,7 @@ def run_experiment(nbits, solutions) -> None:
     raise AssertionError('something went wrong, measured invalid state')
 
 
-def run_experiment_circuit(nbits) -> None:
+def run_experiment_circuit(nbits: int) -> None:
   """Run circuit-based experiment."""
 
   # pylint disable=g-bare-generic
