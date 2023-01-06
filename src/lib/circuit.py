@@ -80,6 +80,7 @@ from src.lib import tensor
 flags.DEFINE_string('libq', '', 'Generate libq output file, or empty')
 flags.DEFINE_string('qasm', '', 'Generate qasm output file, or empty')
 flags.DEFINE_string('cirq', '', 'Generate cirq output file, or empty')
+flags.DEFINE_string('text', '', 'Generate text output file, or empty')
 flags.DEFINE_string('latex', '', 'Generate Latex output file, or empty')
 
 
@@ -160,6 +161,7 @@ class qc:
     self.dump_with_dumper(flags.FLAGS.libq, dumpers.libq)
     self.dump_with_dumper(flags.FLAGS.qasm, dumpers.qasm)
     self.dump_with_dumper(flags.FLAGS.cirq, dumpers.cirq)
+    self.dump_with_dumper(flags.FLAGS.text, dumpers.totext)
     self.dump_with_dumper(flags.FLAGS.latex, dumpers.latex)
 
   def optimize(self):
@@ -561,7 +563,7 @@ class qc:
     return sub
 
 # --- Debug --------------------------------------------------
-  def dump(self, desc=None):
+  def dump(self, *, desc=None, draw=False, state=True):
     """Simple dumper for basic debugging of a circuit."""
 
     if desc:
@@ -569,4 +571,7 @@ class qc:
     if self.name:
       print(f'Circuit: {self.name}, Gates: {len(self.ir.gates)}')
     print(self.ir, end='')
-    self.psi.dump('Current state')
+    if draw:
+      print(dumpers.totext(self.ir))
+    if state:
+      self.psi.dump('Current state')

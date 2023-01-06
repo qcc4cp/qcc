@@ -5,7 +5,6 @@
 
 from src.lib import helper
 
-
 def reg2str(ir, idx):
   """Convert absolute register index to register-based string."""
 
@@ -202,3 +201,46 @@ def latex(ir) -> str:
 
   res += r'\end{qcc}'
   return res
+
+
+def totext(ir) -> str:
+  """Minimal Dumper to ASCII text."""
+
+  def mkname(op):
+    name = op.name.upper()
+    if name == 'CZ':
+      name = 'o'
+    if op.val is not None:
+      parm = '({})'.format(helper.pi_fractions(op.val, r'pi'))
+      name += parm
+    return name
+
+  # First let's create a matrix according to circuit size,
+  # before populating it with gates or lines.
+  larr = []
+  for q in range(ir.nregs):
+    larr.append([''] * (ir.ngates + 1))
+
+  depth = 0
+  for op in ir.gates:
+    name = mkname(op)
+    for r in range(ir.nregs):
+      larr[r][depth] = '-' * (len(name) + 2)
+
+    if op.is_single():
+      larr[op.idx0][depth] = '-' + name + '-'
+
+    if op.is_ctl():
+       larr[op.ctl][depth] = '-' + 'o' + ('-' * (len(name)-1)) + '-'
+       larr[op.idx1][depth] = '-' + name + '-'
+       dir = int((op.idx1 - op.ctl) / abs(op.idx1 - op.ctl))
+       for i in range(op.ctl + dir, op.idx1, dir):
+         larr[i][depth] = '-|-'
+
+    depth += 1
+
+  ret = ''
+  for q in range(ir.nregs):
+    ret += ''.join(larr[q]) + '\n'
+
+  return ret
