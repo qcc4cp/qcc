@@ -344,6 +344,19 @@ class CircuitTest(absltest.TestCase):
     self.assertTrue(abs(qc0.psi.ampl(0, 1, 0) - qc1.psi.ampl(1, 1, 0)) < 1e-5)
     self.assertTrue(abs(qc0.psi.ampl(0, 1, 1) - qc1.psi.ampl(1, 1, 1)) < 1e-5)
 
+  def test_state_constructor(self):
+    psi = state.bitstring(0, 0)
+    psi = ops.Hadamard()(psi)
+    psi = ops.Cnot(0, 1)(psi)
+
+    qc = circuit.qc('test')
+    qc.state(psi)
+    self.assertTrue(math.isclose(np.real(psi[0]), 1/np.sqrt(2), abs_tol=1e-6))
+    self.assertTrue(math.isclose(np.real(psi[1]), 0, abs_tol=1e-6))
+    self.assertTrue(math.isclose(np.real(psi[2]), 0, abs_tol=1e-6))
+    self.assertTrue(math.isclose(np.real(psi[3]), 1/np.sqrt(2), abs_tol=1e-6))
+    self.assertTrue(psi.nbits == 2)
+
 
 if __name__ == '__main__':
   absltest.main()

@@ -145,6 +145,11 @@ class qc:
     self.psi = self.psi * state.rand(n)
     self.global_reg = self.global_reg + n
 
+  def state(self, t: tensor.Tensor) -> None:
+    psi = state.State(t)
+    self.global_reg = self.global_reg + psi.nbits
+    self.psi = self.psi * psi
+
   def stats(self) -> str:
     return ('Circuit Statistics\n' +
             '  Qubits: {}\n'.format(self.nbits) +
