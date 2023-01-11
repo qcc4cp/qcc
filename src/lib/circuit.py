@@ -574,7 +574,8 @@ class qc:
     if desc:
       print(desc)
     if self.name:
-      print(f'Circuit: {self.name}, Gates: {len(self.ir.gates)}')
+      print(f'Circuit: {self.name}, Gates: {len(self.ir.gates)},' +
+            'QBits: {self.psi.nbits}')
     print(self.ir, end='')
     if draw:
       print(dumpers.totext(self.ir))
