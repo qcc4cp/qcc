@@ -18,18 +18,18 @@ from absl import app
 import numpy as np
 
 from src.lib import circuit
-from src.lib import helper
-from src.lib import ops
 
 
 def pca():
+  """A single quantum principal component analysis."""
+
   # Data set from the paper is the correlation of
   #   - number of bedrooms
   #   - square footage
   #
-  x = [[4,3,4,4,3,3,3,3,4,4,4,5,4,3,4],
-       [3028,1365,2726,2538,1318,1693,1412,1632,2875,
-        3564,4412,4444,4278,3064,3857]]
+  x = [[4, 3, 4, 4, 3, 3, 3, 3, 4, 4, 4, 5, 4, 3, 4],
+       [3028, 1365, 2726, 2538, 1318, 1693, 1412, 1632, 2875,
+        3564, 4412, 4444, 4278, 3064, 3857]]
 
   # We center and normalize (by dividing by 1000) the data.
   #
@@ -44,8 +44,8 @@ def pca():
   #   It is unbiased, hence the 15, else we could use 15-1
   #   (which doesn't make a difference).
   #
-  m=np.array([[np.dot(x[0],x[0]),np.dot(x[0],x[1])],
-              [np.dot(x[1],x[0]),np.dot(x[1],x[1])]]) / 15
+  m = np.array([[np.dot(x[0], x[0]), np.dot(x[0], x[1])],
+                [np.dot(x[1], x[0]), np.dot(x[1], x[1])]]) / 15
 
   # We scale down M to make it a density matrix (where the trace
   # has to be 1). Later we must not forget to scale up the
