@@ -2,7 +2,7 @@
 
 This is the open-source repository for the book [Quantum Computing for Programmers](https://www.cambridge.org/us/academic/subjects/computer-science/algorithmics-complexity-computer-algebra-and-computational-g/quantum-computing-programmers?format=HB) by Robert Hundt, Cambridge University Press (QCC4CP for short). The book describes this implementation in great detail, including all the underlying math and derivations. To get started quickly on the Python sources, you may find the [Quickstart Guide](https://github.com/qcc4cp/qcc/blob/main/resources/quickstart.md) helpful.
 
-This project builds vendor-independent infrastructure from the ground up and implements standard algorithms, such as Quantum Teleportation, Quantum Phase estimation (QPE), Grover's Search (with application to Quantum counting, 3SAT, Graph Coloring, and Minimum finding), Quantum random walks, VQE, Max-Cut, Subset-Sum, Quantum Fourier Transform (QFT), Shor's integer factorization, Solovay-Kitaev, and a few more. It also implements high performance quantum simulation and a transpilation technique to compile circuits to other infrastructures, such as Qiskit or Cirq. 
+This project builds vendor-independent infrastructure from the ground up and implements standard algorithms, such as Quantum Teleportation, Superdense coding, Deutsch-Jozsa, Bernstein-Vazirani, Quantum Phase estimation (QPE), Grover's Search (with application to Quantum counting, 3SAT, Graph Coloring, and Minimum finding), Quantum random walks, VQE, Max-Cut, Subset-Sum, Quantum Fourier Transform (QFT), Shor's integer factorization, Solovay-Kitaev, Principal Component Analysis, and a few more. It also implements high performance quantum simulation and a transpilation technique to compile circuits to other infrastructures, such as Qiskit or Cirq. 
 
 The code is organized as follows:
 *  `src` is the main source directory. All algorithms are in this directory.
@@ -50,6 +50,7 @@ To run individual algorithms via `bazel`, run any of these command lines (note t
    bazel run pauli_rep
    bazel run phase_estimation
    bazel run phase_kick
+   bazel run quantum_pca
    bazel run quantum_walk
    bazel run shor_classic
    bazel run sat3
