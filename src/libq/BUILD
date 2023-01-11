@@ -12,7 +12,7 @@ cc_library(
         "-march=skylake",
         "-fstrict-aliasing",
         "-Wno-class-memaccess",
-        "-Wno-unknown-warning-option", 
+        "-Wno-alloc-size-larger-than",
     ],
 )
 
@@ -30,7 +30,7 @@ cc_library(
         "-march=skylake",
         "-fstrict-aliasing",
         "-Wno-class-memaccess",
-        "-Wno-unknown-warning-option",         
+        "-Wno-alloc-size-larger-than",
     ],
 )
 
