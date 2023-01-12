@@ -1,6 +1,8 @@
 # Quantum Computing for Programmers
 
-This is the open-source repository for the book [Quantum Computing for Programmers](https://www.cambridge.org/us/academic/subjects/computer-science/algorithmics-complexity-computer-algebra-and-computational-g/quantum-computing-programmers?format=HB) by Robert Hundt, Cambridge University Press (QCC4CP for short). The book describes this implementation in great detail, including all the underlying math and derivations. To get started quickly on the Python sources, you may find the [Quickstart Guide](https://github.com/qcc4cp/qcc/blob/main/resources/quickstart.md) helpful.
+This is the open-source repository for the book [Quantum Computing for Programmers](https://www.cambridge.org/us/academic/subjects/computer-science/algorithmics-complexity-computer-algebra-and-computational-g/quantum-computing-programmers?format=HB) by Robert Hundt, Cambridge University Press (QCC4CP for short). The book describes this implementation in great detail, including all the underlying math and derivations. Note, however, that this code base is evolving - not all algorithms found here are discussed in the book.
+
+To get started quickly on the Python sources, you may find the [Quickstart Guide](https://github.com/qcc4cp/qcc/blob/main/resources/quickstart.md) helpful.
 
 This project builds vendor-independent infrastructure from the ground up and implements standard algorithms, such as Quantum Teleportation, Superdense coding, Deutsch-Jozsa, Bernstein-Vazirani, Quantum Phase estimation (QPE), Grover's Search (with application to Quantum counting, 3SAT, Graph Coloring, and Minimum finding), Quantum random walks, VQE, Max-Cut, Subset-Sum, Quantum Fourier Transform (QFT), Shor's integer factorization, Solovay-Kitaev, Principal Component Analysis, and a few more. It also implements high performance quantum simulation and a transpilation technique to compile circuits to other infrastructures, such as Qiskit or Cirq. 
 
@@ -31,6 +33,7 @@ The main algorithms are all in `src`.
 To run individual algorithms via `bazel`, run any of these command lines (note the missing `.py` extensions):
 
 ```
+# Algorithms discussed in the book:
    bazel run arith_classic
    bazel run arith_quantum
    bazel run bernstein
@@ -38,35 +41,38 @@ To run individual algorithms via `bazel`, run any of these command lines (note t
    bazel run deutsch
    bazel run deutsch_jozsa
    bazel run entanglement_swap
-   bazel run euclidian_distance
-   bazel run graph_coloring
    bazel run grover
-   bazel run hadamard_test
-   bazel run inversion_test
    bazel run max_cut
-   bazel run minimum_finding   
-   bazel run oracle_synth
    bazel run order_finding
-   bazel run pauli_rep
    bazel run phase_estimation
    bazel run phase_kick
-   bazel run purification   
-   bazel run quantum_pca
    bazel run quantum_walk
    bazel run shor_classic
-   bazel run sat3
-   bazel run schmidt_decomposition
    bazel run simon
    bazel run simon_general
    bazel run solovay_kitaev
-   bazel run spectral_decomp
    bazel run subset_sum
    bazel run superdense
    bazel run supremacy
    bazel run swap_test
    bazel run teleportation
    bazel run vqe_simple
+
+# Additional algorithms and techniques, not discussed in the book:
+   bazel run euclidian_distance
+   bazel run graph_coloring
+   bazel run hadamard_test
+   bazel run inversion_test
+   bazel run minimum_finding   
+   bazel run oracle_synth
+   bazel run pauli_rep
+   bazel run purification   
+   bazel run quantum_pca
+   bazel run sat3
+   bazel run schmidt_decomposition
+   bazel run spectral_decomp
    bazel run zy_decompose
+
 ```
 
 or, more general:
