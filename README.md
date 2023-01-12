@@ -50,6 +50,7 @@ To run individual algorithms via `bazel`, run any of these command lines (note t
    bazel run pauli_rep
    bazel run phase_estimation
    bazel run phase_kick
+   bazel run purification   
    bazel run quantum_pca
    bazel run quantum_walk
    bazel run shor_classic
@@ -108,4 +109,5 @@ Reach Robert at
 *  [Moez A. AbdelGawad](http://eng.staff.alexu.edu.eg/~moez/), Alexandria University, Egypt, for suggesting Windows and SageMath ports.  
 *  Stefanie Scherzinger, Universitaet Passau, for corrections and suggesting Docker.
 *  Abdolhamid Pourghazi and Stefan Klessinger for providing and maintaining the Dockerfile.
+*  Michael Broughton for help with purification.
 
