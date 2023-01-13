@@ -100,7 +100,7 @@ class Tensor(np.ndarray):
 
     return self.__class__(np.kron(self, arg))
 
-  def __mul__(self, arg: Tensor) -> Tensor:
+  def __mul__(self, arg: Tensor) -> Tensor: # type: ignore[override]
     """Inline * operator maps to kronecker product."""
 
     return self.kron(arg)
@@ -109,9 +109,9 @@ class Tensor(np.ndarray):
     """Return the tensor product of this object with itself `n` times."""
 
     if n == 0:
-      return 1.0
+      return self.__class__(1.0)
 
     t = self
     for _ in range(n - 1):
-      t = np.kron(t, self)
+      t = self.__class__(np.kron(t, self))
     return self.__class__(t)
