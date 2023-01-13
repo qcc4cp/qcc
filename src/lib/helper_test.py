@@ -63,6 +63,13 @@ class HelpersTest(absltest.TestCase):
     self.assertEqual(helper.pi_fractions(math.pi / 3), 'pi/3')
     self.assertEqual(helper.pi_fractions(math.pi / -2), '-pi/2')
 
+  def test_qubit_to_bloch(self) -> None:
+    psi = state.bitstring(0, 0)
+    x, y, z = helper.qubit_to_bloch(psi)
+    self.assertEqual(x, 0.0)
+    self.assertEqual(y, 0.0)
+    self.assertEqual(1, 1.0)
+
 
 if __name__ == '__main__':
   absltest.main()

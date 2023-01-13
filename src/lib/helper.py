@@ -52,7 +52,7 @@ def density_to_cartesian(rho: np.ndarray) -> Tuple[float, float, float]:
 def qubit_to_bloch(psi: np.ndarray):
   """Compute Bloch spere coordinates from 2x1 state vector/qubit."""
 
-  return density_to_cartesian(psi.density())
+  return density_to_cartesian(np.outer(psi, psi))
 
 
 def dump_bloch(x: float, y: float, z: float):
