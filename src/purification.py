@@ -14,14 +14,12 @@
 from absl import app
 import numpy as np
 
-from src.lib import circuit
 from src.lib import bell
-from src.lib import circuit
 from src.lib import ops
 from src.lib import state
 
 
-def purify(rho, nbits):
+def purify(rho: ops.Operator, nbits: int):
   """Purify a quantum state / density matrix."""
 
   rho_eig_val, rho_eig_vec = np.linalg.eig(rho)
@@ -40,7 +38,7 @@ def purify(rho, nbits):
   psi1 = np.zeros((2**(nbits * 2)), dtype=np.complex128)
   for i in range(len(rho_eig_val)):
     psi1 += (np.sqrt(rho_eig_val[i]) *
-             np.kron(rho_eig_vec[:,i], rho_eig_vec[:,i]))
+             np.kron(rho_eig_vec[:, i], rho_eig_vec[:, i]))
 
   # Version 2 using einsum's:
   #
@@ -49,7 +47,7 @@ def purify(rho, nbits):
 
   if not np.allclose(psi1, psi2):
     raise AssertionError('Something wrong with purification.')
-    
+
   # Verify the original reduced density matrix with the method
   # used in quantum_pca.py:
   #
@@ -61,8 +59,9 @@ def purify(rho, nbits):
   # Another way to compute the reduced density matrix:
   #
   reduced = state.State(psi1).density()
-  reduced = (ops.TraceOut(rho, [x for x in range(int(nbits),
-                                int(nbits*2))]) / (2**nbits))
+  reduced = (ops.TraceOut(rho,
+                          [x for x in range(int(nbits),
+                                            int(nbits*2))]) / (2**nbits))
 
   if not np.allclose(rho, reduced):
     raise AssertionError('Something wrong with reduced density')

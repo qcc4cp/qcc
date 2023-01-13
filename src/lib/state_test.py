@@ -73,6 +73,14 @@ class StateTest(absltest.TestCase):
     self.assertTrue(rho.is_pure())
     self.assertFalse(rho.is_unitary())
 
+    # The sum of eigenvalues for a pure state must be 1.0.
+    e, v = np.linalg.eig(rho)
+    self.assertEqual(np.sum(e), 1.0)
+
+    # Density matrix of a pure state must have rank 1.
+    rank = np.linalg.matrix_rank(rho)
+    self.assertEqual(rank, 1)
+
   def test_regs(self):
     a = state.Reg(3, [0, 1, 1], 0)
     b = state.Reg(3, [0, 0, 1], 3)

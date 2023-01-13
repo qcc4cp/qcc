@@ -32,7 +32,7 @@ from src.lib import state
 #    https://en.wikipedia.org/wiki/Schmidt_decomposition
 
 
-def compute_eigvals(psi, expected_nonzero, tolerance):
+def compute_eigvals(psi: state.State, expected_nonzero: int, tolerance: float):
   """Compute the eigenvalues for the individial substates."""
 
   # To find the factors \alpha and the new bases,
