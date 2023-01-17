@@ -96,10 +96,7 @@ def run_experiment(nbits: int, numbers: List[int], max_value: int,
   """Run oracle-based experiment."""
 
   # The following is commented extensively in grover.py
-  zero_projector = np.zeros((2**nbits, 2**nbits))
-  zero_projector[0, 0] = 1
-  op_zero = ops.Operator(zero_projector)
-
+  op_zero = ops.ZeroProjector(nbits)
   f = make_f(nbits, numbers, max_value)
   uf = ops.OracleUf(nbits+1, f)
 

@@ -238,9 +238,21 @@ def RotationZ(theta: float) -> Operator:
   return Rotation([0., 0., 1.], theta)
 
 
-def Projector(psi: state.State) -> Operator:
-  """Construct projection operator for basis state from outer product."""
-  return Operator(psi.density())
+def ZeroProjector(nbits: int) -> Operator:
+  """Return a project for n qubits of |0>."""
+
+  zero_projector = np.zeros((2**nbits, 2**nbits))
+  zero_projector[0, 0] = 1
+  return Operator(zero_projector)
+
+
+def OneProjector(nbits: int) -> Operator:
+  """Return a project for n qubits of |0>."""
+
+  dim = 2**nbits
+  zero_projector = np.zeros((dim, dim))
+  zero_projector[dim-1, dim-1] = 1
+  return Operator(zero_projector)
 
 
 # Note on indices for controlled operators:
@@ -261,8 +273,8 @@ def ControlledU(idx0: int, idx1: int, u: Operator) -> Operator:
   if idx0 == idx1:
     raise ValueError('Control and controlled qubit must not be equal.')
 
-  p0 = Projector(state.zeros(1))
-  p1 = Projector(state.ones(1))
+  p0 = ZeroProjector(1)
+  p1 = OneProjector(1)
   # space between qubits
   ifill = Identity(abs(idx1 - idx0) - 1)
   # 'width' of U in terms of Identity matrices
@@ -482,7 +494,7 @@ def Measure(psi: state.State, idx: int,
 
   # Compute probability of qubit(idx) to be in state 0 / 1.
   rho = psi.density()
-  op = Projector(state.zero) if tostate == 0 else Projector(state.one)
+  op = ZeroProjector(1) if tostate == 0 else OneProjector(1)
 
   # Construct full matrix to apply to density matrix:
   if idx > 0:

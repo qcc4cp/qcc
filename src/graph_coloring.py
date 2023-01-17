@@ -9,6 +9,8 @@
 
 
 import itertools
+from typing import List
+
 from absl import app
 import numpy as np
 
@@ -68,7 +70,7 @@ def test_qubit_equality_circuit():
   #     q2 ---X---
   #
   #   If the qubits were the same, q2 will be |0>.
-
+  #
   #   However, this also changes q2, so we have to store away
   #   the result and undo the Controlled-Not:
   #     q0 ---o-------o---
@@ -126,13 +128,12 @@ def test_qubit_equality_circuit():
 class Graph:
   """Hold a graph definition."""
 
-  # pylint: disable=g-bare-generic
-  def __init__(self, num_vertices: int, desc: str, edges: list):
+  def __init__(self, num_vertices: int, desc: str, edges: List[int]):
     self.num = num_vertices
     self.edges = edges
     self.desc = desc
 
-  def verify(self, bits, n=2):
+  def verify(self, bits, n:int = 2):
     """Verify that no connected vertices have the same color."""
 
     # For each edge, we check whether the colors assigned to fr/to
@@ -191,8 +192,8 @@ def build_circuit(g: Graph):
   #
   _, maxprob = qc.psi.maxprob()
   for idx, val in enumerate(qc.psi):
-    bits = helper.val2bits(idx, qc.nbits)
     if np.real(val.conj() * val) > (maxprob - 0.005):
+      bits = helper.val2bits(idx, qc.nbits)
       print('  Color:', bits[0:g.num * 2])
       if g.verify(bits):
         raise AssertionError('Incorrect color assignment found.')
