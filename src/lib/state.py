@@ -242,11 +242,6 @@ def rand(n: int) -> State:
   return bitstring(*bits)
 
 
-# These two are used so commonly, make them constants.
-zero = zeros(1)
-one = ones(1)
-
-
 class Reg():
   """Simple register class."""
 

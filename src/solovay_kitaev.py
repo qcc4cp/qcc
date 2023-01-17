@@ -137,8 +137,8 @@ def random_gates(min_length, max_length, num_experiments):
     dist = trace_dist(u, u_approx)
     min_dist = min(dist, min_dist)
 
-  phi1 = u(state.zero)
-  phi2 = u_approx(state.zero)
+  phi1 = u(state.zeros(1))
+  phi2 = u_approx(state.zeros(1))
   print('Trace Dist: {:.4f} State: {:6.4f}%'.
         format(min_dist,
                100.0 * (1.0 - np.real(np.dot(phi1, phi2.conj())))))
@@ -169,8 +169,8 @@ def main(argv):
     dist = trace_dist(u, u_approx)
     sum_dist += dist
 
-    phi1 = u(state.zero)
-    phi2 = u_approx(state.zero)
+    phi1 = u(state.zeros(1))
+    phi2 = u_approx(state.zeros(1))
     print('[{:2d}]: Trace Dist: {:.4f} State: {:6.4f}%'.
           format(i, dist,
                  100.0 * (1.0 - np.real(np.dot(phi1, phi2.conj())))))

@@ -138,11 +138,11 @@ class OpsTest(absltest.TestCase):
 
   def check_rotation(self, angle):
     # Note that RotationZ rotates by theta/2
-    psi = ops.RotationZ(math.pi/180.0*angle)(state.zero)
+    psi = ops.RotationZ(math.pi/180.0*angle)(state.zeros(1))
     self.assertTrue(math.isclose(-angle/2, psi.phase(0), abs_tol=1e-5))
 
   def test_phase(self):
-    psi = state.zero
+    psi = state.zeros(1)
     psi = ops.RotationZ(math.pi/2)(psi)
     phase = psi.phase(0)
 
