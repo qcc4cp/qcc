@@ -141,7 +141,7 @@ def simple_walk():
     idx_bits0 = idx_bits + (0,)
 
     # Printing bits0 only, this can be changed, of course.
-    if qc.psi.ampl(*idx_bits0) != 0.0:
+    if qc.psi.ampl(*idx_bits0) > 1e-5:
       print('{:5.1f} {:5.4f}'.format(float(helper.bits2val(bits)),
                                      qc.psi.ampl(*idx_bits0).real))
 
