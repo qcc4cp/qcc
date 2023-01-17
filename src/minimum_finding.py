@@ -2,6 +2,7 @@
 """Example: Minimunm Finding via Grover's Algorithm."""
 
 import math
+from typing import List
 
 from absl import app
 import numpy as np
@@ -65,13 +66,12 @@ from src.lib import state
 
 
 def get_distro(min_value: int, max_value: int, num_vals: int):
-  """Create 'num' random numbers from ranging from min to max."""
+  """Create 'num' random numbers ranging from min to max."""
 
   return sorted(np.random.choice(np.arange(min_value, max_value), num_vals))
 
 
-# pylint: disable=g-bare-generic
-def make_f(d: int, numbers: list, max_value: int):
+def make_f(d: int, numbers: List[int], max_value: int):
   """Construct function that will return 1 for each number up to max."""
 
   num_inputs = 2**d
@@ -92,8 +92,7 @@ def make_f(d: int, numbers: list, max_value: int):
   return func
 
 
-# pylint: disable=g-bare-generic
-def run_experiment(nbits: int, numbers: list, max_value: int,
+def run_experiment(nbits: int, numbers: List[int], max_value: int,
                    solutions: int) -> None:
   """Run oracle-based experiment."""
 
@@ -165,7 +164,7 @@ def run_search(marked_numbers: int, qubits: int):
     # quantum counting.
     #
     if max_value == numbers[0]:
-      print(f'*** SUCCESS, smallest element, {i + 1} iters', max_value)
+      print(f'*** SUCCESS. Smallest element = {max_value}, {i + 1} iters')
       break
 
     # In order to adjust the number of Grover iterations, we must know
