@@ -43,6 +43,7 @@ class State(tensor.Tensor):
     if dprod.is_close(0.0):
       raise AssertionError('Normalizing to zero-probability state.')
     self /= np.sqrt(np.real(dprod))
+    return self
 
   def ampl(self, *bits) -> np.complexfloating:
     """Return amplitude for state indexed by 'bits'."""

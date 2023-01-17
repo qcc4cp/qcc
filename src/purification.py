@@ -92,14 +92,12 @@ def main(argv):
   # A handful of random states.
   print('  Random 2 qubit states.')
   for _ in range(1000):
-    psi = state.State(np.random.rand(4))
-    psi.normalize()
+    psi = state.State(np.random.rand(4)).normalize()
     purify(psi.density(), 2)
 
   print('  Random 4 qubit states.')
   for _ in range(100):
-    psi = state.State(np.random.rand(16))
-    psi.normalize()
+    psi = state.State(np.random.rand(16)).normalize()
     purify(psi.density(), 4)
 
   print('Done.')
