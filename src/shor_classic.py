@@ -3,6 +3,7 @@
 
 import math
 import random
+from typing import Tuple
 
 from absl import app
 
@@ -54,7 +55,7 @@ def classic_order(num: int, modulus: int) -> int:
   return order
 
 
-def run_experiment(fr: int, to: int) -> (int, int):
+def run_experiment(fr: int, to: int) -> Tuple[int, int]:
   """Run the classical part of Shor's algorithm."""
 
   n = get_odd_non_prime(fr, to)
@@ -64,14 +65,14 @@ def run_experiment(fr: int, to: int) -> (int, int):
   factor1 = math.gcd(a ** (order // 2) + 1, n)
   factor2 = math.gcd(a ** (order // 2) - 1, n)
   if factor1 == 1 or factor2 == 1:
-    return None
+    return (0, 0)
 
   print('Found Factors: N = {:4d} = {:4d} * {:4d} (r={:4})'.
         format(factor1 * factor2, factor1, factor2, order))
   if factor1 * factor2 != n:
     raise AssertionError('Invalid factoring')
 
-  return factor1, factor2
+  return (factor1, factor2)
 
 
 def main(argv):

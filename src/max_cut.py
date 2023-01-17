@@ -3,7 +3,7 @@
 
 import random
 import timeit
-from typing import List
+from typing import List, Tuple
 
 from absl import app
 from absl import flags
@@ -20,7 +20,7 @@ flags.DEFINE_integer('iterations', 10, 'Number of experiments')
 
 # Nodes are tuples: (from, to, edge weight).
 #
-def build_graph(num: int = 0) -> (int, List[int]):
+def build_graph(num: int = 0) -> Tuple[int, List[Tuple[int, int, float]]]:
   """Build a graph of num nodes."""
 
   if num < 3:
@@ -36,7 +36,7 @@ def build_graph(num: int = 0) -> (int, List[int]):
   return num, nodes
 
 
-def graph_to_dot(n: int, nodes: List[int], max_cut) -> None:
+def graph_to_dot(n: int, nodes: List[Tuple[int, int, float]], max_cut) -> None:
   """Convert graph (up to 64 nodes) to dot file."""
 
   print('graph {')
@@ -52,7 +52,7 @@ def graph_to_dot(n: int, nodes: List[int], max_cut) -> None:
   print('}')
 
 
-def graph_to_adjacency(n: int, nodes: List[int]) -> ops.Operator:
+def graph_to_adjacency(n: int, nodes: List[Tuple[int, int, float]]) -> ops.Operator:
   """Compute adjacency matrix from graph."""
 
   op = np.zeros((n, n))
@@ -62,7 +62,7 @@ def graph_to_adjacency(n: int, nodes: List[int]) -> ops.Operator:
   return ops.Operator(op)
 
 
-def graph_to_hamiltonian(n: int, nodes: List[int]) -> ops.Operator:
+def graph_to_hamiltonian(n: int, nodes: List[Tuple[int, int, float]]) -> ops.Operator:
   """Compute Hamiltonian matrix from graph."""
 
   hamil = np.zeros((2**n, 2**n))
@@ -101,7 +101,7 @@ def tensor_diag(n: int, fr: int, to: int, w: float):
   return diag
 
 
-def graph_to_diagonal_h(n: int, nodes: List[int]) -> np.ndarray:
+def graph_to_diagonal_h(n: int, nodes: List[Tuple[int, int, float]]) -> List[float]:
   """Construct diag(H)."""
 
   h = [0.0] * 2**n
@@ -112,10 +112,10 @@ def graph_to_diagonal_h(n: int, nodes: List[int]) -> np.ndarray:
   return h
 
 
-def compute_max_cut(n: int, nodes: List[int]) -> int:
+def compute_max_cut(n: int, nodes: List[Tuple[int, int, float]]) -> int:
   """Compute (inefficiently) the max cut, exhaustively."""
 
-  max_cut = -1000
+  max_cut = -1000.0
   for bits in helper.bitprod(n):
     # Collect in/out sets.
     iset = []
@@ -127,7 +127,7 @@ def compute_max_cut(n: int, nodes: List[int]) -> int:
         oset.append(idx)
 
     # Compute costs for this cut, record maximum.
-    cut = 0
+    cut = 0.0
     for node in nodes:
       if node[0] in iset and node[1] in oset:
         cut += node[2]

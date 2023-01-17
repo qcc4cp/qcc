@@ -46,7 +46,7 @@ def alice_measures(alice: state.State,
   bob_a = math.sqrt(p0.real)
   bob_b = math.sqrt(p1.real)
   print('Teleported (|{:d}{:d}>)   a={:.2f}, b={:.2f}'.format(
-      qubit0, qubit1, bob_a, bob_b))
+      int(qubit0), int(qubit1), bob_a, bob_b))
 
   if (not math.isclose(expect0, bob_a, abs_tol=1e-6) or
       not math.isclose(expect1, bob_b, abs_tol=1e-6)):

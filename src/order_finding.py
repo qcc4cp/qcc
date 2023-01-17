@@ -10,7 +10,7 @@
 #
 import fractions
 import math
-from typing import List
+from typing import List, Tuple
 
 from absl import app
 from absl import flags
@@ -25,7 +25,7 @@ flags.DEFINE_integer('a', 4, 'Start search with this number.')
 def modular_inverse(a: int, m: int) -> int:
   """Compute Modular Inverse."""
 
-  def egcd(a: int, b: int) -> (int, int, int):
+  def egcd(a: int, b: int) -> Tuple[int, int, int]:
     """Extended Euclidian Algorithm."""
 
     # Explained here:

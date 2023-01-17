@@ -129,13 +129,13 @@ def run_experiment_multi(nbits: int, t: int = 8):
   # Create a state as a superposition of all the
   # eigenvectors, equally weighted by 'fac'.
   #
-  psi = np.zeros(2**nbits, dtype=np.complex128)
+  ini = np.zeros(2**nbits, dtype=np.complex128)
   for idx in range(2**nbits):
-    psi += fac * eigvecs[:, idx]
+    ini += fac * eigvecs[:, idx]
 
   # Make state and circuit to estimate phi (similar to above).
   #
-  psi = state.zeros(t) * state.State(psi)
+  psi = state.zeros(t) * state.State(ini)
   psi = expo_u(psi, u, t)
   psi = ops.Qft(t).adjoint()(psi)
 

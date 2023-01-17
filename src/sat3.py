@@ -6,6 +6,7 @@ import math
 import random
 
 from absl import app
+from typing import List
 import numpy as np
 
 from src.lib import circuit
@@ -80,7 +81,7 @@ def match_bit(b, val):
     return False if val == FALSE else True
 
 
-def eval_formula(bits, clauses: int):
+def eval_formula(bits, clauses: List[List[int]]):
   """Evaluate a formula."""
 
   res = True

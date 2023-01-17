@@ -53,7 +53,7 @@ def tensor_diag(n: int, num: int):
   return diag
 
 
-def set_to_diagonal_h(num_list: List[int], nmax: int) -> np.ndarray:
+def set_to_diagonal_h(num_list: List[int], nmax: int) -> List[float]:
   """Construct diag(H)."""
 
   h = [0.0] * 2**nmax
@@ -109,11 +109,10 @@ def run_experiment() -> None:
     if solutions:
       print(' Found Solution:',
             dump_solution(solutions[0], num_list))
-      return True
+      return
     raise AssertionError('False positive found.')
   if solutions:
     raise AssertionError('False negative found.')
-  return False
 
 
 def main(argv):

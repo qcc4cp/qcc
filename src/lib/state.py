@@ -33,10 +33,10 @@ class State(tensor.Tensor):
   def density(self) -> tensor.Tensor:
     return tensor.Tensor(np.outer(self, self.conj()))
 
-  def adjoint(self) -> tensor.Tensor:
+  def adjoint(self):
     return self.conj().transpose()
 
-  def normalize(self) -> None:
+  def normalize(self):
     """Renormalize the state. Sum of squared amplitudes==1.0."""
 
     dprod = np.conj(self) @ self

@@ -91,8 +91,8 @@ def make_f(d: int, numbers: List[int], max_value: int):
   return func
 
 
-def run_experiment(nbits: int, numbers: List[int], max_value: int,
-                   solutions: int) -> None:
+def run_experiment(nbits: int, numbers: List[int],
+                   max_value: int, solutions: int) -> int:
   """Run oracle-based experiment."""
 
   # The following is commented extensively in grover.py
@@ -136,7 +136,7 @@ def run_experiment(nbits: int, numbers: List[int], max_value: int,
   return new_max
 
 
-def run_search(marked_numbers: int, qubits: int):
+def run_search(marked_numbers: int, qubits: int) -> None:
   """Run a single search for the minimum."""
 
   numbers = get_distro(3, 1 << qubits, marked_numbers)
