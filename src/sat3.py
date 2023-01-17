@@ -4,11 +4,10 @@
 import itertools
 import math
 import random
+from typing import List
 
 from absl import app
-from typing import List
 import numpy as np
-
 from src.lib import circuit
 from src.lib import helper
 from src.lib import ops

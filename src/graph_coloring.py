@@ -128,12 +128,13 @@ def test_qubit_equality_circuit():
 class Graph:
   """Hold a graph definition."""
 
-  def __init__(self, num_vertices: int, desc: str, edges: List[Tuple[int, int]]):
+  def __init__(self, num_vertices: int, desc: str,
+               edges: List[Tuple[int, int]]):
     self.num = num_vertices
     self.edges = edges
     self.desc = desc
 
-  def verify(self, bits, n:int = 2):
+  def verify(self, bits, n: int = 2):
     """Verify that no connected vertices have the same color."""
 
     # For each edge, we check whether the colors assigned to fr/to
