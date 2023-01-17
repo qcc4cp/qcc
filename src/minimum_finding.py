@@ -62,7 +62,6 @@ from src.lib import state
 # All together, the description of the algorithm look quite cryptic and
 # I have yet to find a working version on the interwebs. This implementation
 # - assuming I understood the algorithm correctly - works.
-#
 
 
 def get_distro(min_value: int, max_value: int, num_vals: int):
@@ -97,7 +96,6 @@ def run_experiment(nbits: int, numbers: List[int], max_value: int,
   """Run oracle-based experiment."""
 
   # The following is commented extensively in grover.py
-  #
   zero_projector = np.zeros((2**nbits, 2**nbits))
   zero_projector[0, 0] = 1
   op_zero = ops.Operator(zero_projector)
@@ -121,7 +119,6 @@ def run_experiment(nbits: int, numbers: List[int], max_value: int,
 
   # Measurement - pick elements with highest probability.
   # For n marked numbers there should be n results.
-  #
   _, maxprob = psi.maxprob()
   results = []
   for idx in range(len(psi)):
@@ -132,7 +129,6 @@ def run_experiment(nbits: int, numbers: List[int], max_value: int,
 
   # Compute new max limit by randomly selecting one of the results,
   # this simulating an actual, random measurement result:
-  #
   new_max = np.random.choice(results)
   print(' -> New Max:', new_max)
   result = f(helper.val2bits(new_max, nbits))
@@ -140,7 +136,6 @@ def run_experiment(nbits: int, numbers: List[int], max_value: int,
     raise AssertionError('something went wrong, measured invalid state')
 
   # Return the newly found upper limit for the search.
-  #
   return new_max
 
 
@@ -148,7 +143,6 @@ def run_search(marked_numbers: int, qubits: int):
   """Run a single search for the minimum."""
 
   numbers = get_distro(3, 1 << qubits, marked_numbers)
-
   max_value = 1 << qubits
   print('Find minimum in:', numbers)
 
@@ -162,7 +156,6 @@ def run_search(marked_numbers: int, qubits: int):
     # found the smallest number. Without this shortcut, we would somehow
     # have to identify that no solution has been marked, eg., via
     # quantum counting.
-    #
     if max_value == numbers[0]:
       print(f'*** SUCCESS. Smallest element = {max_value}, {i + 1} iters')
       break
@@ -171,12 +164,7 @@ def run_search(marked_numbers: int, qubits: int):
     # how many marked elements there are. This is also a bit of cheating.
     # To make this fully quantum, we would have to employ techniques such
     # as quantum counting here as well.
-    #
-    marked = 0
-    for i in range(marked_numbers):
-      if max_value > i:
-        marked += 1
-    marked_numbers = marked - 1
+    marked_numbers = np.sum(numbers < max_value)
 
 
 def main(argv):
