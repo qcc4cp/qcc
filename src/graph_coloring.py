@@ -9,7 +9,7 @@
 
 
 import itertools
-from typing import List
+from typing import List, Tuple
 
 from absl import app
 import numpy as np
@@ -128,7 +128,7 @@ def test_qubit_equality_circuit():
 class Graph:
   """Hold a graph definition."""
 
-  def __init__(self, num_vertices: int, desc: str, edges: List[int]):
+  def __init__(self, num_vertices: int, desc: str, edges: List[Tuple[int, int]]):
     self.num = num_vertices
     self.edges = edges
     self.desc = desc

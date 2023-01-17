@@ -17,7 +17,7 @@ exp_balanced = 'balanced'
 
 
 def make_f(dim: int = 1,
-           flavor: int = exp_constant) -> Callable[[List[int]], int]:
+           flavor: str = exp_constant) -> Callable[[List[int]], int]:
   """Return a constant or balanced function f over 2**dim bits."""
 
   power2 = 2**dim
@@ -41,7 +41,7 @@ def make_f(dim: int = 1,
   return f
 
 
-def run_experiment(nbits: int, flavor: int):
+def run_experiment(nbits: int, flavor: str):
   """Run full experiment for a given flavor of f()."""
 
   f = make_f(nbits-1, flavor)

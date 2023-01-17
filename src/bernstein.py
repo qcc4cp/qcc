@@ -29,7 +29,7 @@ from src.lib import state
 #
 
 
-def check_result(nbits: int, c: Tuple[bool],
+def check_result(nbits: int, c: Tuple[bool, ...],
                  psi: state.State) -> None:
   """Check expected vs achieved results."""
 
@@ -46,16 +46,16 @@ def check_result(nbits: int, c: Tuple[bool],
         raise AssertionError('invalid result')
 
 
-def make_c(nbits: int) -> Tuple[bool]:
+def make_c(nbits: int) -> Tuple[bool, ...]:
   """Make a random constant c from {0,1}, the c we try to find."""
 
-  constant_c = [0] * nbits
+  constant_c = [False] * nbits
   for idx in range(nbits-1):
-    constant_c[idx] = int(np.random.random() < 0.5)
+    constant_c[idx] = bool(np.random.random() < 0.5)
   return tuple(constant_c)
 
 
-def make_u(nbits: int, constant_c: Tuple[bool]) -> ops.Operator:
+def make_u(nbits: int, constant_c: Tuple[bool, ...]) -> ops.Operator:
   """Make general Bernstein Oracle."""
 
   # For each '1' at index i in the constant_c, build a Cnot from
@@ -99,7 +99,7 @@ def run_experiment(nbits: int) -> None:
 # Alternative way to achieve the same result, using the
 # Deutsch Oracle Uf.
 #
-def make_oracle_f(c: Tuple[bool]) -> ops.Operator:
+def make_oracle_f(c: Tuple[bool, ...]) -> ops.Operator:
   """Return a function computing the dot product mod 2 of bits, c."""
 
   const_c = c
