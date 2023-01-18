@@ -72,7 +72,8 @@ def measure(psi: state.State):
   for i in range(len(psi)):
     total += (psi[i]*psi[i].conj())
     if r < total:
-      return helper.val2bits(i, 2)
+      psi = helper.val2bits(i, 2) 
+      return psi[0], psi[1]
 
 
 def run_experiments(experiments: int, alpha: float) -> float:
@@ -93,9 +94,7 @@ def run_experiments(experiments: int, alpha: float) -> float:
     if y == 1:
       psi = ops.RotationY(-alpha)(psi, 1)
 
-    select = measure(psi)
-    a = select[0]
-    b = select[1]
+    a, b = measure(psi)
     if x * y == (a + b) % 2:
       wins += 1
 
@@ -124,6 +123,7 @@ def main(argv):
     s = '(opt)' if i == 8 else ''
     print(f'{i:2d} * Pi/32 = {inc_angle * i:.2f}: winning: {percent:5.2f}% ' +
           f'{"#" * int(percent/1.5)}{s}')
+
 
 if __name__ == '__main__':
   app.run(main)
