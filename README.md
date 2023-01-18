@@ -61,7 +61,7 @@ To run individual algorithms via `bazel`, run any of these command lines (note t
 # Additional algorithms and techniques, to clarify, or
 # in preparation of a new edition of the book:
    bazel run chsh
-   bazel run euclidian_distance
+   bazel run euclidean_distance
    bazel run graph_coloring
    bazel run hadamard_test
    bazel run inversion_test
@@ -71,9 +71,9 @@ To run individual algorithms via `bazel`, run any of these command lines (note t
    bazel run purification   
    bazel run quantum_pca
    bazel run sat3
-   bazel run schmidt_decomposition
+   bazel run schmidt_decomp
    bazel run spectral_decomp
-   bazel run zy_decompose
+   bazel run zy_decomp
 
 ```
 

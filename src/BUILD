@@ -93,8 +93,8 @@ py_binary(
 )
 
 py_binary(
-    name = "euclidian_distance",
-    srcs = ["euclidian_distance.py"],
+    name = "euclidean_distance",
+    srcs = ["euclidean_distance.py"],
     python_version = "PY3",
     srcs_version = "PY3",
     deps = [
@@ -263,8 +263,8 @@ py_binary(
 )
 
 py_binary(
-    name = "schmidt_decomposition",
-    srcs = ["schmidt_decomposition.py"],
+    name = "schmidt_decomp",
+    srcs = ["schmidt_decomp.py"],
     python_version = "PY3",
     srcs_version = "PY3",
     deps = [
@@ -383,8 +383,8 @@ py_binary(
 )
 
 py_binary(
-    name = "zy_decompose",
-    srcs = ["zy_decompose.py"],
+    name = "zy_decomp",
+    srcs = ["zy_decomp.py"],
     python_version = "PY3",
     srcs_version = "PY3",
     deps = [
