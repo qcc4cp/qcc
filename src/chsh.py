@@ -119,10 +119,11 @@ def main(argv):
   #
   steps = 16
   inc_angle = (2.0 * np.pi / 8) / (steps / 2)
-  for i in range(0, 19):
+  for i in range(0, 24):
     percent = run_experiments(500, inc_angle * i)
     s = '(opt)' if i == 8 else ''
-    print(f'{i:2d} * Pi/32 = {inc_angle * i:.2f}: winning: {percent:5.2f}% {s}')
+    print(f'{i:2d} * Pi/32 = {inc_angle * i:.2f}: winning: {percent:5.2f}% ' +
+          f'{"#" * int(percent/1.5)}{s}')
 
 if __name__ == '__main__':
   app.run(main)
