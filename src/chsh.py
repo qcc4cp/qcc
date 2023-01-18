@@ -47,10 +47,12 @@ from src.lib import state
 #    $|+\rangle, |-\rangle$ basis.
 # Correspondingly, if Bob receives $y = 0$ he measure in
 #    $|a_0\rangle, |a_1\rangle$, where
-#    $a_0 = \cos(\pi/8)|0\rangle + \sin(\pi/8)|1\rangle$.
+#    $a_0 =  \cos(\pi/8)|0\rangle + \sin(\pi/8)|1\rangle$
+#    $a_1 = -\sin(\pi/8)|0\rangle + \cos(\pi/8)|1\rangle$
 # If he receives $y = 1$ he measures in
 #    $|b_0\rangle, |b_1\rangle$, where
-#    $b_0 = -\sin(\pi/8)|0\rangle + \cos(\pi/8)|1\rangle$
+#    $b_0 = \cos(\pi/8)|0\rangle - \sin(\pi/8)|1\rangle$
+#    $b_1 = \sin(\pi/8)|0\rangle + \cos(\pi/8)|1\rangle$
 #
 # All of the measurement bases are rotated bt $\pi/8$ from each other.
 # With this, it can be shown that the success probability increases from
