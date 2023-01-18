@@ -1,16 +1,14 @@
 # python3
 """CHSH implementation and measurement."""
 
-import math
 import random
-from typing import Tuple
 
 from absl import app
 import numpy as np
 from src.lib import bell
 from src.lib import helper
-from src.lib import state
 from src.lib import ops
+from src.lib import state
 
 
 # The CHSH game, named after Clauser, Horne, Shimony, and Holt,
@@ -68,10 +66,10 @@ def measure(psi: state.State):
   # by their probabilities.
   #
   r = random.random() - 0.001
-  sum = 0
+  total = 0
   for i in range(len(psi)):
-    sum += (psi[i]*psi[i].conj())
-    if r < sum:
+    total += (psi[i]*psi[i].conj())
+    if r < total:
       return helper.val2bits(i, 2)
 
 
