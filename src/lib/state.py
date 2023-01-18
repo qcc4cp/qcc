@@ -4,7 +4,7 @@
 import cmath
 import math
 import random
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import numpy as np
 
@@ -75,7 +75,7 @@ class State(tensor.Tensor):
         print(f'{self[i]:+.3f}  {psi[i]:+.3f}')
     return same
 
-  def maxprob(self) -> (List[float], float):
+  def maxprob(self) -> Tuple[List[float], float]:
     """Find state with highest probability."""
 
     # This is the as described in the book, which is good
@@ -153,9 +153,9 @@ def qubit(alpha: Optional[np.complexfloating] = None,
   # is a real number, but we still have to type-cast it to avoid
   # Python warnings (hence the use of np.real()).
   if beta is None:
-    beta = math.sqrt(1.0 - np.real(np.conj(alpha) * alpha))
+    beta = np.sqrt(1.0 - np.real(np.conj(alpha) * alpha))
   if alpha is None:
-    alpha = math.sqrt(1.0 - np.real(np.conj(beta) * beta))
+    alpha = np.sqrt(1.0 - np.real(np.conj(beta) * beta))
 
   if not math.isclose(np.real(np.conj(alpha) * alpha) +
                       np.real(np.conj(beta) * beta), 1.0):
@@ -246,7 +246,7 @@ def rand(n: int) -> State:
 class Reg():
   """Simple register class."""
 
-  def __init__(self, size: int, it=0, global_reg: int = None):
+  def __init__(self, size: int, it = 0, global_reg: int = 0):
     self.size = size
     self.global_idx = list(range(global_reg,
                                  global_reg + size))

@@ -58,7 +58,9 @@ To run individual algorithms via `bazel`, run any of these command lines (note t
    bazel run teleportation
    bazel run vqe_simple
 
-# Additional algorithms and techniques, not discussed in the book:
+# Additional algorithms and techniques, to clarify, or
+# in preparation of a new edition of the book:
+   bazel run chsh
    bazel run euclidian_distance
    bazel run graph_coloring
    bazel run hadamard_test

@@ -43,6 +43,16 @@ py_binary(
 )
 
 py_binary(
+    name = "chsh",
+    srcs = ["chsh.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)
+
+py_binary(
     name = "counting",
     srcs = ["counting.py"],
     python_version = "PY3",
