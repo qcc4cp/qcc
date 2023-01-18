@@ -168,7 +168,7 @@ def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  for _ in range(10):
+  for _ in range(5):
     run_search(10, 8)
 
 

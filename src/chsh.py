@@ -116,12 +116,12 @@ def main(argv):
 
   # Run a few incrementals and see how the results change.
   #
-  steps = 16
+  steps = 32
   inc_angle = (2.0 * np.pi / 8) / (steps / 2)
-  for i in range(0, 24):
+  for i in range(0, 66, 2):
     percent = run_experiments(500, inc_angle * i)
-    s = '(opt)' if i == 8 else ''
-    print(f'{i:2d} * Pi/32 = {inc_angle * i:.2f}: winning: {percent:5.2f}% ' +
+    s = '(opt)' if i == 16 else ''
+    print(f'{i:2d} * Pi/64 = {inc_angle * i:.2f}: winning: {percent:5.2f}% ' +
           f'{"#" * int(percent/1.5)}{s}')
 
 

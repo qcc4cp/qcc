@@ -1,5 +1,5 @@
 # python3
-"""Example: Euclidian Distance."""
+"""Example: Euclidean Distance."""
 
 
 import random
@@ -11,9 +11,9 @@ from src.lib import state
 
 
 def run_experiment(a, b):
-  """Compute Euclidian Distance between vectors a and b."""
+  """Compute Euclidean Distance between vectors a and b."""
 
-  print(f'Quantum Euclidian Distance between a={a} b={b}')
+  print(f'Quantum Euclidean Distance between a={a} b={b}')
 
   norm_a = np.linalg.norm(a)
   norm_b = np.linalg.norm(b)
@@ -64,14 +64,14 @@ def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  print('Compute Quantum Euclidian Distance.')
+  print('Compute Quantum Euclidean Distance.')
 
-  for _ in range(10):
+  for _ in range(5):
     a = np.array(random.choices(range(10), k=4))
     b = np.array(random.choices(range(10), k=4))
     run_experiment(a, b)
 
-  for _ in range(10):
+  for _ in range(5):
     a = np.array(random.choices(range(100), k=8))
     b = np.array(random.choices(range(100), k=8))
     run_experiment(a, b)
