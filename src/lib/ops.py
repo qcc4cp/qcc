@@ -397,7 +397,7 @@ def Permutation(nbits: int, f) -> List[int]:
 # collapse to a random state. So this operator is usually only
 # a first step.
 #
-def Qft(nbits: int) -> Operator:
+def Qft(nbits: int, swap: bool = True) -> Operator:
   """Make an n-bit QFT operator."""
 
   op = Identity(nbits)
@@ -413,9 +413,10 @@ def Qft(nbits: int) -> Operator:
       controlled_from = idx + rk - 1
       op = op(ControlledU(controlled_from, idx, Rk(rk)), idx)
 
-  # Now the qubits need to change their order.
-  for idx in range(nbits // 2):
-    op = op(Swap(idx, nbits - idx - 1), idx)
+  # Now the qubits may need to change their order.
+  if swap:
+    for idx in range(nbits // 2):
+      op = op(Swap(idx, nbits - idx - 1), idx)
 
   if not op.is_unitary():
     raise AssertionError('Constructed non-unitary operator.')

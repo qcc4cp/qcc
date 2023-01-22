@@ -29,7 +29,7 @@ class StateTest(absltest.TestCase):
       self.assertEqual(psi[i], 0)
     self.assertEqual(psi[2**8 - 1], 1)
 
-    psi = state.rand(8)
+    psi = state.rand_bits(8)
     self.assertEqual(psi.nbits, 8)
 
   def test_state_gen(self):

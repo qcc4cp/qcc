@@ -236,7 +236,7 @@ def bitstring(*bits) -> State:
   return State(t)
 
 
-def rand(n: int) -> State:
+def rand_bits(n: int) -> State:
   """Produce random combination of |0> and |1>."""
 
   bits = [random.randint(0, 1) for _ in range(n)]

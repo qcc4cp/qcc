@@ -173,7 +173,7 @@ class OpsTest(absltest.TestCase):
       psi = (ops.Rk(idx).kpow(2) @ ops.Rk(-idx).kpow(2))(psi)
       self.assertTrue(psi.is_close(state.zeros(2)))
 
-  def test_dft(self):
+  def test_qft(self):
     """Build 'manually' a 3 qubit gate, Nielsen/Chuang Box 5.1."""
 
     h = ops.Hadamard()
@@ -190,13 +190,26 @@ class OpsTest(absltest.TestCase):
     op3 = ops.Qft(3)
     self.assertTrue(op3.is_close(op))
 
-  def test_dft_adjoint(self):
-    bits = [0, 1, 0, 1, 1, 0]
+  def test_qft_adjoint(self):
+    bits = [0, 1, 0, 1, 1,0]
     psi = state.bitstring(*bits)
     psi = ops.Qft(6)(psi)
     psi = ops.Qft(6).adjoint()(psi)
     maxbits, _ = psi.maxprob()
     self.assertEqual(maxbits, bits)
+
+  def test_qft_hadamard(self):
+    # For a state |00...0>, applying QFT or applying
+    # all Hadamard gates must be identical.
+    psi = state.zeros(5)
+    psi = ops.Qft(5)(psi)
+
+    phi = state.zeros(5)
+    for i in range(5):
+      phi = ops.Hadamard()(phi, i)
+    for i in range(len(phi)):
+      if phi[i] != psi[i]:
+         raise AssertionError('Incorrect QFT vs Hadamards.')
 
   def test_padding(self):
     ident = ops.Identity(3)

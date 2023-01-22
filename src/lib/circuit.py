@@ -141,7 +141,7 @@ class qc:
       self.psi[i] = float(i)
     self.global_reg = self.global_reg + n
 
-  def rand(self, n: int) -> None:
+  def rand_bits(self, n: int) -> None:
     self.psi = self.psi * state.rand(n)
     self.global_reg = self.global_reg + n
 
