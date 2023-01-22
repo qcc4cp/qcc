@@ -1,5 +1,22 @@
 # python3
-"""Example: Phase Estimation, following Nielsen/Chuang Section 5.2."""
+"""Phase Estimation, following Nielsen/Chuang Section 5.2."""
+
+# The terms "phase estimation" and "eigenvalue estimation" are
+# often used interchangably.
+
+# For plain phase estimation, we just apply the inverse QFT on
+# a state and extract the phase. For this to work, the state must
+# be in the specific shape and form that looks like what results
+# from eigenvalue estimation.
+#
+# For eigenvalue estimation, the state is prepared with cascading
+# Controlled-U's, as shown in the circuit schematic below. The
+# bottom qubits are initialized with an eigenvector of U and
+# with this one can then measure the corresponding eigenvalue.
+#
+# It appears this is the real use case, hence the terms are
+# used interchangably.
+
 
 from absl import app
 
