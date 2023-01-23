@@ -4,7 +4,7 @@ This is the open-source repository for the book [Quantum Computing for Programme
 
 To get started quickly on the Python sources, you may find the [Quickstart Guide](https://github.com/qcc4cp/qcc/blob/main/resources/quickstart.md) helpful.
 
-This project builds vendor-independent infrastructure from the ground up and implements standard algorithms, such as Quantum Teleportation, Superdense coding, Deutsch-Jozsa, Bernstein-Vazirani, Quantum Phase estimation (QPE), Grover's Search (with application to Quantum counting, 3SAT, Graph Coloring, and Minimum finding), Quantum random walks, VQE, Max-Cut, Subset-Sum, Quantum Fourier Transform (QFT), Shor's integer factorization, Solovay-Kitaev, Principal Component Analysis, and a few more. It also implements high performance quantum simulation and a transpilation technique to compile circuits to other infrastructures, such as Qiskit or Cirq. 
+This project builds vendor-independent infrastructure from the ground up and implements standard algorithms, such as Quantum Teleportation, Superdense coding, Deutsch-Jozsa, Bernstein-Vazirani, Quantum Phase estimation (QPE), Grover's Search (with application to Quantum counting, 3SAT, Graph Coloring, and Minimum finding), Quantum random walks, VQE, Max-Cut, Subset-Sum, Quantum Fourier Transform (QFT), Shor's integer factorization, Solovay-Kitaev, Principal Component Analysis, and a few more. It also implements high performance quantum simulation and a transpilation technique to compile circuits to other infrastructures, such as Qiskit or Cirq.
 
 The code is organized as follows:
 *  `src` is the main source directory. All algorithms are in this directory.
@@ -21,9 +21,9 @@ There are several ways to get started on this code base:
 *   Instructions for a **Python-only**, minimal setup can be found [here](https://github.com/qcc4cp/qcc/blob/main/resources/quickstart.md#setup).
 *   If you have access to **Docker**, the corresponding simple instructions are [here](resources/README.Docker.md)
 *   Manual installation on **Linux** (Debian / Ubuntu) are [here](resources/README.Linux.md)
-*   For **MacOS**, see [README.MacOS.md](resources/README.MacOS.md). 
-*   For **Windows** (partially supported), see [README.Windows.md](resources/README.Windows.md). 
-*   For interactive **SageMath**, see [README.SageMath.md](resources/README.SageMath.md). 
+*   For **MacOS**, see [README.MacOS.md](resources/README.MacOS.md).
+*   For **Windows** (partially supported), see [README.Windows.md](resources/README.Windows.md).
+*   For interactive **SageMath**, see [README.SageMath.md](resources/README.SageMath.md).
 *   **CentOS** is also supported (see [README.CentOS.md](resources/README.CentOS.md)).
 
 
@@ -64,11 +64,12 @@ To run individual algorithms via `bazel`, run any of these command lines (note t
    bazel run euclidean_distance
    bazel run graph_coloring
    bazel run hadamard_test
+   bazel run hamiltonian_encoding
    bazel run inversion_test
-   bazel run minimum_finding   
+   bazel run minimum_finding
    bazel run oracle_synth
    bazel run pauli_rep
-   bazel run purification   
+   bazel run purification
    bazel run quantum_pca
    bazel run sat3
    bazel run schmidt_decomp
@@ -112,10 +113,9 @@ Reach Robert at
 *  qcc4cp@gmail.com (site-specific email account)
 
 ### Additional Thanks
-*  Colin Zhu, for pointing to coding problems.  
-*  Kevin Crook, Univ. of CA, Berkeley, for feedback and discussion of the Chinese Remainder Theorem.  
-*  [Moez A. AbdelGawad](http://eng.staff.alexu.edu.eg/~moez/), Alexandria University, Egypt, for suggesting Windows and SageMath ports.  
+*  Colin Zhu, for pointing to coding problems.
+*  Kevin Crook, Univ. of CA, Berkeley, for feedback and discussion of the Chinese Remainder Theorem.
+*  [Moez A. AbdelGawad](http://eng.staff.alexu.edu.eg/~moez/), Alexandria University, Egypt, for suggesting Windows and SageMath ports.
 *  Stefanie Scherzinger, Universitaet Passau, for corrections and suggesting Docker.
 *  Abdolhamid Pourghazi and Stefan Klessinger for providing and maintaining the Dockerfile.
 *  Michael Broughton for help with purification.
-
