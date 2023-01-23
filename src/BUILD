@@ -143,6 +143,26 @@ py_binary(
 )
 
 py_binary(
+    name = "hamiltonian_encoding",
+    srcs = ["hamiltonian_encoding.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)
+
+py_binary(
+    name = "hhl",
+    srcs = ["hhl.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)
+
+py_binary(
     name = "inversion_test",
     srcs = ["inversion_test.py"],
     python_version = "PY3",
