@@ -17,6 +17,7 @@
 from absl import app
 import numpy as np
 
+from src.lib import circuit
 from src.lib import ops
 from src.lib import state
 
@@ -182,6 +183,87 @@ def compute_u_matrices(a, w, v, t, verify):
   return u, u2, um1, um2
 
 
+def construct_circuit(a, b, w, v, u, u2, um1, um2, C):
+  """Construct a circuit for the given paramters."""
+
+  qc = circuit.qc('hhl', eager=True)
+
+  b = qc.reg(1, 0)
+  clock = qc.reg(2, 0)
+  anc = qc.reg(1, 0)
+
+  qc.x(b)
+  qc.psi.dump('psi 1')
+
+  qc.h(clock)
+  qc.psi.dump('psi 2')
+
+  # State Preparation.
+  qc.ctl_2x2(clock[0], b, u)
+  qc.ctl_2x2(clock[1], b, u2)
+  qc.psi.dump('psi 3')
+
+  # Inverse QFT.
+  qc.h(clock[1])
+  qc.cu1(clock[0], clock[1], -np.pi/2)
+  qc.h(clock[0])
+  qc.swap(clock[0], clock[1])
+  qc.psi.dump('psi 4')
+
+  # From above we know that:
+  #   theta = 2 arcsin(1 / 1am_j)
+  #
+  # We need a function that performs the rotation for
+  # all lam's that are non-zero. In the verify example the
+  # lam's are |1> and |2>:
+  #
+  #   theta(c) = theta(c_1 c_0) = 2 arcsin(1 / c)
+  #
+  # where c is the value of the clock qubits, c_1 c_0 are c
+  # in binary.
+  #
+  # In the example, we must ensure that this function is correct
+  # for the states |01> and |10>, corresponding to the lam's:
+  #
+  #   theta(1) = theta(01) = 2 arcsin(1 / 1) = pi
+  #   theta(2) = theta(10) = 2 arcsin(1 / 2) = pi/3
+  #
+  # In general, this theta function must be computed (which is
+  # trivial when lam's binary representations don't have matching 1's).
+  # For the example, the solution is simple as no bits overlap:
+  #
+  #   theta(c) = theta(c_1 c_0) = pi/3 c_1 + pi c_0
+  #
+  # So we have to rotate the ancilla via qubit c_1 by pi/3
+  # and via qubit c_0 by pi.
+  qc.cry(clock[0], anc, np.pi)
+  qc.cry(clock[1], anc, np.pi/3)
+  qc.psi.dump('psi 5')
+
+  p, psi = qc.measure_bit(anc[0], 1, collapse=True)
+  qc.psi.dump('psi 6')
+
+  # QFT
+  qc.h(clock[0])
+  qc.cu1(clock[0], clock[1], np.pi/2)
+  qc.h(clock[1])
+  qc.psi.dump('psi 5')
+
+  # Uncompute state initialization.
+  qc.ctl_2x2(clock[0], b, um2)
+  qc.ctl_2x2(clock[1], b, um1)
+
+  qc.h(clock[1])
+  qc.h(clock[0])
+  qc.psi.dump('psi 9')
+
+
+  # p, psi = qc.measure_bit(clock[0], 1, collapse=True)
+  # p, psi = qc.measure_bit(clock[1], 1, collapse=True)
+  psi.dump('after anc measurement.')
+  return qc
+
+
 def run_experiment(a, b, verify: bool = False):
   """Run a single instance of HHL for Ax = b."""
 
@@ -234,32 +316,8 @@ def run_experiment(a, b, verify: bool = False):
   C = np.min(lam)
   print(f'Set C to minimal Eigenvalue: {C:.1f}')
 
-  # From above we know that:
-  #   theta = 2 arcsin(1 / 1am_j)
-  #
-  # We need a function that performs the rotation for
-  # all lam's that are non-zero. In the verify example the
-  # lam's are |1> and |2>:
-  #
-  #   theta(c) = theta(c_1 c_0) = 2 arcsin(1 / c)
-  #
-  # where c is the value of the clock qubits, c_1 c_0 are c
-  # in binary.
-  #
-  # In the example, we must ensure that this function is correct
-  # for the states |01> and |10>, corresponding to the lam's:
-  #
-  #   theta(1) = theta(01) = 2 arcsin(1 / 1) = pi
-  #   theta(2) = theta(10) = 2 arcsin(1 / 2) = pi/3
-  #
-  # In general, this theta function must be computed (which is
-  # trivial when lam's binary representations don't have matching 1's).
-  # For the example, the solution is simple as no bits overlap:
-  #
-  #   theta(c) = theta(c_1 c_0) = pi/3 c_1 + pi c_0
-  #
-  # So we have to rotate the ancilla via qubit c_1 by pi/3
-  # and via qubit c_0 by pi.
+  # Now we have all the values and matrices. Let's construct a circuit.
+  qc = construct_circuit(a, b, w, v, u, u2, um1, um2, C)
 
 
 def main(argv):
