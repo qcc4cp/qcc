@@ -3,6 +3,17 @@
 
 # This is WIP: Work in Progress
 
+# To verify the implementation this code closely mirrors the
+# numerical example in:
+#   'Step-by-Step HHL Algorithm Walkthrough to Enhance the
+#    Understanding of Critical Quantum Computing Concepts.'
+# by Morrell, Zaman, and Wong.
+#
+# To make the implementation somewhat more general, the
+# specific comparisons to the paper are guarded by a
+# boolean 'verify'.
+
+
 from absl import app
 import numpy as np
 
@@ -11,7 +22,7 @@ from src.lib import state
 
 
 # In the derivation of the HHL algorithm, the inverse of an eigenvalue
-# must be computed. This is being achieved with a controlled-Y rotation.
+# must be computed. This is being achieved with a Controlled-Y rotation.
 #
 # In the derivation, this term appears (in pseudo-Latex):
 #
@@ -29,7 +40,7 @@ from src.lib import state
 # The code below is trying to verify the rotation itself.
 
 
-def rotate_ry(lam: float):
+def check_rotate_ry(lam: float):
   """Evaluate two ways to achieve a rotation about the y-axis."""
 
   if lam < 1.0:
@@ -40,21 +51,15 @@ def rotate_ry(lam: float):
   #   factor, with C < lam to avoid a negative sqrt.
   #
   #   Here, C=1 and lam must be >= 1.0 to avoid a negative sqrt.
-  #
   factor_0 = np.sqrt(1.0 - 1.0 / (lam * lam))
   factor_1 = 1.0 / lam
 
   # Compute a y-rotation by theta:
-  #
   theta = 2.0 * np.arcsin(1.0 / lam)
   psi = state.zeros(1)
   psi = ops.RotationY(theta)(psi)
 
   # Check and compare the results.
-  #
-  # print(f'controlled ry({lam:.2f}): theta: {theta*180.0:.4f}', end='')
-  # print(f'-> {factor_0:.2f}|0> + {factor_1:.2f}|1>')
-
   if not np.isclose(factor_0, psi[0], atol=0.001):
     raise AssertionError('Invalid computation.)')
 
@@ -62,11 +67,11 @@ def rotate_ry(lam: float):
     raise AssertionError('Invalid computation.)')
 
 
-def check_classic_solution(A, b):
+def check_classic_solution(a, b):
   """Check classic solution, based on paper values."""
 
   x = np.array([3/8, 9/8])
-  if not np.allclose(np.dot(A, x), b, atol=1e-5):
+  if not np.allclose(np.dot(a, x), b, atol=1e-5):
     raise AssertionError('Incorrect classical solution')
 
   # The ratio of |x0|^2 and |x1|^2 is:
@@ -75,31 +80,31 @@ def check_classic_solution(A, b):
   return ratio_x
 
 
-def compute_sorted_eigenvalues(A, verify: bool = True):
+def compute_sorted_eigenvalues(a, verify: bool = True):
   """Compute and verify the sorted eigenvalues/vectors."""
 
   # Eigenvalue/vector computation.
-  w, v = np.linalg.eig(A)
+  w, v = np.linalg.eig(a)
 
   # We sort the eigenvalues and eigenvectors (to match the paper).
   idx = w.argsort()
   w = w[idx]
-  v = v[:,idx]
+  v = v[:, idx]
 
   # From the experiments in 'spectral_decomp.py', we know that for
   # a Hermitian A:
-  # - Eigenvalues are real (that's why a Hamiltonian must be Hermitian)
+  #   Eigenvalues are real (that's why a Hamiltonian must be Hermitian)
   w = np.real(w)
 
-  #    - Eigenvectors are orthogonal and orthonormal
-  #    - We can construct the matrix via the spectral theorem as:
-  #         A = sum_i {lambda_i * |u_i><u_i|}
+  #   Eigenvectors are orthogonal and orthonormal
+  #   We can construct the matrix via the spectral theorem as:
+  #      A = sum_i {lambda_i * |u_i><u_i|}
   if verify:
-    dim = A.shape[0]
+    dim = a.shape[0]
     x = np.matrix(np.zeros((dim, dim)))
     for i in range(dim):
       x = x + w[i] * np.outer(v[:, i], v[:, i].adjoint())
-    if not np.allclose(A, x, atol=1e-5):
+    if not np.allclose(a, x, atol=1e-5):
       raise AssertionError('Spectral decomp doesn\'t seem to work.')
 
   # We want to use basis encoding to encode the eigenvalues. For this,
@@ -114,57 +119,26 @@ def compute_sorted_eigenvalues(A, verify: bool = True):
   if verify:
     if w[1] < w[0]:
       raise AssertionError('w[0] must be larger than w[1].')
+    ratio = w[1] / w[0]
+    if ratio - np.round(ratio) > 0.01:
+      raise AssertionError('We assume integer ratio between w[1] and w[0]')
 
   return w, v
 
 
-def run_experiment(A, b, verify: bool = False):
-  """Run a single instance of HHL for Ax = b."""
+def compute_u_matrices(a, w, v, t, verify):
+  """Compute the various U matrices and exponentiations."""
 
-  if not A.is_hermitian():
-    raise AssertionError('Input A must be Hermitian.')
-
-  # To check, we can solve Ax = b classically:
-  if verify:
-    ratio_x = check_classic_solution(A, b)
-
-  # For quantum, initial parameters.
-  dim = A.shape[0]
-  N = dim ** 2
-
-  # Compute (and verify) eigenvalue/vectors.
-  w, v = compute_sorted_eigenvalues(A, verify)
-
-  ratio = w[1] / w[0]
-  if ratio - np.round(ratio) > 0.01:
-    raise AssertionError('We assume integer ratio between w[1] and w[0]')
-  print(f'Ratio between Eigenvalues: {ratio:.1f}')
-
-  # We also know that:
-  #   lam_i = (N * w[j] * t) / (2 * np.pi)
-  #
-  # We want lam_i to be integers, so we compute 't' as:
-  #   t = lam[0] / N / w[0] * 2 * np.pi
-  #
-  # Which, for the example, comes to 3/4 pi:
-  t =  ratio / N / w[1] * 2 * np.pi
-  if verify:
-    if t - 3.0 * np.pi / 4.0 > 1e-5:
-      raise AssertionError('Incorrect calculation of t')
-
-  # With 't' we can now compute the integer eigenvalues:
-  lam = [(N * np.real(w[i]) * t / (2 * np.pi)) for i in range(2)]
-  print(f'Scaled Lambda\'s are: {lam[0]:.1f}, {lam[1]:.1f}')
 
   # We can compute A diagonalized from v as:
-  a_diag = v.transpose().conj() @ A @ v
+  a_diag = v.transpose().conj() @ a @ v
   if verify:
     if not np.allclose(a_diag, np.array([[2/3, 0],
                                          [0, 4/3]]), atol=1e-5):
       raise AssertionError('Incorrect computation of Adiag')
 
-  # Compute the matrix U from A via:
-  #   U = exp(i * A * t)
+  # Compute the matrices U an U^2 from A via:
+  #   U = exp(i * A * t) (^2)
   #
   # Since U is diagonal:
   u = ops.Operator(np.array([[np.exp(1j * w[0] * t), 0],
@@ -174,8 +148,7 @@ def run_experiment(A, b, verify: bool = False):
                                     [0, -1]]), atol=1e-5):
       raise AssertionError('Incorrect computation of U')
 
-  # Compute U^2
-  u2 = u@u
+  u2 = u @ u
   if verify:
     if not np.allclose(u2, np.array([[-1, 0],
                                      [0, 1]]), atol=1e-5):
@@ -206,14 +179,58 @@ def run_experiment(A, b, verify: bool = False):
     if not np.allclose(u2, um2, atol=1e-5):
       raise AssertionError('Something is wrong with U^-2.')
 
-  # Now on to computing the rotations.
+  return u, u2, um1, um2
+
+
+def run_experiment(a, b, verify: bool = False):
+  """Run a single instance of HHL for Ax = b."""
+
+  if not a.is_hermitian():
+    raise AssertionError('Input A must be Hermitian.')
+
+  # To check, we can solve Ax = b classically:
+  if verify:
+    ratio_x = check_classic_solution(a, b)
+
+  # For quantum, initial parameters.
+  dim = a.shape[0]
+
+  # pylint: disable=invalid-name
+  N = dim ** 2
+
+  # Compute (and verify) eigenvalue/vectors.
+  w, v = compute_sorted_eigenvalues(a, verify)
+
+  # Compute and print the ratio. We will compare the results
+  # against this value below.
+  ratio = w[1] / w[0]
+  print(f'Ratio between Eigenvalues: {ratio:.1f}')
+
+  # We also know that:
+  #   lam_i = (N * w[j] * t) / (2 * np.pi)
+  #
+  # We want lam_i to be integers, so we compute 't' as:
+  #   t = lam[0] / N / w[0] * 2 * np.pi
+  #
+  # Which, for the example, comes to 3/4 pi:
+  t = ratio / N / w[1] * 2 * np.pi
+  if verify:
+    if t - 3.0 * np.pi / 4.0 > 1e-5:
+      raise AssertionError('Incorrect calculation of t')
+
+  # With 't' we can now compute the integer eigenvalues:
+  lam = [(N * np.real(w[i]) * t / (2 * np.pi)) for i in range(2)]
+  print(f'Scaled Lambda\'s are: {lam[0]:.1f}, {lam[1]:.1f}')
+
+  # Compute the U matrices.
+  u, u2, um1, um2 = compute_u_matrices(a, w, v, t, verify)
+
+  # On to computing the rotations.
   #
   # The factors to |0> and 1> of the ancilla will be:
-  #   \sqrt{1 - C^2 / lam_j^2} and
-  #   C / lam_j
+  #   \sqrt{1 - C^2 / lam_j^2} and C / lam_j
   #
-  # C must be smaller than the minimal lam. We set it to just the
-  # minimum:
+  # C must be smaller than the minimal lam. We set it to the minimum:
   C = np.min(lam)
   print(f'Set C to minimal Eigenvalue: {C:.1f}')
 
@@ -236,15 +253,13 @@ def run_experiment(A, b, verify: bool = False):
   #   theta(2) = theta(10) = 2 arcsin(1 / 2) = pi/3
   #
   # In general, this theta function must be computed (which is
-  # straightforward as long as lam's binary representations
-  # don't not have matching 1's).
-  #
+  # trivial when lam's binary representations don't have matching 1's).
   # For the example, the solution is simple as no bits overlap:
   #
   #   theta(c) = theta(c_1 c_0) = pi/3 c_1 + pi c_0
   #
-  # So we have to rotate qubit 1 by pi/3 and qubit 0 by pi.
-
+  # So we have to rotate the ancilla via qubit c_1 by pi/3
+  # and via qubit c_0 by pi.
 
 
 def main(argv):
@@ -255,15 +270,15 @@ def main(argv):
   print('*** This is WIP ***')
 
   # Check the rotation mechanism.
-  rotate_ry(1.2)
+  check_rotate_ry(1.2)
 
   # The numerical example from:
   #   "Step-by-Step HHL Algorithm Walkthrough..." by
   #    Morrell, Zaman, Wong
   # (which is a 2x2 Hermitian matrix)
-  A = ops.Operator(np.array([[1.0, -1/3], [-1/3, 1]]))
+  a = ops.Operator(np.array([[1.0, -1/3], [-1/3, 1]]))
   b = ops.Operator(np.array([0, 1]))
-  run_experiment(A, b, True)
+  run_experiment(a, b, True)
 
 
 if __name__ == '__main__':
