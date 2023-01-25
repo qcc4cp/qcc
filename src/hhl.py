@@ -161,7 +161,7 @@ def compute_u_matrices(a, w, v, t, verify):
   # operators to the computational basis we apply the similarity
   # transformations:
   u = v @ u @ v.transpose().conj()
-  u2 = v @ u2 @ v.transpose().conj()
+  u2 = u @ u
   if verify:
     if not np.allclose(u, 0.5 * np.array([[-1+1j, 1+1j],
                                           [1+1j, -1+1j]]), atol=1e-5):
@@ -193,22 +193,17 @@ def construct_circuit(a, b, w, v, u, u2, um1, um2, C):
   anc = qc.reg(1, 0)
 
   qc.x(b)
-  qc.psi.dump('psi 1')
-
   qc.h(clock)
-  qc.psi.dump('psi 2')
 
   # State Preparation.
   qc.ctl_2x2(clock[0], b, u)
   qc.ctl_2x2(clock[1], b, u2)
-  qc.psi.dump('psi 3')
 
   # Inverse QFT.
   qc.h(clock[1])
   qc.cu1(clock[1], clock[0], -np.pi/2)
   qc.h(clock[0])
   qc.swap(clock[0], clock[1])
-  qc.psi.dump('psi 4')
 
   # From above we know that:
   #   theta = 2 arcsin(1 / 1am_j)
@@ -238,18 +233,15 @@ def construct_circuit(a, b, w, v, u, u2, um1, um2, C):
   # and via qubit c_0 by pi.
   qc.cry(clock[0], anc, np.pi)
   qc.cry(clock[1], anc, np.pi/3)
-  qc.psi.dump('psi 5')
 
+  # Measure (and force) ancilla to be |1>
   p, psi = qc.measure_bit(anc[0], 1, collapse=True)
-  qc.psi.dump('psi 6')
 
   # QFT
-  # Don't forget the swaps.
   qc.swap(clock[0], clock[1])
   qc.h(clock[0])
   qc.cu1(clock[1], clock[0], np.pi/2)
   qc.h(clock[1])
-  qc.psi.dump('psi 5')
 
   # Uncompute state initialization.
   qc.ctl_2x2(clock[1], b, um2)
@@ -257,12 +249,7 @@ def construct_circuit(a, b, w, v, u, u2, um1, um2, C):
 
   qc.h(clock[1])
   qc.h(clock[0])
-  qc.psi.dump('psi 9')
-
-
-  # p, psi = qc.measure_bit(clock[0], 1, collapse=True)
-  # p, psi = qc.measure_bit(clock[1], 1, collapse=True)
-  psi.dump('after anc measurement.')
+  qc.psi.dump('Final state')
   return qc
 
 
