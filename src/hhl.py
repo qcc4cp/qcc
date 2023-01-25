@@ -80,14 +80,30 @@ def check_classic_solution(a, b, verify):
     if not np.allclose(x, y, atol=1e-5):
       raise AssertionError('Incorrect classical solution')
 
-  # The ratio of |x0|^2 and |x1|^2 is:
-  ratio_x = np.real((x[1] * x[1].conj()) / (x[0] * x[0].conj()))
-  inv_str = ''
-  if ratio_x < 1.0:
-    ratio_x = 1.0 / ratio_x
-    inv_str = '(inverted)'
-  print(f'\nClassical solution^2 ratio: {ratio_x:.1f} {inv_str}')
+  # The ratio of |x0|^2 and |xi|^2 is:
+  for i in range(1, 2 ** b.nbits):
+    ratio_x = np.real((x[i] * x[i].conj()) / (x[0] * x[0].conj()))
+    inv_str = ''
+    if ratio_x < 1.0:
+      ratio_x = 1.0 / ratio_x
+      inv_str = '(inverted)'
+    print(f'Classic solution^2 ratio: {ratio_x:.1f} {inv_str}')
+
+  # For now, just return the last raio.
   return ratio_x
+
+
+def check_results(qc, a, b, verify):
+  """Check the results by inspecting the final state."""
+
+  ratio_classical = check_classic_solution(a, b, verify)
+
+  res = (qc.psi > 0.001).nonzero()[0]
+  for j in range(1, b.size):
+    ratio_quantum = np.real(qc.psi[res[j]]**2 / qc.psi[res[0]]**2)
+    print(f'Quantum solution^2 ratio: {ratio_quantum:.1f}\n')
+    if not np.allclose(ratio_classical, ratio_quantum, atol=1e-4):
+      raise AssertionError('Incorrect result.')
 
 
 def compute_sorted_eigenvalues(a, verify: bool = True):
@@ -188,23 +204,23 @@ def compute_u_matrix(a, w, v, t, verify):
   return u
 
 
-def construct_circuit(w, u, c, ratio_classical, clock_bits=2):
+def construct_circuit(w, u, c, clock_bits=2):
   """Construct a circuit for the given paramters."""
 
   qc = circuit.qc('hhl', eager=True)
-  b = qc.reg(1, 0)
+  breg = qc.reg(1, 0)
   clock = qc.reg(clock_bits, 0)
   anc = qc.reg(1, 0)
 
   # Initialize 'b' to (0, 1).
-  qc.x(b)
+  qc.x(breg)
 
   # State Preparation, which is basically phase estimation.
   qc.h(clock)
   u_phase = u
   u_phase_gates = []
   for idx in range(clock_bits):
-    qc.ctl_2x2(clock[idx], b, u_phase)
+    qc.ctl_2x2(clock[idx], breg, u_phase)
     u_phase_gates.append(u_phase)
     u_phase = u_phase @ u_phase
 
@@ -255,23 +271,12 @@ def construct_circuit(w, u, c, ratio_classical, clock_bits=2):
 
   # Uncompute state initialization.
   for idx in range(clock_bits-1, -1, -1):
-    qc.ctl_2x2(clock[idx], b, np.linalg.inv(u_phase_gates[idx]))
+    qc.ctl_2x2(clock[idx], breg, np.linalg.inv(u_phase_gates[idx]))
 
   # Move clock bits out of Hadamard basis.
   qc.h(clock)
   qc.psi.dump('Final state')
-
-  # Check results, which are presented as the ratio of the solutions.
-  res = (qc.psi > 0.001).nonzero()[0]
-  for i in range(2 ** b.size):
-      for j in range(i+1, 2 ** b.size):
-        p0 = qc.psi[res[i]]
-        p1 = qc.psi[res[j]]
-        ratio_quantum = np.real(p1 * p1 / p0 / p0)
-        print(f'Quantum solution^2 ratio: {ratio_quantum:.1f}')
-        #if (not np.allclose(ratio_classical, ratio_quantum, atol=1e-4) and
-        #    not np.allclose(ratio_classical, 1/ratio_quantum, atol=1e-4)):
-        #  raise AssertionError('Incorrect result.')
+  return qc
 
 
 def run_experiment(a, b, verify: bool = False):
@@ -280,14 +285,11 @@ def run_experiment(a, b, verify: bool = False):
   if not a.is_hermitian():
     raise AssertionError('Input A must be Hermitian.')
 
-  # To check, we can solve Ax = b classically:
-  ratio_classical = check_classic_solution(a, b, verify)
-
   # For quantum, initial parameters.
   dim = a.shape[0]
 
   # pylint: disable=invalid-name
-  N = dim ** 2
+  N = dim**2
 
   # Compute (and verify) eigenvalue/vectors.
   w, v = compute_sorted_eigenvalues(a, verify)
@@ -323,7 +325,8 @@ def run_experiment(a, b, verify: bool = False):
   print(f'Set C to minimal Eigenvalue: {C:.1f}')
 
   # Now we have all the values and matrices. Let's construct a circuit.
-  construct_circuit(lam, u, C, ratio_classical, 2)
+  qc = construct_circuit(lam, u, C, 2)
+  check_results(qc, a, b, verify)
 
 
 def main(argv):
