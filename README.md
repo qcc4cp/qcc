@@ -65,6 +65,7 @@ To run individual algorithms via `bazel`, run any of these command lines (note t
    bazel run graph_coloring
    bazel run hadamard_test
    bazel run hamiltonian_encoding
+   bazel run hhl   
    bazel run inversion_test
    bazel run minimum_finding
    bazel run oracle_synth
