@@ -172,7 +172,7 @@ def compute_u_matrices(a, w, v, t, verify):
 
   # Compute the inverses U^-1 and U^-2:
   um1 = np.linalg.inv(u)
-  um2 = np.linalg.inv(u2)
+  um2 = um1 @ um1
   if verify:
     if not np.allclose(um1, 0.5 * np.array([[-1-1j, 1-1j],
                                             [1-1j, -1-1j]]), atol=1e-5):
@@ -205,7 +205,7 @@ def construct_circuit(a, b, w, v, u, u2, um1, um2, C):
 
   # Inverse QFT.
   qc.h(clock[1])
-  qc.cu1(clock[0], clock[1], -np.pi/2)
+  qc.cu1(clock[1], clock[0], -np.pi/2)
   qc.h(clock[0])
   qc.swap(clock[0], clock[1])
   qc.psi.dump('psi 4')
@@ -244,14 +244,15 @@ def construct_circuit(a, b, w, v, u, u2, um1, um2, C):
   qc.psi.dump('psi 6')
 
   # QFT
+  qc.swap(clock[0], clock[1])
   qc.h(clock[0])
-  qc.cu1(clock[0], clock[1], np.pi/2)
+  qc.cu1(clock[1], clock[0], np.pi/2)
   qc.h(clock[1])
   qc.psi.dump('psi 5')
 
   # Uncompute state initialization.
-  qc.ctl_2x2(clock[0], b, um2)
-  qc.ctl_2x2(clock[1], b, um1)
+  qc.ctl_2x2(clock[1], b, um2)
+  qc.ctl_2x2(clock[0], b, um1)
 
   qc.h(clock[1])
   qc.h(clock[0])
