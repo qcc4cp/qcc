@@ -206,10 +206,7 @@ def construct_circuit(w, u, c, ratio_classical, clock_bits=2):
 
   # Inverse QFT. After this, the eigenvalues will be
   # in the clock register.
-  qc.h(clock[1])
-  qc.cu1(clock[1], clock[0], -np.pi/2)
-  qc.h(clock[0])
-  qc.swap(clock[0], clock[1])
+  qc.inverse_qft(clock, True)
 
   # From above we know that:
   #   theta = 2 arcsin(1 / lam_j)
@@ -250,10 +247,7 @@ def construct_circuit(w, u, c, ratio_classical, clock_bits=2):
   _, _ = qc.measure_bit(anc[0], 1, collapse=True)
 
   # QFT
-  qc.swap(clock[0], clock[1])
-  qc.h(clock[0])
-  qc.cu1(clock[1], clock[0], np.pi/2)
-  qc.h(clock[1])
+  qc.qft(clock, True)
 
   # Uncompute state initialization.
   for idx in range(clock_bits-1, -1, -1):

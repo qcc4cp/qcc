@@ -414,6 +414,28 @@ class qc:
       self.ccx(ctl, idx0, idx1)
       self.ccx(ctl, idx1, idx0)
 
+  def qft(self, reg, with_swaps: bool = False) -> None:
+    """QFT."""
+
+    for i in range(reg.size-1, -1, -1):
+      self.h(reg[i])
+      for j in range(i-1, -1, -1):
+        self.cu1(reg[i], reg[j], np.pi/2**(i-j))
+    if with_swaps:
+      self.flip(reg)
+
+  def inverse_qft(self, reg, with_swaps: bool = False) -> None:
+    """Inverse QFT."""
+
+    if with_swaps:
+      self.flip(reg)
+    for i in range(reg.size):
+      self.h(reg[i])
+      if i != reg.size-1:
+        j = i+1
+        for y in range(i, -1, -1):
+          self.cu1(reg[j], reg[y], -np.pi / 2**(j-y))
+
   def multi_control(self, ctl, idx1, aux, gate, desc: str):
     """Multi-controlled gate, using aux as ancilla."""
 
@@ -467,8 +489,11 @@ class qc:
   def flip(self, reg: state.Reg):
     """Flip a quantum register via swaps."""
 
-    for idx in range(reg[0], reg[0] + reg.nbits // 2):
-      self.swap(idx, reg[0] + reg.nbits - idx - 1)
+    # Old version (possibly incorrect)
+    # for idx in range(reg[0], reg[0] + reg.nbits // 2):
+    #   self.swap(idx, reg[0] + reg.nbits - idx - 1)
+    for i in range(reg.size // 2):
+      self.swap(reg[i], reg[reg.size-1-i])
 
   def qft_rk(self, reg, swap: bool = True):
     """Apply Qft with Rk gates directly."""
