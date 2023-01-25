@@ -79,7 +79,7 @@ def check_classic_solution(a, b, verify):
       raise AssertionError('Incorrect classical solution')
     if not np.allclose(x, y, atol=1e-5):
       raise AssertionError('Incorrect classical solution')
-  
+
   # The ratio of |x0|^2 and |x1|^2 is:
   ratio_x = np.real((x[1] * x[1].conj()) / (x[0] * x[0].conj()))
   print(f'\nClassical solution^2 ratio: {ratio_x:.1f}')
@@ -179,27 +179,33 @@ def compute_u_matrix(a, w, v, t, verify):
     if not np.allclose(a_diag, np.array([[2/3, 0],
                                          [0, 4/3]]), atol=1e-5):
       raise AssertionError('Incorrect computation of Adiag')
- 
+
+  # Return u in the computational basis.
   return u
 
 
-def construct_circuit(w, v, u, C, ratio_classical):
+def construct_circuit(w, u, c, ratio_classical, clock_bits=2):
   """Construct a circuit for the given paramters."""
 
   qc = circuit.qc('hhl', eager=True)
   b = qc.reg(1, 0)
-  clock = qc.reg(2, 0)
+  clock = qc.reg(clock_bits, 0)
   anc = qc.reg(1, 0)
 
   # Initialize 'b' to (0, 1).
   qc.x(b)
 
-  # State Preparation.
+  # State Preparation, which is basically phase estimation.
   qc.h(clock)
-  qc.ctl_2x2(clock[0], b, u)
-  qc.ctl_2x2(clock[1], b, u @ u)
+  u_phase = u
+  u_phase_gates = []
+  for idx in range(clock_bits):
+    qc.ctl_2x2(clock[idx], b, u_phase)
+    u_phase_gates.append(u_phase)
+    u_phase = u_phase @ u_phase
 
-  # Inverse QFT. After this, the eigenvalues should be in the clock register.
+  # Inverse QFT. After this, the eigenvalues will be
+  # in the clock register.
   qc.h(clock[1])
   qc.cu1(clock[1], clock[0], -np.pi/2)
   qc.h(clock[0])
@@ -231,18 +237,17 @@ def construct_circuit(w, v, u, C, ratio_classical):
   # and via qubit c_0 by pi.
   #
   # In general (for 2 lambda's):
+  #   if bit 0 is set in the larger lamba, eg., |01> and |11>:
   #
-  angle0 = 2 * np.arcsin(C / w[0])
-  angle1 = 2 * np.arcsin(C / w[1])
-  # if bit 0 is set in the larger lamba, eg., |01> and |11>:
+  angle0 = 2 * np.arcsin(c / w[0])
+  angle1 = 2 * np.arcsin(c / w[1])
   if int(np.round(w[1])) & 1 == 1:
     angle1 = angle1 - angle0
-    
   qc.cry(clock[0], anc, angle0)
   qc.cry(clock[1], anc, angle1)
 
   # Measure (and force) ancilla to be |1>.
-  p, psi = qc.measure_bit(anc[0], 1, collapse=True)
+  _, _ = qc.measure_bit(anc[0], 1, collapse=True)
 
   # QFT
   qc.swap(clock[0], clock[1])
@@ -251,18 +256,18 @@ def construct_circuit(w, v, u, C, ratio_classical):
   qc.h(clock[1])
 
   # Uncompute state initialization.
-  qc.ctl_2x2(clock[1], b, np.linalg.inv(u @ u))
-  qc.ctl_2x2(clock[0], b, np.linalg.inv(u))
+  for idx in range(clock_bits-1, -1, -1):
+    qc.ctl_2x2(clock[idx], b, np.linalg.inv(u_phase_gates[idx]))
 
   # Move clock bits out of Hadamard basis.
-  qc.h(clock[1])
-  qc.h(clock[0])
+  for idx in range(clock_bits-1, -1, -1):
+    qc.h(clock[idx])
   qc.psi.dump('Final state')
 
   # Check result, which is the ratio of the solutions.
   p0 = qc.psi[1]
   p1 = qc.psi[9]
-  ratio_quantum =  np.real(p1 * p1 / p0 / p0)
+  ratio_quantum = np.real(p1 * p1 / p0 / p0)
   print(f'Quantum solution^2 ratio: {ratio_quantum:.1f})')
   if (not np.allclose(ratio_classical, ratio_quantum, atol=1e-4) and
       not np.allclose(ratio_classical, 1/ratio_quantum, atol=1e-4)):
@@ -319,7 +324,7 @@ def run_experiment(a, b, verify: bool = False):
   print(f'Set C to minimal Eigenvalue: {C:.1f}')
 
   # Now we have all the values and matrices. Let's construct a circuit.
-  construct_circuit(lam, v, u, C, ratio_classical)
+  construct_circuit(lam, u, C, ratio_classical, 2)
 
 
 def main(argv):

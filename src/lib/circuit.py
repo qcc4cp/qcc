@@ -361,8 +361,7 @@ class qc:
 
 #  Appplying a random unitary is possible, but it is not a
 #  1- or 2-qubit gate, hence slow.
-#  Do not use (unless really unavoidable)
-#
+#  Try to avoid using it (unless unavoidable)
   def unitary(self, op, idx):
     self.psi = ops.Operator(op)(self.psi, idx)
 
