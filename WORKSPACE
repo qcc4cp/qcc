@@ -2,7 +2,7 @@ new_local_repository(
     name = "third_party_python",
     build_file = __workspace_dir__ + "/python.BUILD",
     # Configure:
-    path = "/usr/include/python3.9",
+    path = "/usr/include/python3.10",
 )
 
 new_local_repository(

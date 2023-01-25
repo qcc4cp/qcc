@@ -19,4 +19,4 @@ from src.lib import helper
 from src.lib import ops
 from src.lib import state
 from src.lib import tensor
-print(__file__ + ': qcc initialized')
+print('QCC: ' + __file__ + ': initialized')
