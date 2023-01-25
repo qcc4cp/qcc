@@ -72,7 +72,7 @@ def measure(psi: state.State):
   for i in range(len(psi)):
     total += (psi[i]*psi[i].conj())
     if r < total:
-      psi = helper.val2bits(i, 2) 
+      psi = helper.val2bits(i, 2)
       return psi[0], psi[1]
 
 

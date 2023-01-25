@@ -254,18 +254,20 @@ def construct_circuit(w, u, c, ratio_classical, clock_bits=2):
     qc.ctl_2x2(clock[idx], b, np.linalg.inv(u_phase_gates[idx]))
 
   # Move clock bits out of Hadamard basis.
-  for idx in range(clock_bits-1, -1, -1):
-    qc.h(clock[idx])
+  qc.h(clock)
   qc.psi.dump('Final state')
 
-  # Check result, which is the ratio of the solutions.
-  p0 = qc.psi[1]
-  p1 = qc.psi[9]
-  ratio_quantum = np.real(p1 * p1 / p0 / p0)
-  print(f'Quantum solution^2 ratio: {ratio_quantum:.1f}')
-  if (not np.allclose(ratio_classical, ratio_quantum, atol=1e-4) and
-      not np.allclose(ratio_classical, 1/ratio_quantum, atol=1e-4)):
-    raise AssertionError('Incorrect result.')
+  # Check results, which are presented as the ratio of the solutions.
+  res = (qc.psi > 0.001).nonzero()[0]
+  for i in range(2 ** b.size):
+      for j in range(i+1, 2 ** b.size):
+        p0 = qc.psi[res[i]]
+        p1 = qc.psi[res[j]]
+        ratio_quantum = np.real(p1 * p1 / p0 / p0)
+        print(f'Quantum solution^2 ratio: {ratio_quantum:.1f}')
+        if (not np.allclose(ratio_classical, ratio_quantum, atol=1e-4) and
+            not np.allclose(ratio_classical, 1/ratio_quantum, atol=1e-4)):
+          raise AssertionError('Incorrect result.')
 
 
 def run_experiment(a, b, verify: bool = False):
