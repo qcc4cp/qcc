@@ -68,7 +68,7 @@ class HelpersTest(absltest.TestCase):
     x, y, z = helper.qubit_to_bloch(psi)
     self.assertEqual(x, 0.0)
     self.assertEqual(y, 0.0)
-    self.assertEqual(1, 1.0)
+    self.assertEqual(z, 1.0)
 
 
 if __name__ == '__main__':

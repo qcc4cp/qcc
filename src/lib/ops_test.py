@@ -191,7 +191,7 @@ class OpsTest(absltest.TestCase):
     self.assertTrue(op3.is_close(op))
 
   def test_qft_adjoint(self):
-    bits = [0, 1, 0, 1, 1,0]
+    bits = [0, 1, 0, 1, 1, 0]
     psi = state.bitstring(*bits)
     psi = ops.Qft(6)(psi)
     psi = ops.Qft(6).adjoint()(psi)
@@ -209,7 +209,7 @@ class OpsTest(absltest.TestCase):
       phi = ops.Hadamard()(phi, i)
     for i in range(len(phi)):
       if phi[i] != psi[i]:
-         raise AssertionError('Incorrect QFT vs Hadamards.')
+        raise AssertionError('Incorrect QFT vs Hadamards.')
 
   def test_padding(self):
     ident = ops.Identity(3)
@@ -288,7 +288,8 @@ class OpsTest(absltest.TestCase):
     self.assertTrue(np.allclose(ops.U(np.pi, 0, np.pi), ops.PauliX()))
     self.assertTrue(np.allclose(ops.U(np.pi, np.pi/2, np.pi/2), ops.PauliY()))
     self.assertTrue(np.allclose(ops.U(0, 0, np.pi), ops.PauliZ()))
-    self.assertTrue(np.allclose(ops.U(val, -np.pi/2, np.pi/2), ops.RotationX(val)))
+    self.assertTrue(np.allclose(ops.U(val, -np.pi/2, np.pi/2),
+                                ops.RotationX(val)))
     self.assertTrue(np.allclose(ops.U(val, 0, 0), ops.RotationY(val)))
 
   def test_diffusion_op(self):
@@ -325,15 +326,15 @@ class OpsTest(absltest.TestCase):
       self.assertTrue(op01.is_close(op10))
 
   def test_rho(self):
-    for i in range(100):
-       q = state.qubit(alpha=random.random())
-       rho = q.density()
-       ident, x, y, z = ops.Pauli()
-       u = (rho +
-            x @ rho @ x +
-            y @ rho @ y +
-            z @ rho @ z) / 2
-       self.assertTrue(np.allclose(u, ident))
+    for _ in range(100):
+      q = state.qubit(alpha=random.random())
+      rho = q.density()
+      ident, x, y, z = ops.Pauli()
+      u = (rho +
+           x @ rho @ x +
+           y @ rho @ y +
+           z @ rho @ z) / 2
+      self.assertTrue(np.allclose(u, ident))
 
 
 if __name__ == '__main__':

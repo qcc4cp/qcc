@@ -24,7 +24,6 @@ class BellTest(absltest.TestCase):
     b00_exp = op_exp(state.zeros(2))
     self.assertTrue(b00.is_close(b00_exp))
 
-
   def test_not_pure(self):
     """Bell states are pure states."""
 
@@ -96,9 +95,9 @@ class BellTest(absltest.TestCase):
 
   def test_w_state(self):
     psi = bell.w_state()
-    self.assertTrue(psi.prob(0, 0, 1) > 0.3)
-    self.assertTrue(psi.prob(0, 1, 0) > 0.3)
-    self.assertTrue(psi.prob(1, 0, 0) > 0.3)    
+    self.assertGreater(psi.prob(0, 0, 1), 0.3)
+    self.assertGreater(psi.prob(0, 1, 0), 0.3)
+    self.assertGreater(psi.prob(1, 0, 0), 0.3)
 
 if __name__ == '__main__':
   absltest.main()

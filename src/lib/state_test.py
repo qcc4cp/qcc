@@ -35,7 +35,7 @@ class StateTest(absltest.TestCase):
   def test_state_gen(self):
     hadamard = (1 / np.sqrt(2) * np.array([[1.0, 1.0], [1.0, -1.0]]))
     sgate = np.array([[1.0, 0.0], [0.0, 1.0j]])
-    
+
     psi = state.zeros(1)
     psi = hadamard @ psi
     self.assertTrue(psi.is_close(state.plus()))
@@ -74,7 +74,7 @@ class StateTest(absltest.TestCase):
     self.assertFalse(rho.is_unitary())
 
     # The sum of eigenvalues for a pure state must be 1.0.
-    e, v = np.linalg.eig(rho)
+    e, _ = np.linalg.eig(rho)
     self.assertEqual(np.sum(e), 1.0)
 
     # Density matrix of a pure state must have rank 1.
