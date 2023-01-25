@@ -208,7 +208,10 @@ class qc:
     """Apply controlled gates."""
 
     if isinstance(idx, state.Reg):
-      raise AssertionError('controlled register not supported')
+      if idx.size == 1:
+        idx = idx[0]
+      else:
+        raise AssertionError('controlled n-qbit register not supported')
 
     ctl_qubit, by_0 = self.ctl_by_0(ctl)
     if by_0:
@@ -344,14 +347,17 @@ class qc:
   def rz(self, idx: int, theta: float):
     self.apply1(ops.RotationZ(theta), idx, 'rz', val=theta)
 
-  def crx(self, ctl:int, idx: int, theta: float):
+  def crx(self, ctl: int, idx: int, theta: float):
     self.applyc(ops.RotationX(theta), ctl, idx, 'crx', val=theta)
 
-  def cry(self, ctl:int, idx: int, theta: float):
+  def cry(self, ctl: int, idx: int, theta: float):
     self.applyc(ops.RotationY(theta), ctl, idx, 'cry', val=theta)
 
-  def crz(self, ctl:int, idx: int, theta: float):
+  def crz(self, ctl: int, idx: int, theta: float):
     self.applyc(ops.RotationZ(theta), ctl, idx, 'crz', val=theta)
+
+  def ctl_2x2(self, ctl: int, idx: int, op: ops.Operator):
+    self.applyc(op, ctl, idx, 'ctl-u')
 
 #  Appplying a random unitary is possible, but it is not a
 #  1- or 2-qubit gate, hence slow.
@@ -574,7 +580,7 @@ class qc:
     if desc:
       print(desc)
     if self.name:
-      print(f'Circuit: {self.name}, Gates: {len(self.ir.gates)},' +
+      print(f'Circuit: {self.name}, Gates: {len(self.ir.gates)}, 0' +
             'QBits: {self.psi.nbits}')
     print(self.ir, end='')
     if draw:
