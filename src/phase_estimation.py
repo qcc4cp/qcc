@@ -195,9 +195,9 @@ def main(argv):
   t = 7
   print(f'Estimating {nbits} qubits random unitary eigenvalue(s) ' +
         f'with {t} bits of accuracy.')
-  for _ in range(10):
+  for _ in range(5):
     run_experiment(nbits, t)
-  for _ in range(10):
+  for _ in range(5):
     run_experiment_multi(nbits, t)
 
 

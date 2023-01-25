@@ -262,7 +262,7 @@ def construct_circuit(w, u, c, ratio_classical, clock_bits=2):
   p0 = qc.psi[1]
   p1 = qc.psi[9]
   ratio_quantum = np.real(p1 * p1 / p0 / p0)
-  print(f'Quantum solution^2 ratio: {ratio_quantum:.1f})')
+  print(f'Quantum solution^2 ratio: {ratio_quantum:.1f}')
   if (not np.allclose(ratio_classical, ratio_quantum, atol=1e-4) and
       not np.allclose(ratio_classical, 1/ratio_quantum, atol=1e-4)):
     raise AssertionError('Incorrect result.')

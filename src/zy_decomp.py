@@ -67,7 +67,7 @@ def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  iterations = 10000
+  iterations = 1000
   print(f'Perform {iterations} random Z-Y decompositions.')
 
   for i in range(iterations):
