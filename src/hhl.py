@@ -244,6 +244,7 @@ def construct_circuit(a, b, w, v, u, u2, um1, um2, C):
   qc.psi.dump('psi 6')
 
   # QFT
+  # Don't forget the swaps.
   qc.swap(clock[0], clock[1])
   qc.h(clock[0])
   qc.cu1(clock[1], clock[0], np.pi/2)
