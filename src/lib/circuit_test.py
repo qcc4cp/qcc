@@ -315,7 +315,7 @@ class CircuitTest(absltest.TestCase):
     sc.control_by(2)
 
     qc.qc(sc)
-    self.assertTrue(len(qc.ir.gates) == 5)
+    self.assertLen(len(qc.ir.gates), 5)
 
   def test_to_ctl_qft(self):
     def qft(qc: circuit.qc, reg: state.Reg, n: int) -> None:
@@ -325,7 +325,7 @@ class CircuitTest(absltest.TestCase):
 
     def make_qc(nbits: int, init_val: int):
       qc = circuit.qc('test')
-      ctl = qc.reg(1, init_val)
+      qc.reg(1, init_val)
       rg = qc.reg(nbits, 3)
       sc = qc.sub()
       for i in range(nbits):
@@ -339,10 +339,10 @@ class CircuitTest(absltest.TestCase):
     sc.control_by(0)
     qc1.qc(sc)
 
-    self.assertTrue(abs(qc0.psi.ampl(0, 0, 0) - qc1.psi.ampl(1, 0, 0)) < 1e-5)
-    self.assertTrue(abs(qc0.psi.ampl(0, 0, 1) - qc1.psi.ampl(1, 0, 1)) < 1e-5)
-    self.assertTrue(abs(qc0.psi.ampl(0, 1, 0) - qc1.psi.ampl(1, 1, 0)) < 1e-5)
-    self.assertTrue(abs(qc0.psi.ampl(0, 1, 1) - qc1.psi.ampl(1, 1, 1)) < 1e-5)
+    self.assertLess(abs(qc0.psi.ampl(0, 0, 0) - qc1.psi.ampl(1, 0, 0)), 1e-5)
+    self.assertLess(abs(qc0.psi.ampl(0, 0, 1) - qc1.psi.ampl(1, 0, 1)), 1e-5)
+    self.assertLess(abs(qc0.psi.ampl(0, 1, 0) - qc1.psi.ampl(1, 1, 0)), 1e-5)
+    self.assertLess(abs(qc0.psi.ampl(0, 1, 1) - qc1.psi.ampl(1, 1, 1)), 1e-5)
 
   def test_state_constructor(self):
     psi = state.bitstring(0, 0)
@@ -355,7 +355,7 @@ class CircuitTest(absltest.TestCase):
     self.assertTrue(math.isclose(np.real(psi[1]), 0, abs_tol=1e-6))
     self.assertTrue(math.isclose(np.real(psi[2]), 0, abs_tol=1e-6))
     self.assertTrue(math.isclose(np.real(psi[3]), 1/np.sqrt(2), abs_tol=1e-6))
-    self.assertTrue(psi.nbits == 2)
+    self.assertEqual(psi.nbits, 2)
 
 
 if __name__ == '__main__':
