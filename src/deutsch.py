@@ -107,7 +107,7 @@ def run_experiment(flavor: int) -> None:
 
   print('f(0) = {:.0f} f(1) = {:.0f}'
         .format(f(0), f(1)), end='')
-  if math.isclose(p0, 0.0):
+  if math.isclose(p0, 0.0, abs_tol=1e-5):
     print('  balanced')
     if flavor == 0 or flavor == 3:
       raise AssertionError('Invalid result, expected balanced.')
