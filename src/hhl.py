@@ -83,11 +83,7 @@ def check_classic_solution(a, b, verify):
   # The ratio of |x0|^2 and |xi|^2 is:
   for i in range(1, 2 ** b.nbits):
     ratio_x = np.real((x[i] * x[i].conj()) / (x[0] * x[0].conj()))
-    inv_str = ''
-    if ratio_x < 1.0:
-      ratio_x = 1.0 / ratio_x
-      inv_str = '(inverted)'
-    print(f'Classic solution^2 ratio: {ratio_x:.1f} {inv_str}')
+    print(f'Classic solution^2 ratio: {ratio_x:.3f}')
 
   # For now, just return the last raio.
   return ratio_x
@@ -101,7 +97,7 @@ def check_results(qc, a, b, verify):
   res = (qc.psi > 0.001).nonzero()[0]
   for j in range(1, b.size):
     ratio_quantum = np.real(qc.psi[res[j]]**2 / qc.psi[res[0]]**2)
-    print(f'Quantum solution^2 ratio: {ratio_quantum:.1f}\n')
+    print(f'Quantum solution^2 ratio: {ratio_quantum:.3f}\n')
     if not np.allclose(ratio_classical, ratio_quantum, atol=1e-4):
       raise AssertionError('Incorrect result.')
 
@@ -204,7 +200,7 @@ def compute_u_matrix(a, w, v, t, verify):
   return u
 
 
-def construct_circuit(w, u, c, clock_bits=2):
+def construct_circuit(b, w, u, c, clock_bits=2):
   """Construct a circuit for the given paramters."""
 
   qc = circuit.qc('hhl', eager=True)
@@ -212,8 +208,9 @@ def construct_circuit(w, u, c, clock_bits=2):
   clock = qc.reg(clock_bits, 0)
   anc = qc.reg(1, 0)
 
-  # Initialize 'b' to (0, 1).
-  qc.x(breg)
+  # Initialize 'b' to (0, 1), if appropriate.
+  if b[1] == 1:
+    qc.x(breg)
 
   # State Preparation, which is basically phase estimation.
   qc.h(clock)
@@ -325,7 +322,7 @@ def run_experiment(a, b, verify: bool = False):
   print(f'Set C to minimal Eigenvalue: {C:.1f}')
 
   # Now we have all the values and matrices. Let's construct a circuit.
-  qc = construct_circuit(lam, u, C, 2)
+  qc = construct_circuit(b, lam, u, C, 2)
   check_results(qc, a, b, verify)
 
 
