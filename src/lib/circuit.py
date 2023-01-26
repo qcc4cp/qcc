@@ -185,23 +185,24 @@ class qc:
     return ctl_qubit_, ctl_by_0_
 
   # --- Gates  ----------------------------------------------------
-  def apply1(self, gate: ops.Operator, idx: int,
+  def apply1(self, gate: ops.Operator, idx_set,
              name: str = None, *, val: float = None):
     """Apply single gates."""
 
-    if isinstance(idx, state.Reg):
-      for reg in range(idx.nbits):
-        if self.build_ir:
-          self.ir.single(name, idx[reg], gate, val)
-        if self.eager:
-          apply1(self.psi, gate.reshape(4), self.psi.nbits, idx[reg],
-                 tensor.tensor_width)
-      return
-    if self.build_ir:
-      self.ir.single(name, idx, gate, val)
-    if self.eager:
-      apply1(self.psi, gate.reshape(4), self.psi.nbits, idx,
-             tensor.tensor_width)
+    indices = []
+    if isinstance(idx_set, int):
+      indices.append(idx_set)
+    if isinstance(idx_set, state.Reg):
+      indices += idx_set.reg
+    if isinstance(idx_set, list):
+      indices += idx_set
+
+    for idx in indices:
+      if self.build_ir:
+        self.ir.single(name, idx, gate, val)
+      if self.eager:
+        apply1(self.psi, gate.reshape(4), self.psi.nbits, idx,
+               tensor.tensor_width)
 
   def applyc(self, gate: ops.Operator, ctl: int, idx: int,
              name: str = None, *, val: float = None):

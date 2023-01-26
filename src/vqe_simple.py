@@ -85,9 +85,8 @@ def full_ansatz(qc):
   qc.rz(1, angles[3])
 
   # Step 2: Entangler.
-  qc.h(0)
+  qc.h([0, 1])
   qc.cx(0, 1)
-  qc.h(1)
   qc.cx(1, 0)
 
   # Step 3: Final Rotations.
