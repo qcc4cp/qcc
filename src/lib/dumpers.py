@@ -5,6 +5,7 @@
 
 from src.lib import helper
 
+
 def reg2str(ir, idx):
   """Convert absolute register index to register-based string."""
 
@@ -231,11 +232,11 @@ def totext(ir) -> str:
       larr[op.idx0][depth] = '-' + name + '-'
 
     if op.is_ctl():
-       larr[op.ctl][depth] = '-' + 'o' + ('-' * (len(name)-1)) + '-'
-       larr[op.idx1][depth] = '-' + name + '-'
-       dir = int((op.idx1 - op.ctl) / abs(op.idx1 - op.ctl))
-       for i in range(op.ctl + dir, op.idx1, dir):
-         larr[i][depth] = '-|-'
+      larr[op.ctl][depth] = '-' + 'o' + ('-' * (len(name)-1)) + '-'
+      larr[op.idx1][depth] = '-' + name + '-'
+      direction = int((op.idx1 - op.ctl) / abs(op.idx1 - op.ctl))
+      for i in range(op.ctl + direction, op.idx1, direction):
+        larr[i][depth] = '-|-'
 
     depth += 1
 

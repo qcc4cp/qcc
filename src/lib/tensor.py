@@ -100,7 +100,7 @@ class Tensor(np.ndarray):
 
     return self.__class__(np.kron(self, arg))
 
-  def __mul__(self, arg: Tensor) -> Tensor: # type: ignore[override]
+  def __mul__(self, arg: Tensor) -> Tensor:  # type: ignore[override]
     """Inline * operator maps to kronecker product."""
 
     return self.kron(arg)

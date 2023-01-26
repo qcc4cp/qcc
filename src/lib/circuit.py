@@ -6,11 +6,19 @@
 
 from __future__ import annotations
 
+import itertools
 import random
 from typing import Callable
 
 from absl import flags
 import numpy as np
+from scipy.linalg import sqrtm
+from src.lib import dumpers
+from src.lib import ir
+from src.lib import ops
+from src.lib import optimizer
+from src.lib import state
+from src.lib import tensor
 
 
 # Many of the algorithm implementation rely on the fast performance
@@ -25,11 +33,14 @@ import numpy as np
 #
 # GitHub / Linux:
 # import libxgates as xgates
+
+
 try:
+  # pylint: disable=g-import-not-at-top
   import libxgates as xgates
   apply1 = xgates.apply1
   applyc = xgates.applyc
-except:
+except Exception:  # pylint: disable=broad-except
   print("""
   **************************************************************
   WARNING: Could not find 'libxgates.so'.
@@ -39,6 +50,7 @@ except:
   **************************************************************
   """)
 
+  # pylint: disable=unused-argument
   def apply1(psi, gate, nbits, qubit, bitwidth=0):
     """Apply a single-qubit gate via explicit indexing."""
 
@@ -52,8 +64,8 @@ except:
         psi[i + two_q] = t2
     return psi
 
-
-  def applyc(psi, gate, nbits, control, target, bitwidth=64):
+  # pylint: disable=unused-argument
+  def applyc(psi, gate, nbits, control, target, bitwidth=0):
     """Apply a controlled 2-qubit gate via explicit indexing."""
 
     qubit = nbits - target - 1
@@ -69,13 +81,6 @@ except:
           psi[i + two_q] = t2
     return psi
 
-
-from src.lib import dumpers
-from src.lib import ir
-from src.lib import ops
-from src.lib import optimizer
-from src.lib import state
-from src.lib import tensor
 
 flags.DEFINE_string('libq', '', 'Generate libq output file, or empty')
 flags.DEFINE_string('qasm', '', 'Generate qasm output file, or empty')
@@ -255,7 +260,7 @@ class qc:
   def cu(self, idx0: int, idx1: int, op: ops.Operator, desc: str = None):
     self.applyc(op, idx0, idx1, desc)
 
-  def ccu(self, idx0: int, idx1: int, idx2: int, op: ops.Operator, desc = ''):
+  def ccu(self, idx0: int, idx1: int, idx2: int, op: ops.Operator, desc=''):
     """Sleator-Weinfurter Construction for general operators."""
 
     # Enable Control-By-0 (via idx being passes as [idx])
@@ -268,7 +273,6 @@ class qc:
       if c1_by_0:
         self.x(i1)
 
-      from scipy.linalg import sqrtm
       v = ops.Operator(sqrtm(op))
 
       self.cu(i0, idx2, v, desc + '^1/2')
@@ -376,7 +380,6 @@ class qc:
 
   def measure_bit_iterative(self, idx: int, tostate: int = 0) -> float:
     """Iterate over all states, match states at idx, add up amplitudes."""
-    import itertools
 
     sum_ampl = 0.0
     for bits in itertools.product([0, 1], repeat=self.psi.nbits):
@@ -461,7 +464,7 @@ class qc:
       if not ctl:
         self.apply1(gate, idx1, desc)
         return
-      if type(ctl) == state.Reg:
+      if isinstance(ctl, state.Reg):
         ctl = ctl.reg
       if len(ctl) == 1:
         self.applyc(gate, ctl[0], idx1, desc)
@@ -575,31 +578,32 @@ class qc:
   def control_by(self, ctl: int):
     """Control a full circuit by qubit 'ctl'."""
 
-    if self.eager == True:
+    if self.eager:
       raise AssertionError('control_by() only permitted on non-eager circuits.')
 
     res = ir.Ir()
-    for idx, gate in enumerate(self.ir.gates):
+    for _, gate in enumerate(self.ir.gates):
       if gate.is_single():
         gate.to_ctl(ctl)
         res.add_node(gate)
         continue
       if gate.is_ctl():
-        sub = qc('multi', eager = False)
-        sub.multi_control([ctl, gate.ctl], gate.idx1, None, gate.gate, gate.desc),
+        sub = qc('multi', eager=False)
+        sub.multi_control([ctl, gate.ctl], gate.idx1, None,
+                          gate.gate, gate.desc)
         for gate in sub.ir.gates:
-           res.add_node(gate)
+          res.add_node(gate)
     self.ir = res
 
   def sub(self, name: str = ''):
     """Make a subcircuit, which is a simple non-eager circuit."""
 
-    sub = qc(f'inner_{self.sub_circuits}', eager=False)
+    sub = qc(f'inner_{self.sub_circuits}{name}', eager=False)
     self.sub_circuits += 1
     return sub
 
 # --- Debug --------------------------------------------------
-  def dump(self, *, desc=None, draw=False, state=True):
+  def dump(self, *, desc=None, draw=False, pstate=True):
     """Simple dumper for basic debugging of a circuit."""
 
     if desc:
@@ -610,5 +614,5 @@ class qc:
     print(self.ir, end='')
     if draw:
       print(dumpers.totext(self.ir))
-    if state:
+    if pstate:
       self.psi.dump('Current state')

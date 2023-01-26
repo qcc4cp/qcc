@@ -188,13 +188,13 @@ def zeros_or_ones(d: int = 1, idx: int = 0) -> State:
 
 def zeros(d: int = 1) -> State:
   """Produce state with 'd' |0>, eg., |0000>."""
-  
+
   return zeros_or_ones(d, 0)
 
 
 def ones(d: int = 1) -> State:
   """Produce state with 'd' |1>, eg., |1111>."""
-  
+
   return zeros_or_ones(d, 2**d - 1)
 
 
@@ -246,7 +246,7 @@ def rand_bits(n: int) -> State:
 class Reg():
   """Simple register class."""
 
-  def __init__(self, size: int, it = 0, global_reg: int = 0):
+  def __init__(self, size: int, it=0, global_reg: int = 0):
     self.size = size
     self.global_idx = list(range(global_reg,
                                  global_reg + size))

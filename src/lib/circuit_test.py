@@ -315,7 +315,7 @@ class CircuitTest(absltest.TestCase):
     sc.control_by(2)
 
     qc.qc(sc)
-    self.assertEqual(len(qc.ir.gates), 5)
+    self.assertLen(qc.ir.gates, 5)
 
   def test_to_ctl_qft(self):
     def qft(qc: circuit.qc, reg: state.Reg, n: int) -> None:
