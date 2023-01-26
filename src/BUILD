@@ -163,6 +163,16 @@ py_binary(
 )
 
 py_binary(
+    name = "hhl_2x2",
+    srcs = ["hhl_2x2.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)
+
+py_binary(
     name = "inversion_test",
     srcs = ["inversion_test.py"],
     python_version = "PY3",
