@@ -21,8 +21,8 @@ from src.lib import ops
 from src.lib import state
 
 
-def check_classic_solution(a, b, verify):
-  """Check classic solution, verify against paper values."""
+def check_classic_solution(a, b):
+  """Check classic solution."""
 
   x = np.linalg.solve(a, b)
   for i in range(1, 2 ** b.nbits):
@@ -31,10 +31,10 @@ def check_classic_solution(a, b, verify):
   return ratio_x
 
 
-def check_results(qc, a, b, verify):
+def check_results(qc, a, b):
   """Check the results by inspecting the final state."""
 
-  ratio_classical = check_classic_solution(a, b, verify)
+  ratio_classical = check_classic_solution(a, b)
 
   res = (qc.psi > 0.001).nonzero()[0]
   for j in range(1, b.size):
@@ -44,8 +44,8 @@ def check_results(qc, a, b, verify):
       raise AssertionError('Incorrect result.')
 
 
-def compute_sorted_eigenvalues(a, verify: bool = True):
-  """Compute and verify the sorted eigenvalues/vectors."""
+def compute_sorted_eigenvalues(a):
+  """Compute the sorted eigenvalues/vectors."""
 
   # Eigenvalue/vector computation.
   w, v = np.linalg.eig(a)
@@ -62,7 +62,7 @@ def compute_sorted_eigenvalues(a, verify: bool = True):
   return w, v
 
 
-def compute_u_matrix(a, w, v, t, verify):
+def compute_u_matrix(a, w, v, t):
   """Compute the various U matrices and exponentiations."""
 
   # Compute the matrices U an U^2 from A via:
@@ -106,32 +106,6 @@ def construct_circuit(b, w, u, c, clock_bits=2):
 
   # From above we know that:
   #   theta = 2 arcsin(1 / lam_j)
-  #
-  # We need a function that performs the rotation for
-  # all lam's that are non-zero. In the verify example the
-  # lam's are |1> and |2>:
-  #
-  #   theta(c) = theta(c_1 c_0) = 2 arcsin(C / c)
-  #
-  # where c is the value of the clock qubits, c_1 c_0 are c
-  # in binary.
-  #
-  # In the example, we must ensure that this function is correct
-  # for the states |01> and |10>, corresponding to the lam's:
-  #
-  #   theta(1) = theta(01) = 2 arcsin(C=1 / 1) = pi
-  #   theta(2) = theta(10) = 2 arcsin(C=1 / 2) = pi/3
-  #
-  # In general, this theta function must be computed (which is
-  # trivial when lam's binary representations don't have matching 1's).
-  # For the verified example, the solution is simple as no bits overlap:
-  #   theta(c) = theta(c_1 c_0) = pi/3 c_1 + pi c_0
-  # So we have to rotate the ancilla via qubit c_1 by pi/3
-  # and via qubit c_0 by pi.
-  #
-  # In general (for 2 lambda's):
-  #   if bit 0 is set in the larger lamba, eg., |01> and |11>:
-  #
   angle0 = 2 * np.arcsin(c / w[0])
   angle1 = 2 * np.arcsin(c / w[1])
   if int(np.round(w[1])) & 1 == 1:
@@ -155,7 +129,7 @@ def construct_circuit(b, w, u, c, clock_bits=2):
   return qc
 
 
-def run_experiment(a, b, verify: bool = False):
+def run_experiment(a, b):
   """Run a single instance of HHL for Ax = b."""
 
   if not a.is_hermitian():
@@ -167,8 +141,8 @@ def run_experiment(a, b, verify: bool = False):
   # pylint: disable=invalid-name
   N = dim**2
 
-  # Compute (and verify) eigenvalue/vectors.
-  w, v = compute_sorted_eigenvalues(a, verify)
+  # Compute eigenvalue/vectors.
+  w, v = compute_sorted_eigenvalues(a)
 
   # Compute and print the ratio. We will compare the results
   # against this value below.
@@ -185,7 +159,7 @@ def run_experiment(a, b, verify: bool = False):
   print(f'Scaled Lambda\'s are: {lam[0]:.1f}, {lam[1]:.1f}. Ratio: {ratio:.1f}')
 
   # Compute the U matrices.
-  u = compute_u_matrix(a, w, v, t, verify)
+  u = compute_u_matrix(a, w, v, t)
 
   # On to computing the rotations.
   #
@@ -198,7 +172,7 @@ def run_experiment(a, b, verify: bool = False):
 
   # Now we have all the values and matrices. Let's construct a circuit.
   qc = construct_circuit(b, lam, u, C, 2)
-  check_results(qc, a, b, verify)
+  check_results(qc, a, b)
 
 
 def main(argv):
@@ -208,9 +182,6 @@ def main(argv):
   print('General HHL Algorithm...')
   print('*** This is WIP ***')
 
-  # Preliminary: Check the rotation mechanism.
-  check_rotate_ry(1.2)
-
   # The numerical 2x2 Hermitian example is from:
   #   "Step-by-Step HHL Algorithm Walkthrough..." by
   #    Morrell, Zaman, Wong
@@ -218,22 +189,7 @@ def main(argv):
   # Maps to Eigenvalues |01> and |10> interpreted as decimal 1 and 2
   a = ops.Operator(np.array([[1.0, -1/3], [-1/3, 1]]))
   b = ops.Operator(np.array([0, 1]))
-  run_experiment(a, b, True)
-
-  # Maps to Eigenvalues |01> and |11> interpreted as decimal 1 and 3
-  a = ops.Operator(np.array([[1.0, -1/2], [-1/2, 1]]))
-  b = ops.Operator(np.array([0, 1]))
-  run_experiment(a, b, False)
-
-  # Maps to Eigenvalues |01> and |10> interpreted as decimal 1/2 and 1/4
-  a = ops.Operator(np.array([[1.0, -1/3], [-1/3, 1]]))
-  b = ops.Operator(np.array([1, 0]))
-  run_experiment(a, b, False)
-
-  # Maps to Eigenvalues |01> and |11> interpreted as decimal 1/2 and 1/3
-  a = ops.Operator(np.array([[1.0, -1/2], [-1/2, 1]]))
-  b = ops.Operator(np.array([1, 0]))
-  run_experiment(a, b, False)
+  run_experiment(a, b)
 
 
 if __name__ == '__main__':
