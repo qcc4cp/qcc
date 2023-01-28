@@ -303,7 +303,8 @@ def state_to_string(bits) -> str:
   """Convert state to string like |010>."""
 
   s = ''.join(str(i) for i in bits)
-  return '|{:s}> (|{:d}>)'.format(s, int(s, 2))
+  dec_digits = int(math.log10(2**len(bits)))+1
+  return f'|{s}> (|{int(s, 2):{dec_digits}d}>)'
 
 
 def dump_state(psi, desc: Optional[str] = None,
