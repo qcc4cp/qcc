@@ -27,7 +27,7 @@ def check_classic_solution(a, b):
   x = np.linalg.solve(a, b)
   for i in range(1, 2 ** b.nbits):
     ratio_x = np.real((x[i] * x[i].conj()) / (x[0] * x[0].conj()))
-    print(f'Classic solution^2 ratio: {ratio_x:.3f}')
+    print(f'Classic ratio: {ratio_x:.3f}')
   return ratio_x
 
 
@@ -35,11 +35,10 @@ def check_results(qc, a, b):
   """Check the results by inspecting the final state."""
 
   ratio_classical = check_classic_solution(a, b)
-
   res = (qc.psi > 0.001).nonzero()[0]
   for j in range(1, b.size):
     ratio_quantum = np.real(qc.psi[res[j]]**2 / qc.psi[res[0]]**2)
-    print(f'Quantum solution^2 ratio: {ratio_quantum:.3f}\n')
+    print(f'Quantum ratio: {ratio_quantum:.3f}\n')
     if not np.allclose(ratio_classical, ratio_quantum, atol=1e-4):
       raise AssertionError('Incorrect result.')
 
@@ -129,17 +128,16 @@ def construct_circuit(b, w, u, c, clock_bits=2):
   return qc
 
 
-def run_experiment(a, b):
+def run_experiment(a, b, clock_bits):
   """Run a single instance of HHL for Ax = b."""
 
   if not a.is_hermitian():
     raise AssertionError('Input A must be Hermitian.')
+  print(f'Clock bits   : {clock_bits}')
+  print(f'Dimensions A : {a.shape[0]}x{a.shape[1]}')
 
   # For quantum, initial parameters.
   dim = a.shape[0]
-
-  # pylint: disable=invalid-name
-  N = dim**2
 
   # Compute eigenvalue/vectors.
   w, v = compute_sorted_eigenvalues(a)
@@ -152,11 +150,13 @@ def run_experiment(a, b):
   #   lam_i = (N * w[j] * t) / (2 * np.pi)
   # We want lam_i to be integers, so we compute 't' as:
   #   t = lam[0] / N / w[0] * 2 * np.pi
-  t = ratio / N / w[1] * 2 * np.pi
+  n = 2 ** clock_bits
+  t = ratio / n / w[1] * 2 * np.pi
 
   # With 't' we can now compute the integer eigenvalues:
-  lam = [(N * np.real(w[i]) * t / (2 * np.pi)) for i in range(2)]
-  print(f'Scaled Lambda\'s are: {lam[0]:.1f}, {lam[1]:.1f}. Ratio: {ratio:.1f}')
+  lam = [(n * np.real(w[i]) * t / (2 * np.pi)) for i in range(2)]
+  print(f'int lambda\'s : {lam[0]:.1f}, {lam[1]:.1f}')
+  # TODO: Print _all_ ratios here.
 
   # Compute the U matrices.
   u = compute_u_matrix(a, w, v, t)
@@ -168,10 +168,10 @@ def run_experiment(a, b):
   #
   # C must be smaller than the minimal lam. We set it to the minimum:
   C = np.min(lam)
-  print(f'Set C to minimal Eigenvalue: {C:.1f}')
+  print(f'Set C to min : {C:.1f}')
 
   # Now we have all the values and matrices. Let's construct a circuit.
-  qc = construct_circuit(b, lam, u, C, 2)
+  qc = construct_circuit(b, lam, u, C, clock_bits)
   check_results(qc, a, b)
 
 
@@ -180,16 +180,12 @@ def main(argv):
     raise app.UsageError('Too many command-line arguments.')
 
   print('General HHL Algorithm...')
-  print('*** This is WIP ***')
+  print('*** This is WIP, extending to larger A matrices. ***')
 
-  # The numerical 2x2 Hermitian example is from:
-  #   "Step-by-Step HHL Algorithm Walkthrough..." by
-  #    Morrell, Zaman, Wong
-  #
-  # Maps to Eigenvalues |01> and |10> interpreted as decimal 1 and 2
-  a = ops.Operator(np.array([[1.0, -1/3], [-1/3, 1]]))
-  b = ops.Operator(np.array([0, 1]))
-  run_experiment(a, b)
+  
+  a = ops.Operator(np.array([[3/5, -1/5], [-1/5, 3/5]]))
+  b = ops.Operator(np.array([1, 0]))
+  run_experiment(a, b,clock_bits = 4)
 
 
 if __name__ == '__main__':
