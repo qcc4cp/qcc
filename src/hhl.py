@@ -15,6 +15,7 @@
 
 from absl import app
 import numpy as np
+import random
 
 from src.lib import circuit
 from src.lib import ops
@@ -66,10 +67,10 @@ def compute_u_matrix(a, w, v, t):
 
   # Compute the matrices U an U^2 from A via:
   #   U = exp(i * A * t) (^2)
-  #
   # Since U is diagonal:
-  u = ops.Operator(np.array([[np.exp(1j * w[0] * t), 0],
-                             [0, np.exp(1j * w[1] * t)]]))
+  u = ops.Operator(np.zeros((a.shape[0], a.shape[1]), dtype=np.complex64))
+  for i in range(a.shape[0]):
+    u[i][i] = np.exp(1j * w[i] * t)
 
   # Both U and U^2 are in the eigenvector basis of A. To convert these
   # operators to the computational basis we apply the similarity
@@ -78,7 +79,7 @@ def compute_u_matrix(a, w, v, t):
   return u
 
 
-def construct_circuit(b, w, u, c, clock_bits=2):
+def construct_circuit(b, w, u, c, clock_bits):
   """Construct a circuit for the given paramters."""
 
   qc = circuit.qc('hhl', eager=True)
@@ -86,8 +87,7 @@ def construct_circuit(b, w, u, c, clock_bits=2):
   clock = qc.reg(clock_bits, 0)
   anc = qc.reg(1, 0)
 
-  # Initialize 'b' to (0, 1), if appropriate.
-  if b[1] == 1:
+  if b[0] == 0:
     qc.x(breg)
 
   # State Preparation, which is basically phase estimation.
@@ -95,7 +95,8 @@ def construct_circuit(b, w, u, c, clock_bits=2):
   u_phase = u
   u_phase_gates = []
   for idx in range(clock_bits):
-    qc.ctl_2x2(clock[idx], breg, u_phase)
+    op = ops.ControlledU(clock[idx], breg[0], u_phase)
+    qc.unitary(op, breg[0])
     u_phase_gates.append(u_phase)
     u_phase = u_phase @ u_phase
 
@@ -142,7 +143,7 @@ def run_experiment(a, b, clock_bits):
   # Compute eigenvalue/vectors.
   w, v = compute_sorted_eigenvalues(a)
 
-  # Compute and print the ratio. We will compare the results
+  # Compute the ratio. We will compare the results
   # against this value below.
   ratio = w[1] / w[0]
 
@@ -154,11 +155,11 @@ def run_experiment(a, b, clock_bits):
   t = ratio / n / w[1] * 2 * np.pi
 
   # With 't' we can now compute the integer eigenvalues:
-  lam = [(n * np.real(w[i]) * t / (2 * np.pi)) for i in range(2)]
-  print(f'int lambda\'s : {lam[0]:.1f}, {lam[1]:.1f}')
-  # TODO: Print _all_ ratios here.
+  lam = [(n * np.real(w[i]) * t / (2 * np.pi)) for i in range(dim)]
+  for i in range(dim):
+    print(f'  lambda[{i}]   : {lam[i]:.1f}')
 
-  # Compute the U matrices.
+    # Compute the U matrices.
   u = compute_u_matrix(a, w, v, t)
 
   # On to computing the rotations.
@@ -182,10 +183,29 @@ def main(argv):
   print('General HHL Algorithm...')
   print('*** This is WIP, extending to larger A matrices. ***')
 
-  
   a = ops.Operator(np.array([[3/5, -1/5], [-1/5, 3/5]]))
   b = ops.Operator(np.array([1, 0]))
   run_experiment(a, b,clock_bits = 4)
+
+  return
+
+  dim = 4
+  # Make a matrix with eigenvalues roughly 1, 2, 3, 4, ...:
+  a = np.zeros((dim, dim))
+  for i in range(dim):
+    a[i][i] = i+1
+  for i in range(0, dim):
+    for j in range(i+1, dim):
+      a[i][j] = random.random() / 16.0
+      a[j][i] = a[i][j]
+
+  # Construct a normalized solution vector b from a known x:
+  # TODO: Make fully random later.
+  x = np.array([0.1, 0.3, 0.5, 0.7])
+
+  a = ops.Operator(a)
+  b = state.State(np.dot(a, x)).normalize()
+  run_experiment(a, b, clock_bits = 4)
 
 
 if __name__ == '__main__':
