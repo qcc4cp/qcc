@@ -276,21 +276,16 @@ def ControlledU(idx0: int, idx1: int, u: Operator) -> Operator:
 
   p0 = ZeroProjector(1)
   p1 = OneProjector(1)
+
   # space between qubits
   ifill = Identity(abs(idx1 - idx0) - 1)
   # 'width' of U in terms of Identity matrices
   ufill = Identity().kpow(u.nbits)
 
   if idx1 > idx0:
-    if idx1 - idx0 > 1:
-      op = p0 * ifill * ufill + p1 * ifill * u
-    else:
-      op = p0 * ufill + p1 * u
+    op = p0 * ifill * ufill + p1 * ifill * u
   else:
-    if idx0 - idx1 > 1:
-      op = ufill * ifill * p0 + u * ifill * p1
-    else:
-      op = ufill * p0 + u * p1
+    op = ufill * ifill * p0 + u * ifill * p1
   return op
 
 
