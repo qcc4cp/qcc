@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import cmath
 import math
-from typing import Optional, Union, List, Callable
+from typing import Callable, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -147,7 +147,7 @@ def PauliZ(d: int = 1) -> Operator:
   return Operator(np.array([[1.0, 0.0], [0.0, -1.0]])).kpow(d)
 
 
-def Pauli(d: int = 1) -> Operator:
+def Pauli(d: int = 1) -> Tuple[Operator, Operator, Operator, Operator]:
   return Identity(d), PauliX(d), PauliY(d), PauliZ(d)
 
 
@@ -215,7 +215,7 @@ _PAULI_Z = PauliZ()
 # This is a simple implementation of the mechanism outlined here:
 # http://www.vcpc.univie.ac.at/~ian/hotlist/qc/talks/bloch-sphere-rotations.pdf
 #        (page 22)
-def Rotation(v: np.ndarray, theta: float) -> np.ndarray:
+def Rotation(v: np.ndarray, theta: float) -> Operator:
   """Produce the single-qubit rotation operator."""
 
   v = np.asarray(v)
@@ -223,12 +223,12 @@ def Rotation(v: np.ndarray, theta: float) -> np.ndarray:
       not np.all(np.isreal(v))):
     raise ValueError('Rotation vector v must be a 3D real unit vector.')
 
-  return np.cos(theta / 2) * Identity() - 1j * np.sin(theta / 2) * (
-      v[0] * _PAULI_X + v[1] * _PAULI_Y + v[2] * _PAULI_Z)
+  return Operator(np.cos(theta / 2) * Identity() - 1j * np.sin(theta / 2) * (
+      v[0] * _PAULI_X + v[1] * _PAULI_Y + v[2] * _PAULI_Z))
 
 
 def RotationX(theta: float) -> Operator:
-  return Rotation([1., 0., 0.], theta)
+  return Rotation([1.0, 0.0, 0.0], theta)
 
 
 def RotationY(theta: float) -> Operator:
@@ -480,7 +480,7 @@ def TraceOut(rho: Operator, index_set: List[int]) -> Operator:
 
 
 def Measure(psi: state.State, idx: int,
-            tostate: int = 0, collapse: bool = True) -> (float, state.State):
+            tostate: int = 0, collapse: bool = True) -> Tuple[float, state.State]:
   """Measure a qubit via a projector on the density matrix."""
 
   # Measure() measure qubit 'idx' in state 'psi'. It both measures the

@@ -8,7 +8,7 @@ from typing import List, Iterable, Tuple
 import numpy as np
 
 
-def bitprod(nbits: int) -> Iterable[int]:
+def bitprod(nbits: int) -> Iterable[Tuple[int, ...]]:
   """Produce the iterable cartesian of nbits {0, 1}."""
 
   for bits in itertools.product([0, 1], repeat=nbits):
@@ -31,7 +31,7 @@ def val2bits(val: int, nbits: int) -> List[int]:
   return [int(c) for c in format(val, f'0{nbits}b')]
 
 
-def bits2frac(bits: Iterable[int]) -> float:
+def bits2frac(bits: Tuple[int, ...]) -> float:
   """For given bits, compute the binary fraction."""
 
   return sum(bits[i] * 2**(-i-1) for i in range(len(bits)))

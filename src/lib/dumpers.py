@@ -3,6 +3,8 @@
 
 """Various output formats for the compiler IR."""
 
+from typing import List
+
 from src.lib import helper
 
 
@@ -155,7 +157,7 @@ def latex(ir) -> str:
 
   # First let's create a matrix according to circuit size,
   # before populating it with gates or lines.
-  larr = []
+  larr: List[List] = []
   for q in range(ir.nregs):
     larr.append([])
     for _ in range(ir.ngates+1):
