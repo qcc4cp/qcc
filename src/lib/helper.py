@@ -37,6 +37,25 @@ def bits2frac(bits: Tuple[int, ...]) -> float:
   return sum(bits[i] * 2**(-i-1) for i in range(len(bits)))
 
 
+def frac2bits(val: float, nbits: int) -> Tuple[int, ...]:
+  """Approximate a float with n binary fractions."""
+
+  if val >= 1.0:
+    raise AssertionError('frac2bits: value must be strictly < 1.0')
+
+  res = []
+  while nbits:
+     nbits -= 1
+     val *= 2
+     bit = int(val)
+     if bit == 1:
+       val -=  1
+       res.append(1)
+     else:
+       res.append(0)
+  return res
+
+
 def density_to_cartesian(rho: np.ndarray) -> Tuple[float, float, float]:
   """Compute Bloch sphere coordinates from 2x2 density matrix."""
 
