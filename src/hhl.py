@@ -83,12 +83,9 @@ def construct_circuit(b, w, u, c, clock_bits):
   """Construct a circuit for the given paramters."""
 
   qc = circuit.qc('hhl', eager=True)
-  breg = qc.reg(1, 0)
+  breg = qc.state(b)
   clock = qc.reg(clock_bits, 0)
   anc = qc.reg(1, 0)
-
-  if b[0] == 0:
-    qc.x(breg)
 
   # State Preparation, which is basically phase estimation.
   qc.h(clock)

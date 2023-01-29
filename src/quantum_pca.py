@@ -18,6 +18,7 @@ from absl import app
 import numpy as np
 
 from src.lib import circuit
+from src.lib import state
 
 
 def pca():
@@ -62,7 +63,7 @@ def pca():
   rho_eig_val, rho_eig_vec = np.linalg.eig(rho)
   p_vec = np.concatenate((np.sqrt(rho_eig_val), np.sqrt(rho_eig_val)))
   u_vec = rho_eig_vec.reshape((4))
-  psi = p_vec * u_vec
+  psi = state.State(p_vec * u_vec)
 
   # Construct swap test. The expectation value of the swap gate under
   # the purified state allows us to re-construct the eigenvalues.
