@@ -151,9 +151,12 @@ class qc:
     self.global_reg = self.global_reg + n
 
   def state(self, t: tensor.Tensor) -> None:
+    ret = state.Reg(t.nbits, 0, self.global_reg)
     psi = state.State(t)
     self.global_reg = self.global_reg + psi.nbits
     self.psi = self.psi * psi
+    self.ir.reg(t.nbits, 'state', ret)
+    return ret
 
   def stats(self) -> str:
     return ('Circuit Statistics\n' +
