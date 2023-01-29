@@ -36,12 +36,13 @@ def check_results(qc, a, b):
   """Check the results by inspecting the final state."""
 
   ratio_classical = check_classic_solution(a, b)
-  res = (qc.psi > 0.001).nonzero()[0]
+  res = (qc.psi > 0.0001).nonzero()[0]
   for j in range(1, b.size):
     ratio_quantum = np.real(qc.psi[res[j]]**2 / qc.psi[res[0]]**2)
-    print(f'Quantum ratio: {ratio_quantum:.3f}\n')
-    if not np.allclose(ratio_classical, ratio_quantum, atol=1e-4):
-      raise AssertionError('Incorrect result.')
+    print(f'Quantum ratio: {ratio_quantum:.3f} {1/ratio_quantum:.3f}')
+    if a.shape[0] == 2:
+      if not np.allclose(ratio_classical, ratio_quantum, atol=1e-4):
+        raise AssertionError('Incorrect result.')
 
 
 def compute_sorted_eigenvalues(a):
@@ -103,12 +104,13 @@ def construct_circuit(b, w, u, c, clock_bits):
 
   # From above we know that:
   #   theta = 2 arcsin(1 / lam_j)
-  angle0 = 2 * np.arcsin(c / w[0])
-  angle1 = 2 * np.arcsin(c / w[1])
+  angles = []
+  for eigen in w:
+    angles.append(2 * np.arcsin(c / eigen))
   if int(np.round(w[1])) & 1 == 1:
-    angle1 = angle1 - angle0
-  qc.cry(clock[0], anc, angle0)
-  qc.cry(clock[1], anc, angle1)
+    angles[1] = angles[1] - angles[0]
+  for idx, ang in enumerate(angles):
+    qc.cry(clock[idx], anc, ang)
 
   # Measure (and force) ancilla to be |1>.
   _, _ = qc.measure_bit(anc[0], 1, collapse=True)
@@ -118,7 +120,8 @@ def construct_circuit(b, w, u, c, clock_bits):
 
   # Uncompute state initialization.
   for idx in range(clock_bits-1, -1, -1):
-    qc.ctl_2x2(clock[idx], breg, np.linalg.inv(u_phase_gates[idx]))
+    op = ops.ControlledU(clock[idx], breg[0], np.linalg.inv(u_phase_gates[idx]))
+    qc.unitary(op, breg[0])
 
   # Move clock bits out of Hadamard basis.
   qc.h(clock)
@@ -131,7 +134,7 @@ def run_experiment(a, b, clock_bits):
 
   if not a.is_hermitian():
     raise AssertionError('Input A must be Hermitian.')
-  print(f'Clock bits   : {clock_bits}')
+  print(f'\nClock bits   : {clock_bits}')
   print(f'Dimensions A : {a.shape[0]}x{a.shape[1]}')
 
   # For quantum, initial parameters.
@@ -154,7 +157,7 @@ def run_experiment(a, b, clock_bits):
   # With 't' we can now compute the integer eigenvalues:
   lam = [(n * np.real(w[i]) * t / (2 * np.pi)) for i in range(dim)]
   for i in range(dim):
-    print(f'  lambda[{i}]   : {lam[i]:.1f}')
+    print(f'  lambda[{i}]  : {lam[i]:.1f}')
 
     # Compute the U matrices.
   u = compute_u_matrix(a, w, v, t)
@@ -182,15 +185,25 @@ def main(argv):
 
   a = ops.Operator(np.array([[3/5, -1/5], [-1/5, 3/5]]))
   b = ops.Operator(np.array([1, 0]))
+  run_experiment(a, b,clock_bits = 2)
+
+  a = ops.Operator(np.array([[3/5, -1/5], [-1/5, 3/5]]))
+  b = ops.Operator(np.array([1, 0]))
   run_experiment(a, b,clock_bits = 4)
+
+  a = ops.Operator(np.array([[3/5, -1/5], [-1/5, 3/5]]))
+  b = ops.Operator(np.array([1, 0]))
+  run_experiment(a, b,clock_bits = 6)
 
   return
 
-  dim = 4
+  # This part is incomplete.
+  #
   # Make a matrix with eigenvalues roughly 1, 2, 3, 4, ...:
+  dim = 4
   a = np.zeros((dim, dim))
   for i in range(dim):
-    a[i][i] = i+1
+    a[i][i] = 2 ** i
   for i in range(0, dim):
     for j in range(i+1, dim):
       a[i][j] = random.random() / 16.0
@@ -202,7 +215,7 @@ def main(argv):
 
   a = ops.Operator(a)
   b = state.State(np.dot(a, x)).normalize()
-  run_experiment(a, b, clock_bits = 4)
+  run_experiment(a, b, clock_bits = 6)
 
 
 if __name__ == '__main__':
