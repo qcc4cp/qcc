@@ -1,56 +1,51 @@
 # python3
 """Hamiltonian encoding and evolution. A few experiments."""
 
-import itertools
 import random
-from typing import List, Tuple
-
 from absl import app
 import numpy as np
 
-from src.lib import circuit
-from src.lib import helper
 from src.lib import ops
 from src.lib import state
 
 
-def make_hermitian(A: ops.Operator):
+def make_hermitian(a: ops.Operator):
   """Construct a Hermitian matrix from a given A."""
 
-  if A.is_hermitian():
-    return A
+  if a.is_hermitian():
+    return a
 
   # There are a few ways to make a Hermitian out of A. The first
   # trick is to make a block matrix of this form, which is of
   # twice the size of the original matrix.
   #
-  B = ops.Operator(np.block([
-                             [np.zeros(A.shape), A],
-                             [A.transpose().conjugate(), np.zeros(A.shape)]
-                            ]))
-  if not B.is_hermitian():
+  b = ops.Operator(np.block([[np.zeros(a.shape), a],
+                             [a.transpose().conjugate(), np.zeros(a.shape)]]))
+  if not b.is_hermitian():
     raise AssertionError('Making 2*n Hermitian failed.')
-  return B
+  return b
 
   # Alternatively (disabled for now):
   # Another way is to simple compute A + A.transpose().conjugate()
   #
-  C = A + A.transpose().conjugate()
-  if not C.is_hermitian():
-    raise AssertionError('Making A + A.T Hermitian failed.')
-  return C
+  # c = a + a.transpose().conjugate()
+  # if not c.is_hermitian():
+  #   raise AssertionError('Making A + A.T Hermitian failed.')
+  # return c
 
 
-def run_experiment(A):
+def run_experiment(a):
+  """Run a single experiment."""
+
   # We want to make A a Hamiltonian and for this purpose it has
   # to be made Hermitian.
   #
-  A = make_hermitian(A)
-  dim = A.shape[0]
+  a = make_hermitian(a)
+  dim = a.shape[0]
 
   # Let's compute eigenvalues and eigenvectors:
   #
-  lam, v = np.linalg.eig(A)
+  lam, v = np.linalg.eig(a)
 
   # A is Hermitian with v being a basis for complex vectors in space dim x 1.
   #
@@ -63,7 +58,7 @@ def run_experiment(A):
   # Let's try this out with a random complex state.
   #
   psi = state.State([complex(random.random(), random.random())
-                       for _ in range(dim)]).normalize()
+                     for _ in range(dim)]).normalize()
   print('Random complex state:', psi)
 
   # Let's compute gamma:
@@ -92,7 +87,7 @@ def run_experiment(A):
   # At time t = 0 we must get the same result as above:
   #
   psi_new = apply_hamiltonian(0)
-  if not np.allclose(psi, psi_new, atol = 1e-5):
+  if not np.allclose(psi, psi_new, atol=1e-5):
     raise AssertionError('Incorrect computation.')
 
   # Print example evolutions:
@@ -111,23 +106,23 @@ def main(argv):
 
   # Let's try a complex matrix:
   #
-  A = ops.Operator(np.array([[2.0, -1/3 + 1j/8], [-1/3 - 1j/8, 1]]))
-  run_experiment(A)
+  a = ops.Operator(np.array([[2.0, -1/3 + 1j/8], [-1/3 - 1j/8, 1]]))
+  run_experiment(a)
 
   # Let's use the matrix that was described in:
   #   "Machine Learning with Quantum Computing" by
   #    Maria Schuld and Francesco Petruccione, page 118
   #
-  A = ops.Operator(np.array([[0.073, -0.438], [0.730, 0.000]]))
-  run_experiment(A)
+  a = ops.Operator(np.array([[0.073, -0.438], [0.730, 0.000]]))
+  run_experiment(a)
 
   # The numerical example from:
   #   "Step-by-Step HHL Algorithm Walkthrough..." by
   #    Morrell, Zaman, Wong
   # (which is a 2x2 Hermitian matrix)
   #
-  A = ops.Operator(np.array([[1.0, -1/3], [-1/3, 1]]))
-  run_experiment(A)
+  a = ops.Operator(np.array([[1.0, -1/3], [-1/3, 1]]))
+  run_experiment(a)
 
 
 if __name__ == '__main__':

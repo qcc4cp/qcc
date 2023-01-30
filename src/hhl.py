@@ -14,11 +14,8 @@
 
 from absl import app
 import numpy as np
-import random
 from src.lib import circuit
 from src.lib import ops
-from src.lib import state
-from src.lib import tensor
 
 
 def check_classic_solution(a, b):
@@ -66,7 +63,7 @@ def compute_sorted_eigenvalues(a):
 
 
 def compute_u_matrix(a, w, v, t):
-  """Compute the various U matrices and exponentiations."""
+  """Compute the U matrix."""
 
   # Compute the matrices U an U^2 from A via:
   #   U = exp(i * A * t) (^2)
@@ -171,11 +168,11 @@ def run_experiment(a, b, clock_bits):
   u = compute_u_matrix(a, w, v, t)
 
   # C must be <= than the minimal lam:
-  C = np.min(lam)
-  print(f'Set C to min : {C:.1f}')
+  c = np.min(lam)
+  print(f'Set C to min : {c:.1f}')
 
   # Now we have all the values and matrices. Let's construct a circuit.
-  qc = construct_circuit(b, lam, u, C, clock_bits)
+  qc = construct_circuit(b, lam, u, c, clock_bits)
   check_results(qc, a, b)
 
 
@@ -187,18 +184,18 @@ def main(argv):
 
   a = ops.Operator(np.array([[3/5, -1/5], [-1/5, 3/5]]))
   b = ops.Operator(np.array([1, 0]))
-  run_experiment(a, b,clock_bits=4)
+  run_experiment(a, b, clock_bits=4)
 
-  a = ops.Operator(np.array([[11,  5, -1, -1],
-                             [ 5, 11,  1,  1],
-                             [-1,  1, 11, -5],
-                             [-1,  1, -5, 11]])) / 16
+  a = ops.Operator(np.array([[11, 5, -1, -1],
+                             [5, 11, 1, 1],
+                             [-1, 1, 11, -5],
+                             [-1, 1, -5, 11]])) / 16
   b = ops.Operator(np.array([0, 0, 0, 1]).transpose())
   run_experiment(a, b, clock_bits=4)
 
-  a = ops.Operator(np.array([[15,  9,  5, -3],
-                             [ 9, 15,  3, -5],
-                             [ 5,  3, 15, -9],
+  a = ops.Operator(np.array([[15, 9, 5, -3],
+                             [9, 15, 3, -5],
+                             [5, 3, 15, -9],
                              [-3, -5, -9, 15]]) / 4)
   b = ops.Operator(np.array([0, 0, 0, 1]).transpose())
   run_experiment(a, b, clock_bits=4)
