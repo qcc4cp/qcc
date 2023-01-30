@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import itertools
 import random
+import sys
 from typing import Callable
 
 from absl import flags
@@ -55,6 +56,10 @@ except Exception:  # pylint: disable=broad-except
     """Apply a single-qubit gate via explicit indexing."""
 
     qubit = nbits - qubit - 1
+    if qubit < 0:
+      print('***Error***: Negative qubit index in apply1().')
+      print('             Perhaps using wrongly shaped state?\n');
+      sys.exit(1)
     two_q = 2**qubit
     for g in range(0, 2**nbits, 2**(qubit+1)):
       for i in range(g, g + two_q):
@@ -69,6 +74,10 @@ except Exception:  # pylint: disable=broad-except
     """Apply a controlled 2-qubit gate via explicit indexing."""
 
     qubit = nbits - target - 1
+    if qubit < 0:
+      print('***Error***: Negative qubit index in applyc().')
+      print('             Perhaps using wrongly shaped state?\n');
+      sys.exit(1)
     two_q = 2**qubit
     control = nbits - control - 1
     for g in range(0, 2**nbits, 2**(qubit+1)):

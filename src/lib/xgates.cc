@@ -25,6 +25,11 @@ void apply1(cmplx_type *psi, cmplx_type gate[4],
             int nbits, int tgt) {
   tgt = nbits - tgt - 1;
   int q2 = 1 << tgt;
+  if (q2 < 0) {
+    fprintf(stderr, "***Error***: Negative qubit index in apply1().\n");
+    fprintf(stderr, "             Perhaps using wrongly shaped state?\n");
+    exit(EXIT_FAILURE);
+  }
   for (int g = 0; g < 1 << nbits; g += (1 << (tgt+1))) {
     for (int i = g; i < g + q2; ++i) {
       cmplx_type t1 = gate[0] * psi[i] + gate[1] * psi[i + q2];
@@ -43,6 +48,11 @@ void applyc(cmplx_type *psi, cmplx_type gate[4],
   tgt = nbits - tgt - 1;
   ctl = nbits - ctl - 1;
   int q2 = 1 << tgt;
+  if (q2 < 0) {
+    fprintf(stderr, "***Error***: Negative qubit index in applyc().\n");
+    fprintf(stderr, "             Perhaps using wrongly shaped state?\n");
+    exit(EXIT_FAILURE);
+  }
   for (int g = 0; g < 1 << nbits; g += 1 << (tgt+1)) {
     for (int i = g; i < g + q2; ++i) {
       int idx = g * (1 << nbits) + i;
