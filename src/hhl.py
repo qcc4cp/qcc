@@ -82,6 +82,21 @@ def compute_u_matrix(a, w, v, t):
   return u
 
 
+def compute_angles(w, c):
+  """Compute the angles for the conditional rotations."""
+
+  # This method is not fully general (yet). It is minimal
+  # and handles the simple cases used in the example,
+  # such as eigenvalues of 1, 2, 3, 4, and 8.
+
+  # We know that theta = 2 arcsin(1/lam_j)
+  unis = np.unique(w)
+  angles = [2 * np.arcsin(c / eigen) for eigen in unis]
+  if int(np.round(w[1])) & 1 == 1:
+    angles[1] = angles[1] - angles[0]
+  return angles
+
+
 def construct_circuit(b, w, u, c, clock_bits):
   """Construct a circuit for the given paramters."""
 
@@ -105,12 +120,10 @@ def construct_circuit(b, w, u, c, clock_bits):
   # Inverse QFT. After this, the eigenvalues will be in the clock register.
   qc.inverse_qft(clock, True)
 
-  # We know that theta = 2 arcsin(1/lam_j)
-  angles = [2 * np.arcsin(c / eigen) for eigen in w]
-  if int(np.round(w[1])) & 1 == 1:
-    angles[1] = angles[1] - angles[0]
-  for idx in range(len(angles)):
-    qc.cry(clock[idx], anc, angles[idx])
+  # Conditional rotations.
+  angles = compute_angles(w, c)
+  for idx, angle in enumerate(angles):
+    qc.cry(clock[idx], anc, angle)
 
   # Measure (and force) ancilla to be |1>.
   qc.measure_bit(anc[0], 1, collapse=True)
