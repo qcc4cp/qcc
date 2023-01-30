@@ -215,10 +215,10 @@ _PAULI_Z = PauliZ()
 # This is a simple implementation of the mechanism outlined here:
 # http://www.vcpc.univie.ac.at/~ian/hotlist/qc/talks/bloch-sphere-rotations.pdf
 #        (page 22)
-def Rotation(v: np.ndarray, theta: float) -> Operator:
+def Rotation(vparm: List[float], theta: float) -> Operator:
   """Produce the single-qubit rotation operator."""
 
-  v = np.asarray(v)
+  v = np.asarray(vparm)
   if (v.shape != (3,) or not math.isclose(v @ v, 1) or
       not np.all(np.isreal(v))):
     raise ValueError('Rotation vector v must be a 3D real unit vector.')

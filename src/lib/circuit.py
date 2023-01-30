@@ -9,7 +9,7 @@ from __future__ import annotations
 import itertools
 import random
 import sys
-from typing import Callable
+from typing import Callable, Tuple
 
 from absl import flags
 import numpy as np
@@ -384,7 +384,7 @@ class qc:
 
 # --- Measure ----------------------------------------------------
   def measure_bit(self, idx: int, tostate: int = 0,
-                  collapse: bool = True) -> (float, state.State):
+                  collapse: bool = True) -> Tuple[float, state.State]:
     """Measure state with big matrix operation, can collapse the state."""
 
     prob, self.psi = ops.Measure(self.psi, idx, tostate, collapse)
