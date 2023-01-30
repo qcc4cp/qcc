@@ -20,13 +20,14 @@ import random
 from src.lib import circuit
 from src.lib import ops
 from src.lib import state
+from src.lib import tensor
 
 
 def check_classic_solution(a, b):
   """Check classic solution."""
 
   x = np.linalg.solve(a, b)
-  for i in range(1, 2 ** b.nbits):
+  for i in range(1, 2**b.nbits):
     ratio_x = np.real((x[i] * x[i].conj()) / (x[0] * x[0].conj()))
     print(f'Classic ratio: {ratio_x:.3f}')
   return ratio_x
@@ -36,10 +37,10 @@ def check_results(qc, a, b):
   """Check the results by inspecting the final state."""
 
   ratio_classical = check_classic_solution(a, b)
-  res = (qc.psi > 0.0001).nonzero()[0]
-  for j in range(1, b.size):
+  res = (np.abs(qc.psi) > 0.04).nonzero()[0]
+  for j in range(1, len(res)):
     ratio_quantum = np.real(qc.psi[res[j]]**2 / qc.psi[res[0]]**2)
-    print(f'Quantum ratio: {ratio_quantum:.3f} {1/ratio_quantum:.3f}')
+    print(f'Quantum ratio: {ratio_quantum:.3f}')
     if a.shape[0] == 2:
       if not np.allclose(ratio_classical, ratio_quantum, atol=1e-4):
         raise AssertionError('Incorrect result.')
@@ -93,7 +94,7 @@ def construct_circuit(b, w, u, c, clock_bits):
   u_phase = u
   u_phase_gates = []
   for idx in range(clock_bits):
-    op = ops.ControlledU(clock[idx], breg[0], u_phase)
+    op = ops.ControlledU(clock[idx], breg[breg.size-1], u_phase)
     qc.unitary(op, breg[0])
     u_phase_gates.append(u_phase)
     u_phase = u_phase @ u_phase
@@ -109,8 +110,8 @@ def construct_circuit(b, w, u, c, clock_bits):
     angles.append(2 * np.arcsin(c / eigen))
   if int(np.round(w[1])) & 1 == 1:
     angles[1] = angles[1] - angles[0]
-  for idx, ang in enumerate(angles):
-    qc.cry(clock[idx], anc, ang)
+  for idx in range(len(angles)):
+    qc.cry(clock[idx], anc, angles[idx])
 
   # Measure (and force) ancilla to be |1>.
   _, _ = qc.measure_bit(anc[0], 1, collapse=True)
@@ -120,7 +121,8 @@ def construct_circuit(b, w, u, c, clock_bits):
 
   # Uncompute state initialization.
   for idx in range(clock_bits-1, -1, -1):
-    op = ops.ControlledU(clock[idx], breg[0], np.linalg.inv(u_phase_gates[idx]))
+    op = ops.ControlledU(clock[idx], breg[breg.size-1],
+                         np.linalg.inv(u_phase_gates[idx]))
     qc.unitary(op, breg[0])
 
   # Move clock bits out of Hadamard basis.
@@ -150,8 +152,8 @@ def run_experiment(a, b, clock_bits):
   # We also know that:
   #   lam_i = (N * w[j] * t) / (2 * np.pi)
   # We want lam_i to be integers, so we compute 't' as:
-  #   t = lam[0] / N / w[0] * 2 * np.pi
-  n = 2 ** clock_bits
+  #   t = lam[0] / N / w[1] * 2 * np.pi
+  n = 2**clock_bits
   t = ratio / n / w[1] * 2 * np.pi
 
   # With 't' we can now compute the integer eigenvalues:
@@ -159,15 +161,12 @@ def run_experiment(a, b, clock_bits):
   for i in range(dim):
     print(f'  lambda[{i}]  : {lam[i]:.1f}')
 
-    # Compute the U matrices.
+  # Compute the U matrix.
   u = compute_u_matrix(a, w, v, t)
 
-  # On to computing the rotations.
-  #
   # The factors to |0> and 1> of the ancilla will be:
   #   \sqrt{1 - C^2 / lam_j^2} and C / lam_j
-  #
-  # C must be smaller than the minimal lam. We set it to the minimum:
+  # C must be <= than the minimal lam. We set it to the minimum:
   C = np.min(lam)
   print(f'Set C to min : {C:.1f}')
 
@@ -185,37 +184,22 @@ def main(argv):
 
   a = ops.Operator(np.array([[3/5, -1/5], [-1/5, 3/5]]))
   b = ops.Operator(np.array([1, 0]))
-  run_experiment(a, b,clock_bits = 2)
+  run_experiment(a, b,clock_bits=2)
 
   a = ops.Operator(np.array([[3/5, -1/5], [-1/5, 3/5]]))
   b = ops.Operator(np.array([1, 0]))
-  run_experiment(a, b,clock_bits = 4)
+  run_experiment(a, b,clock_bits=4)
 
   a = ops.Operator(np.array([[3/5, -1/5], [-1/5, 3/5]]))
   b = ops.Operator(np.array([1, 0]))
-  run_experiment(a, b,clock_bits = 6)
+  run_experiment(a, b,clock_bits=6)
 
-  return
-
-  # This part is incomplete.
-  #
-  # Make a matrix with eigenvalues roughly 1, 2, 3, 4, ...:
-  dim = 4
-  a = np.zeros((dim, dim))
-  for i in range(dim):
-    a[i][i] = 2 ** i
-  for i in range(0, dim):
-    for j in range(i+1, dim):
-      a[i][j] = random.random() / 16.0
-      a[j][i] = a[i][j]
-
-  # Construct a normalized solution vector b from a known x:
-  # TODO: Make fully random later.
-  x = np.array([0.1, 0.3, 0.5, 0.7])
-
-  a = ops.Operator(a)
-  b = state.State(np.dot(a, x)).normalize()
-  run_experiment(a, b, clock_bits = 6)
+  a = ops.Operator(np.array([[11,  5, -1, -1],
+                             [ 5, 11,  1,  1],
+                             [-1,  1, 11, -5],
+                             [-1,  1, -5, 11]])) / 16
+  b = ops.Operator(np.array([0, 0, 0, 1]).transpose())
+  run_experiment(a, b, clock_bits=4)
 
 
 if __name__ == '__main__':
