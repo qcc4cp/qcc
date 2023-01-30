@@ -45,14 +45,13 @@ def frac2bits(val: float, nbits: int) -> Tuple[int, ...]:
 
   res = []
   while nbits:
-     nbits -= 1
-     val *= 2
-     bit = int(val)
-     if bit == 1:
-       val -=  1
-       res.append(1)
-     else:
-       res.append(0)
+    nbits -= 1
+    val *= 2
+    if int(val) == 1:
+      val -= 1
+      res.append(1)
+    else:
+      res.append(0)
   return res
 
 

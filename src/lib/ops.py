@@ -480,7 +480,8 @@ def TraceOut(rho: Operator, index_set: List[int]) -> Operator:
 
 
 def Measure(psi: state.State, idx: int,
-            tostate: int = 0, collapse: bool = True) -> Tuple[float, state.State]:
+            tostate: int = 0,
+            collapse: bool = True) -> Tuple[float, state.State]:
   """Measure a qubit via a projector on the density matrix."""
 
   # Measure() measure qubit 'idx' in state 'psi'. It both measures the

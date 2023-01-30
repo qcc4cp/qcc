@@ -58,7 +58,7 @@ except Exception:  # pylint: disable=broad-except
     qubit = nbits - qubit - 1
     if qubit < 0:
       print('***Error***: Negative qubit index in apply1().')
-      print('             Perhaps using wrongly shaped state?\n');
+      print('             Perhaps using wrongly shaped state?\n')
       sys.exit(1)
     two_q = 2**qubit
     for g in range(0, 2**nbits, 2**(qubit+1)):
@@ -76,7 +76,7 @@ except Exception:  # pylint: disable=broad-except
     qubit = nbits - target - 1
     if qubit < 0:
       print('***Error***: Negative qubit index in applyc().')
-      print('             Perhaps using wrongly shaped state?\n');
+      print('             Perhaps using wrongly shaped state?\n')
       sys.exit(1)
     two_q = 2**qubit
     control = nbits - control - 1

@@ -65,7 +65,7 @@ class HelpersTest(absltest.TestCase):
     tval = 0.5 + 0.5/2 + 0.5/4 + 0.5/8 - 0.0001
     self.assertEqual(helper.frac2bits(tval, 8), [1, 1, 1, 0, 1, 1, 1, 1])
     val = helper.bits2frac([1, 1, 1, 0, 1, 1, 1, 1])
-    self.assertTrue(tval-val < 0.004)
+    self.assertLess(tval-val, 0.004)
 
   def test_pi_fractions(self) -> None:
     self.assertEqual(helper.pi_fractions(-3 * math.pi / 2), '-3*pi/2')
