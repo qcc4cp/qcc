@@ -167,10 +167,7 @@ def grover_with_oracle(variables: int, clauses: int, solutions: int):
   f = make_f(variables, formula)
   uf = ops.OracleUf(nbits+1, f)
 
-  zero_projector = np.zeros((2**nbits, 2**nbits))
-  zero_projector[0, 0] = 1
-  op_zero = ops.Operator(zero_projector)
-
+  op_zero = ops.ZeroProjector(nbits)
   psi = state.zeros(nbits) * state.ones(1)
   for i in range(nbits + 1):
     psi.apply1(ops.Hadamard(), i)

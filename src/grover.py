@@ -76,9 +76,7 @@ def run_experiment(nbits: int, solutions: int) -> None:
   # for every vector element c_x, with u being the mean over the
   # state vector. This is the defintion of inversion about the mean.
   #
-  zero_projector = np.zeros((2**nbits, 2**nbits))
-  zero_projector[0, 0] = 1
-  op_zero = ops.Operator(zero_projector)
+  op_zero = ops.ZeroProjector(nbits)
 
   # Make f and Uf. Note:
   # We reserve space for an ancilla 'y', which is unused in
@@ -129,7 +127,6 @@ def run_experiment(nbits: int, solutions: int) -> None:
   #        int(math.sqrt(n / solutions))
   #
   iterations = int(math.pi / 4 * math.sqrt(2**nbits / solutions))
-
   for _ in range(iterations):
     psi = grover(psi)
 

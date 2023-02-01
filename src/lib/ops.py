@@ -240,7 +240,7 @@ def RotationZ(theta: float) -> Operator:
 
 
 def ZeroProjector(nbits: int) -> Operator:
-  """Return a project for n qubits of |0>."""
+  """Return a projector for n qubits of |0>."""
 
   zero_projector = np.zeros((2**nbits, 2**nbits))
   zero_projector[0, 0] = 1
@@ -248,7 +248,7 @@ def ZeroProjector(nbits: int) -> Operator:
 
 
 def OneProjector(nbits: int) -> Operator:
-  """Return a project for n qubits of |0>."""
+  """Return a projector for n qubits of |0>."""
 
   dim = 2**nbits
   zero_projector = np.zeros((dim, dim))

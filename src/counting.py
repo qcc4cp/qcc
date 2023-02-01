@@ -59,11 +59,7 @@ def run_experiment(nbits_phase: int, nbits_grover: int,
   """Run full experiment for a given number of solutions."""
 
   # Building the Grover operator, see grover.py
-  n = 2**nbits_grover
-  zero_projector = np.zeros((n, n))
-  zero_projector[0, 0] = 1
-  op_zero = ops.Operator(zero_projector)
-
+  op_zero = ops.ZeroProjector(nbits_grover)
   f = make_f(nbits_grover, solutions)
   u = ops.OracleUf(nbits_grover + 1, f)
 
@@ -110,14 +106,12 @@ def run_experiment(nbits_phase: int, nbits_grover: int,
                       for i in range(nbits_phase)))
 
   # We know that after phase estimation, this holds:
-  #
   #    sin(phi/2) = sqrt(M/N)
   #             M = N * sin(phi/2)^2
-  #
   # Hence we can compute M. We keep the result to 2 digit to visualize
   # the errors. Note that the phi_estimate is a fraction of 2*PI, hence
   # the 1/2 in above formula cancels out against the 2 and we compute:
-  m = round(n * math.sin(phi_estimate * math.pi)**2, 2)
+  m = round(2**nbits_grover * math.sin(phi_estimate * math.pi)**2, 2)
 
   print('Estimate: {:.4f} prob: {:5.2f}% --> m: {:5.2f}, want: {:2d}'
         .format(phi_estimate, maxprob * 100.0, m, solutions))
