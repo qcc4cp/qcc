@@ -1,7 +1,6 @@
 # python3
 """Example: Simple classic random walk."""
 
-import numpy as np
 import random
 from absl import app
 
@@ -10,6 +9,7 @@ from absl import app
 # it essentially produces a result that mirrors the
 # distribution of the random number generator, which
 # is random.gauss at this point.
+
 
 def main(argv):
   if len(argv) > 1:
@@ -20,12 +20,11 @@ def main(argv):
   final_pos = [0] * 2 * n_steps
   print('Simulate random walk, collect distribution...')
   for i in range(n_collections):
-      pos = n_steps
-      for step in range(n_steps):
-          dir = random.gauss(0, 10)
-          step += int(dir)
-      if step > 0 and step < 2 * n_steps:
-        final_pos[step] += 1
+    for step in range(n_steps):
+      direction = random.gauss(0, 10)
+      step += int(direction)
+    if step > 0 and step < 2 * n_steps:
+      final_pos[step] += 1
 
   max_elem = 0
   for i in range(len(final_pos)):
