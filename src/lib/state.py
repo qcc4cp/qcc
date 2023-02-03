@@ -45,19 +45,19 @@ class State(tensor.Tensor):
     self /= np.sqrt(np.real(dprod))
     return self
 
-  def ampl(self, *bits) -> np.complexfloating:
+  def ampl(self, *bits: Tuple[int]) -> np.complexfloating:
     """Return amplitude for state indexed by 'bits'."""
 
     idx = helper.bits2val(bits)
     return self[idx]
 
-  def prob(self, *bits) -> float:
+  def prob(self, *bits: Tuple[int]) -> float:
     """Return probability for state indexed by 'bits'."""
 
     amplitude = self.ampl(*bits)
     return np.real(amplitude.conj() * amplitude)
 
-  def phase(self, *bits) -> float:
+  def phase(self, *bits: Tuple[int]) -> float:
     """Return phase of a state from the complex amplitude."""
 
     amplitude = self.ampl(*bits)
@@ -95,7 +95,7 @@ class State(tensor.Tensor):
     maxbits = helper.val2bits(idx, self.nbits)
     return maxbits, maxprob
 
-  def apply1(self, gate, index) -> None:
+  def apply1(self, gate: np.ndarray, index: int) -> None:
     """Apply single-qubit gate to this state."""
 
     # To maintain qubit ordering in this infrastructure,
@@ -114,7 +114,7 @@ class State(tensor.Tensor):
         self[i] = t1
         self[i + two_q] = t2
 
-  def applyc(self, gate, control, target) -> None:
+  def applyc(self, gate: np.ndarray, control: int, target: int) -> None:
     """Apply a controlled 2-qubit gate via explicit indexing."""
 
     # To maintain qubit ordering in this infrastructure,
@@ -138,12 +138,8 @@ class State(tensor.Tensor):
 
 
 # Produce a given state for a single qubit.
-# We allow specification of a global phase, even though states cannot
-# be distinguished when multiplied with an arbitrary complex number, aka,
-# global phase.
 #
-def qubit(alpha: Optional[np.complexfloating] = None,
-          beta: Optional[np.complexfloating] = None) -> State:
+def qubit(alpha: complex=None, beta: complex=None) -> State:
   """Produce a given state for a single qubit."""
 
   if alpha is None and beta is None:
@@ -299,7 +295,7 @@ def fromregs(*argv):
 # =====================================================
 
 
-def state_to_string(bits) -> str:
+def state_to_string(bits: Tuple[int]) -> str:
   """Convert state to string like |010>."""
 
   s = ''.join(str(i) for i in bits)
@@ -307,7 +303,7 @@ def state_to_string(bits) -> str:
   return f'|{s}> (|{int(s, 2):{dec_digits}d}>)'
 
 
-def dump_state(psi, desc: Optional[str] = None,
+def dump_state(psi, desc: str = None,
                prob_only: bool = True) -> None:
   """Dump probabilities for a state, as well as local qubit state."""
 

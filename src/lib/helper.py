@@ -37,7 +37,7 @@ def bits2frac(bits: Tuple[int, ...]) -> float:
   return sum(bits[i] * 2**(-i-1) for i in range(len(bits)))
 
 
-def frac2bits(val: float, nbits: int) -> Tuple[int, ...]:
+def frac2bits(val: float, nbits: int) -> List[int]:
   """Approximate a float with n binary fractions."""
 
   if val >= 1.0:

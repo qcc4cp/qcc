@@ -52,7 +52,7 @@ except Exception:  # pylint: disable=broad-except
   """)
 
   # pylint: disable=unused-argument
-  def apply1(psi, gate, nbits, qubit, bitwidth=0):
+  def apply1(psi, gate: np.ndarray, nbits: int, qubit: int, bitwidth: int=0):
     """Apply a single-qubit gate via explicit indexing."""
 
     qubit = nbits - qubit - 1
@@ -103,7 +103,7 @@ class qc:
 
   def __init__(self, name=None, eager: bool = True):
     self.name = name
-    self.psi = 1.0
+    self.psi = state.State(1.0)
     self.ir = ir.Ir()
     self.build_ir = True
     self.eager = eager
@@ -145,7 +145,7 @@ class qc:
     self.psi = self.psi * state.ones(n)
     self.global_reg = self.global_reg + n
 
-  def bitstring(self, *bits) -> None:
+  def bitstring(self, *bits: Tuple[int]) -> None:
     self.psi = self.psi * state.bitstring(*bits)
     self.global_reg = self.global_reg + len(bits)
 
@@ -173,7 +173,7 @@ class qc:
             '  Gates : {}\n'.format(self.ir.ngates))
 
   def dump_with_dumper(self, flag: bool,
-                       dumper_func: Callable[ir.Ir]) -> None:
+                       dumper_func: Callable) -> None:
     if flag:
       result = dumper_func(self.ir)
       with open(flag, 'w') as f:
@@ -193,7 +193,7 @@ class qc:
   def nbits(self) -> int:
     return self.psi.nbits
 
-  def ctl_by_0(self, ctl):
+  def ctl_by_0(self, ctl: int):
     ctl_qubit_ = ctl
     ctl_by_0_ = False
     if not isinstance(ctl, int):
