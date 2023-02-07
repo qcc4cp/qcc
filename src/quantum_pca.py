@@ -13,7 +13,7 @@
 # in order to avoid confusion. Thanks to Haokai-Zhang for his
 # contributions (couldn't have done it without it!).
 
-
+import random
 from absl import app
 import numpy as np
 
@@ -21,16 +21,8 @@ from src.lib import circuit
 from src.lib import state
 
 
-def pca():
+def pca(x):
   """A single quantum principal component analysis."""
-
-  # Data set from the paper is the correlation of
-  #   - number of bedrooms
-  #   - square footage
-  #
-  x = [[4, 3, 4, 4, 3, 3, 3, 3, 4, 4, 4, 5, 4, 3, 4],
-       [3028, 1365, 2726, 2538, 1318, 1693, 1412, 1632, 2875,
-        3564, 4412, 4444, 4278, 3064, 3857]]
 
   # We center and normalize (by dividing by 1000) the data.
   #
@@ -105,11 +97,9 @@ def pca():
 
   # Compare to classically derived values, which must match.
   m, _ = np.linalg.eig(m)
-  print(f'Eigenvalues Classically: {m[0]:.6f}, {m[1]:.6f}')
-
   if not np.isclose(m_0, m[0]) or not np.isclose(m_1, m[1]):
     raise AssertionError('Incorrect Computation.')
-  print('Correct')
+  print(f'Eigenvalues Classically: {m[0]:.6f}, {m[1]:.6f}. Correct')
 
 
 def main(argv):
@@ -117,7 +107,20 @@ def main(argv):
     raise app.UsageError('Too many command-line arguments.')
 
   print('Quantum Principal Component Analysis (PCA).')
-  pca()
+
+  # Data set from the paper is the correlation of
+  #   - number of bedrooms
+  #   - square footage
+  #
+  x = [[4, 3, 4, 4, 3, 3, 3, 3, 4, 4, 4, 5, 4, 3, 4],
+       [3028, 1365, 2726, 2538, 1318, 1693, 1412, 1632, 2875,
+        3564, 4412, 4444, 4278, 3064, 3857]]
+  pca(x)
+
+  for _ in range(10):
+    for idx in range(len(x[0])):
+      x[1][idx] = random.random() * 10000
+    pca(x)
 
 
 if __name__ == '__main__':
