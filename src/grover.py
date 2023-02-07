@@ -206,10 +206,10 @@ def main(argv):
 
   for nbits in range(3, 10):
     run_experiment(nbits, 1)
-  for nbits in range(8, 10):
-    run_experiment_circuit(nbits)
   for solutions in range(1, 9):
     run_experiment(7, solutions)
+  for nbits in range(8, 10):
+    run_experiment_circuit(nbits)
 
 
 if __name__ == '__main__':
