@@ -90,9 +90,11 @@ def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  for _ in range(20):
+  iterations = 100
+  print(f'{iterations} Spectral decompositiona')
+  for _ in range(iterations):
     spectral_decomp(32)
-  print('Spectral decomposition: Success')
+  print('Success')
 
 
 if __name__ == '__main__':
