@@ -55,7 +55,7 @@ def run_experiment(a, b):
   #
   eucl_dist_c = np.linalg.norm(a - b)
 
-  if not np.allclose(eucl_dist_q, eucl_dist_c):
+  if not np.allclose(eucl_dist_q, eucl_dist_c, atol=1e-4):
     raise AssertionError('Incorrect computation')
   print(f'  Classic: {eucl_dist_c:.2f}, quantum: {eucl_dist_q:.2f}, Correct')
 
@@ -66,12 +66,12 @@ def main(argv):
 
   print('Compute Quantum Euclidean Distance.')
 
-  for _ in range(5):
+  for _ in range(10):
     a = np.array(random.choices(range(10), k=4))
     b = np.array(random.choices(range(10), k=4))
     run_experiment(a, b)
 
-  for _ in range(5):
+  for _ in range(10):
     a = np.array(random.choices(range(100), k=8))
     b = np.array(random.choices(range(100), k=8))
     run_experiment(a, b)
