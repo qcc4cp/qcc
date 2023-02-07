@@ -122,7 +122,7 @@ def main(argv):
     percent = run_experiments(500, inc_angle * i)
     s = '(opt)' if i == 16 else ''
     print(f'{i:2d} * Pi/64 = {inc_angle * i:.2f}: winning: {percent:5.2f}% ' +
-          f'{"#" * int(percent/1.5)}{s}')
+          f'{"#" * int(percent/3)}{s}')
 
 
 if __name__ == '__main__':
