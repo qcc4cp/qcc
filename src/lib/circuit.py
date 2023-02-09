@@ -52,7 +52,7 @@ except Exception:  # pylint: disable=broad-except
   """)
 
   # pylint: disable=unused-argument
-  def apply1(psi, gate: np.ndarray, nbits: int, qubit: int, bitwidth: int=0):
+  def apply1(psi, gate: np.ndarray, nbits: int, qubit: int, bitwidth: int = 0):
     """Apply a single-qubit gate via explicit indexing."""
 
     qubit = nbits - qubit - 1
@@ -179,7 +179,7 @@ class qc:
             '  Gates : {}\n'.format(self.ir.ngates))
 
   def dump_with_dumper(self, flag: bool,
-                       dumper_func: Callable) -> None:
+                       dumper_func: Callable[ir.Ir]) -> None:
     if flag:
       result = dumper_func(self.ir)
       with open(flag, 'w') as f:

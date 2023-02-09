@@ -139,7 +139,7 @@ class State(tensor.Tensor):
 
 # Produce a given state for a single qubit.
 #
-def qubit(alpha: complex=None, beta: complex=None) -> State:
+def qubit(alpha: complex = None, beta: complex = None) -> State:
   """Produce a given state for a single qubit."""
 
   if alpha is None and beta is None:
