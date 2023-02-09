@@ -106,9 +106,15 @@ class qc:
     self.psi = state.State(1.0)
     self.ir = ir.Ir()
     self.build_ir = True
-    self.eager = eager
     self.global_reg = 0
     self.sub_circuits = 0
+    self.eager = eager
+    if (len(flags.FLAGS.libq) +
+        len(flags.FLAGS.qasm) +
+        len(flags.FLAGS.cirq) +
+        len(flags.FLAGS.text) +
+        len(flags.FLAGS.latex)):
+      self.eager = False
 
   class scope:
     """Scope object to allow grouping of gates in the output."""

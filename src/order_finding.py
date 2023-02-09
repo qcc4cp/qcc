@@ -30,21 +30,17 @@ def modular_inverse(a: int, m: int) -> int:
 
     # Explained here:
     # https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm
-    #
     if a == 0:
       return (b, 0, 1)
-    else:
-      g, y, x = egcd(b % a, a)
+    g, y, x = egcd(b % a, a)
     return (g, x - (b // a) * y, y)
 
   # Modular inverse of x mod m is the number x^-1 such that
   #   x * x^-1 = 1 mod m
-  #
   g, x, _ = egcd(a, m)
   if g != 1:
     raise Exception(f'Modular inverse ({a}, {m}) does not exist.')
-  else:
-    return x % m
+  return x % m
 
 
 def precompute_angles(a: int, n: int) -> List[float]:
@@ -130,17 +126,17 @@ def cc_add_mod_n(qc, q, ctl1, ctl2, aux, a, number, n):
 
   ccadd(qc, q, ctl1, ctl2, a, n, factor=1.0)
   add(qc, q, number, n, factor=-1.0)
-  inverse_qft(qc, q, n, with_swaps=0)
+  inverse_qft(qc, q, n)
   qc.cx(q[n-1], aux)
-  qft(qc, q, n, with_swaps=0)
+  qft(qc, q, n)
   cadd(qc, q, aux, number, n, factor=1.0)
 
   ccadd(qc, q, ctl1, ctl2, a, n, factor=-1.0)
-  inverse_qft(qc, q, n, with_swaps=0)
+  inverse_qft(qc, q, n)
   qc.x(q[n-1])
   qc.cx(q[n-1], aux)
   qc.x(q[n-1])
-  qft(qc, q, n, with_swaps=0)
+  qft(qc, q, n)
   ccadd(qc, q, ctl1, ctl2, a, n, factor=1.0)
 
 
@@ -148,17 +144,17 @@ def cc_add_mod_n_inverse(qc, q, ctl1, ctl2, aux, a, number, n):
   """Inverse of the double controlled modular addition."""
 
   ccadd(qc, q, ctl1, ctl2, a, n, factor=-1.0)
-  inverse_qft(qc, q, n, with_swaps=0)
+  inverse_qft(qc, q, n)
   qc.x(q[n-1])
   qc.cx(q[n-1], aux)
   qc.x(q[n-1])
-  qft(qc, q, n, with_swaps=0)
+  qft(qc, q, n)
   ccadd(qc, q, ctl1, ctl2, a, n, factor=1.0)
 
   cadd(qc, q, aux, number, n, factor=-1.0)
-  inverse_qft(qc, q, n, with_swaps=0)
+  inverse_qft(qc, q, n)
   qc.cx(q[n-1], aux)
-  qft(qc, q, n, with_swaps=0)
+  qft(qc, q, n)
   add(qc, q, number, n, factor=1.0)
   ccadd(qc, q, ctl1, ctl2, a, n, factor=-1.0)
 
@@ -166,24 +162,24 @@ def cc_add_mod_n_inverse(qc, q, ctl1, ctl2, aux, a, number, n):
 def cmultmodn(qc, ctl, q, aux, a, number, n):
   """Controlled Multiplies modulo N."""
 
-  print('Compute...')
-  qft(qc, aux, n+1, with_swaps=0)
+  print('Compute... ')
+  qft(qc, aux, n+1)
   for i in range(n):
     cc_add_mod_n(qc, aux, q[i], ctl, aux[n+1],
                  ((2**i)*a) % number, number, n+1)
-  inverse_qft(qc, aux, n+1, with_swaps=0)
+  inverse_qft(qc, aux, n+1)
 
-  print('Swap...')
+  print('Swap')
   for i in range(n):
     qc.cswap(ctl, q[i], aux[i])
   a_inv = modular_inverse(a, number)
 
   print('Uncompute...')
-  qft(qc, aux, n+1, with_swaps=0)
+  qft(qc, aux, n+1)
   for i in range(n-1, -1, -1):
     cc_add_mod_n_inverse(qc, aux, q[i], ctl, aux[n+1],
                          ((2**i)*a_inv) % number, number, n+1)
-  inverse_qft(qc, aux, n+1, with_swaps=0)
+  inverse_qft(qc, aux, n+1)
 
 
 def main(argv):
@@ -196,8 +192,8 @@ def main(argv):
 
   # The classical part are handled in 'shor_classic.py'
   nbits = number.bit_length()
-  print('Shor: N = {}, a = {}, n = {} -> qubits: {}'
-        .format(number, a, nbits, nbits*4 + 2))
+  print('Shor: N = {}, a = {}, n = {} -> qubits: {}, iterations: {}'
+        .format(number, a, nbits, nbits*4 + 2, nbits*2))
   qc = circuit.qc('order_finding')
 
   # Aux register for additional and multiplication.
@@ -213,7 +209,7 @@ def main(argv):
   qc.x(down[0])
   for i in range(nbits*2):
     cmultmodn(qc, up[i], down, aux, int(a**(2**i)), number, nbits)
-  inverse_qft(qc, up, 2*nbits, with_swaps=1)
+  inverse_qft(qc, up, 2*nbits, with_swaps=True)
 
   qc.dump_to_file()
 
