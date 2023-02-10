@@ -2,7 +2,8 @@
 """Example: Grover Algorithm."""
 
 import math
-from typing import List
+import random
+from typing import List, Tuple
 
 from absl import app
 import numpy as np
@@ -21,36 +22,24 @@ from src.lib import state
 def make_f1(d: int = 3):
   """Construct function that will return 1 for only one bit string."""
 
-  num_inputs = 2**d
-  answers = np.zeros(num_inputs, dtype=np.int8)
-  answer_true = np.random.randint(0, num_inputs)
-
+  answers = np.zeros(1 << d, dtype=np.int8)
+  answer_true = np.random.randint(0, 1 << d)
   answers[answer_true] = 1
 
-  # pylint: disable=no-value-for-parameter
-  def func(*bits) -> int:
+  def func(*bits: Tuple[int]) -> int:
     return answers[helper.bits2val(*bits)]
 
   return func, helper.val2bits(answer_true, d)
 
 
-def make_f(d: int = 3, solutions: int = 1):
+def make_f(d: int = 3, nsolutions: int = 1):
   """Construct function that will return 1 for 'solutions' bits."""
 
-  num_inputs = 2**d
-  answers = np.zeros(num_inputs, dtype=np.int8)
+  answers = np.zeros(1 << d, dtype=np.int8)
+  solutions = random.sample(range(1 << d), nsolutions)
+  answers[solutions] = 1
 
-  for _ in range(solutions):
-    idx = np.random.randint(0, num_inputs - 1)
-
-    # Avoid collisions.
-    while answers[idx] == 1:
-      idx = np.random.randint(0, num_inputs - 1)
-
-    # Found proper index. Populate 'answer' array.
-    answers[idx] = 1
-
-  # The actual function just returns an array elements.
+  # The actual function just returns an array element.
   def func(*bits):
     return answers[helper.bits2val(*bits)]
 

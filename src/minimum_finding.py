@@ -75,15 +75,9 @@ def make_f(d: int, numbers: List[int], max_value: int):
 
   num_inputs = 2**d
   answers = np.zeros(num_inputs, dtype=np.int8)
+  answers[[i for i in numbers if i < max_value]] = 1
 
-  for _, val in enumerate(numbers):
-    if val >= max_value:
-      continue
-
-    # Populate 'answer' array.
-    answers[val] = 1
-
-  # The actual function just returns an array elements.
+  # The actual function just returns an array element.
   def func(*bits):
     return answers[helper.bits2val(*bits)]
 

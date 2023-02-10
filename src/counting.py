@@ -5,6 +5,7 @@ import math
 import random
 
 from absl import app
+from typing import Tuple
 import numpy as np
 
 from src.lib import helper
@@ -27,27 +28,15 @@ from src.lib import state
 #             M = N * sin(phi/2)^2
 
 
-# pylint disable=g-bare-generic
-def make_f(d: int = 3, solutions: int = 1):
+def make_f(d: int = 3, nsolutions: int = 1):
   """Construct function that will return 1 for 'solutions' bits."""
 
-  num_inputs = 2**d
-  answers = np.zeros(num_inputs, dtype=np.int32)
+  answers = np.zeros(1 << d, dtype=np.int32)
+  solutions = random.sample(range(1 << d), nsolutions)
+  answers[solutions] = 1
 
-  for _ in range(solutions):
-    idx = random.randint(0, num_inputs - 1)
-
-    # Avoid collisions.
-    while answers[idx] == 1:
-      idx = random.randint(0, num_inputs - 1)
-
-    # Found proper index. Populate 'answer' array.
-    answers[idx] = 1
-
-  # The actual function just returns an array elements.
-  #
-  # pylint: disable=no-value-for-parameter
-  def func(*bits):
+  # The actual function just returns an array element.
+  def func(*bits: Tuple[int]):
     return answers[helper.bits2val(*bits)]
 
   # Return the function we just made.
