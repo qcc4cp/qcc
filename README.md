@@ -103,6 +103,26 @@ To run the benchmarks:
   bazel run tensor_math
 ```
 
+## Transpilation
+
+To experiment with transpilation, a few things must work together:
+   * Specify a target output. For example, to generate a `libq` C++ file, use `--libq=./test.cc` 
+
+   * The code should only contain a single `circuit.qc()`-generated circuit. This circuit will not
+     be eagerly executed. Instead, all gates and qubits will be collected in an internal IR.
+
+   * There must be a single call to `qc.dump_to_file()`. The circuit as that point
+     will be transpiled to the target platform (an example of this can be found in
+     `order_finding.py`).
+     
+For the given example, the generated file `test.cc` can be compiled and linked with `libq` 
+with a command-line similar to this one:
+```
+$ cd qcc/src
+$ cc -O2 -Ilibq test.cc libq/qureg.cc libq/apply.cc libq/gates.cc -o a.out -lc++
+$ a.out
+```
+
 ## About
 
 This code and book were written by Robert Hundt. At the time of this writing, Robert
