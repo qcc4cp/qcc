@@ -43,11 +43,10 @@ def expo_u(psi: state.State, u: ops.Operator, t: int) -> state.State:
   # |u> --- U^1 --- U^2 --- U^4 ... --- U^s^(t-1)
   #
   psi = ops.Hadamard(t)(psi)
+  u2 = u
   for idx, inv in enumerate(range(t-1, -1, -1)):
-    u2 = u
-    for _ in range(idx):
-      u2 = u2(u2)
     psi = ops.ControlledU(inv, t, u2)(psi, inv)
+    u2 = u2(u2)
   return psi
 
 

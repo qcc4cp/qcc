@@ -23,6 +23,16 @@ py_binary(
 )
 
 py_binary(
+    name = "amplitude_estimation",
+    srcs = ["amplitude_estimation.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)
+
+py_binary(
     name = "arith_quantum",
     srcs = ["arith_quantum.py"],
     python_version = "PY3",

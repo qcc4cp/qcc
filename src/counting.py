@@ -76,18 +76,16 @@ def run_experiment(nbits_phase: int, nbits_grover: int,
   # Now that we have the Grover operator, we have to perform
   # phase estimation. This loop is a copy from phase_estimation.py
   # with more comments there.
-  #
+  cu = grover
   for idx, inv in enumerate(range(nbits_phase - 1, -1, -1)):
-    u2 = grover
-    for _ in range(idx):
-      u2 = u2(u2)
-    psi = ops.ControlledU(inv, nbits_phase, u2)(psi, inv)
+    psi = ops.ControlledU(inv, nbits_phase, cu)(psi, inv)
+    cu = cu(cu)
 
   # Reverse QFT gives us the phase as a fraction of 2*pi.
   psi = ops.Qft(nbits_phase).adjoint()(psi)
 
   # Get the state with highest probability and compute the phase
-  # as a binary fraction. Note that the probability increases
+  # as a binary fraction. Note that the probability decreases
   # as M, the number of solutions, gets closer and closer to N,
   # the total mnumber of states.
   maxbits, maxprob = psi.maxprob()

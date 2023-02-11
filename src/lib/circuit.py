@@ -109,12 +109,15 @@ class qc:
     self.global_reg = 0
     self.sub_circuits = 0
     self.eager = eager
-    if (len(flags.FLAGS.libq) +
-        len(flags.FLAGS.qasm) +
-        len(flags.FLAGS.cirq) +
-        len(flags.FLAGS.text) +
-        len(flags.FLAGS.latex)):
-      self.eager = False
+    try:
+      if (len(flags.FLAGS.libq) +
+          len(flags.FLAGS.qasm) +
+          len(flags.FLAGS.cirq) +
+          len(flags.FLAGS.text) +
+          len(flags.FLAGS.latex)):
+        self.eager = False
+    except Exception:
+      pass
 
   class scope:
     """Scope object to allow grouping of gates in the output."""
