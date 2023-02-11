@@ -66,16 +66,17 @@ def run_experiment(nbits: int, solutions: int) -> None:
   # state vector. This is the defintion of inversion about the mean.
   #
   op_zero = ops.ZeroProjector(nbits)
+  reflection = op_zero * 2.0 - ops.Identity(nbits)
 
   # Make f and Uf. Note:
-  # We reserve space for an ancilla 'y', which is unused in
-  # Grover's algorithm. This allows reuse of the Deutsch Uf builder.
+  # We reserve space for an ancilla 'y'. This allows reuse of
+  # the Deutsch Uf builder.
   #
   # We use the Oracle construction for convenience. It is rather
   # slow (full matrix) for larger qubit counts. Once can construct
-  # a 'regular' function for the grover search algorithms, but this
-  # function is different for each bitstring and that quickly gets
-  # confusing.
+  # a 'regular' circuit for the grover search algorithms, but this
+  # circuit is different for each bitstring. Circuit versions are
+  # below.
   #
   f = make_f(nbits, solutions)
   uf = ops.OracleUf(nbits+1, f)
@@ -92,7 +93,6 @@ def run_experiment(nbits: int, solutions: int) -> None:
   #    - inversion about the mean (see matrix above)
   #
   hn = ops.Hadamard(nbits)
-  reflection = op_zero * 2.0 - ops.Identity(nbits)
   inversion = hn(reflection(hn)) * ops.Identity()
   grover = inversion(uf)
 
@@ -104,7 +104,7 @@ def run_experiment(nbits: int, solutions: int) -> None:
   #    that the highest probability of finding the right results occurs
   #    after pi/4 sqrt(n) rotations.
   #
-  # 2) For grover specifically, with 1 solution the iteration count is:
+  # 2) For grover specifically, with 1 solution the iteration count is indeed:
   #        int(math.pi / 4 * math.sqrt(n))
   #
   # 3) For grover with multiple solutions:
@@ -112,7 +112,7 @@ def run_experiment(nbits: int, solutions: int) -> None:
   #
   # 4) For amplitude amplification, it's the probability of good
   #    solutions, which is trivial with the Grover equal
-  #    superposition  here:
+  #    superposition here:
   #        int(math.sqrt(n / solutions))
   #
   iterations = int(math.pi / 4 * math.sqrt(2**nbits / solutions))
@@ -179,7 +179,6 @@ def run_experiment_circuit(nbits: int) -> None:
     multi(qc, ops.PauliX(), idx)
     multi(qc, ops.Hadamard(), idx)
 
-  print(qc.stats(), end='')
   qc.run()
   maxbits, maxprob = qc.psi.maxprob()
   result = f(maxbits[:nbits])
