@@ -46,11 +46,6 @@ def run_experiment(nbits_phase: int,
                    solutions: List[int]) -> None:
   """Run full experiment for a given A and set of solutions."""
 
-  # Building the Grover operator, see grover.py
-  op_zero = ops.ZeroProjector(nbits_grover)
-  f = make_f(nbits_grover, solutions)
-  u = ops.OracleUf(nbits_grover + 1, f)
-
   # The state for the AE algorithm.
   # We reserve nbits_phase for the phase estimation.
   # We reserve nbits_grover for the oracle.
@@ -64,8 +59,15 @@ def run_experiment(nbits_phase: int,
   for i in range(nbits_phase + nbits_grover + 1):
     psi.apply1(ops.Hadamard(), i)
 
-  # Construct the Grover operator.
+  # Construct the Grover operator. First phase invesion via Oracle.
+  f = make_f(nbits_grover, solutions)
+  u = ops.OracleUf(nbits_grover + 1, f)
+
+  # Reflection over mean.
+  op_zero = ops.ZeroProjector(nbits_grover)
   reflection = op_zero * 2.0 - ops.Identity(nbits_grover)
+
+  # Now construct the combined Grover operator.
   inversion = algo.adjoint()(reflection(algo)) * ops.Identity()
   grover = inversion(u)
 
@@ -84,7 +86,7 @@ def run_experiment(nbits_phase: int,
   maxbits, maxprob = psi.maxprob()
   ampl = np.sin(np.pi * helper.bits2frac(maxbits))
 
-  print('  AE: {:.4f} prob: {:5.2f}% {}/{} solutions ({})'
+  print('  AE: {:.4f} prob: {:6.2f}% {}/{} solutions ({})'
         .format(ampl, ampl * ampl * 100, len(solutions),
         1 << nbits_grover, solutions))
   return ampl
@@ -97,7 +99,8 @@ def main(argv):
 
   print('Algorithm: Hadamard (equal superposition)')
   algorithm = ops.Hadamard(3)
-  for nsolutions in range(1, 5):
+  
+  for nsolutions in range(5):
     ampl = run_experiment(7, 3, algorithm,
                           random.sample(range(2**3-1), nsolutions))
     if not math.isclose(ampl, np.sqrt(nsolutions / 2**3), abs_tol=0.03):
@@ -115,7 +118,7 @@ def main(argv):
     ampl = run_experiment(7, 3, algorithm, [i])
 
   print('Algorithm: Random (unequal superposition), multiple solutions')
-  for i in range(len(psi)):
+  for i in range(len(psi)+1):
     ampl = run_experiment(7, 3, algorithm, [i for i in range(i)])
 
 
