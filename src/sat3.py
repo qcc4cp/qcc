@@ -137,7 +137,7 @@ def make_f(variables: int, formula):
     # of clauses there are more positives than negatives.
     #
     answers[helper.bits2val(bits)] = not res
-    
+
   return lambda bits: answers[helper.bits2val(bits)]
 
 

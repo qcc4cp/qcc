@@ -116,7 +116,7 @@ class qc:
           len(flags.FLAGS.text) +
           len(flags.FLAGS.latex)):
         self.eager = False
-    except Exception:
+    except Exception:  # pylint: disable=broad-except
       pass
 
   class scope:

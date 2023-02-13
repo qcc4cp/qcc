@@ -5,9 +5,7 @@ import math
 import random
 
 from absl import app
-from typing import Tuple
 import numpy as np
-
 from src.lib import helper
 from src.lib import ops
 from src.lib import state

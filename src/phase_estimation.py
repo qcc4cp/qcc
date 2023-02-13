@@ -44,7 +44,7 @@ def expo_u(psi: state.State, u: ops.Operator, t: int) -> state.State:
   #
   psi = ops.Hadamard(t)(psi)
   u2 = u
-  for idx, inv in enumerate(range(t-1, -1, -1)):
+  for inv in range(t-1, -1, -1):
     psi = ops.ControlledU(inv, t, u2)(psi, inv)
     u2 = u2(u2)
   return psi

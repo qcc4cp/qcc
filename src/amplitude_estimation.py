@@ -3,11 +3,10 @@
 
 import math
 import random
+from typing import List
 
 from absl import app
-from typing import List, Tuple
 import numpy as np
-
 from src.lib import helper
 from src.lib import ops
 from src.lib import state
@@ -29,12 +28,12 @@ from src.lib import state
 # AE estimates this amplitude \alpha.
 
 
-def make_f(nbits: int = 3, solutions: List[int] = [0]):
+def make_f(nbits: int, solutions: List[int]):
   """Construct function that will return 1 for 'solutions' bits."""
 
   answers = np.zeros(1 << nbits, dtype=np.int32)
   answers[solutions] = 1
-  return lambda bits : answers[helper.bits2val(bits)]
+  return lambda bits: answers[helper.bits2val(bits)]
 
 
 def run_experiment(nbits_phase: int,
@@ -80,12 +79,12 @@ def run_experiment(nbits_phase: int,
   psi = ops.Qft(nbits_phase).adjoint()(psi)
 
   # Get the state with highest probability and estimate a phase
-  maxbits, maxprob = psi.maxprob()
+  maxbits, _ = psi.maxprob()
   ampl = np.sin(np.pi * helper.bits2frac(maxbits))
 
   print('  AE: {:.4f} prob: {:6.2f}% {}/{} solutions ({})'
         .format(ampl, ampl * ampl * 100, len(solutions),
-        1 << nbits_grover, solutions))
+                1 << nbits_grover, solutions))
   return ampl
 
 
