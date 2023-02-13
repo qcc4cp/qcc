@@ -435,9 +435,9 @@ class qc:
     """Controlled Swap."""
 
     with self.scope(self.ir, f'cswap({ctl}, {idx0}, {idx1})'):
-      self.ccx(ctl, idx1, idx0)
+      self.cx(idx1, idx0)
       self.ccx(ctl, idx0, idx1)
-      self.ccx(ctl, idx1, idx0)
+      self.cx(idx1, idx0)
 
   def qft(self, reg, with_swaps: bool = False) -> None:
     """QFT."""
