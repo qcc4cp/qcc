@@ -137,12 +137,8 @@ def make_f(variables: int, formula):
     # of clauses there are more positives than negatives.
     #
     answers[helper.bits2val(bits)] = not res
-
-  # pylint: disable=no-value-for-parameter
-  def func(*bits) -> int:
-    return answers[helper.bits2val(*bits)]
-
-  return func
+    
+  return lambda bits: answers[helper.bits2val(bits)]
 
 
 def find_solutions(variables: int, formula):
@@ -158,21 +154,19 @@ def find_solutions(variables: int, formula):
   return solutions
 
 
-def grover_with_oracle(variables: int, clauses: int, solutions: int):
+def grover_with_oracle(nbits: int, clauses: int, solutions: int):
   """Oracle-based Grover."""
 
-  formula = make_formula(variables, clauses)
+  formula = make_formula(nbits, clauses)
 
-  nbits = variables
-  f = make_f(variables, formula)
-  uf = ops.OracleUf(nbits+1, f)
-
-  op_zero = ops.ZeroProjector(nbits)
   psi = state.zeros(nbits) * state.ones(1)
   for i in range(nbits + 1):
     psi.apply1(ops.Hadamard(), i)
 
   hn = ops.Hadamard(nbits)
+  f = make_f(nbits, formula)
+  uf = ops.OracleUf(nbits+1, f)
+  op_zero = ops.ZeroProjector(nbits)
   reflection = op_zero * 2.0 - ops.Identity(nbits)
   inversion = hn(reflection(hn)) * ops.Identity()
   grover = inversion(uf)

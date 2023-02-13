@@ -14,7 +14,9 @@ from src.lib import state
 
 
 # Amplitude estimation (AE) is a generalization of the counting
-# algorithm. In counting, we have a state in equal superposition
+# algorithm (or, rather, counting is a special case of AE).
+#
+# In counting, we have a state in equal superposition
 # (achieved via Hadamard^\otimes(nbits) where some of the states
 # are 'good' and the rest are 'bad.
 #
@@ -26,18 +28,13 @@ from src.lib import state
 #
 # AE estimates this amplitude \alpha.
 
+
 def make_f(nbits: int = 3, solutions: List[int] = [0]):
   """Construct function that will return 1 for 'solutions' bits."""
 
   answers = np.zeros(1 << nbits, dtype=np.int32)
   answers[solutions] = 1
-
-  # The actual function just returns an array element.
-  def func(*bits: Tuple[int]):
-    return answers[helper.bits2val(*bits)]
-
-  # Return the function we just made.
-  return func
+  return lambda bits : answers[helper.bits2val(bits)]
 
 
 def run_experiment(nbits_phase: int,
@@ -53,7 +50,7 @@ def run_experiment(nbits_phase: int,
   #
   # These numbers can be adjusted to achieve various levels
   # of accuracy.
-  psi = (state.zeros(nbits_phase) * state.zeros(nbits_grover) * state.ones(1))
+  psi = state.zeros(nbits_phase + nbits_grover) * state.ones(1)
 
   # Apply Hadamard to all the qubits.
   for i in range(nbits_phase + nbits_grover + 1):
@@ -75,7 +72,7 @@ def run_experiment(nbits_phase: int,
   # phase estimation. This loop is a copy from phase_estimation.py
   # (with more comments there).
   cu = grover
-  for idx, inv in enumerate(range(nbits_phase - 1, -1, -1)):
+  for inv in range(nbits_phase - 1, -1, -1):
     psi = ops.ControlledU(inv, nbits_phase, cu)(psi, inv)
     cu = cu(cu)
 
@@ -99,7 +96,7 @@ def main(argv):
 
   print('Algorithm: Hadamard (equal superposition)')
   algorithm = ops.Hadamard(3)
-  
+
   for nsolutions in range(5):
     ampl = run_experiment(7, 3, algorithm,
                           random.sample(range(2**3-1), nsolutions))

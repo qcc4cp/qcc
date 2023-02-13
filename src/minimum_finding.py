@@ -76,30 +76,25 @@ def make_f(d: int, numbers: List[int], max_value: int):
   num_inputs = 2**d
   answers = np.zeros(num_inputs, dtype=np.int8)
   answers[[i for i in numbers if i < max_value]] = 1
-
-  # The actual function just returns an array element.
-  def func(*bits):
-    return answers[helper.bits2val(*bits)]
-
-  # Return the function we just made.
-  return func
+  return lambda bits: answers[helper.bits2val(bits)]
 
 
 def run_experiment(nbits: int, numbers: List[int],
                    max_value: int, solutions: int) -> int:
   """Run oracle-based experiment."""
 
-  # The following is commented extensively in grover.py
-  op_zero = ops.ZeroProjector(nbits)
-  f = make_f(nbits, numbers, max_value)
-  uf = ops.OracleUf(nbits+1, f)
-
   psi = state.zeros(nbits) * state.ones(1)
   for i in range(nbits + 1):
     psi.apply1(ops.Hadamard(), i)
 
-  hn = ops.Hadamard(nbits)
+  # The following is commented extensively in grover.py
+  f = make_f(nbits, numbers, max_value)
+  uf = ops.OracleUf(nbits+1, f)
+
+  op_zero = ops.ZeroProjector(nbits)
   reflection = op_zero * 2.0 - ops.Identity(nbits)
+
+  hn = ops.Hadamard(nbits)
   inversion = hn(reflection(hn)) * ops.Identity()
   grover = inversion(uf)
 

@@ -34,23 +34,12 @@ def make_f(d: int = 3, nsolutions: int = 1):
   answers = np.zeros(1 << d, dtype=np.int32)
   solutions = random.sample(range(1 << d), nsolutions)
   answers[solutions] = 1
-
-  # The actual function just returns an array element.
-  def func(*bits: Tuple[int]):
-    return answers[helper.bits2val(*bits)]
-
-  # Return the function we just made.
-  return func
+  return lambda bits: answers[helper.bits2val(bits)]
 
 
 def run_experiment(nbits_phase: int, nbits_grover: int,
                    solutions: int) -> None:
   """Run full experiment for a given number of solutions."""
-
-  # Building the Grover operator, see grover.py
-  op_zero = ops.ZeroProjector(nbits_grover)
-  f = make_f(nbits_grover, solutions)
-  u = ops.OracleUf(nbits_grover + 1, f)
 
   # The state for the counting algorithm.
   # We reserve nbits for the phase estimation.
@@ -61,14 +50,22 @@ def run_experiment(nbits_phase: int, nbits_grover: int,
   #
   # We also add the |1> for the oracle.
   #
-  psi = (state.zeros(nbits_phase) * state.zeros(nbits_grover) * state.ones(1))
+  psi = (state.zeros(nbits_phase + nbits_grover) * state.ones(1))
 
   # Apply Hadamard to all the qubits.
   for i in range(nbits_phase + nbits_grover + 1):
     psi.apply1(ops.Hadamard(), i)
 
-  # Construct the Grover operator.
+  # Construct the Grover operator. First phase inversion via Oracle.
+  f = make_f(nbits_grover, solutions)
+  u = ops.OracleUf(nbits_grover + 1, f)
+
+  # Reflection over mean.
+  op_zero = ops.ZeroProjector(nbits_grover)
   reflection = op_zero * 2.0 - ops.Identity(nbits_grover)
+
+  # Now construct the combined Grover operator, using
+  # Hadamards as the 'algorithm' (equal superposition).
   hn = ops.Hadamard(nbits_grover)
   inversion = hn(reflection(hn)) * ops.Identity()
   grover = inversion(u)
@@ -77,7 +74,7 @@ def run_experiment(nbits_phase: int, nbits_grover: int,
   # phase estimation. This loop is a copy from phase_estimation.py
   # with more comments there.
   cu = grover
-  for idx, inv in enumerate(range(nbits_phase - 1, -1, -1)):
+  for inv in range(nbits_phase - 1, -1, -1):
     psi = ops.ControlledU(inv, nbits_phase, cu)(psi, inv)
     cu = cu(cu)
 
@@ -89,8 +86,7 @@ def run_experiment(nbits_phase: int, nbits_grover: int,
   # as M, the number of solutions, gets closer and closer to N,
   # the total mnumber of states.
   maxbits, maxprob = psi.maxprob()
-  phi_estimate = (sum(maxbits[i] * 2**(-i - 1)
-                      for i in range(nbits_phase)))
+  phi_estimate = helper.bits2frac(maxbits)
 
   # We know that after phase estimation, this holds:
   #    sin(phi/2) = sqrt(M/N)
