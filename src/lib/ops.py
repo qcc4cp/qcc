@@ -185,24 +185,22 @@ def Yroot(d: int = 1) -> Operator:
   return Operator(0.5 * np.array([(1+1j, -1-1j), (1+1j, 1+1j)])).kpow(d)
 
 
-# Rk is the rotation gate used in QFT.
-def Rk(k: int, d: int = 1) -> Operator:
-  return Operator(
-      np.array([(1.0, 0.0),
-                (0.0, cmath.exp(2.0 * cmath.pi * 1j / 2**k))])).kpow(d)
-
-
+# IBM's U1-gate.
 def U1(lam: float, d: int = 1) -> Operator:
   return Operator(np.array([(1.0, 0.0),
                             (0.0, cmath.exp(1j * lam))])).kpow(d)
 
 
-# IBM's general U-gate.
-def U(theta: float, phi: float, lam: float, d: int = 1) -> Operator:
+# IBM's general U3-gate.
+def U3(theta: float, phi: float, lam: float, d: int = 1) -> Operator:
   return Operator(np.array([(np.cos(theta/2),
                              -cmath.exp(1j*lam)*np.sin(theta/2)),
                             (cmath.exp(1j*phi)*np.sin(theta/2),
                              cmath.exp(1j*(phi+lam))*np.cos(theta/2))])).kpow(d)
+
+
+def Rk(k: int, d: int = 1) -> Operator:
+  return U1(2*math.pi / (2**k)).kpow(d)
 
 
 # Cache Pauli matrices for performance reasons.
