@@ -18,7 +18,7 @@ def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  print('Quantum Mean Computation via AE.')
+  print('WIP: Quantum Mean Computation via AE.')
   x = [1.0, 2.0, 3.0, 2.0]
   x_norm = np.linalg.norm(x)
   x = x / x_norm
@@ -45,7 +45,7 @@ def main(argv):
   for val in x:
     angle = 2 * np.arcsin(val)
     qc.ry(anc, angle)
-    qc.multi_control([[0], [1]], ext,
+    #Qqc.multi_control([[0], [1]], ext,
     qc.cx(anc, ext)
     qc.ry(anc, -angle)
   qc.psi.dump()
