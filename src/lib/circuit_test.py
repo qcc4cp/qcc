@@ -38,6 +38,11 @@ class CircuitTest(absltest.TestCase):
     qc.swap(1, 2)
     self.compare_to(qc.psi, 1, 0, 1, 1, 1)
 
+  def test_arange(self):
+    qc = circuit.qc()
+    qc.arange(10)
+    self.assertEqual(qc.psi[5], 5)
+
   def test_cswap(self):
     qc = circuit.qc()
     qc.bitstring(1, 1, 0, 1, 1)

@@ -101,23 +101,10 @@ flags.DEFINE_string('latex', '', 'Generate Latex output file, or empty')
 class qc:
   """Wrapper class to maintain state + operators."""
 
-  def __init__(self, name=None, eager: bool = True):
-    self.name = name
-    self.psi = state.State(1.0)
-    self.ir = ir.Ir()
-    self.build_ir = True
-    self.global_reg = 0
-    self.sub_circuits = 0
-    self.eager = eager
-    try:
-      if (len(flags.FLAGS.libq) +
-          len(flags.FLAGS.qasm) +
-          len(flags.FLAGS.cirq) +
-          len(flags.FLAGS.text) +
-          len(flags.FLAGS.latex)):
-        self.eager = False
-    except Exception:  # pylint: disable=broad-except
-      pass
+    self.add_single(gate[0], gate[1])
+      self.add_single(gate[0] + 'dag', gate[1].adjoint())
+      self.add_ctl('c' + gate[0], gate[1])
+      self.add_ctl('c' + gate[0] + 'dag', gate[1]. adjoint())
 
   class scope:
     """Scope object to allow grouping of gates in the output."""
@@ -133,46 +120,40 @@ class qc:
       self.ir.end_section()
 
   # --- States ----------------------------------------------------
+  def _tprod(self, new_state, nqubits: int):
+    self.psi = self.psi * new_state
+    self.global_reg = self.global_reg + nqubits
+
   def reg(self, size: int, it=0, *, name: str = None) -> state.Reg:
     ret = state.Reg(size, it, self.global_reg)
-    self.global_reg = self.global_reg + size
-    self.psi = self.psi * ret.psi()
+    self._tprod(ret.psi(), size)
     self.ir.reg(size, name, ret)
     return ret
 
-  def qubit(self,
-            alpha: np.complexfloating = None,
+  def qubit(self, alpha: np.complexfloating = None,
             beta: np.complexfloating = None) -> None:
-    self.psi = self.psi * state.qubit(alpha, beta)
-    self.global_reg = self.global_reg + 1
+    self._tprod(state.qubit(alpha, beta), 1)
 
   def zeros(self, n: int) -> None:
-    self.psi = self.psi * state.zeros(n)
-    self.global_reg = self.global_reg + n
+    self._tprod(state.zeros(n), n)
 
   def ones(self, n: int) -> None:
-    self.psi = self.psi * state.ones(n)
-    self.global_reg = self.global_reg + n
+    self._tprod(state.ones(n), n)
 
   def bitstring(self, *bits: Tuple[int]) -> None:
-    self.psi = self.psi * state.bitstring(*bits)
-    self.global_reg = self.global_reg + len(bits)
-
-  def arange(self, n: int) -> None:
-    self.zeros(n)
-    for i in range(0, 2**n):
-      self.psi[i] = float(i)
-    self.global_reg = self.global_reg + n
+    self._tprod(state.bitstring(*bits), len(bits))
 
   def rand_bits(self, n: int) -> None:
-    self.psi = self.psi * state.rand(n)
+    self._tprod(state.rand(n), n)
+
+  def arange(self, n: int) -> None:
+    self.psi = [float(i) for i in range(0, 2**n)]
     self.global_reg = self.global_reg + n
 
   def state(self, t: tensor.Tensor) -> None:
     ret = state.Reg(t.nbits, 0, self.global_reg)
     psi = state.State(t)
-    self.global_reg = self.global_reg + psi.nbits
-    self.psi = self.psi * psi
+    self._tprod(psi, psi.nbits)
     self.ir.reg(t.nbits, 'state', ret)
     return ret
 
@@ -211,6 +192,12 @@ class qc:
     return ctl_qubit_, ctl_by_0_
 
   # --- Gates  ----------------------------------------------------
+  def add_single(self, name: str, gate: ops.Operator):
+    setattr(self, name, lambda idx: self.apply1(gate, idx, name))
+
+  def add_ctl(self, name: str, gate: ops.Operator):
+    setattr(self, name, lambda idx0, idx1: self.applyc(gate, idx0, idx1, name))
+
   def apply1(self, gate: ops.Operator, idx_set,
              name: str = None, *, val: float = None):
     """Apply single gates."""
@@ -251,26 +238,11 @@ class qc:
     if by_0:
       self.x(ctl_qubit)
 
-  def cv(self, idx0: int, idx1: int):
-    self.applyc(ops.Vgate(), idx0, idx1, 'cv')
-
-  def cv_adj(self, idx0: int, idx1: int):
-    self.applyc(ops.Vgate().adjoint(), idx0, idx1, 'cv_adj')
-
   def cx0(self, idx0: int, idx1: int):
     xgate = ops.PauliX()
     self.apply1(xgate, idx0, 'x')
     self.applyc(ops.PauliX(), idx0, idx1, 'cx')
     self.apply1(xgate, idx0, 'x')
-
-  def cx(self, idx0: int, idx1: int):
-    self.applyc(ops.PauliX(), idx0, idx1, 'cx')
-
-  def cy(self, idx0: int, idx1: int):
-    self.applyc(ops.PauliY(), idx0, idx1, 'cy')
-
-  def cz(self, idx0: int, idx1: int):
-    self.applyc(ops.PauliZ(), idx0, idx1, 'cz')
 
   def cu1(self, idx0: int, idx1: int, value):
     self.applyc(ops.U1(value), idx0, idx1, 'cu1', val=value)
@@ -322,7 +294,7 @@ class qc:
 
       self.cv(i0, idx2)
       self.cx(i0, i1)
-      self.cv_adj(i1, idx2)
+      self.cvdag(i1, idx2)
       self.cx(i0, i1)
       self.cv(i1, idx2)
 
@@ -334,35 +306,8 @@ class qc:
   def toffoli(self, idx0: int, idx1: int, idx2: int):
     self.ccx(idx0, idx1, idx2)
 
-  def h(self, idx: int):
-    self.apply1(ops.Hadamard(), idx, 'h')
-
-  def s(self, idx: int):
-    self.apply1(ops.Sgate(), idx, 's')
-
-  def sdag(self, idx: int):
-    self.apply1(ops.Sgate().adjoint(), idx, 'sdag')
-
-  def t(self, idx: int):
-    self.apply1(ops.Tgate(), idx, 't')
-
   def u1(self, idx: int, val):
     self.apply1(ops.U1(val), idx, 'u1', val=val)
-
-  def v(self, idx: int):
-    self.apply1(ops.Vgate(), idx, 'v')
-
-  def x(self, idx: int):
-    self.apply1(ops.PauliX(), idx, 'x')
-
-  def y(self, idx: int):
-    self.apply1(ops.PauliY(), idx, 'y')
-
-  def z(self, idx: int):
-    self.apply1(ops.PauliZ(), idx, 'z')
-
-  def yroot(self, idx: int):
-    self.apply1(ops.Yroot(), idx, 'yroot')
 
   def rx(self, idx: int, theta: float):
     self.apply1(ops.RotationX(theta), idx, 'rx', val=theta)
@@ -387,7 +332,7 @@ class qc:
 
 #  Appplying a random unitary is possible, but it is not a
 #  1- or 2-qubit gate, hence slow.
-#  Tory to avoid using it (unless unavoidable)
+#  Try to avoid using it (unless unavoidable)
   def unitary(self, op, idx):
     self.psi = ops.Operator(op)(self.psi, idx)
 
@@ -415,11 +360,6 @@ class qc:
     # expectation value like this:
     p0, _ = self.measure_bit(idx, 0, False)
     return p0 - (1 - p0)
-
-  def sample_state(self, prob_state0: float):
-    if prob_state0 < random.random():
-      return 1
-    return 0
 
 # --- Advanced ---------------------------------------------------
   def swap(self, idx0: int, idx1: int):

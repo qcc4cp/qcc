@@ -127,11 +127,16 @@ def run_two_qubit_zi_experiment():
     # If the measured probability is < r, we pretend we've actually measured an
     # |0> state, else a |1> state. We do this via sample_state() on both qubits.
     #
+    def sample_state(prob_state0: float):
+      if prob_state0 < random.random():
+        return 1
+      return 0
+
     num_shots = flags.FLAGS.shots
     counts = [0] * 4
     for _ in range(num_shots):
-      bit0 = qc.sample_state(p0)
-      bit1 = qc.sample_state(p1)
+      bit0 = sample_state(p0)
+      bit1 = sample_state(p1)
       counts[bit1 * 2 + bit0] += 1
 
     # Compute the expectation value from samples measurements. Again,
