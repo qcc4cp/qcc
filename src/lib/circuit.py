@@ -101,10 +101,42 @@ flags.DEFINE_string('latex', '', 'Generate Latex output file, or empty')
 class qc:
   """Wrapper class to maintain state + operators."""
 
-    self.add_single(gate[0], gate[1])
+  def __init__(self, name=None, eager: bool = True):
+    self.name = name
+    self.psi = state.State(1.0)
+    self.ir = ir.Ir()
+    self.build_ir = True
+    self.global_reg = 0
+    self.sub_circuits = 0
+    self.eager = eager
+    try:
+      if (len(flags.FLAGS.libq) +
+          len(flags.FLAGS.qasm) +
+          len(flags.FLAGS.cirq) +
+          len(flags.FLAGS.text) +
+          len(flags.FLAGS.latex)):
+        self.eager = False
+    except Exception:  # pylint: disable=broad-except
+      pass
+    self.simple_gates = [
+    ['h', ops.Hadamard()],
+    ['s', ops.Sgate()],
+    ['t', ops.Tgate()],
+    ['v', ops.Vgate()],
+    ['x', ops.PauliX()],
+    ['y', ops.PauliY()],
+    ['z', ops.PauliZ()],
+    ['yroot', ops.Hadamard()],
+    ]
+    for gate in self.simple_gates:
+      self.add_single(gate[0], gate[1])
       self.add_single(gate[0] + 'dag', gate[1].adjoint())
       self.add_ctl('c' + gate[0], gate[1])
       self.add_ctl('c' + gate[0] + 'dag', gate[1]. adjoint())
+
+  @property
+  def nbits(self) -> int:
+    return self.psi.nbits
 
   class scope:
     """Scope object to allow grouping of gates in the output."""
@@ -157,33 +189,10 @@ class qc:
     self.ir.reg(t.nbits, 'state', ret)
     return ret
 
-  def stats(self) -> str:
-    return ('Circuit Statistics\n' +
-            '  Qubits: {}\n'.format(self.nbits) +
-            '  Gates : {}\n'.format(self.ir.ngates))
-
-  def dump_with_dumper(self, flag: bool,
-                       dumper_func: Callable[ir.Ir]) -> None:
-    if flag:
-      result = dumper_func(self.ir)
-      with open(flag, 'w') as f:
-        print(result, file=f)
-
-  def dump_to_file(self) -> None:
-    self.dump_with_dumper(flags.FLAGS.libq, dumpers.libq)
-    self.dump_with_dumper(flags.FLAGS.qasm, dumpers.qasm)
-    self.dump_with_dumper(flags.FLAGS.cirq, dumpers.cirq)
-    self.dump_with_dumper(flags.FLAGS.text, dumpers.totext)
-    self.dump_with_dumper(flags.FLAGS.latex, dumpers.latex)
-
   def optimize(self):
     self. ir = optimizer.optimize(self.ir)
 
-  @property
-  def nbits(self) -> int:
-    return self.psi.nbits
-
-  def ctl_by_0(self, ctl: int):
+  def _ctl_by_0(self, ctl: int):
     ctl_qubit_ = ctl
     ctl_by_0_ = False
     if not isinstance(ctl, int):
@@ -227,7 +236,7 @@ class qc:
       else:
         raise AssertionError('controlled n-qbit register not supported')
 
-    ctl_qubit, by_0 = self.ctl_by_0(ctl)
+    ctl_qubit, by_0 = self._ctl_by_0(ctl)
     if by_0:
       self.x(ctl_qubit)
     if self.build_ir:
@@ -247,64 +256,39 @@ class qc:
   def cu1(self, idx0: int, idx1: int, value):
     self.applyc(ops.U1(value), idx0, idx1, 'cu1', val=value)
 
-  def crk(self, idx0: int, idx1: int, value):
-    self.applyc(ops.Rk(value), idx0, idx1, 'crk', val=value)
-
   def cu(self, idx0: int, idx1: int, op: ops.Operator, desc: str = None):
+    if not op.shape[0] == 2:
+      raise AssertionError('cu only supports 2x2 operators')
     self.applyc(op, idx0, idx1, desc)
 
   def ccu(self, idx0: int, idx1: int, idx2: int, op: ops.Operator, desc=''):
     """Sleator-Weinfurter Construction for general operators."""
 
     # Enable Control-By-0 (via idx being passes as [idx])
-    i0, c0_by_0 = self.ctl_by_0(idx0)
-    i1, c1_by_0 = self.ctl_by_0(idx1)
+    i0, c0_by_0 = self._ctl_by_0(idx0)
+    i1, c1_by_0 = self._ctl_by_0(idx1)
 
     with self.scope(self.ir, f'cc{desc}({idx0}, {idx1}, {idx2})'):
       if c0_by_0:
         self.x(i0)
       if c1_by_0:
         self.x(i1)
-
       v = ops.Operator(sqrtm(op))
-
       self.cu(i0, idx2, v, desc + '^1/2')
       self.cx(i0, i1)
       self.cu(i1, idx2, v.adjoint(), desc + '^t')
       self.cx(i0, i1)
       self.cu(i1, idx2, v, desc + '^1/2')
-
       if c1_by_0:
         self.x(i1)
       if c0_by_0:
         self.x(i0)
 
   def ccx(self, idx0: int, idx1: int, idx2: int):
-    """Sleator-Weinfurter Construction for CCX."""
-
-    # Enable Control-By-0 (via idx being passes as [idx])
-    i0, c0_by_0 = self.ctl_by_0(idx0)
-    i1, c1_by_0 = self.ctl_by_0(idx1)
-
-    with self.scope(self.ir, f'ccx({idx0}, {idx1}, {idx2})'):
-      if c0_by_0:
-        self.x(i0)
-      if c1_by_0:
-        self.x(i1)
-
-      self.cv(i0, idx2)
-      self.cx(i0, i1)
-      self.cvdag(i1, idx2)
-      self.cx(i0, i1)
-      self.cv(i1, idx2)
-
-      if c1_by_0:
-        self.x(i1)
-      if c0_by_0:
-        self.x(i0)
+    self.ccu(idx0, idx1, idx2, ops.PauliX(), 'ccx')
 
   def toffoli(self, idx0: int, idx1: int, idx2: int):
-    self.ccx(idx0, idx1, idx2)
+    self.ccu(idx0, idx1, idx2, ops.PauliX(), 'ccx')
 
   def u1(self, idx: int, val):
     self.apply1(ops.U1(val), idx, 'u1', val=val)
@@ -327,16 +311,12 @@ class qc:
   def crz(self, ctl: int, idx: int, theta: float):
     self.applyc(ops.RotationZ(theta), ctl, idx, 'crz', val=theta)
 
-  def ctl_2x2(self, ctl: int, idx: int, op: ops.Operator):
-    self.applyc(op, ctl, idx, 'ctl-u')
-
-#  Appplying a random unitary is possible, but it is not a
-#  1- or 2-qubit gate, hence slow.
-#  Try to avoid using it (unless unavoidable)
+  #  Appplying a random unitary is possible, but it is not a
+  #  1- or 2-qubit gate, hence slow. Avoid using it (unless unavoidable).
   def unitary(self, op, idx):
     self.psi = ops.Operator(op)(self.psi, idx)
 
-# --- Measure ----------------------------------------------------
+  # --- Measure ----------------------------------------------------
   def measure_bit(self, idx: int, tostate: int = 0,
                   collapse: bool = True) -> Tuple[float, state.State]:
     """Measure state with big matrix operation, can collapse the state."""
@@ -361,7 +341,7 @@ class qc:
     p0, _ = self.measure_bit(idx, 0, False)
     return p0 - (1 - p0)
 
-# --- Advanced ---------------------------------------------------
+  # --- Advanced ---------------------------------------------------
   def swap(self, idx0: int, idx1: int):
     """Simple Swap operation."""
 
@@ -460,24 +440,7 @@ class qc:
     for i in range(reg.size // 2):
       self.swap(reg[i], reg[reg.size-1-i])
 
-  def qft_rk(self, reg, swap: bool = True):
-    """Apply Qft with Rk gates directly."""
-
-    nbits = reg.nbits
-    for idx in range(reg[0], reg[0] + nbits):
-      # Each qubit first gets a Hadamard.
-      self.h(idx)
-
-      # Each qubit now gets a sequence of Rk(2), Rk(3), ..., Rk(nbits)
-      # controlled by qubit (1, 2, ..., nbits-1).
-      for rk in range(2, nbits - idx + 1):
-        controlled_from = idx + rk - 1
-        self.crk(controlled_from, idx, rk)
-
-    if swap:
-      self.flip(reg)
-
-# --- qc of qc ------------------------------------------
+  # --- qc of qc ------------------------------------------
   def qc(self, qc_parm: qc, offset=0):
     """Add another full circuit to this circuit."""
 
@@ -563,7 +526,26 @@ class qc:
     self.sub_circuits += 1
     return sub
 
-# --- Debug --------------------------------------------------
+  # --- Debug --------------------------------------------------
+  def stats(self) -> str:
+    return ('Circuit Statistics\n' +
+            '  Qubits: {}\n'.format(self.nbits) +
+            '  Gates : {}\n'.format(self.ir.ngates))
+
+  def dump_with_dumper(self, flag: bool,
+                       dumper_func: Callable[ir.Ir]) -> None:
+    if flag:
+      result = dumper_func(self.ir)
+      with open(flag, 'w') as f:
+        print(result, file=f)
+
+  def dump_to_file(self) -> None:
+    self.dump_with_dumper(flags.FLAGS.libq, dumpers.libq)
+    self.dump_with_dumper(flags.FLAGS.qasm, dumpers.qasm)
+    self.dump_with_dumper(flags.FLAGS.cirq, dumpers.cirq)
+    self.dump_with_dumper(flags.FLAGS.text, dumpers.totext)
+    self.dump_with_dumper(flags.FLAGS.latex, dumpers.latex)
+
   def dump(self, *, desc=None, draw=False, pstate=True):
     """Simple dumper for basic debugging of a circuit."""
 

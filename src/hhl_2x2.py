@@ -218,7 +218,7 @@ def construct_circuit(b, w, u, c, clock_bits=2):
   u_phase = u
   u_phase_gates = []
   for idx in range(clock_bits):
-    qc.ctl_2x2(clock[idx], breg, u_phase)
+    qc.cu(clock[idx], breg, u_phase)
     u_phase_gates.append(u_phase)
     u_phase = u_phase @ u_phase
 
@@ -269,7 +269,7 @@ def construct_circuit(b, w, u, c, clock_bits=2):
 
   # Uncompute state initialization.
   for idx in range(clock_bits-1, -1, -1):
-    qc.ctl_2x2(clock[idx], breg, np.linalg.inv(u_phase_gates[idx]))
+    qc.cu(clock[idx], breg, np.linalg.inv(u_phase_gates[idx]))
 
   # Move clock bits out of Hadamard basis.
   qc.h(clock)
