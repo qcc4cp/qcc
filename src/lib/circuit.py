@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 import itertools
-import random
 import sys
 from typing import Callable, Tuple
 
@@ -119,14 +118,14 @@ class qc:
     except Exception:  # pylint: disable=broad-except
       pass
     self.simple_gates = [
-    ['h', ops.Hadamard()],
-    ['s', ops.Sgate()],
-    ['t', ops.Tgate()],
-    ['v', ops.Vgate()],
-    ['x', ops.PauliX()],
-    ['y', ops.PauliY()],
-    ['z', ops.PauliZ()],
-    ['yroot', ops.Hadamard()],
+        ['h', ops.Hadamard()],
+        ['s', ops.Sgate()],
+        ['t', ops.Tgate()],
+        ['v', ops.Vgate()],
+        ['x', ops.PauliX()],
+        ['y', ops.PauliY()],
+        ['z', ops.PauliZ()],
+        ['yroot', ops.Hadamard()],
     ]
     for gate in self.simple_gates:
       self.add_single(gate[0], gate[1])
@@ -257,7 +256,7 @@ class qc:
     self.applyc(ops.U1(value), idx0, idx1, 'cu1', val=value)
 
   def cu(self, idx0: int, idx1: int, op: ops.Operator, desc: str = None):
-    if not op.shape[0] == 2:
+    if op.shape[0] != 2:
       raise AssertionError('cu only supports 2x2 operators')
     self.applyc(op, idx0, idx1, desc)
 
