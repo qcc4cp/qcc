@@ -73,6 +73,7 @@ To run individual algorithms via `bazel`, run any of these command lines (note t
    bazel run oracle_synth
    bazel run pauli_rep
    bazel run purification
+   bazel run quantum_mean
    bazel run quantum_pca
    bazel run sat3
    bazel run schmidt_decomp
@@ -107,7 +108,7 @@ To run the benchmarks:
 ## Transpilation
 
 To experiment with transpilation, a few things must work together:
-   * Specify a target output. For example, to generate a `libq` C++ file, use `--libq=./test.cc` 
+   * Specify a target output. For example, to generate a `libq` C++ file, use `--libq=./test.cc`
 
    * The code should only contain a single `circuit.qc()`-generated circuit. This circuit will not
      be eagerly executed. Instead, all gates and qubits will be collected in an internal IR.
@@ -115,8 +116,8 @@ To experiment with transpilation, a few things must work together:
    * There must be a single call to `qc.dump_to_file()`. The circuit as that point
      will be transpiled to the target platform (an example of this can be found in
      `order_finding.py`).
-     
-For the given example, the generated file `test.cc` can be compiled and linked with `libq` 
+
+For the given example, the generated file `test.cc` can be compiled and linked with `libq`
 with a command-line similar to this one:
 ```
 $ cd qcc/src
