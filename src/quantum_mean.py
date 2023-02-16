@@ -3,9 +3,11 @@
 
 import random
 from absl import app
+import itertools
 import numpy as np
 
 from src.lib import circuit
+from src.lib import helper
 from src.lib import ops
 
 
@@ -13,8 +15,7 @@ def run_experiment(nbits: int):
   """Run a single mean computation."""
 
   x = [random.randint(0, 10) for _ in range(2 ** nbits)]
-  x_norm = np.linalg.norm(x)
-  xn = x / x_norm
+  xn = x / np.linalg.norm(x)
 
   # Define a unitary which does:
   # $$
@@ -24,34 +25,40 @@ def run_experiment(nbits: int):
   # $$
   # In other words:
   #   |00> -> np.sqrt(1 - a) |000>
-  # Which can be done with a controlled rotations
+  #   |00> -> np.sqrt(a) |001>
+  # Which can be done with a controlled rotations about y by
+  #   2 arcsin(a)
+  # Measuring the state |001| should give the mean. This can be done by
+  # repeated experiments, but we could also use amplitude
+  # estimation (as suggested in the book by Moscha).
   #
   qc = circuit.qc('mean calculator')
-  inp = qc.reg(2, 0)
+  inp = qc.reg(nbits, 0)
+  aux = qc.reg(nbits-1, 0)
   ext = qc.reg(1, 0)
-
-  if nbits > 2:
-    raise AssertionError('Currently only 2 qubits supported.')
 
   # This can be extended to more qubits quite easily.
   # The trick is to control the rotations with the bit
   # patterns of the indices (encoded via qubits) into x.
   qc.h(inp)
-  qc.ccu([0], [1], ext, ops.RotationY(2 * np.arcsin(xn[0])))
-  qc.ccu([0], 1, ext, ops.RotationY(2 * np.arcsin(xn[1])))
-  qc.ccu(0, [1], ext, ops.RotationY(2 * np.arcsin(xn[2])))
-  qc.ccu(0, 1, ext, ops.RotationY(2 * np.arcsin(xn[3])))
+  for bits in itertools.product([0, 1], repeat=nbits):
+    idx = helper.bits2val(bits)
+    # Control-by-zero is indicated with a single-element list.
+    ctl = [i if bit == 1 else [i] for i, bit in enumerate(bits)]
+    qc.multi_control(ctl, ext, aux,
+                     ops.RotationY(2 * np.arcsin(xn[idx])), 'multi-ry')
   qc.h(inp)
 
-  # Index 1 may have to change if other qubits are added.
+  # We 'measure' via peak-a-boo.
   qmean = np.real(qc.psi[1])
-  qclas = np.real(qc.psi[1] * x_norm)
+  qclas = np.real(qc.psi[1] * np.linalg.norm(x))
 
+  # Check results.
   if not np.allclose(np.mean(xn), qmean, atol=0.001):
     raise AssertionError('Incorrect quantum mean computation.')
   if not np.allclose(np.mean(x), qclas, atol=0.001):
     raise AssertionError('Incorrect quantum scaled mean computation.')
-  print(f'  Mean: classic: {np.mean(x):.3f}, quantum: {qclas:.3f}')
+  print(f'  Mean ({nbits} qb): classic: {np.mean(x):.3f}, quantum: {qclas:.3f}')
 
 
 def main(argv):
@@ -59,8 +66,9 @@ def main(argv):
     raise app.UsageError('Too many command-line arguments.')
   print('WIP: Quantum Mean Computation.')
 
-  for _ in range(10):
-    run_experiment(2)
+  for nbits in range(2, 8):
+    run_experiment(nbits)
+    run_experiment(nbits)
 
 
 if __name__ == '__main__':
