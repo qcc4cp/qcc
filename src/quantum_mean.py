@@ -1,9 +1,9 @@
 # python3
 """Example: Quantum Mean Computation."""
 
+import itertools
 import random
 from absl import app
-import itertools
 import numpy as np
 
 from src.lib import circuit
