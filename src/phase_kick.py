@@ -1,5 +1,5 @@
 # python3
-"""Simple test program: Implementation of phase kick."""
+"""Example: Simple test program: Implementation of phase kick."""
 
 from absl import app
 import numpy as np

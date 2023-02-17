@@ -1,5 +1,5 @@
 # python3
-"""Amplitude Estimation."""
+"""Example: Amplitude Estimation."""
 
 import math
 import random

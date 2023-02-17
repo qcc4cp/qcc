@@ -1,5 +1,5 @@
 # python3
-"""Purification."""
+"""Example: Purification."""
 
 
 # State purification is the complement to Schmidt decomposition.

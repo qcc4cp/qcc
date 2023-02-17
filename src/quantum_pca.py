@@ -1,5 +1,5 @@
 # python3
-"""Quantum Principal Component Analysis (PCA)."""
+"""Example: Quantum Principal Component Analysis (PCA)."""
 
 
 # This PCA data set and implementation is from this paper:

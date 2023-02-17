@@ -37,7 +37,6 @@ def run_experiment(nbits: int):
   aux = qc.reg(nbits-1, 0)
   ext = qc.reg(1, 0)
 
-  # This can be extended to more qubits quite easily.
   # The trick is to control the rotations with the bit
   # patterns of the indices (encoded via qubits) into x.
   qc.h(inp)

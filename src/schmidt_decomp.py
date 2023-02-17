@@ -1,5 +1,5 @@
 # python3
-"""Schmidt Decomposition."""
+"""Example: Schmidt Decomposition."""
 
 
 import random
