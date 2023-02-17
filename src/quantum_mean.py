@@ -1,9 +1,9 @@
 # python3
 """Example: Quantum Mean Computation."""
 
+import itertools
 import random
 from absl import app
-import itertools
 import numpy as np
 
 from src.lib import circuit
@@ -37,7 +37,6 @@ def run_experiment(nbits: int):
   aux = qc.reg(nbits-1, 0)  # Aux qubits for the multi-controlled gates
   ext = qc.reg(1, 0)  # Target 'extra' qubit
 
-  # This can be extended to more qubits quite easily.
   # The trick is to control the rotations with the bit
   # patterns of the indices (encoded via qubits) into x.
   qc.h(inp)

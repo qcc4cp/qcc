@@ -1,5 +1,5 @@
 # python3
-"""CHSH implementation and measurement."""
+"""Example: CHSH implementation and measurement."""
 
 import random
 

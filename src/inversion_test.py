@@ -1,5 +1,5 @@
 # python3
-"""Inversion Test to estimate dot product between two states."""
+"""Example: Inversion Test to estimate dot product between two states."""
 
 from absl import app
 import numpy as np

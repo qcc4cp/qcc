@@ -1,5 +1,5 @@
 # python3
-"""Spectral Decomposition."""
+"""Example: Spectral Decomposition."""
 
 from absl import app
 import numpy as np

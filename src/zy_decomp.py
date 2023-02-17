@@ -1,5 +1,5 @@
 # python3
-"""Z-Y dcomposition of a unitary U."""
+"""Example: Z-Y dcomposition of a unitary U."""
 
 import cmath
 

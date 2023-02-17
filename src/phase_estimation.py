@@ -1,5 +1,5 @@
 # python3
-"""Phase Estimation, following Nielsen/Chuang Section 5.2."""
+"""Example: Phase Estimation, following Nielsen/Chuang Section 5.2."""
 
 # The terms "phase estimation" and "eigenvalue estimation" are
 # often used interchangably.

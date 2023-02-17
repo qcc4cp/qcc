@@ -1,5 +1,5 @@
 # python3
-"""Hadamard Test for two states."""
+"""Example: Hadamard Test for two states."""
 
 import cmath
 

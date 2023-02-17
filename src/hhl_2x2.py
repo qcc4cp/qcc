@@ -1,5 +1,5 @@
 # python3
-"""HHL algorithm."""
+"""Example: HHL algorithm on 2x2 matrices."""
 
 # HLL is an ADVANCED ALGORIHM. For study it is recommended
 # to first become proficient with these key concepts:

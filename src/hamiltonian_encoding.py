@@ -1,5 +1,5 @@
 # python3
-"""Hamiltonian encoding and evolution. A few experiments."""
+"""Example: Hamiltonian encoding and evolution. A few experiments."""
 
 import random
 from absl import app
