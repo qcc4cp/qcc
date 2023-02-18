@@ -283,6 +283,16 @@ py_binary(
 )
 
 py_binary(
+    name = "quantum_median",
+    srcs = ["quantum_median.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)
+
+py_binary(
     name = "quantum_pca",
     srcs = ["quantum_pca.py"],
     python_version = "PY3",
