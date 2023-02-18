@@ -67,7 +67,6 @@ def main(argv):
 
   for nbits in range(2, 8):
     run_experiment(nbits)
-    run_experiment(nbits)
 
 
 if __name__ == '__main__':

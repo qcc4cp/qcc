@@ -4,7 +4,7 @@ This is the open-source repository for the book [Quantum Computing for Programme
 
 To get started quickly on the Python sources, you may find the [Quickstart Guide](https://github.com/qcc4cp/qcc/blob/main/resources/quickstart.md) helpful.
 
-This project builds vendor-independent infrastructure from the ground up and implements standard algorithms, such as Quantum Teleportation, Superdense coding, Deutsch-Jozsa, Bernstein-Vazirani, Quantum Phase estimation (QPE), Grover's Search (with application to Quantum counting, amplitude estimation, 3SAT, Graph Coloring, and Minimum finding), Quantum random walks, VQE, Max-Cut, Subset-Sum, Quantum Fourier Transform (QFT), Shor's integer factorization, Solovay-Kitaev, Principal Component Analysis, and a few more. It also implements high performance quantum simulation and a transpilation technique to compile circuits to other infrastructures, such as Qiskit or Cirq.
+This project builds vendor-independent infrastructure from the ground up and implements standard algorithms, such as Quantum Teleportation, Superdense coding, Deutsch-Jozsa, Bernstein-Vazirani, Quantum Phase estimation (QPE), Grover's Search (with application to Quantum counting, amplitude estimation, Mean and Median estimation, 3SAT, Graph Coloring, and Minimum finding), Quantum random walks, VQE, Max-Cut, Subset-Sum, Quantum Fourier Transform (QFT), Shor's integer factorization, Solovay-Kitaev, Principal Component Analysis, and a few more. It also implements high performance quantum simulation and a transpilation technique to compile circuits to other infrastructures, such as Qiskit or Cirq.
 
 The code is organized as follows:
 *  `src` is the main source directory. All algorithms are in this directory.
@@ -74,6 +74,7 @@ To run individual algorithms via `bazel`, run any of these command lines (note t
    bazel run pauli_rep
    bazel run purification
    bazel run quantum_mean
+   bazel run quantum_median   
    bazel run quantum_pca
    bazel run sat3
    bazel run schmidt_decomp
