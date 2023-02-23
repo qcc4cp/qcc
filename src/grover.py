@@ -25,11 +25,8 @@ def make_f1(d: int = 3):
   answers = np.zeros(1 << d, dtype=np.int8)
   answer_true = np.random.randint(0, 1 << d)
   answers[answer_true] = 1
-
-  def func(*bits: Tuple[int]) -> int:
-    return answers[helper.bits2val(*bits)]
-
-  return func, helper.val2bits(answer_true, d)
+  return (lambda bits: answers[helper.bits2val(bits)],
+          helper.val2bits(answer_true, d))
 
 
 def make_f(d: int = 3, nsolutions: int = 1):
@@ -38,13 +35,7 @@ def make_f(d: int = 3, nsolutions: int = 1):
   answers = np.zeros(1 << d, dtype=np.int8)
   solutions = random.sample(range(1 << d), nsolutions)
   answers[solutions] = 1
-
-  # The actual function just returns an array element.
-  def func(*bits):
-    return answers[helper.bits2val(*bits)]
-
-  # Return the function we just made.
-  return func
+  return lambda bits: answers[helper.bits2val(bits)]
 
 
 def run_experiment(nbits: int, solutions: int) -> None:
