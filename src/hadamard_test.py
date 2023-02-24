@@ -118,7 +118,7 @@ def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  iterations = 100
+  iterations = 1000
   print(f'Perform {iterations} random hadamard tests.')
 
   for _ in range(iterations):

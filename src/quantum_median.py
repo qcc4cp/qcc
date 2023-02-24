@@ -69,7 +69,7 @@ def run_experiment(nbits: int):
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
-  print('WIP: Classic Sim of Quantum Median Computation.')
+  print('Classic Sim of Quantum Median Computation.')
 
   for nbits in range(10):
     run_experiment(10)
