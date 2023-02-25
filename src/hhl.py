@@ -59,7 +59,6 @@ def compute_sorted_eigenvalues(a):
   # a Hermitian A:
   #   Eigenvalues are real (that's why a Hamiltonian must be Hermitian)
   w = np.real(w)
-  print(w, v)
   return w, v
 
 
