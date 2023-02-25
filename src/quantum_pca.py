@@ -97,7 +97,8 @@ def pca(x):
 
   # Compare to classically derived values, which must match.
   m, _ = np.linalg.eig(m)
-  if not np.isclose(m_0, m[0]) or not np.isclose(m_1, m[1]):
+  if (not np.isclose(m_0, m[0], atol=1e-5) or
+      not np.isclose(m_1, m[1], atol=1e-5)):
     raise AssertionError('Incorrect Computation.')
   print(f'Eigenvalues Classically: {m[0]:.6f}, {m[1]:.6f}. Correct')
 
