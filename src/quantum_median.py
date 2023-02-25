@@ -61,7 +61,8 @@ def run_experiment(nbits: int):
       median = idx
 
   # Print and check results, we allow for a 1% deviation.
-  print(f'  Median ({nbits} qb): classic: {np.mean(x):.3f}, quantum: {x[median]:.3f}')
+  print(f' Median ({nbits} qb): Classic: {np.mean(x):.3f},'
+        f' Quantum: {x[median]:.3f}')
   if max(np.mean(x), x[median]) / min(np.mean(x), x[median]) > 1.01:
     raise AssertionError('Incorrect mean computation.')
 
@@ -71,8 +72,8 @@ def main(argv):
     raise app.UsageError('Too many command-line arguments.')
   print('Classic Sim of Quantum Median Computation.')
 
-  for nbits in range(10):
-    run_experiment(10)
+  for _ in range(10):
+    run_experiment(nbits=10)
 
 
 if __name__ == '__main__':
