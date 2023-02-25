@@ -3,7 +3,7 @@
 
 import math
 import random
-from typing import List, Tuple
+from typing import List
 
 from absl import app
 import numpy as np
