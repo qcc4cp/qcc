@@ -3,9 +3,9 @@
 
 # HLL is an ADVANCED ALGORIHM. For study it is recommended
 # to first become proficient with these key concepts:
-#   basis changes
-#   phase estimation
-#   quantum Fourier transformation
+#   Basis changes
+#   Phase estimation
+#   Quantum Fourier transformation
 #   Hamiltonian simulation
 #
 # This version (compared to hhl_2x2.py) is more general and
@@ -50,7 +50,7 @@ def compute_sorted_eigenvalues(a):
   # Eigenvalue/vector computation.
   w, v = np.linalg.eig(a)
 
-  # We sort the eigenvalues and eigenvectors (also to match the paper).
+  # Sort the eigenvalues and eigenvectors.
   idx = w.argsort()
   w = w[idx]
   v = v[:, idx]
@@ -59,6 +59,7 @@ def compute_sorted_eigenvalues(a):
   # a Hermitian A:
   #   Eigenvalues are real (that's why a Hamiltonian must be Hermitian)
   w = np.real(w)
+  print(w, v)
   return w, v
 
 
@@ -74,7 +75,7 @@ def compute_u_matrix(a, w, v, t):
 
   # Both U and U^2 are in the eigenvector basis of A. To convert these
   # operators to the computational basis we apply the similarity
-  # transformations:
+  # transformation:
   u = v @ u @ v.transpose().conj()
   return u
 
