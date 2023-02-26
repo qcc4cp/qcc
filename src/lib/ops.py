@@ -417,6 +417,17 @@ def Qft(nbits: int, swap: bool = True) -> Operator:
   return op
 
 
+def PhaseEstimation(op: Operator, psi: state.State,
+                    nbits_phase: int, target: int, offset: int = 0):
+  """Apply phase estimation."""
+
+  cu = op
+  for inv in range(nbits_phase - 1, -1, -1):
+    psi = ControlledU(inv + offset, target, cu)(psi, inv + offset)
+    cu = cu(cu)
+  return psi
+
+
 # Trace out a qubit from a density matrix and return the
 # remaining density matrix.
 #
