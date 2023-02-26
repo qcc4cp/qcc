@@ -52,8 +52,7 @@ def run_experiment(nbits_phase: int,
   psi = state.zeros(nbits_phase + nbits_grover) * state.ones(1)
 
   # Apply Hadamard to all the qubits.
-  for i in range(nbits_phase + nbits_grover + 1):
-    psi.apply1(ops.Hadamard(), i)
+  psi = ops.Hadamard(nbits_phase + nbits_grover + 1)(psi)
 
   # Construct the Grover operator. First phase invesion via Oracle.
   f = make_f(nbits_grover, solutions)
@@ -82,7 +81,7 @@ def run_experiment(nbits_phase: int,
   maxbits, _ = psi.maxprob()
   ampl = np.sin(np.pi * helper.bits2frac(maxbits))
 
-  print('  AE: {:.4f} prob: {:6.2f}% {}/{} solutions ({})'
+  print('  AE: ampl: {:.2f} prob: {:5.1f}% {}/{} solutions ({})'
         .format(ampl, ampl * ampl * 100, len(solutions),
                 1 << nbits_grover, solutions))
   return ampl
@@ -95,23 +94,21 @@ def main(argv):
 
   print('Algorithm: Hadamard (equal superposition)')
   algorithm = ops.Hadamard(3)
-
-  for nsolutions in range(5):
+  for nsolutions in range(9):
     ampl = run_experiment(7, 3, algorithm,
-                          random.sample(range(2**3-1), nsolutions))
+                          random.sample(range(2**3), nsolutions))
     if not math.isclose(ampl, np.sqrt(nsolutions / 2**3), abs_tol=0.03):
       raise AssertionError('Incorrect AE.')
 
   # Make a somewhat random algorithm (and state)
   print('Algorithm: Random (unequal superposition), single solution')
   i1 = ops.Identity(1)
-  i2 = ops.Identity(2)
   algorithm = (ops.Hadamard(3) @
-               (ops.RotationY(random.random()/2) * i2) @
+               (ops.RotationY(random.random()/2) * i1 * i1) @
                (i1 * ops.RotationY(random.random()/2) * i1) @
-               (i2 * ops.RotationY(random.random()/2)))
+               (i1 * i1 * ops.RotationY(random.random()/2)))
   psi = algorithm(state.zeros(3))
-
+  psi.dump()
   for i in range(len(psi)):
     ampl = run_experiment(7, 3, algorithm, [i])
 
