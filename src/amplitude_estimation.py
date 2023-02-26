@@ -104,10 +104,12 @@ def main(argv):
 
   # Make a somewhat random algorithm (and state)
   print('Algorithm: Random (unequal superposition), single solution')
+  i1 = ops.Identity(1)
+  i2 = ops.Identity(2)
   algorithm = (ops.Hadamard(3) @
-               (ops.RotationY(random.random()/2) * ops.Identity(2)) @
-               (ops.Identity(1) * ops.RotationY(0.2) * ops.Identity(1)) @
-               (ops.Identity(2) * ops.RotationY(random.random()/2)))
+               (ops.RotationY(random.random()/2) * i2) @
+               (i1 * ops.RotationY(random.random()/2) * i1) @
+               (i2 * ops.RotationY(random.random()/2)))
   psi = algorithm(state.zeros(3))
 
   for i in range(len(psi)):
