@@ -48,7 +48,7 @@ def run_experiment(nbits: int):
                      ops.RotationY(2 * np.arcsin(xn[idx])), 'multi-ry')
   qc.h(inp)
 
-  # We 'measure' via peak-a-boo.
+  # We 'measure' via peak-a-boo of state |00...001>
   qmean = np.real(qc.psi[1])
   qclas = np.real(qc.psi[1] * np.linalg.norm(x))
 
@@ -67,7 +67,6 @@ def main(argv):
 
   for nbits in range(2, 8):
     run_experiment(nbits)
-
 
 if __name__ == '__main__':
   np.set_printoptions(precision=4)
