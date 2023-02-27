@@ -10,7 +10,7 @@
 #
 # This version (compared to hhl_2x2.py) is more general and
 # extended to support 4x4 matrices as well. The numerical
-# comparisons to a reference numerical example have been removed.
+# comparisons to the reference numerical example have been removed.
 
 from absl import app
 import numpy as np
@@ -38,7 +38,7 @@ def check_results(qc, a, b):
                    for j in range(1, len(res))]
 
   for idx, ratio in enumerate(ratio_quantum):
-    delta = ratio-ratio_classical[idx]
+    delta = ratio - ratio_classical[idx]
     print(f'Quantum ratio: {ratio:6.3f}, delta: {delta:+5.3f}')
     if delta > 0.05:
       raise AssertionError('Incorrect result.')
@@ -65,8 +65,8 @@ def compute_sorted_eigenvalues(a):
 def compute_u_matrix(a, w, v, t):
   """Compute the U matrix."""
 
-  # Compute the matrices U an U^2 from A via:
-  #   U = exp(i * A * t) (^2)
+  # Compute the matrices U (and U^n) from A via:
+  #   U = exp(i * A * t) (^n)
   # Since U is diagonal:
   u = ops.Operator(np.zeros((a.shape[0], a.shape[1]), dtype=np.complex64))
   for i in range(a.shape[0]):
@@ -85,8 +85,8 @@ def compute_angles(w, c):
   # This method is not fully general (yet). It is minimal
   # and handles the simple cases used in the example,
   # such as eigenvalues of 1, 2, 3, 4, and 8.
-
-  # We know that theta = 2 arcsin(1/lam_j)
+  #
+  # We know that theta = 2 arcsin(1/lam_j):
   unis = np.unique(w)
   angles = [2 * np.arcsin(c / eigen) for eigen in unis]
   if int(np.round(w[1])) & 1 == 1:
@@ -97,32 +97,34 @@ def compute_angles(w, c):
 def construct_circuit(b, w, u, c, clock_bits):
   """Construct a circuit for the given paramters."""
 
-  qc = circuit.qc('hhl', eager=True)
+  qc = circuit.qc('hhl')
 
   # State preparation - just initialize the b register.
   breg = qc.state(b)
   clock = qc.reg(clock_bits, 0)
   anc = qc.reg(1, 0)
 
-  # Phase estimation to bring the eigenvalues into the clock register.
+  # Move clock bits into Hadamard basis.
   qc.h(clock)
+
+  # Phase estimation to bring the eigenvalues into the clock register.
   u_phase = u
-  u_phase_gates = []
+  u_phase_inv_gates = []
   for idx in range(clock_bits):
-    op = ops.ControlledU(clock[idx], breg[breg.size-1], u_phase)
+    op = ops.ControlledU(clock[idx], breg[breg.size - 1], u_phase)
     qc.unitary(op, breg[0])
-    u_phase_gates.append(u_phase)
+    u_phase_inv_gates.append(np.linalg.inv(u_phase))
     u_phase = u_phase @ u_phase
 
   # Inverse QFT. After this, the eigenvalues will be in the clock register.
   qc.inverse_qft(clock, True)
 
-  # Conditional rotations.
+  # Conditional rotations to compute inverse eigenvalues.
   angles = compute_angles(w, c)
   for idx, angle in enumerate(angles):
     qc.cry(clock[idx], anc, angle)
 
-  # Measure (and force) ancilla to be |1>.
+  # Measure (and force) ancilla to state |1>.
   qc.measure_bit(anc[0], 1, collapse=True)
 
   # QFT
@@ -130,8 +132,8 @@ def construct_circuit(b, w, u, c, clock_bits):
 
   # Uncompute.
   for idx in range(clock_bits-1, -1, -1):
-    op = ops.ControlledU(clock[idx], breg[breg.size-1],
-                         np.linalg.inv(u_phase_gates[idx]))
+    op = ops.ControlledU(clock[idx], breg[breg.size - 1],
+                         u_phase_inv_gates[idx])
     qc.unitary(op, breg[0])
 
   # Move clock bits out of Hadamard basis.
@@ -152,11 +154,12 @@ def run_experiment(a, b, clock_bits):
   # Compute eigenvalue/vectors.
   w, v = compute_sorted_eigenvalues(a)
 
-  # We also know that:
+  # We know that:
   #   lam_i = (N * w[j] * t) / (2 * np.pi)
+  #
   # We want lam_i to be integers, so we compute 't' as:
   #   t = lam[0] / N / w[1] * 2 * np.pi
-  n = 2**clock_bits
+  n = 2 ** clock_bits
   t = 2 * np.pi / w[0] / n
 
   # With 't' we can now compute the integer eigenvalues:
