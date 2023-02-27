@@ -17,7 +17,7 @@ from src.lib import state
 #
 # In counting, we have a state in equal superposition
 # (achieved via Hadamard^\otimes(nbits) where some of the states
-# are 'good' and the rest are 'bad.
+# are 'good' (solutions) and the rest are 'bad' (non-solutions).
 #
 # In the general case, the probabilities for each state can be
 # different. A general algorithm A generates a state. Then, similar
@@ -39,7 +39,7 @@ def make_f(nbits: int, solutions: List[int]):
 def run_experiment(nbits_phase: int,
                    nbits_grover: int,
                    algo: ops.Operator,
-                   solutions: List[int]) -> None:
+                   solutions: List[int]) -> float:
   """Run full experiment for a given A and set of solutions."""
 
   # The state for the AE algorithm.
@@ -72,7 +72,7 @@ def run_experiment(nbits_phase: int,
   # Reverse QFT gives us the phase as a fraction of 2*pi.
   psi = ops.Qft(nbits_phase).adjoint()(psi)
 
-  # Get the state with highest probability and estimate a phase
+  # Get the state with highest probability and estimate a phase.
   maxbits, _ = psi.maxprob()
   ampl = np.sin(np.pi * helper.bits2frac(maxbits[:nbits_phase]))
 
@@ -87,15 +87,16 @@ def main(argv):
     raise app.UsageError('Too many command-line arguments.')
   print('Amplitude Estimation...')
 
+  # Equal superposition.
   print('Algorithm: Hadamard (equal superposition)')
   algorithm = ops.Hadamard(3)
   for nsolutions in range(9):
     ampl = run_experiment(7, 3, algorithm,
                           random.sample(range(2**3), nsolutions))
-#    if not math.isclose(ampl, np.sqrt(nsolutions / 2**3), abs_tol=0.03):
-#      raise AssertionError('Incorrect AE.')
+    if not math.isclose(ampl, np.sqrt(nsolutions / 2**3), abs_tol=1e-2):
+      raise AssertionError('Incorrect AE.')
 
-  # Make a somewhat random algorithm (and state)
+  # Make a somewhat random algorithm (and state).
   print('Algorithm: Random (unequal superposition), single solution')
   i1 = ops.Identity(1)
   algorithm = (ops.Hadamard(3) @
@@ -103,13 +104,18 @@ def main(argv):
                (i1 * ops.RotationY(random.random()/2) * i1) @
                (i1 * i1 * ops.RotationY(random.random()/2)))
   psi = algorithm(state.zeros(3))
-  psi.dump()
   for i in range(len(psi)):
     ampl = run_experiment(7, 3, algorithm, [i])
+    if not np.allclose(ampl, psi[i], atol=0.02):
+      raise AssertionError('Incorrect AE.')
 
+  # Accumulative amplitude computation.
   print('Algorithm: Random (unequal superposition), multiple solutions')
   for i in range(len(psi)+1):
     ampl = run_experiment(7, 3, algorithm, [i for i in range(i)])
+    if not np.allclose(ampl, np.sqrt(sum([p*p.conj() for p in psi[0:i]])),
+                                     atol=0.01):
+      raise AssertionError('Incorrect AE.')
 
 
 if __name__ == '__main__':
