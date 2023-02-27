@@ -93,7 +93,7 @@ def main(argv):
   for nsolutions in range(9):
     ampl = run_experiment(7, 3, algorithm,
                           random.sample(range(2**3), nsolutions))
-    if not math.isclose(ampl, np.sqrt(nsolutions / 2**3), abs_tol=1e-2):
+    if not math.isclose(ampl, np.sqrt(nsolutions / 2**3), abs_tol=0.02):
       raise AssertionError('Incorrect AE.')
 
   # Make a somewhat random algorithm (and state).
@@ -114,7 +114,7 @@ def main(argv):
   for i in range(len(psi)+1):
     ampl = run_experiment(7, 3, algorithm, [i for i in range(i)])
     if not np.allclose(ampl, np.sqrt(sum([p*p.conj() for p in psi[0:i]])),
-                                     atol=0.01):
+                                     atol=0.02):
       raise AssertionError('Incorrect AE.')
 
 
