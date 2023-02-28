@@ -34,7 +34,7 @@ def check_results(qc, a, b):
 
   ratio_classical = check_classic_solution(a, b)
   res = (np.abs(qc.psi) > 0.04).nonzero()[0]
-  ratio_quantum = [np.real(qc.psi[res[j]]**2 / qc.psi[res[0]]**2)
+  ratio_quantum = [np.real(qc.psi[res[j]] ** 2 / qc.psi[res[0]] ** 2)
                    for j in range(1, len(res))]
 
   for idx, ratio in enumerate(ratio_quantum):
@@ -131,7 +131,7 @@ def construct_circuit(b, w, u, c, clock_bits):
   qc.qft(clock, True)
 
   # Uncompute.
-  for idx in range(clock_bits-1, -1, -1):
+  for idx in range(clock_bits - 1, -1, -1):
     op = ops.ControlledU(clock[idx], breg[breg.size - 1],
                          u_phase_inv_gates[idx])
     qc.unitary(op, breg[0])
@@ -159,7 +159,7 @@ def run_experiment(a, b, clock_bits):
   #
   # We want lam_i to be integers, so we compute 't' as:
   #   t = lam[0] / N / w[1] * 2 * np.pi
-  n = 2 ** clock_bits
+  n = 2**clock_bits
   t = 2 * np.pi / w[0] / n
 
   # With 't' we can now compute the integer eigenvalues:
@@ -185,7 +185,7 @@ def main(argv):
 
   print('General HHL Algorithm...')
 
-  a = ops.Operator(np.array([[3/5, -1/5], [-1/5, 3/5]]))
+  a = ops.Operator(np.array([[3 / 5, -1 / 5], [-1 / 5, 3 / 5]]))
   b = ops.Operator(np.array([1, 0]))
   run_experiment(a, b, clock_bits=4)
 
