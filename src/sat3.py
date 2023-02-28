@@ -165,7 +165,7 @@ def grover_with_oracle(nbits: int, clauses: int, solutions: int):
 
   hn = ops.Hadamard(nbits)
   f = make_f(nbits, formula)
-  uf = ops.OracleUf(nbits+1, f)
+  uf = ops.OracleUf(nbits + 1, f)
   op_zero = ops.ZeroProjector(nbits)
   reflection = op_zero * 2.0 - ops.Identity(nbits)
   inversion = hn(reflection(hn)) * ops.Identity()
@@ -188,8 +188,7 @@ def diffuser(qc: circuit.qc, reg, checker, aux):
 
   qc.h(reg)
   qc.x(reg)
-  qc.multi_control(reg, checker,
-                   aux, ops.PauliX(), 'Diffuser Gate')
+  qc.multi_control(reg, checker, aux, ops.PauliX(), 'Diffuser Gate')
   qc.x(reg)
   qc.h(reg)
 
@@ -291,7 +290,7 @@ def grover_with_circuit(variables: int = 3):
   qc = circuit.qc('Outer')
   reg = qc.reg(variables, 0)
   aux = qc.reg(variables, 0)  # can be optimized away.
-  w = qc.reg(variables-1, 0)
+  w = qc.reg(variables - 1, 0)
   chk = qc.reg(1, 0)[0]
 
   # Equal superposition.
@@ -316,13 +315,13 @@ def grover_with_circuit(variables: int = 3):
     #
     cc.toffoli(aux[0], aux[1], w[0])
     for idx in range(2, variables):
-      cc.toffoli(aux[idx], w[idx-2], w[idx-1])
+      cc.toffoli(aux[idx], w[idx - 2], w[idx - 1])
 
     # Add and execute the sub-circuit.
     qc.qc(cc)
 
     # Phase inversion - connect the result to the chk qubit.
-    qc.cx(w[idx-1], chk)
+    qc.cx(w[idx - 1], chk)
 
     # Uncompute the sub-circuit.
     qc.qc(cc.inverse())
