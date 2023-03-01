@@ -105,8 +105,7 @@ def run_experiment(flavor: int) -> None:
 
   p0, _ = ops.Measure(psi, 0, tostate=0, collapse=False)
 
-  print('f(0) = {:.0f} f(1) = {:.0f}'
-        .format(f(0), f(1)), end='')
+  print('f(0) = {:.0f} f(1) = {:.0f}'.format(f(0), f(1)), end='')
   if math.isclose(p0, 0.0, abs_tol=1e-5):
     print('  balanced')
     if flavor == 0 or flavor == 3:

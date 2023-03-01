@@ -25,7 +25,7 @@ def make_f(dim: int = 1,
   if flavor == exp_constant:
     bits[:] = int(np.random.random() < 0.5)
   else:
-    bits[np.random.choice(power2, size=power2//2, replace=False)] = 1
+    bits[np.random.choice(power2, size=power2 // 2, replace=False)] = 1
 
   # In this generalization of single-bit Deutsch, the f function
   # accepts a string of bits. We compute an index from this
