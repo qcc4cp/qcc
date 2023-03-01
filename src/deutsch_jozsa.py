@@ -44,13 +44,13 @@ def make_f(dim: int = 1,
 def run_experiment(nbits: int, flavor: str):
   """Run full experiment for a given flavor of f()."""
 
-  f = make_f(nbits-1, flavor)
+  f = make_f(nbits - 1, flavor)
   u = ops.OracleUf(nbits, f)
 
-  psi = (ops.Hadamard(nbits-1)(state.zeros(nbits-1)) *
+  psi = (ops.Hadamard(nbits - 1)(state.zeros(nbits - 1)) *
          ops.Hadamard()(state.ones(1)))
   psi = u(psi)
-  psi = (ops.Hadamard(nbits-1) * ops.Identity(1))(psi)
+  psi = (ops.Hadamard(nbits - 1) * ops.Identity(1))(psi)
 
   # Measure all of |0>. If all close to 1.0, f() is constant.
   for idx in range(nbits - 1):
