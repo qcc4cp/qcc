@@ -21,7 +21,7 @@ def run_experiment(a, b):
     return
   normed_a = a / norm_a
   normed_b = b / norm_b
-  z = (norm_a ** 2) + (norm_b ** 2)
+  z = (norm_a**2) + (norm_b**2)
 
   # Create state phi:
   #  |phi> = 1 / sqrt(z) (||a|| |0> - ||b|| |1>)

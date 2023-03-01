@@ -29,8 +29,7 @@ from src.lib import state
 #
 
 
-def check_result(nbits: int, c: Tuple[bool, ...],
-                 psi: state.State) -> None:
+def check_result(nbits: int, c: Tuple[bool, ...], psi: state.State) -> None:
   """Check expected vs achieved results."""
 
   print(f'Expected: {c}')
@@ -40,8 +39,7 @@ def check_result(nbits: int, c: Tuple[bool, ...],
   #
   for bits in helper.bitprod(nbits):
     if psi.prob(*bits) > 0.1:
-      print('Found   : {} = {:.1f}'
-            .format(bits[:-1], psi.prob(*bits)))
+      print('Found   : {} = {:.1f}'.format(bits[:-1], psi.prob(*bits)))
       if bits[:-1] != c:
         raise AssertionError('invalid result')
 
@@ -50,7 +48,7 @@ def make_c(nbits: int) -> Tuple[bool, ...]:
   """Make a random constant c from {0,1}, the c we try to find."""
 
   constant_c = [False] * nbits
-  for idx in range(nbits-1):
+  for idx in range(nbits - 1):
     constant_c[idx] = bool(np.random.random() < 0.5)
   return tuple(constant_c)
 
@@ -68,9 +66,9 @@ def make_u(nbits: int, constant_c: Tuple[bool, ...]) -> ops.Operator:
   # |1> --- H --- X - X ---
   #
   op = ops.Identity(nbits)
-  for idx in range(nbits-1):
+  for idx in range(nbits - 1):
     if constant_c[idx]:
-      op = ops.Identity(idx) * ops.Cnot(idx, nbits-1) @ op
+      op = ops.Identity(idx) * ops.Cnot(idx, nbits - 1) @ op
 
       # Note that the |+> basis, a cnot is the same as a single Z-gate.
       # This would also work:
@@ -85,10 +83,10 @@ def make_u(nbits: int, constant_c: Tuple[bool, ...]) -> ops.Operator:
 def run_experiment(nbits: int) -> None:
   """Run full experiment for a given number of bits."""
 
-  c = make_c(nbits-1)
+  c = make_c(nbits - 1)
   u = make_u(nbits, c)
 
-  psi = state.zeros(nbits-1) * state.ones(1)
+  psi = state.zeros(nbits - 1) * state.ones(1)
   psi = ops.Hadamard(nbits)(psi)
   psi = u(psi)
   psi = ops.Hadamard(nbits)(psi)
@@ -102,23 +100,23 @@ def run_experiment(nbits: int) -> None:
 def make_oracle_f(c: Tuple[bool, ...]) -> ops.Operator:
   """Return a function computing the dot product mod 2 of bits, c."""
 
-  const_c = c
   def f(bit_string: Tuple[int]) -> int:
     val = 0
     for idx, v in enumerate(bit_string):
-      val += const_c[idx] * v
+      val += c[idx] * v
     return val % 2
+
   return f
 
 
 def run_oracle_experiment(nbits: int) -> None:
   """Run full experiment for a given number of bits."""
 
-  c = make_c(nbits-1)
+  c = make_c(nbits - 1)
   f = make_oracle_f(c)
   u = ops.OracleUf(nbits, f)
 
-  psi = state.zeros(nbits-1) * state.ones(1)
+  psi = state.zeros(nbits - 1) * state.ones(1)
   psi = ops.Hadamard(nbits)(psi)
   psi = u(psi)
   psi = ops.Hadamard(nbits)(psi)
