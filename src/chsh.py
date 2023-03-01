@@ -70,7 +70,7 @@ def measure(psi: state.State):
   r = random.random() - 0.001
   total = 0
   for i in range(len(psi)):
-    total += (psi[i]*psi[i].conj())
+    total += (psi[i] * psi[i].conj())
     if r < total:
       psi = helper.val2bits(i, 2)
       return psi[0], psi[1]
@@ -121,8 +121,10 @@ def main(argv):
   for i in range(0, 66, 2):
     percent = run_experiments(500, inc_angle * i)
     s = '(opt)' if i == 16 else ''
-    print(f'{i:2d} * Pi/64 = {inc_angle * i:.2f}: winning: {percent:5.2f}% ' +
-          f'{"#" * int(percent/3)}{s}')
+    print(
+        f'{i:2d} * Pi/64 = {inc_angle * i:.2f}: winning: {percent:5.2f}% '
+        f'{"#" * int(percent/3)}{s}'
+    )
 
 
 if __name__ == '__main__':

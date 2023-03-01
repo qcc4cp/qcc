@@ -35,8 +35,7 @@ def make_f(d: int = 3, nsolutions: int = 1):
   return lambda bits: answers[helper.bits2val(bits)]
 
 
-def run_experiment(nbits_phase: int, nbits_grover: int,
-                   solutions: int) -> None:
+def run_experiment(nbits_phase: int, nbits_grover: int, solutions: int) -> None:
   """Run full experiment for a given number of solutions."""
 
   # The state for the counting algorithm.
@@ -48,7 +47,7 @@ def run_experiment(nbits_phase: int, nbits_grover: int,
   #
   # We also add the |1> for the oracle.
   #
-  psi = (state.zeros(nbits_phase + nbits_grover) * state.ones(1))
+  psi = state.zeros(nbits_phase + nbits_grover) * state.ones(1)
 
   # Apply Hadamard to all the qubits.
   for i in range(nbits_phase + nbits_grover + 1):
@@ -92,10 +91,12 @@ def run_experiment(nbits_phase: int, nbits_grover: int,
   # Hence we can compute M. We keep the result to 2 digit to visualize
   # the errors. Note that the phi_estimate is a fraction of 2*PI, hence
   # the 1/2 in above formula cancels out against the 2 and we compute:
-  m = round(2**nbits_grover * math.sin(phi_estimate * math.pi)**2, 2)
+  m = round(2**nbits_grover * math.sin(phi_estimate * math.pi) ** 2, 2)
 
-  print('Estimate: {:.4f} prob: {:5.2f}% --> m: {:5.2f}, want: {:2d}'
-        .format(phi_estimate, maxprob * 100.0, m, solutions))
+  print(
+      f'Estimate: {phi_estimate:.4f} prob: {maxprob:5.2f}% '
+      f'--> m: {maxprob * 100.0:5.2f}, want: {solutions:2d}'
+  )
 
 
 def main(argv):
