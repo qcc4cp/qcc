@@ -51,7 +51,7 @@ def spectral_decomp(ndim: int):
   # Check that the eigenvectors are orthogonal.
   #
   for i in range(ndim):
-    for j in range(i+1, ndim):
+    for j in range(i + 1, ndim):
       dot = np.dot(v[:, i], v[:, j].adjoint())
       if not np.allclose(dot, 0.0, atol=1e-5):
         raise AssertionError('Invalid, non-orthogonal basis found')
@@ -71,7 +71,7 @@ def spectral_decomp(ndim: int):
   for i in range(ndim):
     x = x + w[i] * np.outer(v[:, i], v[:, i].adjoint())
   if not np.allclose(hmat, x, atol=1e-5):
-    raise AssertionError('Spectral decomp doesn\'t seem to work.')
+    raise AssertionError("Spectral decomp doesn't seem to work.")
 
   # Can we use this elegant spectral decomposition to compute the
   # the inverse of a matrix?
@@ -83,7 +83,7 @@ def spectral_decomp(ndim: int):
   for i in range(ndim):
     x = x + 1 / w[i] * np.outer(v[:, i], v[:, i].adjoint())
   if not np.allclose(np.linalg.inv(hmat), x, atol=1e-5):
-    raise AssertionError('Inverse computation doesn\'t seem to work.')
+    raise AssertionError("Inverse computation doesn't seem to work.")
 
 
 def main(argv):

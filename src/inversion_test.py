@@ -80,5 +80,6 @@ def main(argv):
     inversion_test()
   print('Success')
 
+
 if __name__ == '__main__':
   app.run(main)

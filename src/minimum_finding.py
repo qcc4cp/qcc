@@ -89,7 +89,7 @@ def run_experiment(nbits: int, numbers: List[int],
 
   # The following is commented extensively in grover.py
   f = make_f(nbits, numbers, max_value)
-  uf = ops.OracleUf(nbits+1, f)
+  uf = ops.OracleUf(nbits + 1, f)
 
   op_zero = ops.ZeroProjector(nbits)
   reflection = op_zero * 2.0 - ops.Identity(nbits)

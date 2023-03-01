@@ -37,7 +37,7 @@ def run_experiment(nbits: int):
   """Run a single median computation."""
 
   # Create the random state vector.
-  x = np.array([random.randint(0, 2**nbits) for _ in range(2 ** nbits)])
+  x = np.array([random.randint(0, 2**nbits) for _ in range(2**nbits)])
   xn = x / np.linalg.norm(x)
 
   # Compute the mean(s) for each difference vector.
