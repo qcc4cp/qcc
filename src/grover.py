@@ -70,7 +70,7 @@ def run_experiment(nbits: int, solutions: int) -> None:
   # below.
   #
   f = make_f(nbits, solutions)
-  uf = ops.OracleUf(nbits+1, f)
+  uf = ops.OracleUf(nbits + 1, f)
 
   # Build state with 1 ancilla of |1>.
   #
@@ -149,7 +149,7 @@ def run_experiment_circuit(nbits: int) -> None:
   qc = circuit.qc('Grover', eager=False)
   reg = qc.reg(nbits, 0)
   qc.reg(1, 1)
-  aux = qc.reg(nbits-1, 0)
+  aux = qc.reg(nbits - 1, 0)
   f, bits = make_f1(nbits)
 
   multi(qc, ops.Hadamard(), [i for i in range(nbits + 1)])

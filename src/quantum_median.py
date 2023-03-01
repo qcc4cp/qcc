@@ -43,7 +43,6 @@ def run_experiment(nbits: int):
   # Compute the mean(s) for each difference vector.
   median = min_mean = 1000
   for idx, z in enumerate(xn):
-
     # Make the difference vector. Note that this vector
     # may not be normalized!
     diff = [abs(xval - z) for xval in xn]
@@ -61,8 +60,10 @@ def run_experiment(nbits: int):
       median = idx
 
   # Print and check results, we allow for a 1% deviation.
-  print(f' Median ({nbits} qb): Classic: {np.mean(x):.3f},'
-        f' Quantum: {x[median]:.3f}')
+  print(
+      f' Median ({nbits} qb): Classic: {np.mean(x):.3f},'
+      f' Quantum: {x[median]:.3f}'
+  )
   if max(np.mean(x), x[median]) / min(np.mean(x), x[median]) > 1.01:
     raise AssertionError('Incorrect mean computation.')
 

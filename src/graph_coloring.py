@@ -196,7 +196,7 @@ def build_circuit(g: Graph):
   for idx, val in enumerate(qc.psi):
     if np.real(val.conj() * val) > (maxprob - 0.005):
       bits = helper.val2bits(idx, qc.nbits)
-      print('  Color:', bits[0:g.num * 2])
+      print('  Color:', bits[0 : g.num * 2])
       if g.verify(bits):
         raise AssertionError('Incorrect color assignment found.')
 

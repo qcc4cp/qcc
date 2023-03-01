@@ -38,9 +38,9 @@ def hadamard_test():
   A, a0, a1 = make_rand_operator()
   B, b0, b1 = make_rand_operator()
 
-  #======================================
+  # ======================================
   # Step 1: Verify P(|0>) = 2 Re(<a|b>)
-  #======================================
+  # ======================================
 
   # Construct the desired end state psi as an explicit expression.
   #    psi = 1/sqrt(2)(|0>|a> + |1>|b>)
@@ -53,7 +53,7 @@ def hadamard_test():
   qc.reg(2, 0)
   qc.h(0)
   qc.applyc(A, [0], 1)  # Controlled-by-0
-  qc.applyc(B, 0, 1)    # Controlled-by-1
+  qc.applyc(B, 0, 1)  # Controlled-by-1
 
   # The two states should be identical!
   if not np.allclose(qc.psi, psi):
@@ -73,9 +73,9 @@ def hadamard_test():
   if not np.allclose(2 * p0 - 1, dot.real, atol=1e-6):
     raise AssertionError('Incorrect inner product estimation')
 
-  #======================================
+  # ======================================
   # Step 2: Verify P(|1>) = 2 Im(<a|b>)
-  #======================================
+  # ======================================
 
   # Now let's try the same to get to the imaginary parts.
   #
@@ -92,7 +92,7 @@ def hadamard_test():
   qc.h(0)
   qc.sdag(0)
   qc.applyc(A, [0], 1)  # Controlled-by-0
-  qc.applyc(B, 0, 1)    # Controlled-by-1
+  qc.applyc(B, 0, 1)  # Controlled-by-1
 
   # The two states should be identical!
   #

@@ -45,8 +45,12 @@ def single_qubit():
     # Let's verify the result and construct a density matrix
     # from the Pauli matrices using the computed factors:
     #
-    new_rho = 0.5 * (i * ops.Identity() + x * ops.PauliX() +
-                     y * ops.PauliY() + z * ops.PauliZ())
+    new_rho = 0.5 * (
+        i * ops.Identity()
+        + x * ops.PauliX()
+        + y * ops.PauliY()
+        + z * ops.PauliZ()
+    )
     if not np.allclose(rho, new_rho, atol=1e-06):
       raise AssertionError('Invalid Pauli Representation')
 
@@ -75,7 +79,6 @@ def two_qubit():
   """Compute Pauli representation for two-qubit system."""
 
   for _ in range(10):
-
     # First we construct a circuit with two, very random qubits.
     #
     qc = circuit.qc('random qubit')

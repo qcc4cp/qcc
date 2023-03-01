@@ -70,7 +70,7 @@ def measure(psi: state.State):
   r = random.random() - 0.001
   total = 0
   for i in range(len(psi)):
-    total += (psi[i] * psi[i].conj())
+    total += psi[i] * psi[i].conj()
     if r < total:
       psi = helper.val2bits(i, 2)
       return psi[0], psi[1]

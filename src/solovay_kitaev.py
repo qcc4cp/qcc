@@ -109,10 +109,10 @@ def sk_algo(u, gates, n):
   if n == 0:
     return find_closest_u(gates, u)
   else:
-    u_next = sk_algo(u, gates, n-1)
+    u_next = sk_algo(u, gates, n - 1)
     v, w = gc_decomp(u @ u_next.adjoint())
-    v_next = sk_algo(v, gates, n-1)
-    w_next = sk_algo(w, gates, n-1)
+    v_next = sk_algo(v, gates, n - 1)
+    w_next = sk_algo(w, gates, n - 1)
     return v_next @ w_next @ v_next.adjoint() @ w_next.adjoint() @ u_next
 
 

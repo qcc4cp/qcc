@@ -98,7 +98,7 @@ def arith_quantum_constant(n: int, init_a: int, c: int) -> None:
 
   qc = circuit.qc('qadd')
   a = qc.reg(n + 1, helper.val2bits(init_a, n)[::-1], name='a')
-  for i in  range(n + 1):
+  for i in range(n + 1):
     qft(qc, a, n - i)
 
   angles = precompute_angles(c, n)
