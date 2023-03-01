@@ -2,10 +2,10 @@
 """Example: Graph Coloring via Grover's Algorithm."""
 
 
-#=========================================================
+# =========================================================
 # Note: To simplify and reduce the number of solutions, we
 #       look for colorings where all colors are the _same_.
-#=========================================================
+# =========================================================
 
 
 import itertools
@@ -31,7 +31,7 @@ def compare_pairs_equal(qc, a, b, c, d, w0, w1, chk):
   #
   # The truth table is:
   #   a   b  ->   b
-  #-------------------
+  # -------------------
   #   0   0       0 (unmodified)
   #   0   1       1 (unmodified)
   #   1   0       1 (flipped to 1)
@@ -128,8 +128,9 @@ def test_qubit_equality_circuit():
 class Graph:
   """Hold a graph definition."""
 
-  def __init__(self, num_vertices: int, desc: str,
-               edges: List[Tuple[int, int]]):
+  def __init__(
+      self, num_vertices: int, desc: str, edges: List[Tuple[int, int]]
+  ):
     self.num = num_vertices
     self.edges = edges
     self.desc = desc
@@ -143,7 +144,8 @@ class Graph:
     #   n   : number of bits used to encode colors.
     different = 0
     for edge in self.edges:
-      if bits[edge[0]*n: edge[0]*n + n] != bits[edge[1]*n: edge[1]*n + n]:
+      if bits[edge[0] * n: edge[0] * n + n]
+      != bits[edge[1] * n: edge[1] * n + n]:
         different += 1
     return different
 
@@ -153,8 +155,7 @@ def diffuser(qc: circuit.qc, reg, checker, aux):
 
   qc.h(reg)
   qc.x(reg)
-  qc.multi_control(reg, checker,
-                   aux, ops.PauliX(), 'Diffuser Gate')
+  qc.multi_control(reg, checker, aux, ops.PauliX(), 'Diffuser Gate')
   qc.x(reg)
   qc.h(reg)
 
@@ -163,10 +164,10 @@ def build_circuit(g: Graph):
   """Build a circuit from a graph."""
 
   qc = circuit.qc('Graph Circuit')
-  reg = qc.reg(g.num*2)
+  reg = qc.reg(g.num * 2)
   chk = qc.reg(len(g.edges))
   res = qc.reg(1)[0]
-  tmp = qc.reg(g.num*2 - 1)
+  tmp = qc.reg(g.num * 2 - 1)
 
   print(f'Solving [{g.desc}]: ', end='')
   print(f'{g.num} vertices, {len(g.edges)} edges -> {qc.nbits} qubits')
@@ -204,7 +205,7 @@ def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  print('Graph coloring via Grover\'s Search. ', end='')
+  print("Graph coloring via Grover's Search. ", end='')
   print('Find identical colors (2 qubits each).')
 
   test_qubit_equality_circuit()
