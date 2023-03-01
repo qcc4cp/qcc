@@ -7,7 +7,7 @@ from src.lib import ops
 from src.lib import state
 
 
-def bell_state(a: int, b: int) ->state.State:
+def bell_state(a: int, b: int) -> state.State:
   """Make one of the four bell states with a, b from {0,1}."""
 
   if a not in [0, 1] or b not in [0, 1]:
@@ -29,7 +29,7 @@ def ghz_state(nbits: int) -> state.State:
   #
   psi = state.zeros(nbits)
   psi = ops.Hadamard()(psi)
-  for offset in range(nbits-1):
+  for offset in range(nbits - 1):
     psi = ops.Cnot(0, 1)(psi, offset)
   return psi
 
