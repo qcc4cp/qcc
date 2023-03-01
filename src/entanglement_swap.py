@@ -68,13 +68,15 @@ def main(argv):
   # This covers all expected results.
   #
   # qubits   0  1  2  3       1  2   factor
-  #-----------------------------------------
-  cases = [[0, 0, 0, 0, 1.0, 1, 1, 1.0],
-           [0, 0, 1, 1, 1.0, 1, 0, 1.0],
-           [1, 0, 0, 0, 1.0, 1, 1, -1.0],
-           [1, 0, 1, 1, 1.0, 1, 0, -1.0]]
+  # -----------------------------------------
+  cases = [
+      [0, 0, 0, 0, 1.0, 1, 1, 1.0],
+      [0, 0, 1, 1, 1.0, 1, 0, 1.0],
+      [1, 0, 0, 0, 1.0, 1, 1, -1.0],
+      [1, 0, 1, 1, 1.0, 1, 0, -1.0],
+  ]
 
-  c07 = 1/math.sqrt(2)
+  c07 = 1 / math.sqrt(2)
   psi = qc.psi
   for c in cases:
     qc.psi = psi
@@ -84,12 +86,12 @@ def main(argv):
     qc.psi.dump(f'after measuring |{c[0]}..{c[3]}>')
 
     if not math.isclose(
-        np.real(qc.psi.ampl(c[0], c[1], c[2], c[3])),
-        c07, abs_tol=1e-5):
+        np.real(qc.psi.ampl(c[0], c[1], c[2], c[3])), c07, abs_tol=1e-5
+    ):
       raise AssertionError('Invalid measurement results')
     if not math.isclose(
-        np.real(qc.psi.ampl(c[0], c[5], c[6], c[3])),
-        c07 * c[7], abs_tol=1e-5):
+        np.real(qc.psi.ampl(c[0], c[5], c[6], c[3])), c07 * c[7], abs_tol=1e-5
+    ):
       raise AssertionError('Invalid measurement results')
 
 
