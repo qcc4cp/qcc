@@ -144,8 +144,8 @@ class Graph:
     #   n   : number of bits used to encode colors.
     different = 0
     for edge in self.edges:
-      if bits[edge[0] * n: edge[0] * n + n]
-      != bits[edge[1] * n: edge[1] * n + n]:
+      if (bits[edge[0] * n: edge[0] * n + n] !=
+          bits[edge[1] * n: edge[1] * n + n]):
         different += 1
     return different
 
