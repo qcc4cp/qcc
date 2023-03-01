@@ -34,10 +34,9 @@ from src.lib import ops
 def make_u(alpha, beta, gamma, delta):
   """Construct unitary from the 4 parameters."""
 
-  return ((ops.RotationZ(beta) @
-           ops.RotationY(gamma) @
-           ops.RotationZ(delta)) *
-          cmath.exp(1.0j * alpha))
+  return (
+      ops.RotationZ(beta) @ ops.RotationY(gamma) @ ops.RotationZ(delta)
+  ) * cmath.exp(1.0j * alpha)
 
 
 def zy_decompose(umat):
