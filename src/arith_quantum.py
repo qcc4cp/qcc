@@ -42,18 +42,18 @@ def check_result(psi: state.State, a, b,
 def qft(qc: circuit.qc, reg: state.Reg, n: int) -> None:
   qc.h(reg[n])
   for i in range(n):
-    qc.cu1(reg[n-(i+1)], reg[n], math.pi/float(2**(i+1)))
+    qc.cu1(reg[n - (i + 1)], reg[n], math.pi / float(2 ** (i + 1)))
 
 
 def evolve(qc: circuit.qc, reg_a: state.Reg, reg_b: state.Reg,
            n: int, factor: float) -> None:
-  for i in range(n+1):
-    qc.cu1(reg_b[n-i], reg_a[n], factor * math.pi/float(2**(i)))
+  for i in range(n + 1):
+    qc.cu1(reg_b[n - i], reg_a[n], factor * math.pi / float(2**i))
 
 
 def inverse_qft(qc: circuit.qc, reg: state.Reg, n: int) -> None:
   for i in range(n):
-    qc.cu1(reg[i], reg[n], -1*math.pi/float(2**(n-i)))
+    qc.cu1(reg[i], reg[n], -1 * math.pi / float(2 ** (n - i)))
   qc.h(reg[n])
 
 
@@ -62,17 +62,17 @@ def arith_quantum(n: int, init_a: int, init_b: int,
   """Run a quantum add experiment."""
 
   qc = circuit.qc('qadd')
-  a = qc.reg(n+1, helper.val2bits(init_a, n)[::-1], name='a')
-  b = qc.reg(n+1, helper.val2bits(init_b, n)[::-1], name='b')
-  for i in  range(n+1):
-    qft(qc, a, n-i)
-  for i in range(n+1):
-    evolve(qc, a, b, n-i, factor)
-  for i in range(n+1):
+  a = qc.reg(n + 1, helper.val2bits(init_a, n)[::-1], name='a')
+  b = qc.reg(n + 1, helper.val2bits(init_b, n)[::-1], name='b')
+  for i in range(n + 1):
+    qft(qc, a, n - i)
+  for i in range(n + 1):
+    evolve(qc, a, b, n - i, factor)
+  for i in range(n + 1):
     inverse_qft(qc, a, i)
   if dumpit:
     qc.dump_to_file()
-  check_result(qc.psi, init_a, init_b, n+1, factor)
+  check_result(qc.psi, init_a, init_b, n + 1, factor)
 
 
 # If we know which specific constant 'a' to add to a quantum register,
@@ -84,12 +84,12 @@ def precompute_angles(a: int, n: int) -> List[float]:
   # Convert 'a' to a string of 0's and 1's.
   s = bin(int(a))[2:].zfill(n)
 
-  angles = [0.] * n
+  angles = [0.0] * n
   for i in range(n):
     for j in range(i, n):
       if s[j] == '1':
-        angles[n-i-1] += 2**(-(j-i))
-    angles[n-i-1] *= math.pi
+        angles[n - i - 1] += 2 ** (-(j - i))
+    angles[n - i - 1] *= math.pi
   return angles
 
 
@@ -97,15 +97,15 @@ def arith_quantum_constant(n: int, init_a: int, c: int) -> None:
   """Run a quantum add-constant experiment."""
 
   qc = circuit.qc('qadd')
-  a = qc.reg(n+1, helper.val2bits(init_a, n)[::-1], name='a')
-  for i in  range(n+1):
-    qft(qc, a, n-i)
+  a = qc.reg(n + 1, helper.val2bits(init_a, n)[::-1], name='a')
+  for i in  range(n + 1):
+    qft(qc, a, n - i)
 
   angles = precompute_angles(c, n)
   for i in range(n):
     qc.u1(a[i], angles[i])
 
-  for i in range(n+1):
+  for i in range(n + 1):
     inverse_qft(qc, a, i)
 
   maxbits, _ = qc.psi.maxprob()
@@ -123,9 +123,9 @@ def arith_quantum_mult(nbits_a: int, init_a: int,
     """Add the value of (src * factor) to targ, as shown above."""
 
     for i in range(nbits):
-      qft(qc, targ, nbits-i)
+      qft(qc, targ, nbits - i)
     for i in range(nbits):
-      evolve(qc, targ, src, nbits-i, factor)
+      evolve(qc, targ, src, nbits - i, factor)
     for i in range(nbits):
       inverse_qft(qc, targ, i)
 
@@ -139,8 +139,8 @@ def arith_quantum_mult(nbits_a: int, init_a: int,
   #
   qc = circuit.qc('qmult', eager=False)
   a = qc.reg(nbits_a, helper.val2bits(init_a, nbits_a)[::-1], name='a')
-  b = qc.reg(nbits_b*2 + 1, helper.val2bits(init_b, nbits_b)[::-1], name='b')
-  c = qc.reg(nbits_b*2 + 1, 0, name='c')
+  b = qc.reg(nbits_b * 2 + 1, helper.val2bits(init_b, nbits_b)[::-1], name='b')
+  c = qc.reg(nbits_b * 2 + 1, 0, name='c')
 
   factor = 1.0
   for idx in range(nbits_a):
@@ -152,7 +152,7 @@ def arith_quantum_mult(nbits_a: int, init_a: int,
   qc.run()
 
   maxbits, _ = qc.psi.maxprob()
-  result = helper.bits2val(maxbits[c[0] : c[0 + nbits_b*2]][::-1])
+  result = helper.bits2val(maxbits[c[0] : c[0 + nbits_b * 2]][::-1])
   if result != init_a * init_b:
     raise AssertionError('incorrect addition')
 
