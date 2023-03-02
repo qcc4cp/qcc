@@ -38,17 +38,20 @@ from src.lib import tensor
 try:
   # pylint: disable=g-import-not-at-top
   import libxgates as xgates
+
   apply1 = xgates.apply1
   applyc = xgates.applyc
 except Exception:  # pylint: disable=broad-except
-  print("""
+  print(
+      """
   **************************************************************
   WARNING: Could not find 'libxgates.so'.
   Please build it and point PYTHONPATH to it.
   Execution is being re-directed to a Python implementation,
   performance may suffer greatly.
   **************************************************************
-  """)
+      """
+  )
 
   # pylint: disable=unused-argument
   def apply1(psi, gate: np.ndarray, nbits: int, qubit: int, bitwidth: int = 0):
@@ -60,7 +63,7 @@ except Exception:  # pylint: disable=broad-except
       print('             Perhaps using wrongly shaped state?\n')
       sys.exit(1)
     two_q = 2**qubit
-    for g in range(0, 2**nbits, 2**(qubit+1)):
+    for g in range(0, 2**nbits, 2 ** (qubit + 1)):
       for i in range(g, g + two_q):
         t1 = gate[0] * psi[i] + gate[1] * psi[i + two_q]
         t2 = gate[2] * psi[i] + gate[3] * psi[i + two_q]
@@ -79,7 +82,7 @@ except Exception:  # pylint: disable=broad-except
       sys.exit(1)
     two_q = 2**qubit
     control = nbits - control - 1
-    for g in range(0, 2**nbits, 2**(qubit+1)):
+    for g in range(0, 2**nbits, 2 ** (qubit + 1)):
       for i in range(g, g + two_q):
         idx = g * 2**nbits + i
         if idx & (1 << control):
@@ -131,7 +134,7 @@ class qc:
       self.add_single(gate[0], gate[1])
       self.add_single(gate[0] + 'dag', gate[1].adjoint())
       self.add_ctl('c' + gate[0], gate[1])
-      self.add_ctl('c' + gate[0] + 'dag', gate[1]. adjoint())
+      self.add_ctl('c' + gate[0] + 'dag', gate[1].adjoint())
 
   @property
   def nbits(self) -> int:
@@ -189,7 +192,7 @@ class qc:
     return ret
 
   def optimize(self):
-    self. ir = optimizer.optimize(self.ir)
+    self.ir = optimizer.optimize(self.ir)
 
   def _ctl_by_0(self, ctl: int):
     ctl_qubit_ = ctl
@@ -206,8 +209,9 @@ class qc:
   def add_ctl(self, name: str, gate: ops.Operator):
     setattr(self, name, lambda idx0, idx1: self.applyc(gate, idx0, idx1, name))
 
-  def apply1(self, gate: ops.Operator, idx_set,
-             name: str = None, *, val: float = None):
+  def apply1(
+      self, gate: ops.Operator, idx_set, name: str = None, *, val: float = None
+  ):
     """Apply single gates."""
 
     indices = []
@@ -361,10 +365,10 @@ class qc:
   def qft(self, reg, with_swaps: bool = False) -> None:
     """QFT."""
 
-    for i in range(reg.size-1, -1, -1):
+    for i in range(reg.size - 1, -1, -1):
       self.h(reg[i])
-      for j in range(i-1, -1, -1):
-        self.cu1(reg[i], reg[j], np.pi/2**(i-j))
+      for j in range(i - 1, -1, -1):
+        self.cu1(reg[i], reg[j], np.pi / 2 ** (i - j))
     if with_swaps:
       self.flip(reg)
 
@@ -375,10 +379,10 @@ class qc:
       self.flip(reg)
     for i in range(reg.size):
       self.h(reg[i])
-      if i != reg.size-1:
-        j = i+1
+      if i != reg.size - 1:
+        j = i + 1
         for y in range(i, -1, -1):
-          self.cu1(reg[j], reg[y], -np.pi / 2**(j-y))
+          self.cu1(reg[j], reg[y], -np.pi / 2 ** (j - y))
 
   def multi_control(self, ctl, idx1, aux, gate, desc: str):
     """Multi-controlled gate, using aux as ancilla."""
@@ -417,7 +421,7 @@ class qc:
       self.ccx(ctl[0], ctl[1], aux[0])
       aux_idx = 0
       for i in range(2, len(ctl)):
-        self.ccx(ctl[i], aux[aux_idx], aux[aux_idx+1])
+        self.ccx(ctl[i], aux[aux_idx], aux[aux_idx + 1])
         aux_idx = aux_idx + 1
 
       # Use predicate to single-control qubit at idx1.
@@ -425,8 +429,8 @@ class qc:
 
       # Uncompute predicate.
       aux_idx = aux_idx - 1
-      for i in range(len(ctl)-1, 1, -1):
-        self.ccx(ctl[i], aux[aux_idx], aux[aux_idx+1])
+      for i in range(len(ctl) - 1, 1, -1):
+        self.ccx(ctl[i], aux[aux_idx], aux[aux_idx + 1])
         aux_idx = aux_idx - 1
       self.ccx(ctl[0], ctl[1], aux[0])
 
@@ -437,7 +441,7 @@ class qc:
     # for idx in range(reg[0], reg[0] + reg.nbits // 2):
     #   self.swap(idx, reg[0] + reg.nbits - idx - 1)
     for i in range(reg.size // 2):
-      self.swap(reg[i], reg[reg.size-1-i])
+      self.swap(reg[i], reg[reg.size - 1 - i])
 
   # --- qc of qc ------------------------------------------
   def qc(self, qc_parm: qc, offset=0):
@@ -448,9 +452,9 @@ class qc:
     #
     for gate in qc_parm.ir.gates:
       if gate.is_single():
-        self.apply1(gate.gate, gate.idx0+offset, gate.name, val=gate.val)
+        self.apply1(gate.gate, gate.idx0 + offset, gate.name, val=gate.val)
       if gate.is_ctl():
-        self.applyc(gate.gate, gate.ctl+offset, gate.idx1+offset,
+        self.applyc(gate.gate, gate.ctl + offset, gate.idx1 + offset,
                     gate.name, val=gate.val)
 
   def run(self):
@@ -492,10 +496,11 @@ class qc:
     for gate in self.ir.gates[::-1]:
       val = -gate.val if gate.val else None
       if gate.is_single():
-        newqc.apply1(gate.gate.adjoint(), gate.idx0, gate.name+'*', val=val)
+        newqc.apply1(gate.gate.adjoint(), gate.idx0, gate.name + '*', val=val)
       if gate.is_ctl():
-        newqc.applyc(gate.gate.adjoint(), gate.ctl, gate.idx1,
-                     gate.name+'*', val=val)
+        newqc.applyc(
+            gate.gate.adjoint(), gate.ctl, gate.idx1, gate.name + '*', val=val
+        )
     return newqc
 
   def control_by(self, ctl: int):
@@ -512,8 +517,9 @@ class qc:
         continue
       if gate.is_ctl():
         sub = qc('multi', eager=False)
-        sub.multi_control([ctl, gate.ctl], gate.idx1, None,
-                          gate.gate, gate.desc)
+        sub.multi_control(
+            [ctl, gate.ctl], gate.idx1, None, gate.gate, gate.desc
+        )
         for gate in sub.ir.gates:
           res.add_node(gate)
     self.ir = res
@@ -527,9 +533,11 @@ class qc:
 
   # --- Debug --------------------------------------------------
   def stats(self) -> str:
-    return ('Circuit Statistics\n' +
-            '  Qubits: {}\n'.format(self.nbits) +
-            '  Gates : {}\n'.format(self.ir.ngates))
+    return (
+        'Circuit Statistics\n'
+        + '  Qubits: {}\n'.format(self.nbits)
+        + '  Gates : {}\n'.format(self.ir.ngates)
+    )
 
   def dump_with_dumper(self, flag: bool,
                        dumper_func: Callable[ir.Ir]) -> None:
@@ -551,8 +559,8 @@ class qc:
     if desc:
       print(desc)
     if self.name:
-      print(f'Circuit: {self.name}, Gates: {len(self.ir.gates)}, 0' +
-            'QBits: {self.psi.nbits}')
+      print(f'Circuit: {self.name}, Gates: {len(self.ir.gates)}, 0'
+            + 'QBits: {self.psi.nbits}')
     print(self.ir, end='')
     if draw:
       print(dumpers.totext(self.ir))
