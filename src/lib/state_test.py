@@ -33,7 +33,7 @@ class StateTest(absltest.TestCase):
     self.assertEqual(psi.nbits, 8)
 
   def test_state_gen(self):
-    hadamard = (1 / np.sqrt(2) * np.array([[1.0, 1.0], [1.0, -1.0]]))
+    hadamard = 1 / np.sqrt(2) * np.array([[1.0, 1.0], [1.0, -1.0]])
     sgate = np.array([[1.0, 0.0], [0.0, 1.0j]])
 
     psi = state.zeros(1)
@@ -147,13 +147,16 @@ class StateTest(absltest.TestCase):
     self.assertTrue(np.allclose(inner1, inner2))
 
     self.assertTrue(np.allclose(np.inner(psi1.conj(), psi1), 1.0))
-    self.assertTrue(np.allclose(np.inner(p1.conj(), p1) *
-                                np.inner(x1.conj(), x1), 1.0))
+    self.assertTrue(
+        np.allclose(np.inner(p1.conj(), p1) * np.inner(x1.conj(), x1), 1.0)
+    )
 
   def test_normalize(self) -> None:
     denormalized = state.State([1.0, 1.0])
     denormalized.normalize()
-    assert np.allclose(denormalized, state.State([0.5 ** 0.5, 0.5 ** 0.5]))
+    self.assertTrue(
+        np.allclose(denormalized, state.State([0.5**0.5, 0.5**0.5]))
+    )
 
 
 if __name__ == '__main__':
