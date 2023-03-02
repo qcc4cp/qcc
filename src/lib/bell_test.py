@@ -16,11 +16,12 @@ class BellTest(absltest.TestCase):
     """Check successful entanglement."""
 
     b00 = bell.bell_state(0, 0)
-    self.assertTrue(b00.is_close((state.zeros(2) + state.ones(2))/math.sqrt(2)))
+    self.assertTrue(
+        b00.is_close((state.zeros(2) + state.ones(2)) / math.sqrt(2))
+    )
 
     # Note the order is reversed from pictorials.
-    op_exp = (ops.Cnot(0, 1) @
-              (ops.Hadamard() * ops.Identity()))
+    op_exp = ops.Cnot(0, 1) @ (ops.Hadamard() * ops.Identity())
     b00_exp = op_exp(state.zeros(2))
     self.assertTrue(b00.is_close(b00_exp))
 
@@ -31,8 +32,9 @@ class BellTest(absltest.TestCase):
       for b in [0, 1]:
         b = bell.bell_state(a, b)
         self.assertTrue(b.density().is_pure())
-        self.assertTrue(math.isclose(np.real(np.trace(b.density())),
-                                     1.0, abs_tol=1e-6))
+        self.assertTrue(
+            math.isclose(np.real(np.trace(b.density())), 1.0, abs_tol=1e-6)
+        )
 
   def test_measure(self):
     b00 = bell.bell_state(0, 1)
@@ -98,6 +100,7 @@ class BellTest(absltest.TestCase):
     self.assertGreater(psi.prob(0, 0, 1), 0.3)
     self.assertGreater(psi.prob(0, 1, 0), 0.3)
     self.assertGreater(psi.prob(1, 0, 0), 0.3)
+
 
 if __name__ == '__main__':
   absltest.main()
