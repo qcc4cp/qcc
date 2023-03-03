@@ -59,6 +59,13 @@ class CircuitTest(absltest.TestCase):
     qc.cswap(3, 2, 1)
     self.compare_to(qc.psi, 1, 0, 1, 1, 0)
 
+  def test_rotation(self):
+    qc = circuit.qc()
+    qc.bitstring(0)
+    qc.rx(0, 2 * np.arcsin(0.5))
+    self.assertEqual(qc.psi.prob(0), 0.75)
+    self.assertEqual(qc.psi.prob(1),  0.25)
+
   def test_acceleration(self):
     psi = state.bitstring(1, 0, 1, 0)
     qc = circuit.qc()
