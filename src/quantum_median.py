@@ -49,10 +49,10 @@ def run_experiment(nbits: int):
 
     # Normalization (required for quantum, also improves
     # accuracy by an order of magnitude).
-    diff = np.linalg.norm(diff)
+    diffnorm = np.linalg.norm(diff)
 
     # Compute the mean (which we know how to do quantumly).
-    mean = np.mean(diff)
+    mean = np.mean(diffnorm)
 
     # Find the minimum (which we would also know how to do quantumly).
     if mean < min_mean:
