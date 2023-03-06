@@ -273,6 +273,16 @@ py_binary(
 )
 
 py_binary(
+    name = "qram",
+    srcs = ["qram.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)
+
+py_binary(
     name = "quantum_mean",
     srcs = ["quantum_mean.py"],
     python_version = "PY3",

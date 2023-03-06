@@ -73,7 +73,8 @@ To run individual algorithms via `bazel`, run any of these command lines (note t
    bazel run oracle_synth
    bazel run pauli_rep
    bazel run purification
-   bazel run quantum_mean
+   bazel run qram
+   bazel run quantum_mean   
    bazel run quantum_median   
    bazel run quantum_pca
    bazel run sat3
