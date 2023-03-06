@@ -20,7 +20,7 @@ def bits2val(bits: List[int]) -> int:
 
   # We assume bits are given in high to low order. For example,
   # the bits [1, 1, 0] will produce the value 6.
-  return sum(v * (1 << (len(bits)-i-1)) for i, v in enumerate(bits))
+  return sum(v * (1 << (len(bits) - i - 1)) for i, v in enumerate(bits))
 
 
 def val2bits(val: int, nbits: int) -> List[int]:
@@ -34,7 +34,7 @@ def val2bits(val: int, nbits: int) -> List[int]:
 def bits2frac(bits: Tuple[int, ...]) -> float:
   """For given bits, compute the binary fraction."""
 
-  return sum(bits[i] * 2**(-i-1) for i in range(len(bits)))
+  return sum(bits[i] * 2**(-i - 1) for i in range(len(bits)))
 
 
 def frac2bits(val: float, nbits: int) -> List[int]:
@@ -47,11 +47,8 @@ def frac2bits(val: float, nbits: int) -> List[int]:
   while nbits:
     nbits -= 1
     val *= 2
-    if int(val) == 1:
-      val -= 1
-      res.append(1)
-    else:
-      res.append(0)
+    res.append(int(val))
+    val -= int(val)
   return res
 
 
