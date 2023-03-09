@@ -82,14 +82,6 @@ class StateTest(absltest.TestCase):
     self.assertEqual(rank, 1)
 
   def test_regs(self):
-    a = state.Reg(3, [0, 1, 1], 0)
-    b = state.Reg(3, [0, 0, 1], 3)
-    psi = state.fromregs(a, b)
-    psi_manual = state.bitstring(0, 1, 1, 0, 0, 1)
-    self.assertEqual(a[0], 0)
-    self.assertEqual(b[0], 3)
-    self.assertTrue(psi.is_close(psi_manual))
-
     a = state.Reg(3, 1, 0)
     self.assertEqual('|001>', str(a))
     a = state.Reg(3, 6, 3)

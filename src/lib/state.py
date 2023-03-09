@@ -280,15 +280,6 @@ class Reg:
     return self.size
 
 
-def fromregs(*argv):
-  """Make a state from multiple registers."""
-
-  psi = 1.0
-  for arg in argv:
-    psi = psi * arg.psi()
-  return psi
-
-
 # =====================================================
 # Various Helper Functions pertaining to State.
 # =====================================================
