@@ -12,6 +12,17 @@ from src.lib import ops
 from src.lib import circuit
 
 
+# This is a very simple and simplified implementation of
+# simple QRAM's, mostly to show the principles of a specific
+# way to materialize a QRAM.
+#
+# Currently, only 1 address qubit -> 2 values and 2 address
+# qubits -> 1 value are implemented. It should be easy to see
+# that the principles can be easily extended to arbitrary
+# n -> m mappings. The corresponding circuits, however, can
+# become quite unwieldy, hence we're not showing those here.
+
+
 def qram_1_to_2():
   """Map a single qubit to 2 data bits."""
 
@@ -65,7 +76,8 @@ def main(argv):
   # These simple examples show how to binary encode address
   # bits and value bits and how to multi-control the value
   # bits from the address qubits. Extending this to longer
-  # addresses and values is straight-forward.
+  # addresses and values is straight-forward (but quite
+  # unwieldy).
   #
   qram_1_to_2()
   qram_2_to_1()
