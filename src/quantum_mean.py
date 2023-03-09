@@ -14,7 +14,7 @@ from src.lib import ops
 def run_experiment(nbits: int):
   """Run a single mean computation."""
 
-  x = np.array([random.randint(0, 10) for _ in range(2 ** nbits)])
+  x = np.array([random.randint(0, 10) for _ in range(2**nbits)])
   xn = x / np.linalg.norm(x)
 
   # Define a unitary which does:
@@ -34,7 +34,7 @@ def run_experiment(nbits: int):
   #
   qc = circuit.qc('mean calculator')
   inp = qc.reg(nbits, 0)  # State input
-  aux = qc.reg(nbits-1, 0)  # Aux qubits for the multi-controlled gates
+  aux = qc.reg(nbits - 1, 0)  # Aux qubits for the multi-controlled gates
   ext = qc.reg(1, 0)  # Target 'extra' qubit
 
   # The trick is to control the rotations with the bit

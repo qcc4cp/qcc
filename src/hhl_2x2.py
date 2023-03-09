@@ -75,14 +75,14 @@ def check_classic_solution(a, b, verify):
 
   x = np.linalg.solve(a, b)
   if verify:
-    y = np.array([3/8, 9/8])
+    y = np.array([3 / 8, 9 / 8])
     if not np.allclose(np.dot(a, y), b, atol=1e-5):
       raise AssertionError('Incorrect classical solution')
     if not np.allclose(x, y, atol=1e-5):
       raise AssertionError('Incorrect classical solution')
 
   # The ratio of |x0|^2 and |xi|^2 is:
-  for i in range(1, 2 ** b.nbits):
+  for i in range(1, 2**b.nbits):
     ratio_x = np.real((x[i] * x[i].conj()) / (x[0] * x[0].conj()))
     print(f'Classic solution^2 ratio: {ratio_x:.3f}')
 
@@ -97,7 +97,7 @@ def check_results(qc, a, b, verify):
 
   res = (qc.psi > 0.001).nonzero()[0]
   for j in range(1, b.size):
-    ratio_quantum = np.real(qc.psi[res[j]]**2 / qc.psi[res[0]]**2)
+    ratio_quantum = np.real(qc.psi[res[j]] ** 2 / qc.psi[res[0]] ** 2)
     print(f'Quantum solution^2 ratio: {ratio_quantum:.3f}\n')
     if not np.allclose(ratio_classical, ratio_quantum, atol=1e-4):
       raise AssertionError('Incorrect result.')
@@ -155,19 +155,18 @@ def compute_u_matrix(a, w, v, t, verify):
   #   U = exp(i * A * t) (^2)
   #
   # Since U is diagonal:
-  u = ops.Operator(np.array([[np.exp(1j * w[0] * t), 0],
-                             [0, np.exp(1j * w[1] * t)]]))
+  u = ops.Operator(
+      np.array([[np.exp(1j * w[0] * t), 0], [0, np.exp(1j * w[1] * t)]])
+  )
   if verify:
-    if not np.allclose(u, np.array([[1j, 0],
-                                    [0, -1]]), atol=1e-5):
+    if not np.allclose(u, np.array([[1j, 0], [0, -1]]), atol=1e-5):
       raise AssertionError('Incorrect computation of U')
 
     u2 = u @ u
-    if not np.allclose(u2, np.array([[-1, 0],
-                                     [0, 1]]), atol=1e-5):
+    if not np.allclose(u2, np.array([[-1, 0], [0, 1]]), atol=1e-5):
       raise AssertionError('Incorrect computation of U^2')
     if not u.is_unitary() or not u2.is_unitary():
-      raise AssertionError('U\'s are not unitary')
+      raise AssertionError('U matrices are not unitary')
 
   # Both U and U^2 are in the eigenvector basis of A. To convert these
   # operators to the computational basis we apply the similarity
@@ -175,26 +174,24 @@ def compute_u_matrix(a, w, v, t, verify):
   u = v @ u @ v.transpose().conj()
   if verify:
     u2 = u @ u
-    if not np.allclose(u, 0.5 * np.array([[-1+1j, 1+1j],
-                                          [1+1j, -1+1j]]), atol=1e-5):
+    if not np.allclose(u, 0.5 * np.array([[-1 + 1j, 1 + 1j],
+                                          [1 + 1j, -1 + 1j]]), atol=1e-5):
       raise AssertionError('Incorrect conversion of U to comp. basis.')
-    if not np.allclose(u2, np.array([[0, -1],
-                                     [-1, 0]]), atol=1e-5):
+    if not np.allclose(u2, np.array([[0, -1], [-1, 0]]), atol=1e-5):
       raise AssertionError('Incorrect conversion of U^2 to comp. basis.')
 
     # Compute the inverses U^-1 and U^-2:
     um1 = np.linalg.inv(u)
     um2 = um1 @ um1
-    if not np.allclose(um1, 0.5 * np.array([[-1-1j, 1-1j],
-                                            [1-1j, -1-1j]]), atol=1e-5):
+    if not np.allclose(um1, 0.5 * np.array([[-1 - 1j, 1 - 1j],
+                                            [1 - 1j, -1 - 1j]]), atol=1e-5):
       raise AssertionError('Something is wrong with U^-1.')
     if not np.allclose(u2, um2, atol=1e-5):
       raise AssertionError('Something is wrong with U^-2.')
 
    # To verify, we can compute A diagonalized from v as:
     a_diag = v.transpose().conj() @ a @ v
-    if not np.allclose(a_diag, np.array([[2/3, 0],
-                                         [0, 4/3]]), atol=1e-5):
+    if not np.allclose(a_diag, np.array([[2 / 3, 0], [0, 4 / 3]]), atol=1e-5):
       raise AssertionError('Incorrect computation of Adiag')
 
   # Return u in the computational basis.

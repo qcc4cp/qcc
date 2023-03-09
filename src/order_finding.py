@@ -49,12 +49,12 @@ def precompute_angles(a: int, n: int) -> List[float]:
   # Convert 'a' to a string of 0's and 1's.
   s = bin(int(a))[2:].zfill(n)
 
-  angles = [0.] * n
+  angles = [0.0] * n
   for i in range(n):
     for j in range(i, n):
       if s[j] == '1':
-        angles[n-i-1] += 2**(-(j-i))
-    angles[n-i-1] *= math.pi
+        angles[n - i - 1] += 2 ** (-(j - i))
+    angles[n - i - 1] *= math.pi
   return angles
 
 
@@ -77,11 +77,11 @@ def cadd(qc, q, ctl, a: int, n: int, factor: float) -> None:
 def ccphase(qc, angle: float, ctl1: int, ctl2: int, idx: int) -> None:
   """Controlled-controlled phase gate."""
 
-  qc.cu1(ctl1, idx, angle/2)
+  qc.cu1(ctl1, idx, angle / 2)
   qc.cx(ctl2, ctl1)
-  qc.cu1(ctl1, idx, -angle/2)
+  qc.cu1(ctl1, idx, -angle / 2)
   qc.cx(ctl2, ctl1)
-  qc.cu1(ctl2, idx, angle/2)
+  qc.cu1(ctl2, idx, angle / 2)
 
 
 def ccadd(qc, q, ctl1: int, ctl2: int, a: int, n: int,
@@ -90,20 +90,20 @@ def ccadd(qc, q, ctl1: int, ctl2: int, a: int, n: int,
 
   angles = precompute_angles(a, n)
   for i in range(n):
-    ccphase(qc, factor*angles[i], ctl1, ctl2, q[i])
+    ccphase(qc, factor * angles[i], ctl1, ctl2, q[i])
 
 
 def qft(qc, up_reg, n: int, with_swaps: bool = False) -> None:
   """QFT."""
 
-  for i in range(n-1, -1, -1):
+  for i in range(n - 1, -1, -1):
     qc.h(up_reg[i])
-    for j in range(i-1, -1, -1):
-      qc.cu1(up_reg[i], up_reg[j], math.pi/2**(i-j))
+    for j in range(i - 1, -1, -1):
+      qc.cu1(up_reg[i], up_reg[j], math.pi/2**(i - j))
 
   if with_swaps:
     for i in range(n // 2):
-      qc.swap(up_reg[i], up_reg[n-1-i])
+      qc.swap(up_reg[i], up_reg[n - 1 - i])
 
 
 def inverse_qft(qc, up_reg, n: int, with_swaps: bool = False) -> None:
@@ -111,14 +111,14 @@ def inverse_qft(qc, up_reg, n: int, with_swaps: bool = False) -> None:
 
   if with_swaps:
     for i in range(n // 2):
-      qc.swap(up_reg[i], up_reg[n-1-i])
+      qc.swap(up_reg[i], up_reg[n - 1 - i])
 
   for i in range(n):
     qc.h(up_reg[i])
-    if i != n-1:
-      j = i+1
+    if i != n - 1:
+      j = i + 1
       for y in range(i, -1, -1):
-        qc.cu1(up_reg[j], up_reg[y], -math.pi / 2**(j-y))
+        qc.cu1(up_reg[j], up_reg[y], -math.pi / 2 ** (j - y))
 
 
 def cc_add_mod_n(qc, q, ctl1, ctl2, aux, a, number, n):
@@ -127,15 +127,15 @@ def cc_add_mod_n(qc, q, ctl1, ctl2, aux, a, number, n):
   ccadd(qc, q, ctl1, ctl2, a, n, factor=1.0)
   add(qc, q, number, n, factor=-1.0)
   inverse_qft(qc, q, n)
-  qc.cx(q[n-1], aux)
+  qc.cx(q[n - 1], aux)
   qft(qc, q, n)
   cadd(qc, q, aux, number, n, factor=1.0)
 
   ccadd(qc, q, ctl1, ctl2, a, n, factor=-1.0)
   inverse_qft(qc, q, n)
-  qc.x(q[n-1])
-  qc.cx(q[n-1], aux)
-  qc.x(q[n-1])
+  qc.x(q[n - 1])
+  qc.cx(q[n - 1], aux)
+  qc.x(q[n - 1])
   qft(qc, q, n)
   ccadd(qc, q, ctl1, ctl2, a, n, factor=1.0)
 
@@ -145,15 +145,15 @@ def cc_add_mod_n_inverse(qc, q, ctl1, ctl2, aux, a, number, n):
 
   ccadd(qc, q, ctl1, ctl2, a, n, factor=-1.0)
   inverse_qft(qc, q, n)
-  qc.x(q[n-1])
-  qc.cx(q[n-1], aux)
-  qc.x(q[n-1])
+  qc.x(q[n - 1])
+  qc.cx(q[n - 1], aux)
+  qc.x(q[n - 1])
   qft(qc, q, n)
   ccadd(qc, q, ctl1, ctl2, a, n, factor=1.0)
 
   cadd(qc, q, aux, number, n, factor=-1.0)
   inverse_qft(qc, q, n)
-  qc.cx(q[n-1], aux)
+  qc.cx(q[n - 1], aux)
   qft(qc, q, n)
   add(qc, q, number, n, factor=1.0)
   ccadd(qc, q, ctl1, ctl2, a, n, factor=-1.0)
@@ -163,11 +163,11 @@ def cmultmodn(qc, ctl, q, aux, a, number, n):
   """Controlled Multiplies modulo N."""
 
   print('Compute... ')
-  qft(qc, aux, n+1)
+  qft(qc, aux, n + 1)
   for i in range(n):
-    cc_add_mod_n(qc, aux, q[i], ctl, aux[n+1],
-                 ((2**i)*a) % number, number, n+1)
-  inverse_qft(qc, aux, n+1)
+    cc_add_mod_n(qc, aux, q[i], ctl, aux[n + 1],
+                 ((2**i) * a) % number, number, n + 1)
+  inverse_qft(qc, aux, n + 1)
 
   print('Swap')
   for i in range(n):
@@ -175,11 +175,11 @@ def cmultmodn(qc, ctl, q, aux, a, number, n):
   a_inv = modular_inverse(a, number)
 
   print('Uncompute...')
-  qft(qc, aux, n+1)
-  for i in range(n-1, -1, -1):
+  qft(qc, aux, n + 1)
+  for i in range(n - 1, -1, -1):
     cc_add_mod_n_inverse(qc, aux, q[i], ctl, aux[n+1],
-                         ((2**i)*a_inv) % number, number, n+1)
-  inverse_qft(qc, aux, n+1)
+                         ((2**i) * a_inv) % number, number, n + 1)
+  inverse_qft(qc, aux, n + 1)
 
 
 def main(argv):
@@ -193,37 +193,37 @@ def main(argv):
   # The classical part are handled in 'shor_classic.py'
   nbits = number.bit_length()
   print('Shor: N = {}, a = {}, n = {} -> qubits: {}, iterations: {}'
-        .format(number, a, nbits, nbits*4 + 2, nbits*2))
+        .format(number, a, nbits, nbits * 4 + 2, nbits * 2))
   qc = circuit.qc('order_finding')
 
   # Aux register for additional and multiplication.
-  aux = qc.reg(nbits+2, name='q0')
+  aux = qc.reg(nbits + 2, name='q0')
 
   # Register for QFT. This reg will hold the resulting x-value.
-  up = qc.reg(nbits*2, name='q1')
+  up = qc.reg(nbits * 2, name='q1')
 
   # Register for multiplications.
   down = qc.reg(nbits, name='q2')
 
   qc.h(up)
   qc.x(down[0])
-  for i in range(nbits*2):
+  for i in range(nbits * 2):
     cmultmodn(qc, up[i], down, aux, int(a**(2**i)), number, nbits)
-  inverse_qft(qc, up, 2*nbits, with_swaps=True)
+  inverse_qft(qc, up, 2 * nbits, with_swaps=True)
 
   qc.dump_to_file()
 
   print('Measurement...')
   total_prob = 0.0
-  for bits in helper.bitprod(nbits*4 + 2):
+  for bits in helper.bitprod(nbits * 4 + 2):
     prob = qc.psi.prob(*bits)
     if prob > 0.01:
-      intval = helper.bits2val(bits[nbits+2 : nbits+2 + nbits*2][::-1])
-      phase = helper.bits2frac(bits[nbits+2 : nbits+2 + nbits*2][::-1])
+      intval = helper.bits2val(bits[nbits + 2 : nbits + 2 + nbits * 2][::-1])
+      phase = helper.bits2frac(bits[nbits + 2 : nbits + 2 + nbits * 2][::-1])
 
       r = fractions.Fraction(phase).limit_denominator(8).denominator
-      guesses = [math.gcd(a**(r//2)-1, number),
-                 math.gcd(a**(r//2)+1, number)]
+      guesses = [math.gcd(a**(r // 2) - 1, number),
+                 math.gcd(a**(r // 2) + 1, number)]
 
       print('Final x: {:3d} phase: {:3f} prob: {:.3f} factors: {}'.
             format(intval, phase, prob.real, guesses))

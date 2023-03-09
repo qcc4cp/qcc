@@ -111,7 +111,7 @@ def main(argv):
 
   # Accumulative amplitude computation.
   print('Algorithm: Random (unequal superposition), multiple solutions')
-  for i in range(len(psi)+1):
+  for i in range(len(psi) + 1):
     ampl = run_experiment(7, 3, algorithm, [i for i in range(i)])
     if not np.allclose(ampl, np.sqrt(sum([p*p.conj() for p in psi[0:i]])),
                                      atol=0.02):

@@ -60,7 +60,7 @@ def find_closest_u(gate_list, u):
 def u_to_bloch(u):
   """Compute angle and axis for a unitary."""
 
-  angle = np.real(np.arccos((u[0, 0] + u[1, 1])/2))
+  angle = np.real(np.arccos((u[0, 0] + u[1, 1]) / 2))
   sin = np.sin(angle)
   if sin < 1e-10:
     axis = [0, 0, 1]
@@ -85,8 +85,7 @@ def gc_decomp(u):
   # The angle phi comes from eq 10 in 'The Solovay-Kitaev Algorithm' by
   # Dawson, Nielsen. It is fully derived in the book section on the
   # theorem and algorithm.
-  phi = 2.0 * np.arcsin(np.sqrt(
-      np.sqrt((0.5 - 0.5 * np.cos(theta / 2)))))
+  phi = 2.0 * np.arcsin(np.sqrt(np.sqrt((0.5 - 0.5 * np.cos(theta / 2)))))
 
   v = ops.RotationX(phi)
   if axis[2] > 0:
