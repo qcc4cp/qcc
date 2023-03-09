@@ -108,9 +108,9 @@ class Ir:
 
   def __init__(self):
     self._ngates = 0  # gates in this IR
-    self.gates = []   # [] of gates
-    self.regs = []    # [] of tuples (global reg index, name, reg index)
-    self.nregs = 0    # number of registers
+    self.gates = []  # [] of gates
+    self.regs = []  # [] of tuples (global reg index, name, reg index)
+    self.nregs = 0  # number of registers
     self.regset = []  # [] of tuples (name, size, reg) for register files
 
   def __str__(self):

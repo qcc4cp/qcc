@@ -116,7 +116,7 @@ class Operator(tensor.Tensor):
 
     op = self
     if idx > 0:
-      op = Identity().kpow(idx)  * op
+      op = Identity().kpow(idx) * op
     if arg.nbits - idx - self.nbits > 0:
       op = op * Identity().kpow(arg.nbits - idx - self.nbits)
 
@@ -128,9 +128,9 @@ class Operator(tensor.Tensor):
     return self.apply(arg, idx)
 
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # Single Qubit Gates / Generators.
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 def Identity(d: int = 1) -> Operator:
   return Operator(np.array([[1.0, 0.0], [0.0, 1.0]])).kpow(d)
 

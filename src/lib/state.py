@@ -70,8 +70,7 @@ class State(tensor.Tensor):
     for i in range(len(self)):
       if not cmath.isclose(self[i], psi[i], abs_tol=1e-4):
         same = False
-        print(f'State{helper.val2bits(i, self.nbits)} (|{i}>) differs:',
-              end='')
+        print(f'State{helper.val2bits(i, self.nbits)} (|{i}>) differs:', end='')
         print(f'{self[i]:+.3f}  {psi[i]:+.3f}')
     return same
 
@@ -107,7 +106,7 @@ class State(tensor.Tensor):
     g01 = gate[0, 1]
     g10 = gate[1, 0]
     g11 = gate[1, 1]
-    for g in range(0, 1 << self.nbits, 1 << (index+1)):
+    for g in range(0, 1 << self.nbits, 1 << (index + 1)):
       for i in range(g, g + two_q):
         t1 = g00 * self[i] + g01 * self[i + two_q]
         t2 = g10 * self[i] + g11 * self[i + two_q]
@@ -126,7 +125,7 @@ class State(tensor.Tensor):
     g01 = gate[0, 1]
     g10 = gate[1, 0]
     g11 = gate[1, 1]
-    for g in range(0, 1 << self.nbits, 1 << (qbit+1)):
+    for g in range(0, 1 << self.nbits, 1 << (qbit + 1)):
       idx_base = g * (1 << self.nbits)
       for i in range(g, g + two_q):
         idx = idx_base + i
@@ -153,8 +152,9 @@ def qubit(alpha: complex = None, beta: complex = None) -> State:
   if alpha is None:
     alpha = np.sqrt(1.0 - np.real(np.conj(beta) * beta))
 
-  if not math.isclose(np.real(np.conj(alpha) * alpha) +
-                      np.real(np.conj(beta) * beta), 1.0):
+  if not math.isclose(
+      np.real(np.conj(alpha) * alpha) + np.real(np.conj(beta) * beta), 1.0
+  ):
     raise ValueError('Qubit probabilities do not sum to 1.')
 
   qb = np.zeros(2, dtype=tensor.tensor_type())
@@ -197,25 +197,25 @@ def ones(d: int = 1) -> State:
 def plus(d: int = 1) -> State:
   """Product state |+>."""
 
-  return State([1/np.sqrt(2), 1/np.sqrt(2)]).kpow(d)
+  return State([1 / np.sqrt(2), 1 / np.sqrt(2)]).kpow(d)
 
 
 def minus(d: int = 1) -> State:
   """Product state |->."""
 
-  return State([1/np.sqrt(2), -1/np.sqrt(2)]).kpow(d)
+  return State([1 / np.sqrt(2), -1 / np.sqrt(2)]).kpow(d)
 
 
 def plusi(d: int = 1) -> State:
   """Product state |i>."""
 
-  return State([1/np.sqrt(2), 1j/np.sqrt(2)]).kpow(d)
+  return State([1 / np.sqrt(2), 1j / np.sqrt(2)]).kpow(d)
 
 
 def minusi(d: int = 1) -> State:
   """Product state |-i>."""
 
-  return State([1/np.sqrt(2), -1j/np.sqrt(2)]).kpow(d)
+  return State([1 / np.sqrt(2), -1j / np.sqrt(2)]).kpow(d)
 
 
 def bitstring(*bits) -> State:
@@ -239,13 +239,12 @@ def rand_bits(n: int) -> State:
   return bitstring(*bits)
 
 
-class Reg():
+class Reg:
   """Simple register class."""
 
   def __init__(self, size: int, it=0, global_reg: int = 0):
     self.size = size
-    self.global_idx = list(range(global_reg,
-                                 global_reg + size))
+    self.global_idx = list(range(global_reg, global_reg + size))
     self.val = [0] * size
     global_reg += size
 
@@ -299,19 +298,18 @@ def state_to_string(bits: Tuple[int]) -> str:
   """Convert state to string like |010>."""
 
   s = ''.join(str(i) for i in bits)
-  dec_digits = int(math.log10(2**len(bits)))+1
+  dec_digits = int(math.log10(2 ** len(bits))) + 1
   return f'|{s}> (|{int(s, 2):{dec_digits}d}>)'
 
 
-def dump_state(psi, desc: str = None,
-               prob_only: bool = True) -> None:
+def dump_state(psi, desc: str = None, prob_only: bool = True) -> None:
   """Dump probabilities for a state, as well as local qubit state."""
 
   if desc:
     print('|', end='')
     for i in range(psi.nbits):
       print(i % 10, end='')
-    print(f'> \'{desc}\'')
+    print(f"> '{desc}'")
 
   state_list: List[str] = []
   for bits in helper.bitprod(psi.nbits):
@@ -319,10 +317,12 @@ def dump_state(psi, desc: str = None,
       continue
 
     state_list.append(
-        '{:s}:  ampl: {:+.2f} prob: {:.2f} Phase: {:5.1f}'
-        .format(state_to_string(bits),
-                psi.ampl(*bits),
-                psi.prob(*bits),
-                psi.phase(*bits)))
+        '{:s}:  ampl: {:+.2f} prob: {:.2f} Phase: {:5.1f}'.format(
+            state_to_string(bits),
+            psi.ampl(*bits),
+            psi.prob(*bits),
+            psi.phase(*bits),
+        )
+    )
   state_list.sort()
   print(*state_list, sep='\n')

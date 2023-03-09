@@ -64,7 +64,7 @@ class CircuitTest(absltest.TestCase):
     qc.bitstring(0)
     qc.rx(0, 2 * np.arcsin(0.5))
     self.assertEqual(qc.psi.prob(0), 0.75)
-    self.assertEqual(qc.psi.prob(1),  0.25)
+    self.assertEqual(qc.psi.prob(1), 0.25)
 
   def test_acceleration(self):
     psi = state.bitstring(1, 0, 1, 0)
@@ -95,11 +95,11 @@ class CircuitTest(absltest.TestCase):
       qc.h(n)
       psi.apply1(ops.Hadamard(), n)
       for i in range(0, 5):
-        qc.cu1(n-(i+1), n, math.pi/float(2**(i+1)))
-        psi.applyc(ops.U1(math.pi/float(2**(i+1))), n-(i+1), n)
+        qc.cu1(n - (i + 1), n, math.pi/float(2 ** (i + 1)))
+        psi.applyc(ops.U1(math.pi/float(2 ** (i + 1))), n - (i + 1), n)
       for i in range(0, 5):
-        qc.cu1(n-(i+1), n, -math.pi/float(2**(i+1)))
-        psi.applyc(ops.U1(-math.pi/float(2**(i+1))), n-(i+1), n)
+        qc.cu1(n - (i + 1), n, -math.pi/float(2 ** (i + 1)))
+        psi.applyc(ops.U1(-math.pi/float(2 ** (i + 1))), n - (i + 1), n)
       qc.h(n)
       psi.apply1(ops.Hadamard(), n)
 
@@ -123,7 +123,7 @@ class CircuitTest(absltest.TestCase):
     c1 = circuit.qc('c1')
     c1.reg(6, 0)
     c1.x(0)
-    c1.rx(1, math.pi/3)
+    c1.rx(1, math.pi / 3)
     c1.h(1)
     c1.cz(3, 2)
 
@@ -288,8 +288,8 @@ class CircuitTest(absltest.TestCase):
     def decr(qc, idx, nbits, aux, controller):
       for i in range(0, nbits):
         ctl = controller.copy()
-        for j in range(nbits-1, i, -1):
-          ctl.append([j+idx])
+        for j in range(nbits - 1, i, -1):
+          ctl.append([j + idx])
       qc.multi_control(ctl, i+idx, aux, ops.PauliX(), 'multi-0-X')
 
     qc = circuit.qc('decr')
@@ -333,7 +333,7 @@ class CircuitTest(absltest.TestCase):
     def qft(qc: circuit.qc, reg: state.Reg, n: int) -> None:
       qc.h(reg[n])
       for i in range(n):
-        qc.cu1(reg[n-(i+1)], reg[n], math.pi/float(2**(i+1)))
+        qc.cu1(reg[n - (i + 1)], reg[n], math.pi/float(2 ** (i + 1)))
 
     def make_qc(nbits: int, init_val: int):
       qc = circuit.qc('test')
@@ -363,10 +363,10 @@ class CircuitTest(absltest.TestCase):
 
     qc = circuit.qc('test')
     qc.state(psi)
-    self.assertTrue(math.isclose(np.real(psi[0]), 1/np.sqrt(2), abs_tol=1e-6))
+    self.assertTrue(math.isclose(np.real(psi[0]), 1 / np.sqrt(2), abs_tol=1e-6))
     self.assertTrue(math.isclose(np.real(psi[1]), 0, abs_tol=1e-6))
     self.assertTrue(math.isclose(np.real(psi[2]), 0, abs_tol=1e-6))
-    self.assertTrue(math.isclose(np.real(psi[3]), 1/np.sqrt(2), abs_tol=1e-6))
+    self.assertTrue(math.isclose(np.real(psi[3]), 1 / np.sqrt(2), abs_tol=1e-6))
     self.assertEqual(psi.nbits, 2)
 
 
