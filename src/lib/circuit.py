@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 import itertools
-import sys
 from typing import Callable, Tuple
 
 from absl import flags
