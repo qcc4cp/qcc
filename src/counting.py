@@ -95,9 +95,10 @@ def run_experiment(nbits_phase: int, nbits_grover: int, solutions: int) -> None:
 
   print(
       f'Estimate: {phi_estimate:.4f} prob: {maxprob:5.2f}% '
-      f'--> m: {maxprob * 100.0:5.2f}, want: {solutions:2d}'
+      f'--> m: {m:5.2f}, want: {solutions:2d}'
   )
-
+  if not np.allclose(np.round(m), solutions):
+    raise AssertionError('Incorrect result.')
 
 def main(argv):
   if len(argv) > 1:

@@ -1,15 +1,9 @@
 # python3
 """Example: QRAM."""
 
-import math
-import random
-from typing import List
-
 from absl import app
-import numpy as np
-from src.lib import helper
-from src.lib import ops
 from src.lib import circuit
+from src.lib import ops
 
 
 # This is a very simple and simplified implementation of
@@ -56,7 +50,7 @@ def qram_2_to_1():
   print('2 address bits, 1 data bit.')
   qc = circuit.qc('test')
   a = qc.reg(2)
-  d = qc.reg(1)
+  _ = qc.reg(1)
 
   qc.h(a)
   qc.multi_control([[0], 1], 2, None, ops.PauliX(), 'ccx')
