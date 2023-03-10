@@ -55,42 +55,11 @@ except Exception:  # pylint: disable=broad-except
 
   # pylint: disable=unused-argument
   def apply1(psi, gate: np.ndarray, nbits: int, qubit: int, bitwidth: int = 0):
-    """Apply a single-qubit gate via explicit indexing."""
-
-    qubit = nbits - qubit - 1
-    if qubit < 0:
-      print('***Error***: Negative qubit index in apply1().')
-      print('             Perhaps using wrongly shaped state?\n')
-      sys.exit(1)
-    two_q = 2**qubit
-    for g in range(0, 2**nbits, 2 ** (qubit + 1)):
-      for i in range(g, g + two_q):
-        t1 = gate[0] * psi[i] + gate[1] * psi[i + two_q]
-        t2 = gate[2] * psi[i] + gate[3] * psi[i + two_q]
-        psi[i] = t1
-        psi[i + two_q] = t2
-    return psi
+    return psi.apply1(gate.reshape((2, 2)), qubit)
 
   # pylint: disable=unused-argument
   def applyc(psi, gate, nbits, control, target, bitwidth=0):
-    """Apply a controlled 2-qubit gate via explicit indexing."""
-
-    qubit = nbits - target - 1
-    if qubit < 0:
-      print('***Error***: Negative qubit index in applyc().')
-      print('             Perhaps using wrongly shaped state?\n')
-      sys.exit(1)
-    two_q = 2**qubit
-    control = nbits - control - 1
-    for g in range(0, 2**nbits, 2 ** (qubit + 1)):
-      for i in range(g, g + two_q):
-        idx = g * 2**nbits + i
-        if idx & (1 << control):
-          t1 = gate[0] * psi[i] + gate[1] * psi[i + two_q]
-          t2 = gate[2] * psi[i] + gate[3] * psi[i + two_q]
-          psi[i] = t1
-          psi[i + two_q] = t2
-    return psi
+    return psi.applyc(gate.reshape((2, 2)), control, target)
 
 
 flags.DEFINE_string('libq', '', 'Generate libq output file, or empty')
@@ -111,12 +80,9 @@ class qc:
     self.global_reg = 0
     self.sub_circuits = 0
     self.eager = eager
-    try:
-      if (len(flags.FLAGS.libq) +
-          len(flags.FLAGS.qasm) +
-          len(flags.FLAGS.cirq) +
-          len(flags.FLAGS.text) +
-          len(flags.FLAGS.latex)):
+    try:  # this can fail in python-only REPL environements.
+      if (len(flags.FLAGS.libq + flags.FLAGS.qasm + flags.FLAGS.cirq) +
+          flags.FLAGS.text + flags.FLAGS.latex):
         self.eager = False
     except Exception:  # pylint: disable=broad-except
       pass
@@ -237,7 +203,7 @@ class qc:
       if idx.size == 1:
         idx = idx[0]
       else:
-        raise AssertionError('controlled n-qbit register not supported')
+        raise AssertionError('Controlled n-qbit register not supported')
 
     ctl_qubit, by_0 = self._ctl_by_0(ctl)
     if by_0:

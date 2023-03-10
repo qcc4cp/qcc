@@ -101,6 +101,10 @@ class State(tensor.Tensor):
     # index needs to be reversed.
     #
     index = self.nbits - index - 1
+    if index < 0:
+      print('***Error***: Negative qubit index in apply1().')
+      print('             Perhaps using wrongly shaped state?\n')
+      sys.exit(1)
     two_q = 1 << index
     g00 = gate[0, 0]
     g01 = gate[0, 1]
@@ -119,6 +123,10 @@ class State(tensor.Tensor):
     # To maintain qubit ordering in this infrastructure,
     # index needs to be reversed.
     qbit = self.nbits - target - 1
+    if qbit < 0:
+      print('***Error***: Negative qubit index in applyc().')
+      print('             Perhaps using wrongly shaped state?\n')
+      sys.exit(1)
     two_q = 2**qbit
     control = self.nbits - control - 1
     g00 = gate[0, 0]
