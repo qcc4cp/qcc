@@ -71,7 +71,7 @@ def run_experiment(nbits_phase: int, nbits_grover: int, solutions: int) -> None:
   # phase estimation. This loop is a copy from phase_estimation.py
   # with more comments there.
   cu = grover
-  for inv in range(nbits_phase - 1, -1, -1):
+  for inv in reversed(range(nbits_phase)):
     psi = ops.ControlledU(inv, nbits_phase, cu)(psi, inv)
     cu = cu(cu)
 

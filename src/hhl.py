@@ -131,7 +131,7 @@ def construct_circuit(b, w, u, c, clock_bits):
   qc.qft(clock, True)
 
   # Uncompute.
-  for idx in range(clock_bits - 1, -1, -1):
+  for idx in reversed(range(clock_bits)):
     op = ops.ControlledU(clock[idx], breg[breg.size - 1],
                          u_phase_inv_gates[idx])
     qc.unitary(op, breg[0])

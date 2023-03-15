@@ -96,9 +96,9 @@ def ccadd(qc, q, ctl1: int, ctl2: int, a: int, n: int,
 def qft(qc, up_reg, n: int, with_swaps: bool = False) -> None:
   """QFT."""
 
-  for i in range(n - 1, -1, -1):
+  for i in reversed(range(n)):
     qc.h(up_reg[i])
-    for j in range(i - 1, -1, -1):
+    for j in reversed(range(i)):
       qc.cu1(up_reg[i], up_reg[j], math.pi/2**(i - j))
 
   if with_swaps:
@@ -176,7 +176,7 @@ def cmultmodn(qc, ctl, q, aux, a, number, n):
 
   print('Uncompute...')
   qft(qc, aux, n + 1)
-  for i in range(n - 1, -1, -1):
+  for i in reversed(range(n)):
     cc_add_mod_n_inverse(qc, aux, q[i], ctl, aux[n+1],
                          ((2**i) * a_inv) % number, number, n + 1)
   inverse_qft(qc, aux, n + 1)
