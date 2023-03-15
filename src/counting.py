@@ -94,7 +94,7 @@ def run_experiment(nbits_phase: int, nbits_grover: int, solutions: int) -> None:
   m = round(2**nbits_grover * math.sin(phi_estimate * math.pi) ** 2, 2)
 
   print(
-      f'Estimate: {phi_estimate:.4f} prob: {maxprob:5.2f}% '
+      f'Estimate: {phi_estimate:.4f} prob: {maxprob * 100.0:5.2f}% '
       f'--> m: {m:5.2f}, want: {solutions:2d}'
   )
   if not np.allclose(np.round(m), solutions):
