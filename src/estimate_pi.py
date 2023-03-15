@@ -50,8 +50,12 @@ def run_experiment(nbits_phase):
 
   bits, _ = qc.psi.maxprob()
   theta = helper.bits2frac(bits[:nbits_phase][::-1])
-  print(f'Pi Estimate: {1 / (2 * theta):.5f} (qubits: {nbits_phase:2d}) '
-        f'Delta: {np.abs(1 / (2 * theta) - np.pi):.6f}')
+  piest = 1 / (2 * theta)
+  delta = np.abs(piest - np.pi)
+  print(f'Pi Estimate: {piest:.5f} (qb: {nbits_phase:2d}) Delta: {delta:.6f}')
+  if delta > 0.06:
+    raise AssertionError('Incorrect Estimation of Pi.')
+
 
 
 # pylint: disable=unused-argument

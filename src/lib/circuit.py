@@ -330,9 +330,9 @@ class qc:
   def qft(self, reg, with_swaps: bool = False) -> None:
     """QFT."""
 
-    for i in range(reg.size - 1, -1, -1):
+    for i in reversed(range(reg.size)):
       self.h(reg[i])
-      for j in range(i - 1, -1, -1):
+      for j in reversed(range(i)):
         self.cu1(reg[i], reg[j], np.pi / 2 ** (i - j))
     if with_swaps:
       self.flip(reg)
