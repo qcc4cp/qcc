@@ -62,6 +62,7 @@ To run individual algorithms via `bazel`, run any of these command lines (note t
 # in preparation of a new edition of the book:
    bazel run amplitude_estimation
    bazel run chsh
+   bazel run estimate_pi
    bazel run euclidean_distance
    bazel run graph_coloring
    bazel run hadamard_test
@@ -74,8 +75,8 @@ To run individual algorithms via `bazel`, run any of these command lines (note t
    bazel run pauli_rep
    bazel run purification
    bazel run qram
-   bazel run quantum_mean   
-   bazel run quantum_median   
+   bazel run quantum_mean
+   bazel run quantum_median
    bazel run quantum_pca
    bazel run sat3
    bazel run schmidt_decomp
