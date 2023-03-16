@@ -34,7 +34,7 @@ def run_experiment(nbits_phase):
   #   | 1.0    0.0        |
   #   | 0.0    exp(i phi) |
   #
-  # and we set phi = 1.0.
+  # and we set phi = 1.0. Note that the eigenvalues are 1.0 and exp(i phi).
   #
   # Phase estimation gives us the phase phi of an operator as the fraction:
   #    exp(2 Pi i phi)
@@ -42,8 +42,9 @@ def run_experiment(nbits_phase):
   # We did set phi to 1.0 above. So we know 2 Pi phi = 1.0 or
   #   Pi = 1 / (2 phi)
   #
-  qc.h(qclock)
   qc.x(qbit)
+
+  qc.h(qclock)
   for inv in reversed(range(nbits_phase)):
     qc.cu1(qclock[inv], qbit[0], 2 ** (nbits_phase - inv -1))
   qc.inverse_qft(qclock)
@@ -52,10 +53,10 @@ def run_experiment(nbits_phase):
   theta = helper.bits2frac(bits[:nbits_phase][::-1])
   piest = 1 / (2 * theta)
   delta = np.abs(piest - np.pi)
+
   print(f'Pi Estimate: {piest:.5f} (qb: {nbits_phase:2d}) Delta: {delta:.6f}')
   if delta > 0.06:
     raise AssertionError('Incorrect Estimation of Pi.')
-
 
 
 # pylint: disable=unused-argument
@@ -64,6 +65,7 @@ def main(argv):
 
   for nbits in range(5, 21):
     run_experiment(nbits)
+
 
 if __name__ == '__main__':
   app.run(main)
