@@ -422,7 +422,7 @@ def PhaseEstimation(op: Operator, psi: state.State,
   """Apply phase estimation."""
 
   cu = op
-  for inv in range(nbits_phase - 1, -1, -1):
+  for inv in reversed(range(nbits_phase)):
     psi = ControlledU(inv + offset, target, cu)(psi, inv + offset)
     cu = cu(cu)
   return psi

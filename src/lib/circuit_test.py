@@ -95,10 +95,10 @@ class CircuitTest(absltest.TestCase):
       qc.h(n)
       psi.apply1(ops.Hadamard(), n)
       for i in range(0, 5):
-        qc.cu1(n - (i + 1), n, math.pi/float(2 ** (i + 1)))
+        qc.cu1(n - (i + 1), n, math.pi / float(2 ** (i + 1)))
         psi.applyc(ops.U1(math.pi/float(2 ** (i + 1))), n - (i + 1), n)
       for i in range(0, 5):
-        qc.cu1(n - (i + 1), n, -math.pi/float(2 ** (i + 1)))
+        qc.cu1(n - (i + 1), n, -math.pi / float(2 ** (i + 1)))
         psi.applyc(ops.U1(-math.pi/float(2 ** (i + 1))), n - (i + 1), n)
       qc.h(n)
       psi.apply1(ops.Hadamard(), n)
@@ -290,7 +290,7 @@ class CircuitTest(absltest.TestCase):
         ctl = controller.copy()
         for j in range(nbits - 1, i, -1):
           ctl.append([j + idx])
-      qc.multi_control(ctl, i+idx, aux, ops.PauliX(), 'multi-0-X')
+      qc.multi_control(ctl, i + idx, aux, ops.PauliX(), 'multi-0-X')
 
     qc = circuit.qc('decr')
     qc.reg(4, 15)
@@ -333,7 +333,7 @@ class CircuitTest(absltest.TestCase):
     def qft(qc: circuit.qc, reg: state.Reg, n: int) -> None:
       qc.h(reg[n])
       for i in range(n):
-        qc.cu1(reg[n - (i + 1)], reg[n], math.pi/float(2 ** (i + 1)))
+        qc.cu1(reg[n - (i + 1)], reg[n], math.pi / float(2 ** (i + 1)))
 
     def make_qc(nbits: int, init_val: int):
       qc = circuit.qc('test')
