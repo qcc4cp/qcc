@@ -96,10 +96,10 @@ class CircuitTest(absltest.TestCase):
       psi.apply1(ops.Hadamard(), n)
       for i in range(0, 5):
         qc.cu1(n - (i + 1), n, math.pi / float(2 ** (i + 1)))
-        psi.applyc(ops.U1(math.pi/float(2 ** (i + 1))), n - (i + 1), n)
+        psi.applyc(ops.U1(math.pi / float(2 ** (i + 1))), n - (i + 1), n)
       for i in range(0, 5):
         qc.cu1(n - (i + 1), n, -math.pi / float(2 ** (i + 1)))
-        psi.applyc(ops.U1(-math.pi/float(2 ** (i + 1))), n - (i + 1), n)
+        psi.applyc(ops.U1(-math.pi / float(2 ** (i + 1))), n - (i + 1), n)
       qc.h(n)
       psi.apply1(ops.Hadamard(), n)
 
