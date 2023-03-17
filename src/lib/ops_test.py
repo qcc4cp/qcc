@@ -60,8 +60,7 @@ class OpsTest(absltest.TestCase):
 
     # Check operator itself.
     x = ops.PauliX() * ops.Identity()
-    self.assertTrue(ops.Cnot0(0, 1).
-                    is_close(x @ ops.Cnot(0, 1) @ x))
+    self.assertTrue(ops.Cnot0(0, 1).is_close(x @ ops.Cnot(0, 1) @ x))
 
     # Compute simplest case with Cnot0.
     psi = state.bitstring(1, 0)
@@ -138,12 +137,12 @@ class OpsTest(absltest.TestCase):
 
   def check_rotation(self, angle):
     # Note that RotationZ rotates by theta/2
-    psi = ops.RotationZ(math.pi/180.0*angle)(state.zeros(1))
-    self.assertTrue(math.isclose(-angle/2, psi.phase(0), abs_tol=1e-5))
+    psi = ops.RotationZ(math.pi / 180.0 * angle)(state.zeros(1))
+    self.assertTrue(math.isclose(-angle / 2, psi.phase(0), abs_tol=1e-5))
 
   def test_phase(self):
     psi = state.zeros(1)
-    psi = ops.RotationZ(math.pi/2)(psi)
+    psi = ops.RotationZ(math.pi / 2)(psi)
     phase = psi.phase(0)
 
     # Note that Rotation rotates by theta/2.
@@ -151,9 +150,9 @@ class OpsTest(absltest.TestCase):
 
     # Test all other angles, check for sign flips.
     for i in range(360):
-      self.check_rotation(float(i)/2)
+      self.check_rotation(float(i) / 2)
     for i in range(360):
-      self.check_rotation(float(-i)/2)
+      self.check_rotation(float(-i) / 2)
 
   def test_rk(self):
     rk0 = ops.Rk(0)
@@ -232,10 +231,10 @@ class OpsTest(absltest.TestCase):
     op_manual = cx * ops.Identity(2)
     self.assertTrue(op.is_close(op_manual))
     op = ident(cx, 1)
-    op_manual = ops.Identity(1) *  cx * ops.Identity(1)
+    op_manual = ops.Identity(1) * cx * ops.Identity(1)
     self.assertTrue(op.is_close(op_manual))
     op = ident(cx, 2)
-    op_manual = ops.Identity(2) *  cx
+    op_manual = ops.Identity(2) * cx
     self.assertTrue(op.is_close(op_manual))
 
   def test_controlled_rotations(self):
@@ -265,7 +264,7 @@ class OpsTest(absltest.TestCase):
 
   def test_rk_u1(self):
     for i in range(10):
-      u1 = ops.U1(2*math.pi / (2**i))
+      u1 = ops.U1(2 * math.pi / (2**i))
       rk = ops.Rk(i)
       self.assertTrue(u1.is_close(rk))
 
@@ -277,19 +276,23 @@ class OpsTest(absltest.TestCase):
     self.assertTrue(np.allclose(np.inner(psi.conj(), psi), 1.0))
 
     # inner product of the constituents multiplied
-    self.assertTrue(np.allclose(np.inner(p1.conj(), p1) *
-                                np.inner(x1.conj(), x1), 1.0))
+    self.assertTrue(
+        np.allclose(np.inner(p1.conj(), p1) * np.inner(x1.conj(), x1), 1.0)
+    )
 
   def test_u(self):
     val = random.random()
     self.assertTrue(np.allclose(ops.U3(0, 0, val), ops.U1(val)))
-    self.assertTrue(np.allclose(ops.U3(np.pi/2, 0, np.pi), ops.Hadamard()))
+    self.assertTrue(np.allclose(ops.U3(np.pi / 2, 0, np.pi), ops.Hadamard()))
     self.assertTrue(np.allclose(ops.U3(0, 0, 0), ops.Identity()))
     self.assertTrue(np.allclose(ops.U3(np.pi, 0, np.pi), ops.PauliX()))
-    self.assertTrue(np.allclose(ops.U3(np.pi, np.pi/2, np.pi/2), ops.PauliY()))
+    self.assertTrue(
+        np.allclose(ops.U3(np.pi, np.pi / 2, np.pi / 2), ops.PauliY())
+    )
     self.assertTrue(np.allclose(ops.U3(0, 0, np.pi), ops.PauliZ()))
-    self.assertTrue(np.allclose(ops.U3(val, -np.pi/2, np.pi/2),
-                                ops.RotationX(val)))
+    self.assertTrue(
+        np.allclose(ops.U3(val, -np.pi / 2, np.pi / 2), ops.RotationX(val))
+    )
     self.assertTrue(np.allclose(ops.U3(val, 0, 0), ops.RotationY(val)))
 
   def test_diffusion_op(self):
@@ -301,8 +304,8 @@ class OpsTest(absltest.TestCase):
     op = op @ czz
     op = op @ ops.PauliX(nbits)
     op = op @ ops.Hadamard(nbits)
-    self.assertTrue(np.allclose(op[0, 0], 1 - 2/(2**nbits), atol=0.001))
-    self.assertTrue(np.allclose(op[0, 1], -2/(2**nbits), atol=0.001))
+    self.assertTrue(np.allclose(op[0, 0], 1 - 2 / (2**nbits), atol=0.001))
+    self.assertTrue(np.allclose(op[0, 1], -2 / (2**nbits), atol=0.001))
 
   def test_two_qubit_qft(self):
     for q1 in range(2):
@@ -319,8 +322,14 @@ class OpsTest(absltest.TestCase):
         self.assertTrue(psi1.is_close(psi2))
 
   def test_ctrl_phase(self):
-    for gate in [ops.Sgate(), ops.Tgate(), ops.Rk(1), ops.Rk(2),
-                 ops.U1(random.random()), ops.U1(random.random())]:
+    for gate in [
+        ops.Sgate(),
+        ops.Tgate(),
+        ops.Rk(1),
+        ops.Rk(2),
+        ops.U1(random.random()),
+        ops.U1(random.random()),
+    ]:
       op01 = ops.ControlledU(2, 5, gate)
       op10 = ops.ControlledU(5, 2, gate)
       self.assertTrue(op01.is_close(op10))
@@ -330,10 +339,7 @@ class OpsTest(absltest.TestCase):
       q = state.qubit(alpha=random.random())
       rho = q.density()
       ident, x, y, z = ops.Pauli()
-      u = (rho +
-           x @ rho @ x +
-           y @ rho @ y +
-           z @ rho @ z) / 2
+      u = (rho + x @ rho @ x + y @ rho @ y + z @ rho @ z) / 2
       self.assertTrue(np.allclose(u, ident))
 
 

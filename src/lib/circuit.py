@@ -41,16 +41,14 @@ try:
   apply1 = xgates.apply1
   applyc = xgates.applyc
 except Exception:  # pylint: disable=broad-except
-  print(
-      """
+  print("""
   **************************************************************
   WARNING: Could not find 'libxgates.so'.
   Please build it and point PYTHONPATH to it.
   Execution is being re-directed to a Python implementation,
   performance may suffer greatly.
   **************************************************************
-      """
-  )
+  """)
 
   # pylint: disable=unused-argument
   def apply1(psi, gate: np.ndarray, nbits: int, qubit: int, bitwidth: int = 0):
@@ -80,8 +78,8 @@ class qc:
     self.sub_circuits = 0
     self.eager = eager
     try:  # this can fail in python-only REPL environements.
-      if (len(flags.FLAGS.libq + flags.FLAGS.qasm + flags.FLAGS.cirq) +
-          flags.FLAGS.text + flags.FLAGS.latex):
+      if (len(flags.FLAGS.libq + flags.FLAGS.qasm + flags.FLAGS.cirq +
+          flags.FLAGS.text + flags.FLAGS.latex)):
         self.eager = False
     except Exception:  # pylint: disable=broad-except
       pass

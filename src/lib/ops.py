@@ -31,9 +31,9 @@ class Operator(tensor.Tensor):
     s += super().__str__()
     return s
 
-  def dump(self,
-           description: Optional[str] = None,
-           zeros: bool = False) -> None:
+  def dump(
+      self, description: Optional[str] = None, zeros: bool = False
+  ) -> None:
     res = ''
     if description:
       res += f'{description} ({self.nbits}-qubits operator)\n'
@@ -152,9 +152,7 @@ def Pauli(d: int = 1) -> Tuple[Operator, Operator, Operator, Operator]:
 
 
 def Hadamard(d: int = 1) -> Operator:
-  return Operator(
-      1 / np.sqrt(2) *
-      np.array([[1.0, 1.0], [1.0, -1.0]])).kpow(d)
+  return Operator(1 / np.sqrt(2) * np.array([[1.0, 1.0], [1.0, -1.0]])).kpow(d)
 
 
 # Phase gate, also called S or Z90. Rotate by 90 deg around z-axis.
@@ -169,38 +167,39 @@ def Sgate(d: int = 1) -> Operator:
 
 # T-gate, which is sqrt(S).
 def Tgate(d: int = 1) -> Operator:
-  return Operator(np.array([[1.0, 0.0],
-                            [0.0, cmath.exp(cmath.pi * 1j / 4)]])).kpow(d)
+  return Operator(
+      np.array([[1.0, 0.0], [0.0, cmath.exp(cmath.pi * 1j / 4)]])
+  ).kpow(d)
 
 
 # V-gate, which is sqrt(X)
 def Vgate(d: int = 1) -> Operator:
-  return Operator(0.5 * np.array([(1+1j, 1-1j), (1-1j, 1+1j)])).kpow(d)
+  return Operator(0.5 * np.array([(1 + 1j, 1 - 1j), (1 - 1j, 1 + 1j)])).kpow(d)
 
 
 # Yroot is sqrt(Y).
 def Yroot(d: int = 1) -> Operator:
   """As found in: https://arxiv.org/pdf/quant-ph/0511250.pdf."""
 
-  return Operator(0.5 * np.array([(1+1j, -1-1j), (1+1j, 1+1j)])).kpow(d)
+  return Operator(0.5 * np.array([(1 + 1j, -1 - 1j), (1 + 1j, 1 + 1j)])).kpow(d)
 
 
 # IBM's U1-gate.
 def U1(lam: float, d: int = 1) -> Operator:
-  return Operator(np.array([(1.0, 0.0),
-                            (0.0, cmath.exp(1j * lam))])).kpow(d)
+  return Operator(np.array([(1.0, 0.0), (0.0, cmath.exp(1j * lam))])).kpow(d)
 
 
 # IBM's general U3-gate.
 def U3(theta: float, phi: float, lam: float, d: int = 1) -> Operator:
-  return Operator(np.array([(np.cos(theta/2),
-                             -cmath.exp(1j*lam)*np.sin(theta/2)),
-                            (cmath.exp(1j*phi)*np.sin(theta/2),
-                             cmath.exp(1j*(phi+lam))*np.cos(theta/2))])).kpow(d)
+  return Operator(
+      np.array([(np.cos(theta / 2),
+                 -cmath.exp(1j * lam)*np.sin(theta / 2)),
+                (cmath.exp(1j * phi)*np.sin(theta / 2),
+                 cmath.exp(1j * (phi + lam))*np.cos(theta / 2))])).kpow(d)
 
 
 def Rk(k: int, d: int = 1) -> Operator:
-  return U1(2*math.pi / (2**k)).kpow(d)
+  return U1(2 * math.pi / (2**k)).kpow(d)
 
 
 # Cache Pauli matrices for performance reasons.
@@ -217,8 +216,7 @@ def Rotation(vparm: List[float], theta: float) -> Operator:
   """Produce the single-qubit rotation operator."""
 
   v = np.asarray(vparm)
-  if (v.shape != (3,) or not math.isclose(v @ v, 1) or
-      not np.all(np.isreal(v))):
+  if v.shape != (3,) or not math.isclose(v @ v, 1) or not np.all(np.isreal(v)):
     raise ValueError('Rotation vector v must be a 3D real unit vector.')
 
   return Operator(np.cos(theta / 2) * Identity() - 1j * np.sin(theta / 2) * (
@@ -230,11 +228,11 @@ def RotationX(theta: float) -> Operator:
 
 
 def RotationY(theta: float) -> Operator:
-  return Rotation([0., 1., 0.], theta)
+  return Rotation([0.0, 1.0, 0.0], theta)
 
 
 def RotationZ(theta: float) -> Operator:
-  return Rotation([0., 0., 1.], theta)
+  return Rotation([0.0, 0.0, 1.0], theta)
 
 
 def ZeroProjector(nbits: int) -> Operator:
@@ -250,7 +248,7 @@ def OneProjector(nbits: int) -> Operator:
 
   dim = 2**nbits
   zero_projector = np.zeros((dim, dim))
-  zero_projector[dim-1, dim-1] = 1
+  zero_projector[dim - 1, dim - 1] = 1
   return Operator(zero_projector)
 
 
@@ -339,7 +337,7 @@ def OracleUf(nbits: int, f: Callable[[List[int]], int]) -> Operator:
   u = np.zeros(dim**2).reshape(dim, dim)
   for row in range(dim):
     bits = helper.val2bits(row, nbits)
-    fx = f(bits[0:-1])   # f(x) without the y.
+    fx = f(bits[0:-1])  # f(x) without the y.
     xor = bits[-1] ^ fx
 
     new_bits = bits[0:-1]
@@ -422,7 +420,7 @@ def PhaseEstimation(op: Operator, psi: state.State,
   """Apply phase estimation."""
 
   cu = op
-  for inv in range(nbits_phase - 1, -1, -1):
+  for inv in reversed(range(nbits_phase)):
     psi = ControlledU(inv + offset, target, cu)(psi, inv + offset)
     cu = cu(cu)
   return psi
@@ -483,14 +481,14 @@ def TraceOut(rho: Operator, index_set: List[int]) -> Operator:
     #    qubit 0  1  2  <-  4
     #    qubit 0  1  2  3
     #          a  b  d  f
-    for i in range(idx+1, len(index_set)):
+    for i in range(idx + 1, len(index_set)):
       index_set[i] = index_set[i] - 1
   return rho
 
 
-def Measure(psi: state.State, idx: int,
-            tostate: int = 0,
-            collapse: bool = True) -> Tuple[float, state.State]:
+def Measure(
+    psi: state.State, idx: int, tostate: int = 0, collapse: bool = True
+) -> Tuple[float, state.State]:
   """Measure a qubit via a projector on the density matrix."""
 
   # Measure() measure qubit 'idx' in state 'psi'. It both measures the
@@ -507,7 +505,7 @@ def Measure(psi: state.State, idx: int,
   if idx > 0:
     op = Identity().kpow(idx) * op
   if idx < psi.nbits - 1:
-    op = op * Identity().kpow(psi.nbits - idx -1)
+    op = op * Identity().kpow(psi.nbits - idx - 1)
 
   # Probability is the trace.
   prob0 = np.trace(np.matmul(op, rho))

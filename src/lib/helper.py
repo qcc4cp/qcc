@@ -34,7 +34,7 @@ def val2bits(val: int, nbits: int) -> List[int]:
 def bits2frac(bits: Tuple[int, ...]) -> float:
   """For given bits, compute the binary fraction."""
 
-  return sum(bits[i] * 2**(-i - 1) for i in range(len(bits)))
+  return sum(bits[i] * 2 ** (-i - 1) for i in range(len(bits)))
 
 
 def frac2bits(val: float, nbits: int) -> List[int]:
