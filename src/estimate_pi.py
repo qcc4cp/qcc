@@ -45,16 +45,16 @@ def run_experiment(nbits_phase):
   qc.x(qbit)
 
   qc.h(qclock)
-  for inv in reversed(range(nbits_phase)):
-    qc.cu1(qclock[inv], qbit[0], 2 ** (nbits_phase - inv -1))
+  for inv in range(nbits_phase):
+    qc.cu1(qclock[inv], qbit[0], 2 ** (nbits_phase - inv -  1))
   qc.inverse_qft(qclock)
 
   bits, _ = qc.psi.maxprob()
   theta = helper.bits2frac(bits[:nbits_phase][::-1])
-  piest = 1 / (2 * theta)
-  delta = np.abs(piest - np.pi)
+  pi = 1 / (2 * theta)
+  delta = np.abs(pi - np.pi)
 
-  print(f'Pi Estimate: {piest:.5f} (qb: {nbits_phase:2d}) Delta: {delta:.6f}')
+  print(f'Pi Estimate: {pi:.5f} (qb: {nbits_phase:2d}) Delta: {delta:.6f}')
   if delta > 0.06:
     raise AssertionError('Incorrect Estimation of Pi.')
 
