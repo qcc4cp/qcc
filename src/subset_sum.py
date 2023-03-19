@@ -94,33 +94,52 @@ def dump_solution(bits: List[int], num_list: List[int]):
   return '+'.join(iset) + ' == ' + '+'.join(oset)
 
 
-def run_experiment() -> None:
+def run_experiment(num_list: List[int]) -> bool:
   """Run an experiment, compute H, match against 0."""
 
   nmax = flags.FLAGS.nmax
-  num_list = select_numbers(nmax, flags.FLAGS.nnum)
+  if not num_list:
+    num_list = select_numbers(nmax, flags.FLAGS.nnum)
   solutions = compute_partition(num_list)
 
   diag = set_to_diagonal_h(num_list, nmax)
 
   non_zero = np.count_nonzero(diag)
   if non_zero != 2**nmax:
-    print('Solution should exist...', end='')
+    print('  Solution should exist...', end='')
     if solutions:
       print(' Found Solution:',
             dump_solution(solutions[0], num_list))
-      return
+      return True
     raise AssertionError('False positive found.')
+
+  print('  No Solution Found.', sorted(num_list))
   if solutions:
     raise AssertionError('False negative found.')
+  return False
 
 
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
+  print(f'Test random sets [1..{flags.FLAGS.nmax}]')
   for _ in range(flags.FLAGS.iterations):
-    run_experiment()
+    run_experiment(None)
+
+  # A few negative tests.
+  print('Test known-negative sets...')
+  sets = [
+    [1, 2, 3, 7],
+    [1, 3, 5, 10],
+    [2, 7, 8, 10, 12, 13],
+    [1, 6, 8, 9, 12, 14],
+    [3, 8, 9, 11, 13, 14],
+    [7, 9, 12, 14, 15, 17],
+  ]
+  for s in sets:
+    if run_experiment(s):
+      raise AssertionError('Incorrect Classification')
 
 
 if __name__ == '__main__':
