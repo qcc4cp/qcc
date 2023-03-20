@@ -44,7 +44,7 @@ def expo_u(psi: state.State, u: ops.Operator, t: int) -> state.State:
   #
   psi = ops.Hadamard(t)(psi)
   u2 = u
-  for inv in range(t-1, -1, -1):
+  for inv in reversed(range(t)):
     psi = ops.ControlledU(inv, t, u2)(psi, inv)
     u2 = u2(u2)
   return psi
@@ -67,13 +67,13 @@ def run_experiment(nbits: int, t: int = 8):
   # (any eigenvalue / eigenvector pair will work).
   #
   eigen_index = 1
-  phi = np.real(np.log(eigvals[eigen_index]) / (2j*np.pi))
+  phi = np.real(np.log(eigvals[eigen_index]) / (2j * np.pi))
   if phi < 0:
     phi += 1
 
-  #------------------------------------------
+  # ------------------------------------------
   # Make state and circuit to estimate phi.
-  #------------------------------------------
+  # ------------------------------------------
 
   # Pick eigenvector 'eigen_index' to match the eigenvalue.
   # Combine the 't' register with a register wide enough to hold
@@ -87,7 +87,7 @@ def run_experiment(nbits: int, t: int = 8):
   # Find state with highest measurement probability and show results.
   #
   maxbits, maxprob = psi.maxprob()
-  phi_estimate = sum(maxbits[i] * 2**(-i-1) for i in range(t))
+  phi_estimate = sum(maxbits[i] * 2 ** (-i - 1) for i in range(t))
 
   delta = abs(phi - phi_estimate)
   print('Phase   : {:.4f}'.format(phi))

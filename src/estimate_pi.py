@@ -46,7 +46,7 @@ def run_experiment(nbits_phase):
 
   qc.h(qclock)
   for inv in range(nbits_phase):
-    qc.cu1(qclock[inv], qbit[0], 2 ** (nbits_phase - inv -  1))
+    qc.cu1(qclock[inv], qbit[0], 2 ** (nbits_phase - inv - 1))
   qc.inverse_qft(qclock)
 
   bits, _ = qc.psi.maxprob()

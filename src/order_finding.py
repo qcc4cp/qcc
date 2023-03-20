@@ -208,7 +208,7 @@ def main(argv):
   qc.h(up)
   qc.x(down[0])
   for i in range(nbits * 2):
-    cmultmodn(qc, up[i], down, aux, int(a**(2**i)), number, nbits)
+    cmultmodn(qc, up[i], down, aux, int(a ** (2**i)), number, nbits)
   inverse_qft(qc, up, 2 * nbits, with_swaps=True)
 
   qc.dump_to_file()
@@ -222,8 +222,8 @@ def main(argv):
       phase = helper.bits2frac(bits[nbits + 2 : nbits + 2 + nbits * 2][::-1])
 
       r = fractions.Fraction(phase).limit_denominator(8).denominator
-      guesses = [math.gcd(a**(r // 2) - 1, number),
-                 math.gcd(a**(r // 2) + 1, number)]
+      guesses = [math.gcd(a ** (r // 2) - 1, number),
+                 math.gcd(a ** (r // 2) + 1, number)]
 
       print('Final x: {:3d} phase: {:3f} prob: {:.3f} factors: {}'.
             format(intval, phase, prob.real, guesses))
