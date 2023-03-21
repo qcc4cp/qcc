@@ -171,7 +171,7 @@ def run_experiment(a, b, clock_bits):
   u = compute_u_matrix(a, w, v, t)
 
   # C must be <= than the minimal lam:
-  c = np.min(lam)
+  c = np.min(np.abs(lam))
   print(f'Set C to min : {c:.1f}')
 
   # Now we have all the values and matrices. Let's construct a circuit.
