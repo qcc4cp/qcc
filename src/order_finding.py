@@ -228,9 +228,9 @@ def main(argv):
       print('Final x: {:3d} phase: {:3f} prob: {:.3f} factors: {}'.
             format(intval, phase, prob.real, guesses))
 
-      total_prob += qc.psi.prob(*bits)
-      if total_prob > 0.999:
-        break
+    total_prob += prob
+    if total_prob > 0.999:
+      break
 
   print(qc.stats())
 
