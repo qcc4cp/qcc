@@ -65,16 +65,51 @@ def run_experiment_qaa(nbits: int, states: List[int]) -> None:
   #
   prob_states = []
   probability = 0.0
+  rprob = 0.0
   for idx, val in enumerate(psi):
     if val > 0.09:
       bin_pattern = helper.val2bits(idx, nbits)[:-1]
       probability = np.real(val * val.conj())
       prob_states.append(helper.bits2val(bin_pattern))
+      continue
+    rprob = max(rprob, val)
 
-  print(f'Got: {sorted(prob_states)}, Want: {sorted(states)} '
-        f'Prob: {probability:.3f}, Rest: {np.real(val * val.conj()):.3f}')
+  print(f'Prob: {probability:.3f}, Rest: {np.real(rprob * rprob.conj()):.3f} '
+        f'Factor: {probability / np.real(rprob * rprob.conj()):5.1f} '
+        f' {sorted(prob_states)} ')
   if sorted(prob_states) != sorted(states):
     raise AssertionError('Incorrect state preparation')
+
+
+# --------------------------------------------------------------
+# Single-Qubit State Preparation with Rotations.
+#
+# This represents amplitude encoding for a state:
+#    [alpha  beta]^T
+# By either specifying alpha (via arccos) or beta (via arcsin).
+# --------------------------------------------------------------
+def run_experiment_alpha(alpha) -> None:
+  """Make a single qubit state."""
+
+  qc = circuit.qc('single qubit')
+  x = qc.reg(1, 0)
+  qc.ry(0, 2 * np.arccos(alpha))
+  if not np.allclose(qc.psi[0], alpha, atol=1e-5):
+    raise AssertionError('Incorrect qubit preparation.')
+  print(f'Single qubit (alpha: {alpha:.2f}): '
+        f'[{qc.psi[0]:.2f}, {qc.psi[1]:.2f}]')
+
+
+def run_experiment_beta(beta) -> None:
+  """Make a single qubit state."""
+
+  qc = circuit.qc('single qubit')
+  x = qc.reg(1, 0)
+  qc.ry(0, 2 * np.arcsin(beta))
+  if not np.allclose(qc.psi[1], beta, atol=1e-5):
+    raise AssertionError('Incorrect qubit preparation.')
+  print(f'Single qubit (beta : {beta:.2f}): '
+        f'[{qc.psi[0]:.2f}, {qc.psi[1]:.2f}]')
 
 
 def main(argv):
@@ -82,9 +117,17 @@ def main(argv):
     raise app.UsageError('Too many command-line arguments.')
 
   print('State preparation with QAA.')
-  for _ in range(10):
-    nbits = 7
-    run_experiment_qaa(nbits, random.sample(range(10, 1 << (nbits-1)), 4))
+  for n in range(20):
+    # Factors can be be larger and larger just by increasing
+    # the number of qubits.
+    nbits = 8
+    run_experiment_qaa(nbits, random.sample(range(10, 1 << (nbits-1)), 5 + n))
+
+  print('Single qubit initialization via rotation.')
+  for _ in range(5):
+    run_experiment_alpha(random.random())
+  for _ in range(5):
+    run_experiment_beta(random.random())
 
 
 if __name__ == '__main__':
