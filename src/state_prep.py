@@ -112,9 +112,62 @@ def run_experiment_beta(beta) -> None:
         f'[{qc.psi[0]:.2f}, {qc.psi[1]:.2f}]')
 
 
+# --------------------------------------------------------------
+# Two-Qubit State Preparation with 3 unitary gates and CZ.
+#
+# This method follows the YouTube video from Oscar Perdomo
+#  https://youtu.be/LIdYSs-rE-o
+#
+# This method takes a random state and transforms it down to
+# |0>. In order to make a state out of |0> the gates would
+# need to be applied in the reverse order.
+#
+# It is not clear that this method can be physically realized
+# as it 'reads' values from intermediate states to construct
+# the unitaries.
+# --------------------------------------------------------------
+def run_experiment_2qubit() -> None:
+  """Transform random state down to |00>."""
+
+  def norm(x):
+    return np.linalg.norm(x)
+
+  def u(x, y):
+    return (1 / np.sqrt(norm(x)**2 + norm(y)**2) *
+            ops.Operator([[x, y], [-np.conj(y), np.conj(x)]]))
+
+  psi = np.array(
+    [random.random(), random.random(), random.random(), random.random()]
+  )
+  psi = state.State(psi / norm(psi))
+  print('Random input:', psi, ' -> |0>')
+
+  a1 = np.array([psi[0], psi[1]])
+  a2 = np.array([psi[2], psi[3]])
+  a12 = np.inner(a1.conj(), a2)
+  if a12 == 0:
+    k = norm(a2) / norm(a1)
+  else:
+    k = -norm(a2) / norm(a1) * a12 / norm(a12)
+
+  w1 = u(psi[3] - k * psi[1], (psi[2] - k * psi[0]).conj()).transpose()
+  psi1 = (ops.Identity() * w1)(psi)
+  psi1 = ops.ControlledU(0, 1, ops.PauliZ())(psi1)
+
+  w2 = u(psi1[1].conj(), psi1[3].conj())
+  psi2 = (w2 * ops.Identity())(psi1)
+
+  w3 = u(psi2[0].conj(), (-psi2[1]).conj()).transpose()
+  psi3 = (ops.Identity() * w3)(psi2)
+
+  if not np.allclose(psi3[0], 1.0, 1e-6):
+    raise AssertionError('Incorrect 2-qubit state preparation.')
+
+
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
+
 
   print('State preparation with QAA.')
   for n in range(20):
@@ -129,6 +182,11 @@ def main(argv):
   for _ in range(5):
     run_experiment_beta(random.random())
 
+  print('2 Qubit state preparation.')
+  for _ in range(5):
+    run_experiment_2qubit()
+
 
 if __name__ == '__main__':
+  np.set_printoptions(precision=3)
   app.run(main)
