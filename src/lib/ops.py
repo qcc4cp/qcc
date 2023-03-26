@@ -132,11 +132,11 @@ class Operator(tensor.Tensor):
 # Single Qubit Gates / Generators.
 # --------------------------------------------------------------
 def Identity(d: int = 1) -> Operator:
-  return Operator(np.array([[1.0, 0.0], [0.0, 1.0]])).kpow(d)
+  return Operator([[1.0, 0.0], [0.0, 1.0]]).kpow(d)
 
 
 def PauliX(d: int = 1) -> Operator:
-  return Operator(np.array([[0.0, 1.0], [1.0, 0.0]])).kpow(d)
+  return Operator([[0.0, 1.0], [1.0, 0.0]]).kpow(d)
 
 
 def PauliY(d: int = 1) -> Operator:
@@ -144,7 +144,7 @@ def PauliY(d: int = 1) -> Operator:
 
 
 def PauliZ(d: int = 1) -> Operator:
-  return Operator(np.array([[1.0, 0.0], [0.0, -1.0]])).kpow(d)
+  return Operator([[1.0, 0.0], [0.0, -1.0]]).kpow(d)
 
 
 def Pauli(d: int = 1) -> Tuple[Operator, Operator, Operator, Operator]:
@@ -157,7 +157,7 @@ def Hadamard(d: int = 1) -> Operator:
 
 # Phase gate, also called S or Z90. Rotate by 90 deg around z-axis.
 def Phase(d: int = 1) -> Operator:
-  return Operator(np.array([[1.0, 0.0], [0.0, 1.0j]])).kpow(d)
+  return Operator([[1.0, 0.0], [0.0, 1.0j]]).kpow(d)
 
 
 # Phase gate is also called S-gate.
@@ -167,9 +167,7 @@ def Sgate(d: int = 1) -> Operator:
 
 # T-gate, which is sqrt(S).
 def Tgate(d: int = 1) -> Operator:
-  return Operator(
-      np.array([[1.0, 0.0], [0.0, cmath.exp(cmath.pi * 1j / 4)]])
-  ).kpow(d)
+  return Operator([[1.0, 0.0], [0.0, cmath.exp(cmath.pi * 1j / 4)]]).kpow(d)
 
 
 # V-gate, which is sqrt(X)
@@ -186,16 +184,16 @@ def Yroot(d: int = 1) -> Operator:
 
 # IBM's U1-gate.
 def U1(lam: float, d: int = 1) -> Operator:
-  return Operator(np.array([(1.0, 0.0), (0.0, cmath.exp(1j * lam))])).kpow(d)
+  return Operator([(1.0, 0.0), (0.0, cmath.exp(1j * lam))]).kpow(d)
 
 
 # IBM's general U3-gate.
 def U3(theta: float, phi: float, lam: float, d: int = 1) -> Operator:
   return Operator(
-      np.array([(np.cos(theta / 2),
-                 -cmath.exp(1j * lam)*np.sin(theta / 2)),
-                (cmath.exp(1j * phi)*np.sin(theta / 2),
-                 cmath.exp(1j * (phi + lam))*np.cos(theta / 2))])).kpow(d)
+      [(np.cos(theta / 2),
+       -cmath.exp(1j * lam)*np.sin(theta / 2)),
+       (cmath.exp(1j * phi)*np.sin(theta / 2),
+        cmath.exp(1j * (phi + lam))*np.cos(theta / 2))]).kpow(d)
 
 
 def Rk(k: int, d: int = 1) -> Operator:
