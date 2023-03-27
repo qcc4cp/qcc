@@ -57,7 +57,8 @@ def compute_m(k: int):
   m = np.zeros([n, n])
   for i in range(n):
     for j in range(n):
-      m[i, j] = (-1) ** (j & gray_code(i)).bit_count() * 2 ** (-k)
+      # Note: bit_count() only supported from Python 3.10.
+      m[i, j] = (-1) ** bin(j & gray_code(i)).count('1') * 2 ** (-k)
   return m
 
 
