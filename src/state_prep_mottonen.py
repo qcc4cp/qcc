@@ -62,22 +62,18 @@ def compute_m(k: int):
   return m
 
 
-def indices(k):
+def compute_ctl(idx: int):
   """Compute control indices for the cx gates."""
 
-  # This code is _very_ tricky. It implements the control
-  # qubit indices following Fig 2 in the reference.
-  # Couldn't have done it without the reference in ravikumar1728 (!).
+  # This code is tricky. It implements the control
+  # qubit indices following Fig 2 in the reference, in a recursive
+  # manner. The secret to success is to 'kill' the last token in
+  # the recurive call.
   #
-  n = 2**k
-  code = [gray_code(i) for i in range(n)]
-
-  control = []
-
-  for i in range(n - 1):
-    control.append(int(np.log2(code[i] ^ code[i + 1])))
-  control.append(int(np.log2(code[n - 1] ^ code[0])))
-  return control
+  if idx == 0:
+    return []
+  side = compute_ctl(idx - 1)[:-1]
+  return side + [idx - 1] + side + [idx - 1]
 
 
 def controlled_ry(qc, alpha_k, control, target):
@@ -95,7 +91,7 @@ def controlled_ry(qc, alpha_k, control, target):
     qc.ry(target, thetas[0])
     return
 
-  ctl = indices(k)
+  ctl = compute_ctl(k)
   for i in range(2**k):
     qc.ry(target, thetas[i])
     qc.cx(control[k - 1 - ctl[i]], target)
