@@ -65,17 +65,17 @@ def run_experiment_qaa(nbits: int, states: List[int]) -> None:
   #
   prob_states = []
   probability = 0.0
-  rprob = 0.0
+  ampl = 0.0+0j
   for idx, val in enumerate(psi):
     if val > 0.09:
       bin_pattern = helper.val2bits(idx, nbits)[:-1]
       probability = np.real(val * val.conj())
       prob_states.append(helper.bits2val(bin_pattern))
       continue
-    rprob = max(rprob, val)
+    ampl = max(ampl, val)
 
-  print(f'Prob: {probability:.3f}, Rest: {np.real(rprob * rprob.conj()):.3f} '
-        f'Factor: {probability / np.real(rprob * rprob.conj()):5.1f} '
+  print(f'Prob: {probability:.3f}, Rest: {np.real(ampl * ampl.conj()):.3f} '
+        f'Factor: {probability / np.real(ampl * ampl.conj()):5.1f} '
         f' {sorted(prob_states)} ')
   if sorted(prob_states) != sorted(states):
     raise AssertionError('Incorrect state preparation')
