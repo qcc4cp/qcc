@@ -170,7 +170,7 @@ def main(argv):
 
 
   print('State preparation with QAA.')
-  for n in range(20):
+  for n in range(10):
     # Factors can be be larger and larger just by increasing
     # the number of qubits.
     nbits = 8

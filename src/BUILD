@@ -413,6 +413,16 @@ py_binary(
 )
 
 py_binary(
+    name = "state_prep_mottonen",
+    srcs = ["state_prep_mottonen.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)
+
+py_binary(
     name = "subset_sum",
     srcs = ["subset_sum.py"],
     python_version = "PY3",
