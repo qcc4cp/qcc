@@ -16,7 +16,6 @@ from src.lib import circuit
 #   https://github.com/ravikumar1728/Mottonen-State-Preparation
 #   https://docs.pennylane.ai/en/stable/_modules/pennylane/
 #           templates/state_preparations/mottonen.html
-# Thanks to those authors!
 
 
 def gray_code(i: int) -> int:
@@ -30,18 +29,15 @@ def compute_alpha(vec, k: int, j: int):
 
   # This is a faithful implementation of Equation (8) in the reference.
   # Note the off-by-1 issues (the paper is 1-based).
-  #
   m = 2 ** (k - 1)
   enumerator = 0
-
   for l in range(m):
     enumerator += vec[(2 * (j + 1) - 1) * m + l] ** 2
 
-  mk = 2**k
+  m = 2**k
   divisor = 0
-
-  for l in range(mk):
-    divisor += vec[j * mk + l] ** 2
+  for l in range(m):
+    divisor += vec[j * m + l] ** 2
 
   if divisor != 0:
     return 2 * np.arcsin(np.sqrt(enumerator / divisor))
@@ -52,7 +48,6 @@ def compute_m(k: int):
   """Compute matrix M which takes alpha -> theta."""
 
   # This computation of M follows Equation (3) in the reference.
-  #
   n = 2**k
   m = np.zeros([n, n])
   for i in range(n):
@@ -69,7 +64,6 @@ def compute_ctl(idx: int):
   # qubit indices following Fig 2 in the reference, in a recursive
   # manner. The secret to success is to 'kill' the last token in
   # the recurive call.
-  #
   if idx == 0:
     return []
   side = compute_ctl(idx - 1)[:-1]
@@ -82,11 +76,8 @@ def controlled_ry(qc, alpha_k, control, target):
   k = len(control)
 
   # This is Equation (3) in the reference.
-  #
   thetas = compute_m(k) @ alpha_k
 
-  # Now apply the rotations.
-  #
   if k == 0:
     qc.ry(target, thetas[0])
     return
@@ -104,7 +95,6 @@ def prepare_state(nbits: int = 3):
   # point values. To allow negatives, another pass of cz gates
   # must be added to front and back of the circuit. For simplicity,
   # we omit this in this implementation.
-  #
   vector = np.random.random([2**nbits])
   vector = vector / np.linalg.norm(vector)
 
@@ -115,7 +105,6 @@ def prepare_state(nbits: int = 3):
   #
   # So we generate the circuit, but we only shim the quantum register
   # with a simple array of integer indices.
-  #
   qc = circuit.qc('mottonen', eager=False)
   qb = range(nbits)
 
@@ -125,7 +114,6 @@ def prepare_state(nbits: int = 3):
 
   # At this point we can actually allocate the register and
   # run the generated circuit.
-  #
   qc.reg(nbits)
   qc.run()
 
