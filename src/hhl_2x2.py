@@ -338,23 +338,23 @@ def main(argv):
   #    Morrell, Zaman, Wong
   #
   # Maps to Eigenvalues |01> and |10> interpreted as decimal 1 and 2
-  a = ops.Operator(np.array([[1.0, -1/3], [-1/3, 1]]))
-  b = ops.Operator(np.array([0, 1]))
+  a = ops.Operator([[1.0, -1/3], [-1/3, 1]])
+  b = ops.Operator([0, 1])
   run_experiment(a, b, True)
 
   # Maps to Eigenvalues |01> and |11> interpreted as decimal 1 and 3
-  a = ops.Operator(np.array([[1.0, -1/2], [-1/2, 1]]))
-  b = ops.Operator(np.array([0, 1]))
+  a = ops.Operator([[1.0, -1/2], [-1/2, 1]])
+  b = ops.Operator([0, 1])
   run_experiment(a, b, False)
 
   # Maps to Eigenvalues |01> and |10> interpreted as decimal 1/2 and 1/4
-  a = ops.Operator(np.array([[1.0, -1/3], [-1/3, 1]]))
-  b = ops.Operator(np.array([1, 0]))
+  a = ops.Operator([[1.0, -1/3], [-1/3, 1]])
+  b = ops.Operator([1, 0])
   run_experiment(a, b, False)
 
   # Maps to Eigenvalues |01> and |11> interpreted as decimal 1/2 and 1/3
-  a = ops.Operator(np.array([[1.0, -1/2], [-1/2, 1]]))
-  b = ops.Operator(np.array([1, 0]))
+  a = ops.Operator([[1.0, -1/2], [-1/2, 1]])
+  b = ops.Operator([1, 0])
   run_experiment(a, b, False)
 
 

@@ -140,7 +140,7 @@ def PauliX(d: int = 1) -> Operator:
 
 
 def PauliY(d: int = 1) -> Operator:
-  return Operator(np.array([[0.0, -1.0j], [1.0j, 0.0]])).kpow(d)
+  return Operator([[0.0, -1.0j], [1.0j, 0.0]]).kpow(d)
 
 
 def PauliZ(d: int = 1) -> Operator:
@@ -170,7 +170,8 @@ def Tgate(d: int = 1) -> Operator:
   return Operator([[1.0, 0.0], [0.0, cmath.exp(cmath.pi * 1j / 4)]]).kpow(d)
 
 
-# V-gate, which is sqrt(X)
+# V-gate, which is sqrt(X). Note that there are more roots:
+#   https://quantumcomputing.stackexchange.com/q/15381/11582
 def Vgate(d: int = 1) -> Operator:
   return Operator(0.5 * np.array([(1 + 1j, 1 - 1j), (1 - 1j, 1 + 1j)])).kpow(d)
 
@@ -436,8 +437,8 @@ def TraceOutSingle(rho: Operator, index: int) -> Operator:
         'Error in TraceOutSingle invalid index (>nbits).')
 
   eye = Identity()
-  zero = Operator(np.array([1.0, 0.0]))
-  one = Operator(np.array([0.0, 1.0]))
+  zero = Operator([1.0, 0.0])
+  one = Operator([0.0, 1.0])
 
   p0 = p1 = tensor.Tensor(1.0)
   for idx in range(nbits):

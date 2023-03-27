@@ -106,14 +106,14 @@ def main(argv):
 
   # Let's try a complex matrix:
   #
-  a = ops.Operator(np.array([[2.0, -1/3 + 1j/8], [-1/3 - 1j/8, 1]]))
+  a = ops.Operator([[2.0, -1/3 + 1j/8], [-1/3 - 1j/8, 1]])
   run_experiment(a)
 
   # Let's use the matrix that was described in:
   #   "Machine Learning with Quantum Computing" by
   #    Maria Schuld and Francesco Petruccione, page 118
   #
-  a = ops.Operator(np.array([[0.073, -0.438], [0.730, 0.000]]))
+  a = ops.Operator([[0.073, -0.438], [0.730, 0.000]])
   run_experiment(a)
 
   # The numerical example from:
@@ -121,7 +121,7 @@ def main(argv):
   #    Morrell, Zaman, Wong
   # (which is a 2x2 Hermitian matrix)
   #
-  a = ops.Operator(np.array([[1.0, -1/3], [-1/3, 1]]))
+  a = ops.Operator([[1.0, -1/3], [-1/3, 1]])
   run_experiment(a)
 
 

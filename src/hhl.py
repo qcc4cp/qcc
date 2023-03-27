@@ -185,22 +185,22 @@ def main(argv):
 
   print('General HHL Algorithm...')
 
-  a = ops.Operator(np.array([[3 / 5, -1 / 5], [-1 / 5, 3 / 5]]))
-  b = ops.Operator(np.array([1, 0]))
+  a = ops.Operator([[3 / 5, -1 / 5], [-1 / 5, 3 / 5]])
+  b = ops.Operator([1, 0])
   run_experiment(a, b, clock_bits=4)
 
-  a = ops.Operator(np.array([[11, 5, -1, -1],
-                             [5, 11, 1, 1],
-                             [-1, 1, 11, -5],
-                             [-1, 1, -5, 11]])) / 16
-  b = ops.Operator(np.array([0, 0, 0, 1]).transpose())
+  a = ops.Operator([[11, 5, -1, -1],
+                    [5, 11, 1, 1],
+                    [-1, 1, 11, -5],
+                    [-1, 1, -5, 11]]) / 16
+  b = ops.Operator([0, 0, 0, 1]).transpose()
   run_experiment(a, b, clock_bits=4)
 
-  a = ops.Operator(np.array([[15, 9, 5, -3],
-                             [9, 15, 3, -5],
-                             [5, 3, 15, -9],
-                             [-3, -5, -9, 15]]) / 4)
-  b = ops.Operator(np.array([0, 0, 0, 1]).transpose())
+  a = ops.Operator([[15, 9, 5, -3],
+                    [9, 15, 3, -5],
+                    [5, 3, 15, -9],
+                    [-3, -5, -9, 15]]) / 4
+  b = ops.Operator([0, 0, 0, 1]).transpose()
   run_experiment(a, b, clock_bits=4)
 
 
