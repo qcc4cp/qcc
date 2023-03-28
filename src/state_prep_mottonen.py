@@ -41,7 +41,7 @@ def compute_alpha(vec, k: int, j: int):
 
   if divisor != 0:
     return 2 * np.arcsin(np.sqrt(enumerator / divisor))
-  return 2 * np.arcsin(0.0)
+  return 0.0
 
 
 def compute_m(k: int):
