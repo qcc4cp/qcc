@@ -82,6 +82,7 @@ To run individual algorithms via `bazel`, run any of these command lines (note t
    bazel run schmidt_decomp
    bazel run spectral_decomp
    bazel run state_prep
+   bazel run state_prep_mottonen
    bazel run zy_decomp
 
 ```
