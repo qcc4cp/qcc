@@ -18,6 +18,14 @@ from absl import flags
 from src.lib import circuit
 from src.lib import helper
 
+
+# Good values to try and factor are:
+#   N=15, a=4    (18 qubits)
+#   N=21, a=11   (22 qubits)
+#   N=25, a=11   (22 qubits, only finds 1 factor)
+#   N=33, a=13   (26 qubits, only finds 1 factor)
+#   N=35, a=9    (26 qubit)
+#
 flags.DEFINE_integer('N', 15, 'Number to factor.')
 flags.DEFINE_integer('a', 4, 'Start search with this number.')
 
@@ -204,6 +212,9 @@ def main(argv):
 
   # Register for multiplications.
   down = qc.reg(nbits, name='q2')
+
+  # Check early to see whether modular inverse even exists.
+  _ = modular_inverse(int(a), number)
 
   qc.h(up)
   qc.x(down[0])
