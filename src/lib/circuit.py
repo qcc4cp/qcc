@@ -147,9 +147,13 @@ class qc:
     self.psi = [float(i) for i in range(0, 2**n)]
     self.global_reg = self.global_reg + n
 
+  # We know we can initialize any state, eg., with the code
+  # found in src/state_prep_mottonen.py. Here, we take a
+  # shortcut and just assign the intended state to a
+  # register and return that register.
   def state(self, t: tensor.Tensor) -> None:
-    ret = state.Reg(t.nbits, 0, self.global_reg)
     psi = state.State(t)
+    ret = state.Reg(t.nbits, 0, self.global_reg)
     self._tprod(psi, psi.nbits)
     self.ir.reg(t.nbits, 'state', ret)
     return ret
