@@ -73,9 +73,8 @@ def compute_ctl(idx: int):
 def controlled_ry(qc, alpha_k, control, target):
   """Implement the controlled-ry rotations."""
 
-  k = len(control)
-
   # This is Equation (3) in the reference.
+  k = len(control)
   thetas = compute_m(k) @ alpha_k
 
   if k == 0:
@@ -88,7 +87,15 @@ def controlled_ry(qc, alpha_k, control, target):
     qc.cx(control[k - 1 - ctl[i]], target)
 
 
-def prepare_state(nbits: int = 3):
+def prepare_state_mottonen(qc, qb, vector, nbits: int = 3):
+  """Construct the Mottonen Circuit based on input vector."""
+
+  for k in range(nbits):
+    alpha_k = [compute_alpha(vector, nbits - k, j) for j in range(2**k)]
+    controlled_ry(qc, alpha_k, qb[:k], qb[k])
+
+
+def run_experiment(nbits: int = 3):
   """Prepare a random state with nbits qubits."""
 
   # Input should be a real (!) and non-negative (!) array of floating
@@ -98,24 +105,10 @@ def prepare_state(nbits: int = 3):
   vector = np.random.random([2**nbits])
   vector = vector / np.linalg.norm(vector)
 
-  # This is a little tricky. We need a circuit because below we
-  # compute the angles and corresponding Ry and CX gates. However
-  # we do _not_ want to generate a quantum register yet, as we
-  # want to run the generated circuit on a state |0>.
-  #
-  # So we generate the circuit, but we only shim the quantum register
-  # with a simple array of integer indices.
-  qc = circuit.qc('mottonen', eager=False)
-  qb = range(nbits)
+  qc = circuit.qc('mottonen')
+  qb = qc.reg(nbits)
 
-  for k in range(nbits):
-    alpha_k = [compute_alpha(vector, nbits - k, j) for j in range(2**k)]
-    controlled_ry(qc, alpha_k, qb[:k], qb[k])
-
-  # At this point we can actually allocate the register and
-  # run the generated circuit.
-  qc.reg(nbits)
-  qc.run()
+  prepare_state_mottonen(qc, qb, vector, nbits)
 
   if not np.allclose(vector, qc.psi, atol=1e-5):
     raise AssertionError('Invalid State initialization.')
@@ -129,7 +122,7 @@ def main(argv):
   for nbits in range(1, 11):
     print(f'{nbits} qubits...')
     for _ in range(5):
-      prepare_state(nbits)
+      run_experiment(nbits)
 
 
 if __name__ == '__main__':
