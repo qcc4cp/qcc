@@ -27,17 +27,13 @@ def gray_code(i: int) -> int:
 def compute_alpha(vec, k: int, j: int):
   """Compute the angles alpha_k."""
 
-  # This is a faithful implementation of Equation (8) in the reference.
+  # This is the implementation of Equation (8) in the reference.
   # Note the off-by-1 issues (the paper is 1-based).
   m = 2 ** (k - 1)
-  enumerator = 0
-  for l in range(m):
-    enumerator += vec[(2 * (j + 1) - 1) * m + l] ** 2
+  enumerator = np.sum(vec[(2 * (j + 1) - 1) * m + l] ** 2 for l in range(m))
 
   m = 2**k
-  divisor = 0
-  for l in range(m):
-    divisor += vec[j * m + l] ** 2
+  divisor = np.sum(vec[j * m + l] ** 2 for l in range(m))
 
   if divisor != 0:
     return 2 * np.arcsin(np.sqrt(enumerator / divisor))
@@ -77,14 +73,11 @@ def controlled_ry(qc, alpha_k, control, target):
   k = len(control)
   thetas = compute_m(k) @ alpha_k
 
-  if k == 0:
-    qc.ry(target, thetas[0])
-    return
-
   ctl = compute_ctl(k)
   for i in range(2**k):
     qc.ry(target, thetas[i])
-    qc.cx(control[k - 1 - ctl[i]], target)
+    if k > 0:
+      qc.cx(control[k - 1 - ctl[i]], target)
 
 
 def prepare_state_mottonen(qc, qb, vector, nbits: int = 3):
