@@ -113,7 +113,7 @@ def prepare_state_mottonen(qc, qb, vector, nbits: int = 3):
     alpha_k = [compute_alpha_y(np.abs(vector), nbits - k, j) for j in range(2**k)]
     controlled_ry(qc, alpha_k, qb[:k], qb[k])
 
-  # This part will enable complex numbers (but doesn't work yet).
+  # This part enables complex numbers (up to a globabl phase).
   omega = np.angle(vector)
   for k in range(nbits):
     alpha_z = [compute_alpha_z(omega, nbits - k, j) for j in range(2**k)]
@@ -123,12 +123,7 @@ def prepare_state_mottonen(qc, qb, vector, nbits: int = 3):
 def run_experiment(nbits: int = 3):
   """Prepare a random state with nbits qubits."""
 
-  # At this point:
-  # Input should be a real (!) and non-negative (!) array of floating
-  # point values. To allow negatives, another pass of cz gates
-  # must be added to front and back of the circuit. For simplicity,
-  # we omit this in this implementation.
-  vector = np.random.random([2**nbits])
+  vector = np.random.random([2**nbits]) + 1j * np.random.random([2**nbits])
   vector = vector / np.linalg.norm(vector)
 
   qc = circuit.qc('mottonen')
@@ -136,7 +131,12 @@ def run_experiment(nbits: int = 3):
 
   prepare_state_mottonen(qc, qb, vector, nbits)
 
+  # For complex numbers, this algorithm introduces a global phase
+  # which we can account for (and ignore) here:
+  qc.psi *= vector / qc.psi
+
   if not np.allclose(vector, qc.psi, atol=1e-5):
+    print(vector / qc.psi)
     raise AssertionError('Invalid State initialization.')
 
 
