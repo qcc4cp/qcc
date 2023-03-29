@@ -94,7 +94,8 @@ def prepare_state_mottonen(qc, qb, vector, nbits: int = 3):
     alpha_k = [compute_alpha_y(avec, nbits - k, j) for j in range(2**k)]
     controlled_rotation(qc, alpha_k, qb[:k], qb[k], qc.ry)
 
-  # Rz gates to normalize up to a global phase.
+  # Rz gates to normalize up to a global phase. This is only
+  # needed for complex values.
   omega = np.angle(vector)
   for k in range(1, nbits):
     alpha_z = [compute_alpha_z(omega, nbits - k, j) for j in range(2**k)]
@@ -104,7 +105,8 @@ def prepare_state_mottonen(qc, qb, vector, nbits: int = 3):
 def run_experiment(nbits: int = 3):
   """Prepare a random state with nbits qubits."""
 
-  vector = np.random.random([2**nbits]) + 1j * np.random.random([2**nbits])
+  # TODO: Complex vectors don't work yet.
+  vector = np.random.random([2**nbits]) #+ 1j * np.random.random([2**nbits])
   vector = vector / np.linalg.norm(vector)
   print(f'  Qubits: {nbits:2d}, vector: {vector[:4]}...')
 
@@ -114,8 +116,8 @@ def run_experiment(nbits: int = 3):
 
   # For complex numbers, this algorithm introduces a global phase
   # which we can account for (and ignore) here:
-  qc.psi *= vector / qc.psi
-  if not np.allclose(vector, qc.psi, atol=1e-5):
+  phase = vector[0] / qc.psi[0]
+  if not np.allclose(vector, qc.psi * phase, atol=1e-5):
     raise AssertionError('Invalid State initialization.')
 
 
