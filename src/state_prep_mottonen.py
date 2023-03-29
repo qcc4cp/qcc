@@ -101,8 +101,7 @@ def controlled_rz(qc, alpha_k, control, target):
   ctl = compute_ctl(k)
   for i in range(2**k):
     qc.rz(target, thetas[i])
-    if k > 0:
-      qc.cx(control[k - 1 - ctl[i]], target)
+    qc.cx(control[k - 1 - ctl[i]], target)
 
 
 def prepare_state_mottonen(qc, qb, vector, nbits: int = 3):
@@ -115,7 +114,7 @@ def prepare_state_mottonen(qc, qb, vector, nbits: int = 3):
 
   # This part enables complex numbers (up to a globabl phase).
   omega = np.angle(vector)
-  for k in range(nbits):
+  for k in range(1, nbits):
     alpha_z = [compute_alpha_z(omega, nbits - k, j) for j in range(2**k)]
     controlled_rz(qc, alpha_z, qb[:k], qb[k])
 
