@@ -86,14 +86,15 @@ def controlled_rotation(qc, alpha_k, control, target, gate):
 
 
 def prepare_state_mottonen(qc, qb, vector, nbits: int = 3):
-  """Construct the Mottonen Circuit based on input vector."""
+  """Construct the Mottonen circuit based on input vector."""
 
-  # This is main loop for Ry gates.
+  # Ry gates for the absolute amplitudes.
+  avec = abs(vector)
   for k in range(nbits):
-    alpha_k = [compute_alpha_y(np.abs(vector), nbits - k, j) for j in range(2**k)]
+    alpha_k = [compute_alpha_y(avec, nbits - k, j) for j in range(2**k)]
     controlled_rotation(qc, alpha_k, qb[:k], qb[k], qc.ry)
 
-  # This part enables complex numbers (up to a globabl phase).
+  # Rz gates to normalize up to a global phase.
   omega = np.angle(vector)
   for k in range(1, nbits):
     alpha_z = [compute_alpha_z(omega, nbits - k, j) for j in range(2**k)]
@@ -105,17 +106,16 @@ def run_experiment(nbits: int = 3):
 
   vector = np.random.random([2**nbits]) + 1j * np.random.random([2**nbits])
   vector = vector / np.linalg.norm(vector)
+  print(f'  Qubits: {nbits:2d}, vector: {vector[:4]}...')
 
-  qc = circuit.qc('mottonen')
+  qc = circuit.qc()
   qb = qc.reg(nbits)
-
   prepare_state_mottonen(qc, qb, vector, nbits)
 
   # For complex numbers, this algorithm introduces a global phase
   # which we can account for (and ignore) here:
   qc.psi *= vector / qc.psi
   if not np.allclose(vector, qc.psi, atol=1e-5):
-    print(vector / qc.psi)
     raise AssertionError('Invalid State initialization.')
 
 
@@ -125,9 +125,7 @@ def main(argv):
   print("State Preparation with Moettoenen's Algorithm...")
 
   for nbits in range(1, 11):
-    print(f'{nbits} qubits...')
-    for _ in range(2):
-      run_experiment(nbits)
+    run_experiment(nbits)
 
 
 if __name__ == '__main__':
