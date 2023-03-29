@@ -24,8 +24,8 @@ def gray_code(i: int) -> int:
   return i ^ (i >> 1)
 
 
-def compute_alpha(vec, k: int, j: int):
-  """Compute the angles alpha_k."""
+def compute_alpha_y(vec, k: int, j: int):
+  """Compute the angles alpha_k for the y rotations."""
 
   # This is the implementation of Equation (8) in the reference.
   # Note the off-by-1 issues (the paper is 1-based).
@@ -38,6 +38,22 @@ def compute_alpha(vec, k: int, j: int):
   if divisor != 0:
     return 2 * np.arcsin(np.sqrt(enumerator / divisor))
   return 0.0
+
+
+def compute_alpha_z(omega, k: int, j: int):
+  """Compute the angles alpha_k for the z rotations."""
+
+  # This is the implementation of Equation (5) in the reference.
+  # Note the off-by-1 issues (the paper is 1-based).
+  m = int(2 ** (k - 1) + 1)
+  ind1 = [
+      [(2 * j - 1) * 2 ** (k - 1) + l - 1 for l in range(1, m)]
+  ]
+  ind2 = [
+      [(2 * j - 2) * 2 ** (k - 1) + l - 1 for l in range(1, m)]
+  ]
+  diff = (omega[ind1] - omega[ind2]) / 2 ** (k - 1)
+  return float(sum(diff)[0])
 
 
 def compute_m(k: int):
@@ -56,10 +72,9 @@ def compute_m(k: int):
 def compute_ctl(idx: int):
   """Compute control indices for the cx gates."""
 
-  # This code is tricky. It implements the control
-  # qubit indices following Fig 2 in the reference, in a recursive
-  # manner. The secret to success is to 'kill' the last token in
-  # the recurive call.
+  # This code implements the control qubit indices following
+  # Fig 2 in the reference, in a recursive manner. The secret
+  # to success is to 'kill' the last token in the recurive call.
   if idx == 0:
     return []
   side = compute_ctl(idx - 1)[:-1]
@@ -69,10 +84,8 @@ def compute_ctl(idx: int):
 def controlled_ry(qc, alpha_k, control, target):
   """Implement the controlled-ry rotations."""
 
-  # This is Equation (3) in the reference.
   k = len(control)
   thetas = compute_m(k) @ alpha_k
-
   ctl = compute_ctl(k)
   for i in range(2**k):
     qc.ry(target, thetas[i])
@@ -80,17 +93,37 @@ def controlled_ry(qc, alpha_k, control, target):
       qc.cx(control[k - 1 - ctl[i]], target)
 
 
+def controlled_rz(qc, alpha_k, control, target):
+  """Implement the controlled-ry rotations."""
+
+  k = len(control)
+  thetas = compute_m(k) @ alpha_k
+  ctl = compute_ctl(k)
+  for i in range(2**k):
+    qc.rz(target, thetas[i])
+    if k > 0:
+      qc.cx(control[k - 1 - ctl[i]], target)
+
+
 def prepare_state_mottonen(qc, qb, vector, nbits: int = 3):
   """Construct the Mottonen Circuit based on input vector."""
 
+  # This is main loop for Ry gates.
   for k in range(nbits):
-    alpha_k = [compute_alpha(vector, nbits - k, j) for j in range(2**k)]
+    alpha_k = [compute_alpha_y(np.abs(vector), nbits - k, j) for j in range(2**k)]
     controlled_ry(qc, alpha_k, qb[:k], qb[k])
+
+  # This part will enable complex numbers (but doesn't work yet).
+  omega = np.angle(vector)
+  for k in range(nbits):
+    alpha_z = [compute_alpha_z(omega, nbits - k, j) for j in range(2**k)]
+    controlled_rz(qc, alpha_z, qb[:k], qb[k])
 
 
 def run_experiment(nbits: int = 3):
   """Prepare a random state with nbits qubits."""
 
+  # At this point:
   # Input should be a real (!) and non-negative (!) array of floating
   # point values. To allow negatives, another pass of cz gates
   # must be added to front and back of the circuit. For simplicity,
@@ -114,7 +147,7 @@ def main(argv):
 
   for nbits in range(1, 11):
     print(f'{nbits} qubits...')
-    for _ in range(5):
+    for _ in range(2):
       run_experiment(nbits)
 
 
