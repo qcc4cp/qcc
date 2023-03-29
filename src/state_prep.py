@@ -115,16 +115,14 @@ def run_experiment_beta(beta) -> None:
 # --------------------------------------------------------------
 # Two-Qubit State Preparation with 3 unitary gates and CZ.
 #
-# This method follows the YouTube video from Oscar Perdomo
+# This method follows the paper and YouTube video from
+# Oscar Perdomo:
+#  https://arxiv.org/abs/2201.03724
 #  https://youtu.be/LIdYSs-rE-o
 #
 # This method takes a random state and transforms it down to
-# |0>. In order to make a state out of |0> the gates would
-# need to be applied in the reverse order.
-#
-# It is not clear that this method can be physically realized
-# as it 'reads' values from intermediate states to construct
-# the unitaries.
+# |0>. In order to prepare a state from |0> the gates w1, w2, w3
+# would have to be applied in the reverse order in a circuit.
 # --------------------------------------------------------------
 def run_experiment_2qubit() -> None:
   """Transform random state down to |00>."""
@@ -136,10 +134,9 @@ def run_experiment_2qubit() -> None:
     return (1 / np.sqrt(norm(x)**2 + norm(y)**2) *
             ops.Operator([[x, y], [-np.conj(y), np.conj(x)]]))
 
-  psi = np.array(
-    [random.random(), random.random(), random.random(), random.random()]
-  )
-  psi = state.State(psi / norm(psi))
+  # We perform the calculation on a (non-state) vector.
+  psi = np.random.random([4])
+  psi = psi / norm(psi)
   print('Random input:', psi, ' -> |0>')
 
   a1 = np.array([psi[0], psi[1]])
@@ -151,14 +148,14 @@ def run_experiment_2qubit() -> None:
     k = -norm(a2) / norm(a1) * a12 / norm(a12)
 
   w1 = u(psi[3] - k * psi[1], (psi[2] - k * psi[0]).conj()).transpose()
-  psi1 = (ops.Identity() * w1)(psi)
-  psi1 = ops.ControlledU(0, 1, ops.PauliZ())(psi1)
+  psi1 = (ops.Identity() * w1) @ psi
+  psi1 = ops.ControlledU(0, 1, ops.PauliZ()) @ psi1
 
   w2 = u(psi1[1].conj(), psi1[3].conj())
-  psi2 = (w2 * ops.Identity())(psi1)
+  psi2 = (w2 * ops.Identity()) @ psi1
 
   w3 = u(psi2[0].conj(), (-psi2[1]).conj()).transpose()
-  psi3 = (ops.Identity() * w3)(psi2)
+  psi3 = (ops.Identity() * w3) @ psi2
 
   if not np.allclose(psi3[0], 1.0, 1e-6):
     raise AssertionError('Incorrect 2-qubit state preparation.')
