@@ -12,7 +12,7 @@ bazel run -c opt lib/circuit_test || exit 1
 for algo in `ls -1 *.py | sort`
 do
     echo
-    echo "--- [$testcase] ------------------------"
+    echo "--- [$algo] ------------------------"
     # Bazel would be the default way to run these:
     #   testcase=`echo $algo | sed s@\.py@@g`
     #   bazel run -c opt $testcase || exit 1
