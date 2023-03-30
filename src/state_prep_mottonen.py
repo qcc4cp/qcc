@@ -42,8 +42,8 @@ def compute_alpha_z(omega, k: int, j: int):
   # This is the implementation of Equation (5) in the reference.
   # Note the off-by-1 issues (the paper is 1-based).
   m = 2 ** (k - 1)
-  ind1 = [[(2 * j - 1) * m + l for l in range(m)]]
-  ind2 = [[(2 * j - 2) * m + l for l in range(m)]]
+  ind1 = [[(2 * (j+1) - 1) * m + l for l in range(m)]]
+  ind2 = [[(2 * (j+1) - 2) * m + l for l in range(m)]]
   diff = (omega[tuple(ind1)] - omega[tuple(ind2)]) / m
   return sum(diff)
 
@@ -97,7 +97,10 @@ def prepare_state_mottonen(qc, qb, vector, nbits: int = 3):
   # Rz gates to normalize up to a global phase. This is only
   # needed for complex values.
   omega = np.angle(vector)
-  for k in range(1, nbits):
+  if np.allclose(omega, 0.0):
+    return
+
+  for k in range(0, nbits):
     alpha_z = [compute_alpha_z(omega, nbits - k, j) for j in range(2**k)]
     controlled_rotation(qc, alpha_z, qb[:k], qb[k], qc.rz)
 
@@ -105,8 +108,7 @@ def prepare_state_mottonen(qc, qb, vector, nbits: int = 3):
 def run_experiment(nbits: int = 3):
   """Prepare a random state with nbits qubits."""
 
-  # TODO: Complex vectors don't work yet.
-  vector = np.random.random([2**nbits]) #+ 1j * np.random.random([2**nbits])
+  vector = np.random.random([2**nbits]) + 1j * np.random.random([2**nbits])
   vector = vector / np.linalg.norm(vector)
   print(f'  Qubits: {nbits:2d}, vector: {vector[:4]}...')
 
