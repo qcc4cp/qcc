@@ -18,5 +18,5 @@ do
     #   bazel run -c opt $testcase || exit 1
     #
     # But it is also possible, perhaps easier, to run directly via Python:
-    python $testcase.py || exit 1
+    python $algo || exit 1
 done
