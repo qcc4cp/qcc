@@ -352,30 +352,6 @@ def OracleUf(nbits: int, f: Callable[[List[int]], int]) -> Operator:
   return op
 
 
-# It is possible to construct 1- and 2-qubit oracles from a
-# permutation matrix. First step is to compute the permutation.
-# This follows the same method as OraceUf, but it does not
-# populate a matrix, it only collects the permutations.
-
-
-def Permutation(nbits: int, f) -> List[int]:
-  """Compute a permutation from function f."""
-
-  dim = 2**nbits
-  perm = []
-  for row in range(dim):
-    bits = helper.val2bits(row, nbits)
-    fx = f(bits[0:-1])
-    xor = bits[-1] ^ fx
-    new_bits = bits[0:-1]
-    new_bits.append(xor)
-
-    # Construct new column (int) from the new bit sequence.
-    new_col = helper.bits2val(new_bits)
-    perm.append(new_col)
-  return perm
-
-
 # Build the QFT operator. A good explanation can be found here:
 # https://en.wikipedia.org/wiki/Quantum_Fourier_transform
 #
