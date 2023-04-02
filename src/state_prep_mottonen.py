@@ -42,9 +42,9 @@ def compute_alpha_z(omega, k: int, j: int):
   # This is the implementation of Equation (5) in the reference.
   # Note the off-by-1 issues (the paper is 1-based).
   m = 2 ** (k - 1)
-  ind1 = [[(2 * (j+1) - 1) * m + l for l in range(m)]]
-  ind2 = [[(2 * (j+1) - 2) * m + l for l in range(m)]]
-  diff = (omega[tuple(ind1)] - omega[tuple(ind2)]) / m
+  ind1 = [(2 * (j+1) - 1) * m + l for l in range(m)]
+  ind2 = [(2 * (j+1) - 2) * m + l for l in range(m)]
+  diff = (omega[ind1] - omega[ind2]) / m
   return sum(diff)
 
 
@@ -110,7 +110,7 @@ def run_experiment(nbits: int = 3):
 
   vector = np.random.random([2**nbits]) + 1j * np.random.random([2**nbits])
   vector = vector / np.linalg.norm(vector)
-  print(f'  Qubits: {nbits:2d}, vector: {vector[:4]}...')
+  print(f'  Qubits: {nbits:2d}, vector: {vector[:6]}...')
 
   qc = circuit.qc()
   qb = qc.reg(nbits)
