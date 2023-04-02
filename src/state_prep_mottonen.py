@@ -11,10 +11,15 @@ from src.lib import circuit
 #
 # This implementation would not have been possible without looking
 # at existing code references:
+#
 #   https://github.com/ravikumar1728/Mottonen-State-Preparation
+#
 #   https://docs.pennylane.ai/en/stable/_modules/pennylane/
 #           templates/state_preparations/mottonen.html
-
+#
+# The reference takes an existing state and transforms it down to |0>.
+# Since we want to prepare a specific state starting from |0> we
+# reverse the procedure in this code snippet.
 
 def gray_code(i: int) -> int:
   """Return Gray code at index i."""
