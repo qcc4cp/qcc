@@ -100,6 +100,7 @@ def run_experiment(nbits_phase: int, nbits_grover: int, solutions: int) -> None:
   if not np.allclose(np.round(m), solutions):
     raise AssertionError('Incorrect result.')
 
+
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')

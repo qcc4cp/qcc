@@ -78,8 +78,8 @@ class qc:
     self.sub_circuits = 0
     self.eager = eager
     try:  # this can fail in python-only REPL environements.
-      if (len(flags.FLAGS.libq + flags.FLAGS.qasm + flags.FLAGS.cirq +
-          flags.FLAGS.text + flags.FLAGS.latex)):
+      if (flags.FLAGS.libq + flags.FLAGS.qasm + flags.FLAGS.cirq +
+          flags.FLAGS.text + flags.FLAGS.latex):
         self.eager = False
     except Exception:  # pylint: disable=broad-except
       pass

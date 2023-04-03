@@ -27,6 +27,7 @@ from src.lib import state
 #  [0.0 a 0.0 0.0 a a 0.0 0.0 ... 0.0 a 0.0]^T
 # --------------------------------------------------------------
 
+
 def make_f(dim: int, states: List[int]):
   """Construct function that will return 1 for each entry in states."""
 
@@ -92,7 +93,7 @@ def run_experiment_alpha(alpha) -> None:
   """Make a single qubit state."""
 
   qc = circuit.qc('single qubit')
-  x = qc.reg(1, 0)
+  qc.reg(1, 0)
   qc.ry(0, 2 * np.arccos(alpha))
   if not np.allclose(qc.psi[0], alpha, atol=1e-5):
     raise AssertionError('Incorrect qubit preparation.')
@@ -104,7 +105,7 @@ def run_experiment_beta(beta) -> None:
   """Make a single qubit state."""
 
   qc = circuit.qc('single qubit')
-  x = qc.reg(1, 0)
+  qc.reg(1, 0)
   qc.ry(0, 2 * np.arcsin(beta))
   if not np.allclose(qc.psi[1], beta, atol=1e-5):
     raise AssertionError('Incorrect qubit preparation.')
@@ -164,7 +165,6 @@ def run_experiment_2qubit() -> None:
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
-
 
   print('State preparation with QAA.')
   for n in range(10):

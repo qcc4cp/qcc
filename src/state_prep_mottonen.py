@@ -21,6 +21,7 @@ from src.lib import circuit
 # Since we want to prepare a specific state starting from |0> we
 # reverse the procedure in this code snippet.
 
+
 def gray_code(i: int) -> int:
   """Return Gray code at index i."""
 

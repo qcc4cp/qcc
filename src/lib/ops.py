@@ -192,7 +192,7 @@ def U1(lam: float, d: int = 1) -> Operator:
 def U3(theta: float, phi: float, lam: float, d: int = 1) -> Operator:
   return Operator(
       [(np.cos(theta / 2),
-       -cmath.exp(1j * lam)*np.sin(theta / 2)),
+        -cmath.exp(1j * lam)*np.sin(theta / 2)),
        (cmath.exp(1j * phi)*np.sin(theta / 2),
         cmath.exp(1j * (phi + lam))*np.cos(theta / 2))]).kpow(d)
 
