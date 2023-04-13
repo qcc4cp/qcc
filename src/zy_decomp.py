@@ -31,11 +31,19 @@ from src.lib import ops
 # Let's try and implement this here!
 
 
-def make_u(alpha, beta, gamma, delta):
-  """Construct unitary from the 4 parameters."""
+def make_u_zy(alpha, beta, gamma, delta):
+  """Construct unitary via Z-Y from the 4 parameters."""
 
   return (
       ops.RotationZ(beta) @ ops.RotationY(gamma) @ ops.RotationZ(delta)
+  ) * cmath.exp(1.0j * alpha)
+
+
+def make_u_xy(alpha, beta, gamma, delta):
+  """Construct unitary via X-Y from the 4 parameters."""
+
+  return (
+      ops.RotationX(beta) @ ops.RotationY(gamma) @ ops.RotationX(delta)
   ) * cmath.exp(1.0j * alpha)
 
 
@@ -67,7 +75,7 @@ def main(argv):
     raise app.UsageError('Too many command-line arguments.')
 
   iterations = 1000
-  print(f'Perform {iterations} random Z-Y decompositions.')
+  print(f'Perform {iterations} random Z-Y and X-Y decompositions.')
 
   for i in range(iterations):
     #
@@ -76,24 +84,46 @@ def main(argv):
     u = scipy.stats.unitary_group.rvs(2)
     umat = np.sqrt(1 / np.linalg.det(u)) * u
 
-    #
     # Now decompose this operator and find the four parameters.
     #
     alpha, beta, gamma, delta = zy_decompose(umat)
 
-    #
     # Construct another operator from these newly found
     # parameters and make sure that the resulting
     # operator matches the one from above.
     #
-    unew = make_u(alpha, beta, gamma, delta)
+    unew = make_u_zy(alpha, beta, gamma, delta)
 
     if not np.allclose(umat, unew, atol=1e-4):
       print(f'decomp : {i:2d}: {alpha:.3f} {beta:.3f} {gamma:.3f} {delta:.3f}')
       raise AssertionError('Z-Y decomposition failed')
 
+    # According to Problem 4.10 in Nielsen/Chuang, we can also derive
+    # an XY-decomposition. How? See:
+    #
+    #  https://quantumcomputing.stackexchange.com/a/32088/11582
+    #
+    # In essence, we change the axis by rotation U to U' = HUH.
+    # With U' we compute the Y-Z decomposition and note that
+    #   U = HU'H, and correspondingly:
+    #    H Rz(beta)  H -> Rx(beta)
+    #    H Rz(delta) H -> Rx(delta)
+    # and
+    #    H Ry(gamma) H -> Ry (-gamma)
+    #
+    h = ops.Hadamard()
+    udash = ops.Hadamard() @ umat @ ops.Hadamard()
+
+    alpha, beta, gamma, delta = zy_decompose(udash)
+    unew = make_u_xy(alpha, beta, -gamma, delta)
+
+    if not np.allclose(umat, unew, atol=1e-4):
+      print(f'decomp : {i:2d}: {alpha:.3f} {beta:.3f} {gamma:.3f} {delta:.3f}')
+      raise AssertionError('X-Y decomposition failed')
+
   print('Success')
 
 
 if __name__ == '__main__':
+  np.set_printoptions(precision=3)
   app.run(main)
