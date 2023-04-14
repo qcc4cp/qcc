@@ -103,15 +103,15 @@ def main(argv):
     #
     #  https://quantumcomputing.stackexchange.com/a/32088/11582
     #
-    # In essence, we change the axis by rotation U to U' = HUH.
-    # With U' we compute the Y-Z decomposition and note that
-    #   U = HU'H, and correspondingly:
-    #    H Rz(beta)  H -> Rx(beta)
-    #    H Rz(delta) H -> Rx(delta)
+    # In essence, we change the axes by rotating U to U' = HUH.
+    # We compute the Y-Z decomposition for U' and note that:
+    #    U = HU'H
+    # and correspondingly:
+    #    H Rz(beta')  H -> Rx(beta)
+    #    H Rz(delta') H -> Rx(delta)
     # and
-    #    H Ry(gamma) H -> Ry (-gamma)
+    #    H Ry(gamma') H -> Ry (-gamma)
     #
-    h = ops.Hadamard()
     udash = ops.Hadamard() @ umat @ ops.Hadamard()
 
     alpha, beta, gamma, delta = zy_decompose(udash)
