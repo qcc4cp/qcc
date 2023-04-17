@@ -47,7 +47,7 @@ def modular_inverse(a: int, m: int) -> int:
   #   x * x^-1 = 1 mod m
   g, x, _ = egcd(a, m)
   if g != 1:
-    raise Exception(f'Modular inverse ({a}, {m}) does not exist.')
+    raise AssertionError(f'Modular inverse ({a}, {m}) does not exist.')
   return x % m
 
 
