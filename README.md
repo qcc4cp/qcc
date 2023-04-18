@@ -30,7 +30,7 @@ There are several ways to get started on this code base:
 ## Run
 
 The main algorithms are all in `src`.
-To run individual algorithms via `bazel`, run any of these command lines (note the missing `.py` extensions):
+To run individual algorithms via `bazel`, run any of these command lines. Note the missing `.py` extensions when using `bazel`). Alternatively, run each Python file with `python <file>` (PYTHONPATH must point to the root directory):
 
 ```
 # Algorithms discussed in the book:
@@ -85,14 +85,6 @@ To run individual algorithms via `bazel`, run any of these command lines (note t
    bazel run state_prep_mottonen
    bazel run zy_decomp
 
-```
-
-or, more general:
-```
-for algo in `ls -1 *py | sed s@.py@@g`
-do
-   bazel run $algo
-done
 ```
 
 To test aspects of the sparse implementation:

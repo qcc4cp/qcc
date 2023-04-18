@@ -76,9 +76,9 @@ class Operator(tensor.Tensor):
   #       -> state.State, which is incorrect. (Un-)fortunately, the
   #       type annotations are being ignored by the runtime.
   #
-  def apply(self,
-            arg: Union[state.State, Operator],
-            idx: int) -> Union[state.State, Operator]:
+  def apply(
+      self, arg: Union[state.State, Operator], idx: int
+  ) -> Union[state.State, Operator]:
     """Apply operator to a state or operator."""
 
     if isinstance(arg, Operator):
@@ -122,9 +122,9 @@ class Operator(tensor.Tensor):
 
     return state.State(np.matmul(op, arg))
 
-  def __call__(self,
-               arg: Union[state.State, Operator],
-               idx=0) -> Union[state.State, Operator]:
+  def __call__(
+      self, arg: Union[state.State, Operator], idx=0
+  ) -> Union[state.State, Operator]:
     return self.apply(arg, idx)
 
 
@@ -409,8 +409,7 @@ def TraceOutSingle(rho: Operator, index: int) -> Operator:
 
   nbits = int(math.log2(rho.shape[0]))
   if index > nbits:
-    raise AssertionError(
-        'Error in TraceOutSingle invalid index (>nbits).')
+    raise AssertionError('Error in TraceOutSingle invalid index (>nbits).')
 
   eye = Identity()
   zero = Operator([1.0, 0.0])
@@ -492,8 +491,7 @@ def Measure(
     if divisor > 1e-10:
       normed = mvmul / divisor
     else:
-      raise AssertionError(
-          'Measure() collapses to 0.0 probability state.')
+      raise AssertionError('Measure() collapses to 0.0 probability state.')
     return np.real(prob0), state.State(normed)
 
   # Return original state to enable chaining.
