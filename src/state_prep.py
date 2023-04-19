@@ -66,7 +66,7 @@ def run_experiment_qaa(nbits: int, states: List[int]) -> None:
   #
   prob_states = []
   probability = 0.0
-  ampl = 0.0+0j
+  ampl = 0.0 + 0j
   for idx, val in enumerate(psi):
     if val > 0.09:
       bin_pattern = helper.val2bits(idx, nbits)[:-1]

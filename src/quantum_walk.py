@@ -21,8 +21,8 @@ def incr(qc, idx: int, nbits: int, aux, controller):
   #  ...
   for i in range(nbits):
     ctl = controller.copy()
-    for j in range(nbits-1, i, -1):
-      ctl.append(j+idx)
+    for j in range(nbits - 1, i, -1):
+      ctl.append(j + idx)
     qc.multi_control(ctl, i+idx, aux, ops.PauliX(), 'multi-1-X')
 
 
@@ -41,8 +41,8 @@ def decr(qc, idx: int, nbits: int, aux, controller):
   #  ...
   for i in range(nbits):
     ctl = controller.copy()
-    for j in range(nbits-1, i, -1):
-      ctl.append([j+idx])
+    for j in range(nbits - 1, i, -1):
+      ctl.append([j + idx])
     qc.multi_control(ctl, i+idx, aux, ops.PauliX(), 'multi-0-X')
 
 
@@ -58,7 +58,7 @@ def experiment_incr():
 
     maxbits, _ = qc.psi.maxprob()
     res = helper.bits2val(maxbits[0:4])
-    if val+1 != res:
+    if val + 1 != res:
       raise AssertionError('Invalid Result')
 
 
@@ -73,7 +73,7 @@ def experiment_decr():
 
     maxbits, _ = qc.psi.maxprob()
     res = helper.bits2val(maxbits[0:4])
-    if val-1 != res:
+    if val - 1 != res:
       raise AssertionError('Invalid Result')
 
 
@@ -93,7 +93,7 @@ def incr_mod_9(qc, aux):
   #
   for i in range(4):
     ctl = []
-    for j in range(4-1, i, -1):
+    for j in range(4 - 1, i, -1):
       ctl.append(j)
     qc.multi_control(ctl, i, aux, ops.PauliX(), 'multi-X')
 
@@ -114,7 +114,7 @@ def experiment_mod_9():
     incr_mod_9(qc, aux)
     maxbits, _ = qc.psi.maxprob()
     res = helper.bits2val(maxbits[0:4])
-    if ((val+1) % 9) != res:
+    if ((val + 1) % 9) != res:
       raise AssertionError('Invalid Result')
 
 
@@ -142,8 +142,11 @@ def simple_walk():
 
     # Printing bits0 only, this can be changed, of course.
     if qc.psi.ampl(*idx_bits0) > 1e-5:
-      print('{:5.1f} {:5.4f}'.format(float(helper.bits2val(bits)),
-                                     qc.psi.ampl(*idx_bits0).real))
+      print(
+          '{:5.1f} {:5.4f}'.format(
+              float(helper.bits2val(bits)), qc.psi.ampl(*idx_bits0).real
+          )
+      )
 
 
 def main(argv):

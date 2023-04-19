@@ -213,7 +213,7 @@ def run_single_qubit_measure():
   a = random.random()
   b = random.random()
   c = random.random()
-  hamil = (a * ops.PauliX() + b * ops.PauliY() + c * ops.PauliZ())
+  hamil = a * ops.PauliX() + b * ops.PauliY() + c * ops.PauliZ()
 
   # Compute known minimum eigenvalue.
   eigvals = np.linalg.eigvalsh(hamil)
