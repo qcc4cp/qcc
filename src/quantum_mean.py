@@ -63,7 +63,7 @@ def run_experiment(nbits: int):
 def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
-  print('WIP: Quantum Mean Computation.')
+  print('Quantum Mean Computation.')
 
   for nbits in range(2, 8):
     run_experiment(nbits)
