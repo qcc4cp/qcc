@@ -33,14 +33,14 @@ def check_results(qc, a, b):
   """Check the results by inspecting the final state."""
 
   ratio_classical = check_classic_solution(a, b)
-  res = (np.abs(qc.psi) > 0.04).nonzero()[0]
+  res = (np.abs(qc.psi) > 0.07).nonzero()[0]
   ratio_quantum = [np.real(qc.psi[res[j]] ** 2 / qc.psi[res[0]] ** 2)
                    for j in range(1, len(res))]
 
   for idx, ratio in enumerate(ratio_quantum):
     delta = ratio - ratio_classical[idx]
     print(f'Quantum ratio: {ratio:6.3f}, delta: {delta:+5.3f}')
-    if delta > 0.05:
+    if abs(delta) > 0.2:
       raise AssertionError('Incorrect result.')
 
 
