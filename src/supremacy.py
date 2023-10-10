@@ -7,7 +7,6 @@ import time
 
 from absl import app
 from absl import flags
-
 from src.lib import circuit
 
 flags.DEFINE_integer('nbits', 20, 'Number of Qubits')
@@ -52,6 +51,7 @@ flags.DEFINE_integer('cores', 255, 'Number of cores per machine')
 #    o o o-o o o
 #    o-o o o o-o
 #
+# fmt: off
 pattern1 = [0, 0, 1, 0, 0, 0,
             1, 0, 0, 0, 1, 0] * 3
 
@@ -94,6 +94,7 @@ pattern8 = [0, 6, 0, 6, 0, 6,
 
 patterns = [pattern1, pattern2, pattern3, pattern4,
             pattern5, pattern6, pattern7, pattern8]
+# fmt: on
 
 
 class Gate(enum.Enum):
@@ -183,7 +184,7 @@ def optimize_circuit(states, nbits, depth):
 
   def combine_right(states, index, bit):
     # Pass over Gate.UNK
-    for travel in range(index, depth+1):
+    for travel in range(index, depth + 1):
       curr_state = states[travel]
       if curr_state[bit] != Gate.UNK:
         break
@@ -232,11 +233,11 @@ def sim_circuit(states, nbits, depth, target_nbits, target_depth):
       if s[i] == Gate.CZ:
         ngates += 1  # This is just an estimate of the overhead
         if i < nbits - 1 and s[i + 1] == Gate.CZ:
-          qc.cz(i, i+1)
-          s[i+1] = Gate.UNK
+          qc.cz(i, i + 1)
+          s[i + 1] = Gate.UNK
         if i < nbits - 6 and s[i + 6] == Gate.CZ:
-          qc.cz(i, i+6)
-          s[i+6] = Gate.UNK
+          qc.cz(i, i + 6)
+          s[i + 6] = Gate.UNK
 
     end_time = time.time()
     duration = end_time - start_time
@@ -247,7 +248,7 @@ def sim_circuit(states, nbits, depth, target_nbits, target_depth):
             format(d, duration, duration / (d + 1),
                    duration / ngates,
                    1000000000 * duration / ngates /
-                   (2 ** (nbits-1) * 16)))
+                   (2 ** (nbits - 1) * 16)))
 
   qc.dump_to_file()
 
@@ -269,19 +270,19 @@ def sim_circuit(states, nbits, depth, target_nbits, target_depth):
   print('  Circuit Depth           : {:d}'.format(depth))
   print('  Gates                   : {:.2f}'.format(ngates))
   print('  State Memory            : {:.4f} MB'.format(
-      2 ** (nbits-1) * 16 / (1024 ** 2)))
+      2 ** (nbits - 1) * 16 / (1024 ** 2)))
 #  print('Estimated C++ / Python    : {}x'.format(flags.FLAGS.ccfactor))
   print('Estimated Circuit Qubits  : {}'.format(target_nbits))
   print('Estimated Circuit Depth   : {}'.format(target_depth))
   print('Estimated State Memory    : {:.5f} TB'.format(
-      2 ** (target_nbits-1) * 16 / (1024 ** 4)))
+      2 ** (target_nbits - 1) * 16 / (1024 ** 4)))
   print('Machines used             : {}'.format(flags.FLAGS.machines))
   print('Estimated cores per server: {}'.format(flags.FLAGS.cores))
   print('Estimated gate density    : {:.2f}'.format(gate_ratio))
 
   estimated_sim_time_secs = (
       # time per gate per byte
-      (duration / ngates / (2**(nbits-1) * 16))
+      (duration / ngates / (2**(nbits - 1) * 16))
       # gates
       * target_nbits
       # gate ratio scaling factor to circuit size
@@ -289,7 +290,7 @@ def sim_circuit(states, nbits, depth, target_nbits, target_depth):
       # depth
       * target_depth
       # memory
-      * 2**(target_nbits-1) * 16
+      * 2**(target_nbits - 1) * 16
       # number of machines
       / flags.FLAGS.machines
       # Active core per machine
@@ -315,8 +316,6 @@ def main(argv):
 
   states = build_circuit(nbits, depth)
   print_state(states, nbits, depth)
-#  optimize_circuit(states, nbits, depth)
-#  print_state(states, nbits, depth)
   sim_circuit(states, nbits, depth,
               flags.FLAGS.target_nbits, flags.FLAGS.target_depth)
 
