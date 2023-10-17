@@ -3,7 +3,7 @@
 
 import itertools
 import math
-from typing import List, Iterable, Tuple
+from typing import Iterable, List, Tuple
 
 import numpy as np
 
