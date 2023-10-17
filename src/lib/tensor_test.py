@@ -1,7 +1,6 @@
 # python3
 
 from absl.testing import absltest
-
 from src.lib import tensor
 
 
