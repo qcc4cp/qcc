@@ -8,7 +8,6 @@ import sys
 from typing import List, Optional, Tuple
 
 import numpy as np
-
 from src.lib import helper
 from src.lib import tensor
 
