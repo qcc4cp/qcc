@@ -8,8 +8,8 @@ function calls.
 This guide assumes you were successful in
 downloading the Python sources from github
 (`git clone https://github.com/qcc4cp/qcc.git`)
-and installing the
-Python dependencies `absl-py` and `numpy` (for example, with `sudo pip install absl-py` and similar for `numpy`).
+and installing the Python dependencies
+`absl-py`, `numpy`, and `scipy` (for example, with `sudo pip install absl-py`).
 
 For this guide, you don't need `bazel` or
 compile the accelerated C++ routines. Make sure you 
