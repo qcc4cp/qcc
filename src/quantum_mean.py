@@ -14,7 +14,8 @@ from src.lib import ops
 def run_experiment(nbits: int):
   """Run a single mean computation."""
 
-  x = np.array([random.randint(0, 10) for _ in range(2**nbits)])
+  # Random numbers, positive and negative.
+  x = np.array([random.randint(0, 10) - 5 for _ in range(2**nbits)])
   xn = x / np.linalg.norm(x)
 
   # Define a unitary which does:
@@ -24,10 +25,12 @@ def run_experiment(nbits: int):
   #     \sum_x|x\rangle(\sqrt{1-F(x)}|0\rangle+\sqrt{F(x)}|1\rangle).
   # $$
   # In other words:
-  #   |00> -> np.sqrt(1 - a) |000>
-  #   |00> -> np.sqrt(a) |001>
-  # Which can be done with a controlled rotations about y by
-  #   2 arcsin(a)
+  #   |000> -> np.sqrt(1 - a) |000>
+  #   |000> -> np.sqrt(a) |001>
+  #
+  # Which can be done for x_i with a controlled rotations about y by
+  #   2 arcsin(x_i)
+  #
   # Measuring the state |001| should give the mean. This can be done by
   # repeated experiments, but we could also use amplitude
   # estimation (as suggested in the book by Moscha).
