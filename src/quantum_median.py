@@ -8,7 +8,7 @@ import numpy as np
 
 # This algorithm utilizes two quantum techniques:
 #    Quantum Mean Estimation (in quantum_mean.py)
-#    Minimum Finding (in minimum_finding.qy)
+#    Minimum Finding (in minimum_finding.py)
 #
 # We do _not_ reimplement those here, we just check classically whether
 # the overall approach using these techniques would work.
