@@ -150,9 +150,9 @@ def qubit(alpha: complex = None, beta: complex = None) -> State:
   """Produce a given state for a single qubit."""
 
   if alpha is None and beta is None:
-    raise ValueError('Both alpha and beta need to be specified')
+    raise ValueError('alpha, beta, or both, need to be specified')
 
-  # Note tha multiplying a complex conjugate with its non-conjugate
+  # Note that multiplying a complex conjugate with its non-conjugate
   # is a real number, but we still have to type-cast it to avoid
   # Python warnings (hence the use of np.real()).
   if beta is None:
