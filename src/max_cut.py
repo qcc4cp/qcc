@@ -18,13 +18,13 @@ flags.DEFINE_boolean('graph', False, 'Dump graph in dot format')
 flags.DEFINE_integer('iterations', 10, 'Number of experiments')
 
 
-# Nodes are tuples: (from, to, edge weight).
-#
 def build_graph(num: int = 0) -> Tuple[int, List[Tuple[int, int, float]]]:
   """Build a graph of num nodes."""
 
   if num < 3:
     raise app.UsageError('Must request graph of at least 3 nodes.')
+  
+  # Nodes are tuples: (from: int, to: int, weight: float).
   weight = 5.0
   nodes = [(0, 1, 1.0), (1, 2, 2.0), (0, 2, 3.0)]
   for i in range(num - 3):
@@ -50,36 +50,20 @@ def graph_to_dot(n: int, nodes: List[Tuple[int, int, float]], max_cut) -> None:
   print('}')
 
 
-def graph_to_adjacency(n: int,
-                       nodes: List[Tuple[int, int, float]]) -> ops.Operator:
-  """Compute adjacency matrix from graph."""
-
-  op = np.zeros((n, n))
-  for node in nodes:
-    op[node[0], node[1]] = node[2]
-    op[node[1], node[0]] = node[2]
-  return ops.Operator(op)
-
-
 def graph_to_hamiltonian(n: int,
                          nodes: List[Tuple[int, int, float]]) -> ops.Operator:
   """Compute Hamiltonian matrix from graph."""
 
   hamil = np.zeros((2**n, 2**n))
   for node in nodes:
-    idx1 = node[0]
-    idx2 = node[1]
-    if idx1 > idx2:
-      idx1, idx2 = idx2, idx1
-    op = 1.0
-    for _ in range(idx1):
-      op = op * ops.Identity()
+    idx1 = max(node[0], node[1])
+    idx2 = min(node[0], node[1])
+
+    op = ops.Identity(idx1) * (node[2] * ops.PauliZ())
+    op = op * ops.Identity(idx2 - idx1 + 1)
     op = op * (node[2] * ops.PauliZ())
-    for _ in range(idx1 + 1, idx2):
-      op = op * ops.Identity()
-    op = op * (node[2] * ops.PauliZ())
-    for _ in range(idx2 + 1, n):
-      op = op * ops.Identity()
+    
+    op = op * ops.Identity(n - idx2 + 1)
     hamil = hamil + op
   return ops.Operator(hamil)
 
@@ -145,19 +129,6 @@ def compute_max_cut(n: int,
         .format(n, np.real(max_cut), max_cut_in, max_cut_out,
                 state))
   return helper.bits2val(max_bits)
-
-
-def benchmark() -> None:
-  """Simple benchmark for exhaustive max cut computation."""
-
-  num = 0
-  def compute_max():
-    n, nodes = build_graph(num)
-    compute_max_cut(n, nodes)
-
-  for num in range(18):
-    print('Nodes: {}: Time:{:.2f} secs'
-          .format(num+6, timeit.timeit(compute_max, number=1)))
 
 
 def run_experiment(num_nodes: int):
