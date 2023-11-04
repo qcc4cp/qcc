@@ -134,9 +134,11 @@ Reach Robert at
 *  qcc4cp@gmail.com (site-specific email account)
 
 ### Additional Thanks
-*  Colin Zhu, for pointing to coding problems.
+*  Colin Zhu, for pointing out coding problems.
 *  Kevin Crook, Univ. of CA, Berkeley, for feedback and discussion of the Chinese Remainder Theorem.
 *  [Moez A. AbdelGawad](http://eng.staff.alexu.edu.eg/~moez/), Alexandria University, Egypt, for suggesting Windows and SageMath ports.
 *  Stefanie Scherzinger, Universitaet Passau, for corrections and suggesting Docker.
-*  Abdolhamid Pourghazi and Stefan Klessinger for providing and maintaining the Dockerfile.
-*  Michael Broughton for help with purification.
+*  Abdolhamid Pourghazi and Stefan Klessinger, for providing and maintaining the Dockerfile.
+*  Michael Broughton, for help with purification.
+*  Mikhail Remnev, for pointing out a .dylib problem in MacOS
+
