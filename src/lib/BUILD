@@ -1,5 +1,6 @@
-cc_library(
-    name = "xgates",
+cc_binary(
+    name = "libxgates.so",
+    linkshared = True,
     srcs = [
         "xgates.cc",
     ],
@@ -150,7 +151,7 @@ filegroup(
   name = "all",
   srcs = [
     ":qcall",
-    ":xgates",
+    ":libxgates.so",
   ]
 )
 
