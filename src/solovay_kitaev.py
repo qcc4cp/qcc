@@ -126,6 +126,7 @@ def random_gates(min_length, max_length, num_experiments):
        ops.RotationZ(2.0 * np.pi * random.random()))
 
   min_dist = 1000
+  min_u = ops.Identity()
   for _ in range(num_experiments):
     seq_length = min_length + random.randint(0, max_length)
     u_approx = ops.Identity()
@@ -135,10 +136,12 @@ def random_gates(min_length, max_length, num_experiments):
       u_approx = u_approx @ base[g]
 
     dist = trace_dist(u, u_approx)
-    min_dist = min(dist, min_dist)
+    if dist < min_dist:
+      min_dist = dist
+      min_u = u_approx
 
   phi1 = u(state.zeros(1))
-  phi2 = u_approx(state.zeros(1))
+  phi2 = min_u(state.zeros(1))
   print('Trace distance: {:.4f}, States dot product: {:6.4f}'.
         format(min_dist,
                (np.real(np.dot(phi1, phi2.conj())))))
