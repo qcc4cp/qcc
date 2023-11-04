@@ -14,7 +14,8 @@ from src.lib import state
 def to_su2(u):
   """Convert a 2x2 unitary to a unitary with determinant 1.0."""
 
-  return np.sqrt(1 / np.linalg.det(u)) * u
+  det = u[0][0] * u[1][1] - u[0][1] * u[1][0]
+  return np.sqrt(1 / det) * u
 
 
 def trace_dist(u, v):
@@ -138,9 +139,9 @@ def random_gates(min_length, max_length, num_experiments):
 
   phi1 = u(state.zeros(1))
   phi2 = u_approx(state.zeros(1))
-  print('Trace Dist: {:.4f} State: {:6.4f}%'.
+  print('Trace distance: {:.4f}, States dot product: {:6.4f}'.
         format(min_dist,
-               100.0 * (1.0 - np.real(np.dot(phi1, phi2.conj())))))
+               (np.real(np.dot(phi1, phi2.conj())))))
 
 
 def main(argv):
@@ -149,12 +150,11 @@ def main(argv):
 
   num_experiments = 10
   depth = 8
-  recursion = 3
+  recursion = 4
   print('SK algorithm - depth: {}, recursion: {}, experiments: {}'.
         format(depth, recursion, num_experiments))
 
   base = [to_su2(ops.Hadamard()), to_su2(ops.Tgate())]
-
   gates = create_unitaries(base, depth)
   sum_dist = 0.0
   for i in range(num_experiments):
@@ -170,16 +170,16 @@ def main(argv):
 
     phi1 = u(state.zeros(1))
     phi2 = u_approx(state.zeros(1))
-    print('[{:2d}]: Trace Dist: {:.4f} State: {:6.4f}%'.
-          format(i, dist,
-                 100.0 * (1.0 - np.real(np.dot(phi1, phi2.conj())))))
+    print('Trace distance: {:.4f}, States dot product: {:6.4f}'.
+          format(dist,
+                 (np.real(np.dot(phi1, phi2.conj())))))
 
   print('Gates: {}, Mean Trace Dist:: {:.4f}'.
         format(len(gates), sum_dist / num_experiments))
 
   min_length = 10
   max_delta = 50
-  max_tries = 100
+  max_tries = 1000
   print('Random Experiment, seq length: {} - {}, tries: {}'
         .format(min_length, max_delta, max_tries))
   for i in range(num_experiments):
