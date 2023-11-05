@@ -55,7 +55,7 @@ def precompute_angles(a: int, n: int) -> List[float]:
   """Pre-compute angles used in the Fourier Transform, for a."""
 
   # Convert 'a' to a string of 0's and 1's.
-  s = bin(int(a))[2:].zfill(n)
+  s = bin(a)[2:].zfill(n)
 
   angles = [0.0] * n
   for i in range(n):
@@ -141,9 +141,7 @@ def cc_add_mod_n(qc, q, ctl1, ctl2, aux, a, number, n):
 
   ccadd(qc, q, ctl1, ctl2, a, n, factor=-1.0)
   inverse_qft(qc, q, n)
-  qc.x(q[n - 1])
-  qc.cx(q[n - 1], aux)
-  qc.x(q[n - 1])
+  qc.cx0(q[n - 1], aux)
   qft(qc, q, n)
   ccadd(qc, q, ctl1, ctl2, a, n, factor=1.0)
 
@@ -153,9 +151,7 @@ def cc_add_mod_n_inverse(qc, q, ctl1, ctl2, aux, a, number, n):
 
   ccadd(qc, q, ctl1, ctl2, a, n, factor=-1.0)
   inverse_qft(qc, q, n)
-  qc.x(q[n - 1])
-  qc.cx(q[n - 1], aux)
-  qc.x(q[n - 1])
+  qc.cx0(q[n - 1], aux)
   qft(qc, q, n)
   ccadd(qc, q, ctl1, ctl2, a, n, factor=1.0)
 
