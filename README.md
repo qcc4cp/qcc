@@ -141,4 +141,5 @@ Reach Robert at
 *  Abdolhamid Pourghazi and Stefan Klessinger, for providing and maintaining the Dockerfile.
 *  Michael Broughton, for help with purification.
 *  Mikhail Remnev, for pointing out a .dylib problem in MacOS
+*  Andrea Novellini, for fixing a WORKSPACE issue with bazel 7.0.x
 
