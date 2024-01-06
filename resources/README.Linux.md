@@ -68,8 +68,7 @@ point `bazel` to the installation directories of `numpy` and `python`.  The
 specification for the external installations is in the `WORKSPACE`
 file. Point `path` to your installation's header files,
 excluding the final `include` part of the path. The `include` path is
-specified in the co-located files [`numpy.BUILD`](numpy.BUILD) and [`python.BUILD`](python.BUILD). Both
-of these file should not require modification (in most cases).
+specified in the files [`../external/numpy.BUILD`](external/numpy.BUILD) and [`../external/python.BUILD`](external/python.BUILD). 
 
 ```
 new_local_repository(

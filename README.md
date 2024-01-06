@@ -13,6 +13,7 @@ The code is organized as follows:
 *  `src/benchmarks` contains a few benchmarks, as they are mentioned in the book.
 *  `resources` contains additional text, sections and chapters.
 *  `errata` contains the errata for the book - corrections and clarifications.
+*  `external` contains the *.BUILD files to point `bazel` to `python` and `numpy`.
 
 ## Installation
 
