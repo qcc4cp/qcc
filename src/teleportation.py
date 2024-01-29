@@ -16,10 +16,10 @@ def alice_measures(alice: state.State,
                    qubit0: np.complexfloating, qubit1: np.complexfloating):
   """Force measurement and get teleported qubit."""
 
-  # Alices measure her state and get a collapsed |qubit0 qubit1>.
-  # She let's Bob know which one of the 4 combinations she obtained.
+  # Alice measures her state and gets a collapsed |qubit0 qubit1>.
+  # She lets Bob know which one of the 4 combinations she obtained.
 
-  # We force measurement here, collapsing to a state with the
+  # We force a measurement here, collapsing to a state with the
   # first two qubits collapsed. Bob's qubit is still unmeasured.
   _, alice0 = ops.Measure(alice, 0, tostate=qubit0)
   _, alice1 = ops.Measure(alice0, 1, tostate=qubit1)
@@ -37,7 +37,7 @@ def alice_measures(alice: state.State,
 
   # Now Bob measures his qubit (2) (without collapse, so we can
   # 'measure' it twice. This is not necessary, but good to double check
-  # the maths).
+  # the math).
   p0, _ = ops.Measure(alice1, 2, tostate=0, collapse=False)
   p1, _ = ops.Measure(alice1, 2, tostate=1, collapse=False)
 
@@ -57,17 +57,16 @@ def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  # Step 1: Alice and Bob share an entangled pair, and separate.
+  # Step 1: Alice and Bob share an entangled pair and separate.
   psi = bell.bell_state(0, 0)
 
-  # Step 2: Alice wants to teleport a qubit |x> to Bob,
-  #         which is in the state:
-  #         |x> = a|0> + b|1> (with a^2 + b^2 == 1)
+  # Step 2: Alice wants to teleport a qubit |x> to Bob
+  #         with |x> = a|0> + b|1>, a^2 + b^2 == 1:
   a = 0.6
   b = math.sqrt(1.0 - a * a)
   x = state.qubit(a, b)
   print('Quantum Teleportation')
-  print('Start with EPR Pair a={:.2f}, b={:.2f}'.format(a, b))
+  print(f'Start with EPR Pair a={a:.2f}, b={b:.2f}')
 
   # Produce combined state.
   alice = x * psi
@@ -79,7 +78,7 @@ def main(argv):
   # Now she applies a Hadamard to qubit 0. Bob still owns qubit 2.
   alice = ops.Hadamard()(alice, idx=0)
 
-  # Alices measures and communicates the result (|00>, |01>, ...) to Bob.
+  # Alice measures and communicates the result (|00>, |01>, ...) to Bob.
   alice_measures(alice, a, b, 0, 0)
   alice_measures(alice, a, b, 0, 1)
   alice_measures(alice, a, b, 1, 0)
