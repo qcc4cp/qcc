@@ -37,7 +37,7 @@ def check_result(nbits: int, c: Tuple[int, ...], psi: state.State) -> None:
   print(f'Expect:', c)
   for bits in helper.bitprod(nbits):
     if psi.prob(*bits) > 0.1:
-      print(f'Found : {bits[:-1]} = {psi.prob(*bits):.1f}')
+      print(f'Found : {bits[:-1]}, with prob: {psi.prob(*bits):.1f}')
       assert bits[:-1] == c, 'Invalid result'
 
 
