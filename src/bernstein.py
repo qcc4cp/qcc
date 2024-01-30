@@ -1,5 +1,5 @@
 # python3
-"""Example: Bernstein Vasirani Algorithm."""
+"""Example: Bernstein-Vasirani Algorithm."""
 
 from typing import Tuple
 from absl import app
@@ -11,41 +11,39 @@ from src.lib import state
 
 # The goal of this experiment is as follows. There is 'secret' string
 # in the Oracle Uf, such that the input bit string and this secret
-# string compute a dot product, which is the result. For example,
+# string compute a dot product modulo 2, resulting in 1. For example,
 #
 # Secret String: 0, 1, 0
 #         |----|
 # |0> --- |    |
-# |1> --- | Uf | -- 0 or 1 as in (i0*o0 + i1*o1 + i1 * o2) = 1
+# |1> --- | Uf | -- 0 or 1 as in (i0*o0 + i1*o1 + i1*o2) = 1
 # |1> --- |    |
 #         |----|
 #
-# On a classical computer, one would have to try with input
-# strings that just have 1 bit, thus requiring N queries.
-# In quantum, the answer can be found in just 1 query.
+# On a classical computer, one would have to try one by one, with
+# input strings that just have 1 bit set, thus requiring N queries.
+# In the quantum case, the answer can be found in just 1 query.
 #
-# This code shows two ways to achieve this results, one with
+# The code shows two ways to achieve this results, one with
 # an explicit Uf construction, one using the Deutsch OracleUf.
-#
 
 
 def check_result(nbits: int, c: Tuple[bool, ...], psi: state.State) -> None:
   """Check expected vs achieved results."""
 
-  print(f'Expected: {c}')
+  print(f'Expect: {c}')
 
   # The state with the 'flipped' bits will have probability 1.0.
-  # It will be found on the ver first try.
+  # It will be found on the very first try.
   #
   for bits in helper.bitprod(nbits):
     if psi.prob(*bits) > 0.1:
-      print('Found   : {} = {:.1f}'.format(bits[:-1], psi.prob(*bits)))
-      if bits[:-1] != c:
-        raise AssertionError('invalid result')
+      print(f'Found : {bits[:-1]} = {psi.prob(*bits):.1f}')
+      assert bits[:-1] == c, 'Invalid result'
 
 
 def make_c(nbits: int) -> Tuple[bool, ...]:
-  """Make a random constant c from {0,1}, the c we try to find."""
+  """Make a random constant c from {0,1}, which we try to find."""
 
   constant_c = [False] * nbits
   for idx in range(nbits - 1):
@@ -70,13 +68,12 @@ def make_u(nbits: int, constant_c: Tuple[bool, ...]) -> ops.Operator:
     if constant_c[idx]:
       op = ops.Identity(idx) * ops.Cnot(idx, nbits - 1) @ op
 
-      # Note that the |+> basis, a cnot is the same as a single Z-gate.
-      # This would also work:
+      # Note that in the |+> basis, a cnot is the same as a single Z-gate.
+      # Hence, this would also work:
       #   op = (ops.Identity(idx) * ops.PauliZ() *
       #         ops.Identity(nbits - 1 - idx))  @ op
 
-  if not op.is_unitary():
-    raise AssertionError('Constructed non-unitary operator.')
+  assert op.is_unitary(), 'Constructed non-unitary operator.'
   return op
 
 
@@ -105,12 +102,11 @@ def make_oracle_f(c: Tuple[bool, ...]) -> ops.Operator:
     for idx, v in enumerate(bit_string):
       val += c[idx] * v
     return val % 2
-
   return f
 
 
 def run_oracle_experiment(nbits: int) -> None:
-  """Run full experiment for a given number of bits."""
+  """Run full experiment for a given number of nbits bits."""
 
   c = make_c(nbits - 1)
   f = make_oracle_f(c)
@@ -125,8 +121,7 @@ def run_oracle_experiment(nbits: int) -> None:
 
 
 def main(argv):
-  if len(argv) > 1:
-    raise app.UsageError('Too many command-line arguments.')
+  assert len(argv) <= 1, "Too many command-line parameters"
 
   for _ in range(5):
     run_experiment(8)
