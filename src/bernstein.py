@@ -4,7 +4,6 @@
 from typing import Tuple
 from absl import app
 import numpy as np
-
 from src.lib import helper
 from src.lib import ops
 from src.lib import state
@@ -34,7 +33,7 @@ def check_result(nbits: int, c: Tuple[int, ...], psi: state.State) -> None:
   # The state with the 'flipped' bits will have probability 1.0.
   # It will be found on the very first try.
   #
-  print(f'Expect:', c)
+  print('Expect:', c)
   for bits in helper.bitprod(nbits):
     if psi.prob(*bits) > 0.1:
       print(f'Found : {bits[:-1]}, with prob: {psi.prob(*bits):.1f}')
@@ -96,11 +95,12 @@ def run_experiment(nbits: int) -> None:
 def make_oracle_f(c: Tuple[int, ...]) -> ops.Operator:
   """Return a function computing the dot product mod 2 of bits, c."""
 
-  def f(bit_string: Tuple[int]) -> int:
+  def f(bit_string: Tuple[int, ...]) -> int:
     val = 0
     for idx, v in enumerate(bit_string):
       val += c[idx] * v
     return val % 2
+
   return f
 
 
@@ -120,7 +120,7 @@ def run_oracle_experiment(nbits: int) -> None:
 
 
 def main(argv):
-  assert len(argv) <= 1, "Too many command-line parameters"
+  assert len(argv) <= 1, 'Too many command-line parameters'
 
   for _ in range(5):
     run_experiment(8)
