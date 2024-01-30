@@ -28,30 +28,29 @@ from src.lib import state
 # an explicit Uf construction, one using the Deutsch OracleUf.
 
 
-def check_result(nbits: int, c: Tuple[bool, ...], psi: state.State) -> None:
+def check_result(nbits: int, c: Tuple[int, ...], psi: state.State) -> None:
   """Check expected vs achieved results."""
-
-  print(f'Expect: {c}')
 
   # The state with the 'flipped' bits will have probability 1.0.
   # It will be found on the very first try.
   #
+  print(f'Expect:', c)
   for bits in helper.bitprod(nbits):
     if psi.prob(*bits) > 0.1:
       print(f'Found : {bits[:-1]} = {psi.prob(*bits):.1f}')
       assert bits[:-1] == c, 'Invalid result'
 
 
-def make_c(nbits: int) -> Tuple[bool, ...]:
+def make_c(nbits: int) -> Tuple[int, ...]:
   """Make a random constant c from {0,1}, which we try to find."""
 
-  constant_c = [False] * nbits
+  constant_c = [0] * nbits
   for idx in range(nbits - 1):
-    constant_c[idx] = bool(np.random.random() < 0.5)
+    constant_c[idx] = int(np.random.random() < 0.5)
   return tuple(constant_c)
 
 
-def make_u(nbits: int, constant_c: Tuple[bool, ...]) -> ops.Operator:
+def make_u(nbits: int, constant_c: Tuple[int, ...]) -> ops.Operator:
   """Make general Bernstein Oracle."""
 
   # For each '1' at index i in the constant_c, build a Cnot from
@@ -94,7 +93,7 @@ def run_experiment(nbits: int) -> None:
 # Alternative way to achieve the same result, using the
 # Deutsch Oracle Uf.
 #
-def make_oracle_f(c: Tuple[bool, ...]) -> ops.Operator:
+def make_oracle_f(c: Tuple[int, ...]) -> ops.Operator:
   """Return a function computing the dot product mod 2 of bits, c."""
 
   def f(bit_string: Tuple[int]) -> int:
