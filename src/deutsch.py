@@ -87,8 +87,7 @@ def make_uf(f: Callable[[int], int]) -> ops.Operator:
     u[col][x + xor] = 1.0
 
   op = ops.Operator(u)
-  if not op.is_unitary():
-    raise AssertionError('Produced non-unitary operator.')
+  assert op.is_unitary(), 'Produced non-unitary operator.'
   return op
 
 
@@ -108,12 +107,10 @@ def run_experiment(flavor: int) -> None:
   print('f(0) = {:.0f} f(1) = {:.0f}'.format(f(0), f(1)), end='')
   if math.isclose(p0, 0.0, abs_tol=1e-5):
     print('  balanced')
-    if flavor == 0 or flavor == 3:
-      raise AssertionError('Invalid result, expected balanced.')
+    assert flavor in [1, 2], 'Invalid result, expected balanced.'
   else:
     print('  constant')
-    if flavor == 1 or flavor == 2:
-      raise AssertionError('Invalid result, expected constant.')
+    assert flavor in [0, 3], 'Invalid result, expected constant.'
 
 
 def main(argv):
