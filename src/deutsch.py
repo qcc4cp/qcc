@@ -99,16 +99,16 @@ def run_experiment(flavor: int) -> None:
 
   psi = h(state.zeros(1)) * h(state.ones(1))
   psi = u(psi)
-  psi = (h * ops.Identity())(psi)
+  psi = h(psi)
 
   p0, _ = ops.Measure(psi, 0, tostate=0, collapse=False)
 
-  print(f'f(0) = {f(0):.0f} f(1) = {f(1):.0f}', end='')
+  print(f'f(0) = {f(0)}, f(1) = {f(1)} -> ', end='')
   if math.isclose(p0, 0.0, abs_tol=1e-5):
-    print('  balanced')
+    print('balanced')
     assert flavor in [1, 2], 'Invalid result, expected balanced.'
   else:
-    print('  constant')
+    print('constant')
     assert flavor in [0, 3], 'Invalid result, expected constant.'
 
 
