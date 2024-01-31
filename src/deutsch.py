@@ -2,11 +2,10 @@
 """Example: Deutsch's Algorithm."""
 
 import math
-
 from typing import Callable
+
 from absl import app
 import numpy as np
-
 from src.lib import ops
 from src.lib import state
 
