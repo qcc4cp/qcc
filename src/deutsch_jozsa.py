@@ -66,16 +66,12 @@ def main(argv):
 
   for qubits in range(2, 8):
     result = run_experiment(qubits, exp_constant)
-    print('Found: {} ({} qubits) (expected: {})'
-          .format(result, qubits, exp_constant))
-    if result != exp_constant:
-      raise AssertionError('Error, expected {}'.format(exp_constant))
+    print(f'Found: {result} ({qubits} qubits) (Want: {exp_constant})')
+    assert result == exp_constant, f'Want: {exp_constant}'
 
     result = run_experiment(qubits, exp_balanced)
-    print('Found: {} ({} qubits) (expected: {})'
-          .format(result, qubits, exp_balanced))
-    if result != exp_balanced:
-      raise AssertionError('Error, expected {}'.format(exp_balanced))
+    print(f'Found: {result} ({qubits} qubits) (Want: {exp_balanced})')
+    assert result == exp_balanced, f'Want: {exp_balanced}'
 
 if __name__ == '__main__':
   app.run(main)
