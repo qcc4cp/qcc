@@ -25,7 +25,7 @@ from src.lib import state
 # Additionally, adding up the \alpha will result in 1.0.
 #
 # This method can be used for testing for entanglement. A state is
-# separable only if the number of non-zero coefficients \alpha is
+# separable only if the number of nonzero coefficients \alpha is
 # exactly 1, else the state is entangled.
 #
 # More information is available online, eg:
@@ -56,7 +56,7 @@ def compute_eigvals(psi: state.State, expected_nonzero: int, tolerance: float):
   if not np.allclose(np.sum(eigvals0), 1.0):
     raise AssertionError('Eigenvalues do not add up to 1.0')
 
-  # Count the number of non-zero eigenvalues and match against expected.
+  # Count the number of nonzero eigenvalues and match against expected.
   #
   nonzero = np.sum(eigvals0 > tolerance)
   if nonzero != expected_nonzero:
@@ -90,7 +90,7 @@ def main(argv):
   for _ in range(iterations):
     psi = state.qubit(random.random()) * state.qubit(random.random())
 
-    # States are separable if they have only 1 non-zero eigenvalue.
+    # States are separable if they have only 1 nonzero eigenvalue.
     compute_eigvals(psi, 1, 1e-3)
 
   # Test a number of entangled states.
@@ -104,7 +104,7 @@ def main(argv):
       continue
     psi = ops.ControlledU(0, 1, ops.RotationY(angle))(psi)
 
-    # For entangled 2-qubit states we expect 2 non-zero eigenvalues.
+    # For entangled 2-qubit states we expect 2 nonzero eigenvalues.
     compute_eigvals(psi, 2, 1e-9)
 
   # Maximally entangled state.

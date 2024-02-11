@@ -39,7 +39,7 @@ flags.DEFINE_integer('cores', 255, 'Number of cores per machine')
 # encode the patterns one would need at least 36 qubits, but that's
 # hard to simulate. We make a compromise and try to apply as many
 # gates as possible. The patterns are encoded as simple lists, where
-# a non-zero element at index i serves as the control and has
+# a nonzero element at index i serves as the control and has
 # the offset to the target qubit. To go right, the offset is 1, to
 # go down the offset is 6.
 #
