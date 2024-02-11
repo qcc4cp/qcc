@@ -17,22 +17,19 @@ from absl import flags
 flags.DEFINE_integer('tensor_width', 64, 'Bitwidth of FP numbers (64 or 128)')
 
 
+def tensor_width():
+  """Return global floating point bit width."""
+
+  return flags.FLAGS.tensor_width
+
+
 # All vectors/matrices in this package will use this base type.
 # Valid values are np.complex128 or np.complex64
 def tensor_type():
   """Return complex type based on command-line flag."""
 
-  if flags.FLAGS.tensor_width == 64:
-    return np.complex64
-  if flags.FLAGS.tensor_width == 128:
-    return np.complex128
-  assert False, 'Invalid tensor width, only 64 or 128 are supported.'
-
-
-def tensor_width():
-  """Return global floating point bit width."""
-
-  return flags.FLAGS.tensor_width
+  assert tensor_width() == 64 or tensor_width() == 128
+  return np.complex64 if tensor_width() == 64 else np.complex128
 
 
 class Tensor(np.ndarray):
