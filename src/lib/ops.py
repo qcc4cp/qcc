@@ -201,12 +201,6 @@ def Rk(k: int, d: int = 1) -> Operator:
   return U1(2 * math.pi / (2**k)).kpow(d)
 
 
-# Cache Pauli matrices for performance reasons.
-_PAULI_X = PauliX()
-_PAULI_Y = PauliY()
-_PAULI_Z = PauliZ()
-
-
 # Make a single-qubit rotation operator.
 # This is a simple implementation of the mechanism outlined here:
 # http://www.vcpc.univie.ac.at/~ian/hotlist/qc/talks/bloch-sphere-rotations.pdf
@@ -219,7 +213,7 @@ def Rotation(vparm: List[float], theta: float) -> Operator:
     raise ValueError('Rotation vector v must be a 3D real unit vector.')
 
   return Operator(np.cos(theta / 2) * Identity() - 1j * np.sin(theta / 2) * (
-      v[0] * _PAULI_X + v[1] * _PAULI_Y + v[2] * _PAULI_Z))
+      v[0] * PauliX() + v[1] * PauliY() + v[2] * PauliZ()))
 
 
 def RotationX(theta: float) -> Operator:

@@ -194,7 +194,7 @@ class qc:
         self.ir.single(name, idx, gate, val)
       if self.eager:
         apply1(self.psi, gate.reshape(4), self.psi.nbits, idx,
-               tensor.tensor_width)
+               tensor.tensor_width())
 
   def applyc(self, gate: ops.Operator, ctl: int, idx: int,
              name: str = None, *, val: float = None):
@@ -213,7 +213,7 @@ class qc:
       self.ir.controlled(name, ctl_qubit, idx, gate, val)
     if self.eager:
       applyc(self.psi, gate.reshape(4), self.psi.nbits, ctl_qubit, idx,
-             tensor.tensor_width)
+             tensor.tensor_width())
     if by_0:
       self.x(ctl_qubit)
 

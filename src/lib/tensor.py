@@ -1,7 +1,7 @@
 # python3
 # pylint: disable=invalid-name
 
-"""Implementation of Tensor base class."""
+"""Implementation of the Tensor base class."""
 
 # This file contains the implementation of the base "tensor" class for all the
 # math in this compiler/simulator. This wrapping is not a unique idea,
@@ -10,26 +10,29 @@
 # much more straight-forward.
 
 from __future__ import annotations
-
 import math
-
 import numpy as np
 
+from absl import flags
+flags.DEFINE_integer('tensor_width', 64, 'Bitwidth of FP numbers (64 or 128)')
 
-# Bit width of complex data types, 64 or 128.
-tensor_width = 64
 
-
-# All math in this package will use this base type.
-# Valid values can be np.complex128 or np.complex64
+# All vectors/matrices in this package will use this base type.
+# Valid values are np.complex128 or np.complex64
 def tensor_type():
-  """Return complex type."""
+  """Return complex type based on command-line flag."""
 
-  if tensor_width == 64:
+  if flags.FLAGS.tensor_width == 64:
     return np.complex64
-  if tensor_width == 128:
+  if flags.FLAGS.tensor_width == 128:
     return np.complex128
-  raise AssertionError('Invalid tensor width, only 64 or 128 are supported.')
+  assert False, 'Invalid tensor width, only 64 or 128 are supported.'
+
+
+def tensor_width():
+  """Return global floating point bit width."""
+
+  return flags.FLAGS.tensor_width
 
 
 class Tensor(np.ndarray):
