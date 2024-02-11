@@ -63,8 +63,8 @@ class CircuitTest(absltest.TestCase):
     qc = circuit.qc()
     qc.bitstring(0)
     qc.rx(0, 2 * np.arcsin(0.5))
-    self.assertEqual(qc.psi.prob(0), 0.75)
-    self.assertEqual(qc.psi.prob(1), 0.25)
+    self.assertTrue(np.allclose(qc.psi.prob(0), 0.75, atol=1e-6))
+    self.assertTrue(np.allclose(qc.psi.prob(1), 0.25, atol=1e-6))
 
   def test_acceleration(self):
     psi = state.bitstring(1, 0, 1, 0)
