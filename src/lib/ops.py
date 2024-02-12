@@ -97,9 +97,9 @@ class Operator(tensor.Tensor):
     return self.apply(arg, idx)
 
   def dump(self, desc = None, digits = 3) -> None:
-    if description:
-      print(f'{desc} ({self.nbits}-qubit(s) operator)')
     np.set_printoptions(precision=digits)
+    if desc:
+      print(f'{desc} ({self.nbits}-qubit(s) operator)')
     print(self)
 
 
