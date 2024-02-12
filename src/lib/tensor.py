@@ -13,6 +13,16 @@ from __future__ import annotations
 import math
 import numpy as np
 
+
+# We define the numerical FP bit width with a command-line argument.
+# Usage:
+#   bazel run algorithm -- --tensor_width=128
+#   python3 algorithm.py --tensor_width=128
+#
+# For the interactive use in a Python REPL, it is possible that
+# the absl command-line parser has not yet been called. This is why
+# we bracked tensor_width() in an exception block.
+
 from absl import flags
 flags.DEFINE_integer('tensor_width', 64, 'Bitwidth of FP numbers (64 or 128)')
 
@@ -20,7 +30,7 @@ flags.DEFINE_integer('tensor_width', 64, 'Bitwidth of FP numbers (64 or 128)')
 def tensor_width():
   """Return global floating point bit width."""
 
-  try:
+  try:  # May be neccessary for interactive use.
     return flags.FLAGS.tensor_width
   except:
     return 64
@@ -78,7 +88,7 @@ class Tensor(np.ndarray):
 
     if not self.is_hermitian():
       return False
-    if np.trace(self) - 1.0 > 1e-6:
+    if np.trace(self) > 1.0:
       return False
     return True
 
@@ -118,8 +128,7 @@ class Tensor(np.ndarray):
 
     if n == 0:
       return self.__class__(1.0)
-
     t = self
     for _ in range(n - 1):
-      t = self.__class__(np.kron(t, self))
+      t = np.kron(t, self)
     return self.__class__(t)
