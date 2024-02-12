@@ -20,7 +20,10 @@ flags.DEFINE_integer('tensor_width', 64, 'Bitwidth of FP numbers (64 or 128)')
 def tensor_width():
   """Return global floating point bit width."""
 
-  return flags.FLAGS.tensor_width
+  try:
+    return flags.FLAGS.tensor_width
+  except:
+    return 64
 
 
 # All vectors/matrices in this package will use this base type.
