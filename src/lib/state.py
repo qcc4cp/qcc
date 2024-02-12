@@ -15,21 +15,6 @@ from src.lib import tensor
 class State(tensor.Tensor):
   """class State represents single and multi-qubit states."""
 
-  def __repr__(self) -> str:
-    s = 'State('
-    s += super().__str__().replace('\n', '\n' + ' ' * len(s))
-    s += ')'
-    return s
-
-  def __str__(self) -> str:
-    s = f'{self.nbits}-qubit state.'
-    s += ' Tensor:\n'
-    s += super().__str__()
-    return s
-
-  def dump(self, desc: Optional[str] = None, prob_only: bool = True) -> None:
-    dump_state(self, desc, prob_only)
-
   def density(self) -> tensor.Tensor:
     return tensor.Tensor(np.outer(self, self.conj()))
 
@@ -301,7 +286,7 @@ def state_to_string(bits: Tuple[int]) -> str:
   return f'|{s}> (|{int(s, 2):{dec_digits}d}>)'
 
 
-def dump_state(psi, desc: str = None, prob_only: bool = True) -> None:
+def dump(psi, desc: str = None, prob_only: bool = True) -> None:
   """Dump probabilities for a state, as well as local qubit state."""
 
   if desc:
