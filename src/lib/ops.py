@@ -19,37 +19,6 @@ from src.lib import tensor
 class Operator(tensor.Tensor):
   """Operators are represented by square, unitary matrices."""
 
-  def __repr__(self) -> str:
-    s = 'Operator('
-    s += super().__str__().replace('\n', '\n' + ' ' * len(s))
-    s += ')'
-    return s
-
-  def __str__(self) -> str:
-    s = f'Operator for {self.nbits}-qubit state space.'
-    s += ' Tensor:\n'
-    s += super().__str__()
-    return s
-
-  def dump(
-      self, description: Optional[str] = None, zeros: bool = False
-  ) -> None:
-    res = ''
-    if description:
-      res += f'{description} ({self.nbits}-qubits operator)\n'
-    for row in range(self.shape[0]):
-      for col in range(self.shape[1]):
-        val = self[row, col]
-        res += f'{val.real:+.1f}{val.imag:+.1f}j  '
-      res += '\n'
-    if not zeros:
-      res = res.replace('+0.0j', '    ')
-      res = res.replace('-0.0j', '    ')
-      res = res.replace('+0.0', ' -  ')
-      res = res.replace('-0.0', ' -  ')
-      res = res.replace('+', ' ')
-    print(res)
-
   def adjoint(self) -> Operator:
     return Operator(np.conj(self.transpose()))
 
@@ -126,6 +95,12 @@ class Operator(tensor.Tensor):
       self, arg: Union[state.State, Operator], idx=0
   ) -> Union[state.State, Operator]:
     return self.apply(arg, idx)
+
+  def dump(self, desc = None, digits = 3) -> None:
+    if description:
+      print(f'{desc} ({self.nbits}-qubit(s) operator)')
+    np.set_printoptions(precision=digits)
+    print(self)
 
 
 # --------------------------------------------------------------
