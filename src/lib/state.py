@@ -128,9 +128,36 @@ class State(tensor.Tensor):
           self[i] = t1
           self[i + two_q] = t2
 
+  def dump(self, desc: str = None, prob_only: bool = True) -> None:
+    """Dump probabilities for a state, including local qubit state."""
 
-# Produce a given state for a single qubit.
-#
+    def state_to_string(bits: Tuple[int]) -> str:
+      s = ''.join(str(i) for i in bits)
+      dec_digits = int(math.log10(2 ** len(bits))) + 1
+      return f'|{s}> (|{int(s, 2):{dec_digits}d}>)'
+
+    if desc:
+      print('|', end='')
+      for i in range(self.nbits):
+        print(i % 10, end='')
+      print(f"> '{desc}'")
+
+    state_list: List[str] = []
+    for bits in helper.bitprod(self.nbits):
+      if prob_only and (self.prob(*bits) < 10e-6):
+        continue
+      state_list.append(
+          '{:s}:  ampl: {:+.2f} prob: {:.2f} Phase: {:5.1f}'.format(
+              state_to_string(bits),
+              self.ampl(*bits),
+              self.prob(*bits),
+              self.phase(*bits),
+          )
+      )
+    state_list.sort()
+    print(*state_list, sep='\n')
+
+
 def qubit(alpha: complex = None, beta: complex = None) -> State:
   """Produce a given state for a single qubit."""
 
@@ -163,7 +190,7 @@ def qubit(alpha: complex = None, beta: complex = None) -> State:
 #
 # The result of this tensor product is
 #   always [1, 0, 0, ..., 0]^T or [0, 0, 0, ..., 1]^T
-#
+
 def zeros_or_ones(d: int = 1, idx: int = 0) -> State:
   """Produce the all-0/1 basis vector for `d` qubits."""
 
@@ -271,42 +298,3 @@ class Reg:
   @property
   def nbits(self) -> int:
     return self.size
-
-
-# =====================================================
-# Various Helper Functions pertaining to State.
-# =====================================================
-
-
-def state_to_string(bits: Tuple[int]) -> str:
-  """Convert state to string like |010>."""
-
-  s = ''.join(str(i) for i in bits)
-  dec_digits = int(math.log10(2 ** len(bits))) + 1
-  return f'|{s}> (|{int(s, 2):{dec_digits}d}>)'
-
-
-def dump(psi, desc: str = None, prob_only: bool = True) -> None:
-  """Dump probabilities for a state, as well as local qubit state."""
-
-  if desc:
-    print('|', end='')
-    for i in range(psi.nbits):
-      print(i % 10, end='')
-    print(f"> '{desc}'")
-
-  state_list: List[str] = []
-  for bits in helper.bitprod(psi.nbits):
-    if prob_only and (psi.prob(*bits) < 10e-6):
-      continue
-
-    state_list.append(
-        '{:s}:  ampl: {:+.2f} prob: {:.2f} Phase: {:5.1f}'.format(
-            state_to_string(bits),
-            psi.ampl(*bits),
-            psi.prob(*bits),
-            psi.phase(*bits),
-        )
-    )
-  state_list.sort()
-  print(*state_list, sep='\n')
