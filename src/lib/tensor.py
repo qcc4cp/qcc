@@ -70,9 +70,7 @@ class Tensor(np.ndarray):
   def is_hermitian(self) -> bool:
     """Check if this tensor is hermitian - Udag = U."""
 
-    if len(self.shape) != 2:
-      return False
-    if self.shape[0] != self.shape[1]:
+    if len(self.shape) != 2 or self.shape[0] != self.shape[1]:
       return False
     return self.is_close(np.conj(self.transpose()))
 
