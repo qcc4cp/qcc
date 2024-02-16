@@ -26,7 +26,8 @@ class State(tensor.Tensor):
 
     dprod = np.conj(self) @ self
     assert not dprod.is_close(0.0), 'Normalizing to 0-probability state'
-    return self / np.sqrt(np.real(dprod))
+    self /= np.sqrt(np.real(dprod))  # modify object in place.
+    return self
 
   def ampl(self, *bits: Tuple[int]) -> np.complexfloating:
     """Return amplitude for state indexed by 'bits'."""
@@ -234,10 +235,10 @@ def minusi(d: int = 1) -> State:
 def bitstring(*bits) -> State:
   """Produce a state from a given bit sequence, eg., |0101>."""
 
-  assert len(bits) > 0, 'Need to specify at least 1 qubit'
-  for _, val in enumerate(bits):
-    if val != 0 and val != 1:
-      raise ValueError(f'Bits must be 0 or 1, got: {val}')
+  arr = np.array([*bits])
+  assert len(arr) > 0, 'Need to specify at least 1 qubit'
+  assert ((arr == 1) | (arr == 0)).all(), 'Bits must be 0 or 1'
+
   t = np.zeros(1 << len(bits), dtype=tensor.tensor_type())
   t[helper.bits2val(bits)] = 1
   return State(t)
