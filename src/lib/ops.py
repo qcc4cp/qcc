@@ -22,6 +22,12 @@ class Operator(tensor.Tensor):
   def adjoint(self) -> Operator:
     return Operator(np.conj(self.transpose()))
 
+  def dump(self, desc = None, digits = 3) -> None:
+    np.set_printoptions(precision=digits)
+    if desc:
+      print(f'{desc} ({self.nbits}-qubit(s) operator)')
+    print(self)
+
   # Operators operate on a state via function invocation, eg:
   #    Hadamard()(psi)
   #
@@ -57,9 +63,6 @@ class Operator(tensor.Tensor):
       if self.nbits > arg.nbits:
         arg = arg * Identity().kpow(self.nbits - idx - arg_bits)
 
-      if self.nbits != arg.nbits:
-        raise AssertionError('Operator(O) with mis-matched dimensions.')
-
       # Note: We reverse the order in this matmul. So:
       #   x(y) == y @ x
       #
@@ -78,11 +81,10 @@ class Operator(tensor.Tensor):
       # right in the circuit notation):
       #   X(Y) = YX
       #
+      assert self.nbits == arg.nbits, 'Misatched dimensions.'
       return arg @ self
 
-    if not isinstance(arg, state.State):
-      raise AssertionError('Invalid parameter, expected State.')
-
+    assert isinstance(arg, state.State), 'Error, expected State.'
     op = self
     if idx > 0:
       op = Identity().kpow(idx) * op
@@ -95,12 +97,6 @@ class Operator(tensor.Tensor):
       self, arg: Union[state.State, Operator], idx=0
   ) -> Union[state.State, Operator]:
     return self.apply(arg, idx)
-
-  def dump(self, desc = None, digits = 3) -> None:
-    np.set_printoptions(precision=digits)
-    if desc:
-      print(f'{desc} ({self.nbits}-qubit(s) operator)')
-    print(self)
 
 
 # --------------------------------------------------------------

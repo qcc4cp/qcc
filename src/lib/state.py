@@ -32,8 +32,7 @@ class State(tensor.Tensor):
   def ampl(self, *bits: Tuple[int]) -> np.complexfloating:
     """Return amplitude for state indexed by 'bits'."""
 
-    idx = helper.bits2val(bits)
-    return self[idx]
+    return self[helper.bits2val(bits)]
 
   def prob(self, *bits: Tuple[int]) -> float:
     """Return probability for state indexed by 'bits'."""
