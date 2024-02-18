@@ -234,7 +234,7 @@ def minusi(d: int = 1) -> State:
 def bitstring(*bits) -> State:
   """Produce a state from a given bit sequence, eg., |0101>."""
 
-  arr = np.array([*bits])
+  arr = np.asarray(bits)
   assert len(arr) > 0, 'Need to specify at least 1 qubit'
   assert ((arr == 1) | (arr == 0)).all(), 'Bits must be 0 or 1'
 
