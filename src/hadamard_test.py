@@ -23,12 +23,10 @@ def make_rand_operator():
   #
   # pylint: disable=invalid-name
   U = ops.Operator(unitary_group.rvs(2))
-  if not U.is_unitary():
-    raise AssertionError('Error: Generated non-unitary operator')
+  assert U.is_unitary(), 'Error: Generated non-unitary operator'
+  
   psi = U(state.bitstring(0))
-  u0 = psi[0]
-  u1 = psi[1]
-  return (U, u0, u1)
+  return (U, psi[0], psi[1])
 
 
 def hadamard_test():
