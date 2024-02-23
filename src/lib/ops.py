@@ -20,7 +20,7 @@ class Operator(tensor.Tensor):
   """Operators are represented by square, unitary matrices."""
 
   def adjoint(self) -> Operator:
-    return Operator(np.conj(self.transpose()))
+    return self.__class__(np.conj(self.transpose()))
 
   def dump(self, desc = None, digits = 3) -> None:
     np.set_printoptions(precision=digits)
@@ -231,9 +231,7 @@ def OneProjector(nbits: int) -> Operator:
 def ControlledU(idx0: int, idx1: int, u: Operator) -> Operator:
   """Control qubit at idx1 via controlling qubit at idx0."""
 
-  if idx0 == idx1:
-    raise ValueError('Control and controlled qubit must not be equal.')
-
+  assert idx0 != idx1, 'Control / controlled must not be equal.'
   p0 = ZeroProjector(1)
   p1 = OneProjector(1)
 
@@ -312,8 +310,7 @@ def OracleUf(nbits: int, f: Callable[[List[int]], int]) -> Operator:
     u[row][new_col] = 1.0
 
   op = Operator(u)
-  if not op.is_unitary():
-    raise AssertionError('Constructed non-unitary operator.')
+  assert op.is_unitary(), 'Constructed non-unitary operator.'
   return op
 
 
@@ -350,8 +347,7 @@ def Qft(nbits: int, swap: bool = True) -> Operator:
     for idx in range(nbits // 2):
       op = op(Swap(idx, nbits - idx - 1), idx)
 
-  if not op.is_unitary():
-    raise AssertionError('Constructed non-unitary operator.')
+  assert op.is_unitary(), 'Constructed non-unitary operator.'
   return op
 
 
