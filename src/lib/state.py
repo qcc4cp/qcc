@@ -253,19 +253,20 @@ def rand_bits(n: int) -> State:
 class Reg:
   """Simple register class."""
 
-  def __init__(self, size: int, it=0, global_reg: int = 0):
+  def __init__(self, size: int, it=0, global_reg: int = 0) -> None:
     self.size = size
     self.global_idx = list(range(global_reg, global_reg + size))
     self.val = [0] * size
     global_reg += size
 
-    if it:
-      if isinstance(it, int):
-        it = format(it, '0{}b'.format(size))
-      if isinstance(it, (str, tuple, list)):
-        for idx, val in enumerate(it):
-          if val == '1' or val == 1:
-            self.val[idx] = 1
+    if not it:
+      return
+    if isinstance(it, int):
+      it = format(it, '0{}b'.format(size))
+    if isinstance(it, (str, tuple, list)):
+      for idx, val in enumerate(it):
+        if val == '1' or val == 1:
+          self.val[idx] = 1
 
   def __str__(self) -> str:
     s = '|'
