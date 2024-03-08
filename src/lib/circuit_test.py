@@ -107,7 +107,7 @@ class CircuitTest(absltest.TestCase):
       raise AssertionError('Numerical Problems')
 
   def test_circuit_of_circuit(self):
-    c1 = circuit.qc('c1')
+    c1 = circuit.qc('c1', eager=False)
     c1.reg(6, 0)
     c1.x(0)
     c1.cx(1, 2)
@@ -120,7 +120,7 @@ class CircuitTest(absltest.TestCase):
     self.assertEqual(8, c1.ir.ngates)
 
   def test_circuit_of_inv_circuit(self):
-    c1 = circuit.qc('c1')
+    c1 = circuit.qc('c1', eager=False)
     c1.reg(6, 0)
     c1.x(0)
     c1.rx(1, math.pi / 3)
@@ -304,7 +304,7 @@ class CircuitTest(absltest.TestCase):
     # print(qc.stats())
 
   def test_to_ctl_single(self):
-    qc = circuit.qc('test')
+    qc = circuit.qc('test', eager=False)
     qc.reg(2)
 
     sc = qc.sub()
@@ -319,7 +319,7 @@ class CircuitTest(absltest.TestCase):
     self.assertTrue(qc.ir.gates[2].is_ctl())
 
   def test_to_ctl_multi(self):
-    qc = circuit.qc('test')
+    qc = circuit.qc('test', eager=False)
     qc.reg(3)
 
     sc = qc.sub()

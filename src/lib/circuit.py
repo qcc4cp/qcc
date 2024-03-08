@@ -73,16 +73,18 @@ class qc:
     self.name = name
     self.psi = state.State(1.0)
     self.ir = ir.Ir()
-    self.build_ir = True
+    self.eager = eager
+    self.build_ir = not eager
     self.global_reg = 0
     self.sub_circuits = 0
-    self.eager = eager
+
     try:  # this can fail in python-only REPL environements.
       if (flags.FLAGS.libq + flags.FLAGS.qasm + flags.FLAGS.cirq +
           flags.FLAGS.text + flags.FLAGS.latex):
         self.eager = False
     except Exception:  # pylint: disable=broad-except
       pass
+
     self.simple_gates = [
         ['h', ops.Hadamard()],
         ['s', ops.Sgate()],
@@ -91,7 +93,7 @@ class qc:
         ['x', ops.PauliX()],
         ['y', ops.PauliY()],
         ['z', ops.PauliZ()],
-        ['yroot', ops.Hadamard()],
+        ['yroot', ops.Yroot()],
     ]
     for gate in self.simple_gates:
       self.add_single(gate[0], gate[1])
@@ -144,7 +146,7 @@ class qc:
     self._tprod(state.rand(n), n)
 
   def arange(self, n: int) -> None:
-    self.psi = [float(i) for i in range(0, 2**n)]
+    self.psi = state.State([float(i) for i in range(0, 2**n)])
     self.global_reg = self.global_reg + n
 
   # We know we can initialize any state, eg., with the code
@@ -227,8 +229,7 @@ class qc:
     self.applyc(ops.U1(value), idx0, idx1, 'cu1', val=value)
 
   def cu(self, idx0: int, idx1: int, op: ops.Operator, desc: str = None):
-    if op.shape[0] != 2:
-      raise AssertionError('cu only supports 2x2 operators')
+    assert op.shape[0] == 2, 'cu only supports 2x2 operators'
     self.applyc(op, idx0, idx1, desc)
 
   def ccu(self, idx0: int, idx1: int, idx2: int, op: ops.Operator, desc=''):
@@ -293,15 +294,6 @@ class qc:
 
     prob, self.psi = ops.Measure(self.psi, idx, tostate, collapse)
     return prob, self.psi
-
-  def measure_bit_iterative(self, idx: int, tostate: int = 0) -> float:
-    """Iterate over all states, match states at idx, add up amplitudes."""
-
-    sum_ampl = 0.0
-    for bits in itertools.product([0, 1], repeat=self.psi.nbits):
-      if bits[idx] == tostate:
-        sum_ampl += self.psi.ampl(*bits)
-    return sum_ampl
 
   def pauli_expectation(self, idx: int):
     """We can compute the Pauli expectation value from probabilities."""
