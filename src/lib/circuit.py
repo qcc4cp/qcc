@@ -163,20 +163,19 @@ class qc:
   def optimize(self):
     self.ir = optimizer.optimize(self.ir)
 
-  def _ctl_by_0(self, ctl: int):
-    ctl_qubit_ = ctl
-    ctl_by_0_ = False
-    if not isinstance(ctl, int):
-      ctl_qubit_ = ctl[0]
-      ctl_by_0_ = True
-    return ctl_qubit_, ctl_by_0_
+  def _ctl_by_0(self, ctl):
+    if isinstance(ctl, int):
+      return ctl, False
+    return ctl[0], True
 
   # --- Gates  ----------------------------------------------------
   def add_single(self, name: str, gate: ops.Operator):
-    setattr(self, name, lambda idx: self.apply1(gate, idx, name))
+    setattr(self, name, lambda idx, cond = True:
+            self.apply1(gate, idx, name) if cond else None)
 
   def add_ctl(self, name: str, gate: ops.Operator):
-    setattr(self, name, lambda idx0, idx1: self.applyc(gate, idx0, idx1, name))
+    setattr(self, name, lambda idx0, idx1, cond = True:
+            self.applyc(gate, idx0, idx1, name) if cond else None)
 
   def apply1(
       self, gate: ops.Operator, idx_set, name: str = None, *, val: float = None
@@ -203,21 +202,17 @@ class qc:
     """Apply controlled gates."""
 
     if isinstance(idx, state.Reg):
-      if idx.size == 1:
-        idx = idx[0]
-      else:
-        raise AssertionError('Controlled n-qbit register not supported')
+      assert idx.size == 1, 'Controlled n-qbit register not supported'
+      idx = idx[0]
 
     ctl_qubit, by_0 = self._ctl_by_0(ctl)
-    if by_0:
-      self.x(ctl_qubit)
+    self.x(ctl_qubit, by_0)
     if self.build_ir:
       self.ir.controlled(name, ctl_qubit, idx, gate, val)
     if self.eager:
       applyc(self.psi, gate.reshape(4), self.psi.nbits, ctl_qubit, idx,
              tensor.tensor_width())
-    if by_0:
-      self.x(ctl_qubit)
+    self.x(ctl_qubit, by_0)
 
   def cx0(self, idx0: int, idx1: int):
     xgate = ops.PauliX()
@@ -235,25 +230,23 @@ class qc:
   def ccu(self, idx0: int, idx1: int, idx2: int, op: ops.Operator, desc=''):
     """Sleator-Weinfurter Construction for general operators."""
 
-    # Enable Control-By-0 (via idx being passes as [idx])
+    # Enable Control-By-0 (if idx is being passes as [idx])
     i0, c0_by_0 = self._ctl_by_0(idx0)
     i1, c1_by_0 = self._ctl_by_0(idx1)
 
     with self.scope(self.ir, f'cc{desc}({idx0}, {idx1}, {idx2})'):
-      if c0_by_0:
-        self.x(i0)
-      if c1_by_0:
-        self.x(i1)
+      self.x(i0, c0_by_0)
+      self.x(i1, c1_by_0)
+
       v = ops.Operator(sqrtm(op))
       self.cu(i0, idx2, v, desc + '^1/2')
       self.cx(i0, i1)
       self.cu(i1, idx2, v.adjoint(), desc + '^t')
       self.cx(i0, i1)
       self.cu(i1, idx2, v, desc + '^1/2')
-      if c1_by_0:
-        self.x(i1)
-      if c0_by_0:
-        self.x(i0)
+
+      self.x(i1, c1_by_0)
+      self.x(i0, c0_by_0)
 
   def ccx(self, idx0: int, idx1: int, idx2: int):
     self.ccu(idx0, idx1, idx2, ops.PauliX(), 'ccx')
@@ -465,9 +458,7 @@ class qc:
   def control_by(self, ctl: int):
     """Control a full circuit by qubit 'ctl'."""
 
-    if self.eager:
-      raise AssertionError('control_by() only permitted on non-eager circuits.')
-
+    assert not self.eager, 'control_by() used in non-eager circuit.'
     res = ir.Ir()
     for _, gate in enumerate(self.ir.gates):
       if gate.is_single():
