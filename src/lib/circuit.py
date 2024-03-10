@@ -399,7 +399,7 @@ class qc:
   def qc(self, qc_parm: qc, offset=0):
     """Add another full circuit to this circuit."""
 
-    # Iterate of the new circuit and add the gates one by one,
+    # Iterate over the new circuit and add the gates one by one,
     # using this circuit's eager mode.
     #
     for gate in qc_parm.ir.gates:
