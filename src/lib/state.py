@@ -82,49 +82,48 @@ class State(tensor.Tensor):
 
     # To maintain qubit ordering in this infrastructure,
     # index needs to be reversed.
-    #
     index = self.nbits - index - 1
     if index < 0:
       print('***Error***: Negative qubit index in apply1().')
       print('             Perhaps using wrongly shaped state?\n')
       sys.exit(1)
-    two_q = 1 << index
+    pow_2_index = 1 << index
     g00 = gate[0, 0]
     g01 = gate[0, 1]
     g10 = gate[1, 0]
     g11 = gate[1, 1]
     for g in range(0, 1 << self.nbits, 1 << (index + 1)):
-      for i in range(g, g + two_q):
-        t1 = g00 * self[i] + g01 * self[i + two_q]
-        t2 = g10 * self[i] + g11 * self[i + two_q]
+      for i in range(g, g + pow_2_index):
+        t1 = g00 * self[i] + g01 * self[i + pow_2_index]
+        t2 = g10 * self[i] + g11 * self[i + pow_2_index]
         self[i] = t1
-        self[i + two_q] = t2
+        self[i + pow_2_index] = t2
 
   def applyc(self, gate: np.ndarray, control: int, target: int) -> None:
     """Apply a controlled 2-qubit gate via explicit indexing."""
 
     # To maintain qubit ordering in this infrastructure,
     # index needs to be reversed.
-    qbit = self.nbits - target - 1
-    if qbit < 0:
+    index = self.nbits - target - 1
+    if index < 0:
       print('***Error***: Negative qubit index in applyc().')
       print('             Perhaps using wrongly shaped state?\n')
       sys.exit(1)
-    two_q = 2**qbit
     control = self.nbits - control - 1
+    pow_2_index = 1 << index
     g00 = gate[0, 0]
     g01 = gate[0, 1]
     g10 = gate[1, 0]
     g11 = gate[1, 1]
-    for g in range(0, 1 << self.nbits, 1 << (qbit + 1)):
+    for g in range(0, 1 << self.nbits, 1 << (index + 1)):
       idx_base = g * (1 << self.nbits)
-      for i in range(g, g + two_q):
-        idx = idx_base + i
-        if idx & (1 << control):
-          t1 = g00 * self[i] + g01 * self[i + two_q]
-          t2 = g10 * self[i] + g11 * self[i + two_q]
+      for i in range(g, g + pow_2_index):
+        #idx = idx_base + i
+        if (idx_base + i) & (1 << control):
+          t1 = g00 * self[i] + g01 * self[i + pow_2_index]
+          t2 = g10 * self[i] + g11 * self[i + pow_2_index]
           self[i] = t1
-          self[i + two_q] = t2
+          self[i + pow_2_index] = t2
 
   def dump(self, desc: str = None, prob_only: bool = True) -> None:
     """Dump probabilities for a state, including local qubit state."""
