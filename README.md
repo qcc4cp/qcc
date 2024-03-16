@@ -62,6 +62,7 @@ To run individual algorithms via `bazel`, run any of these command lines. Note t
 # Additional algorithms and techniques, to clarify, or
 # in preparation of a new edition of the book:
    bazel run amplitude_estimation
+   bazel run bell_basis
    bazel run chsh
    bazel run estimate_pi
    bazel run euclidean_distance

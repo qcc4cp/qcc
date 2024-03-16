@@ -43,6 +43,16 @@ py_binary(
 )
 
 py_binary(
+    name = "bell_basis",
+    srcs = ["bell_basis.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)
+
+py_binary(
     name = "bernstein",
     srcs = ["bernstein.py"],
     python_version = "PY3",
