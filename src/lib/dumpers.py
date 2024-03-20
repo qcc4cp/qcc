@@ -164,53 +164,69 @@ def cirq(ir) -> str:
 def latex(ir) -> str:
   """Minimal Dumper to quantikz Latex Format."""
 
-  # First let's create a matrix according to circuit size,
-  # before populating it with gates or lines.
-  larr: List[List[str]] = []
+  carr: List[List[str]] = []
+
+  def new_col():
+    col = [r'\qw&'] * ir.nregs
+    carr.append(col)
+    return col
+
+  def fix(s):
+    s = s.replace('ry', 'Y_')
+    s = s.replace('rz', 'Z_')
+    s = s.replace('gate{cx', 'targ{')
+    s = s.replace('_adj', r'^\dagger')
+    return s
+
+  def need_new_col(idx, gates):
+    if not idx:
+      return True
+    if not gates[idx - 1].is_single():
+      return True
+    if not gates[idx].is_single():
+      return True
+    if ir.gates[idx].idx0 != gates[idx-1].idx0:
+      return False
+    return True
+
+  col = new_col()
+
+  for idx, op in enumerate(ir.gates):
+    if not op.is_gate():
+      continue
+    if need_new_col(idx, ir.gates):
+      col = new_col()
+
+    name = op.name
+    if op.name == 'h':
+      name = 'H'
+    if op.name == 'cu1' or op.name == 'u1':
+      name = ''
+
+    parm = ''
+    if op.val is not None:
+      parm = '{}'.format(helper.pi_fractions(op.val, r'\pi'))
+
+    if op.is_single():
+      col[op.idx0] = (r'\gate' +
+                       '{}{}{}&'.format('{', name + '{' + parm + '}', '}'))
+      col[op.idx0] = fix(col[op.idx0])
+
+    if op.is_ctl():
+      col[op.ctl] = (r'\ctrl' +
+                      '{}{}{}&'.format('{', op.idx1 - op.ctl, '}'))
+      col[op.idx1]= (r'\gate' +
+                     '{}{}{}&'.format('{', name + parm, '}'))
+      col[op.ctl] = fix(col[op.ctl])
+      col[op.idx1] = fix(col[op.idx1])
+
+  res = r'\begin{qcc}[column sep=0.12cm]' + '\n'
   for q in range(ir.nregs):
-    larr.append([])
-    for _ in range(ir.ngates + 1):
-      larr[q].append('')
-
-  depth = 0
-  for op in ir.gates:
-    for r in range(ir.nregs):
-      larr[r][depth] = r'\qw&'
-
-    if op.is_gate():
-      parm = ''
-      name = op.name
-      name = name.replace('_adj', r'^\dagger')
-      if op.name == 'h':
-        name = 'H'
-      if op.name == 'cu1' or op.name == 'u1':
-        name = ''
-      if op.val is not None:
-        parm = '{}'.format(helper.pi_fractions(op.val, r'\pi'))
-      if op.is_single():
-        larr[op.idx0][depth] = (r'\gate' +
-                                '{}{}{}&'.format('{', name + parm, '}'))
-        depth = depth + 1
-      if op.is_ctl():
-        larr[op.ctl][depth] = (r'\ctrl' +
-                               '{}{}{}&'.format('{', op.idx1 - op.ctl, '}'))
-        larr[op.idx1][depth] = (r'\gate' +
-                                '{}{}{}&'.format('{', name + parm, '}'))
-        depth = depth + 1
-
-      # if op.val is not None:
-      #   res += '({})'.format(helper.pi_fractions(op.val))
-      # if op.is_single():
-      #   res += f' {reg2str(ir, op.idx0)};\n'
-      # if op.is_ctl():
-      #   res += f' {reg2str(ir, op.ctl)},{reg2str(ir, op.idx1)};\n'
-
-  res = r'\begin{qcc}' + '\n'
-  for q in range(ir.nregs):
-    for d in range(depth):
-      res += larr[q][d]
-    res += r'\\' + '\n'
-
+    for col in carr:
+      res += col[q]
+    res += r'\qw\\' + '\n'
+  if q == ir.nregs - 1:
+    res = res[:-3] + '\n'
   res += r'\end{qcc}'
   return res
 
