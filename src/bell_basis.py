@@ -1,9 +1,6 @@
 # python3
 """Example: Decompose states in Bell basis."""
 
-import math
-import random
-
 from absl import app
 import numpy as np
 
@@ -43,11 +40,13 @@ def run_experiment():
   new_psi = [0] * 4
   for idx in range(4):
     new_psi = new_psi + c[idx] * bells[idx]
-    
+
   assert np.allclose(psi, new_psi), 'Incorrect result.'
 
 
 def main(argv):
+  if len(argv) > 1:
+    raise app.UsageError('Too many command-line arguments.')
   print('Express 1000 random states in the Bell basis.')
 
   for _ in range(1000):

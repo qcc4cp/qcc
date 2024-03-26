@@ -24,7 +24,7 @@ def make_rand_operator():
   # pylint: disable=invalid-name
   U = ops.Operator(unitary_group.rvs(2))
   assert U.is_unitary(), 'Error: Generated non-unitary operator'
-  
+
   psi = U(state.bitstring(0))
   return (U, psi[0], psi[1])
 

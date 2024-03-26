@@ -184,7 +184,7 @@ def main(argv):
   max_tries = 1000
   print('Random Experiment, seq length: {} - {}, tries: {}'
         .format(min_length, max_delta, max_tries))
-  for i in range(num_experiments):
+  for _ in range(num_experiments):
     random_gates(min_length, max_delta, max_tries)
 
 
