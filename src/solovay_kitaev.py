@@ -160,8 +160,7 @@ def main(argv):
   base = [to_su2(ops.Hadamard()), to_su2(ops.Tgate())]
   gates = create_unitaries(base, depth)
   sum_dist = 0.0
-  for i in range(num_experiments):
-
+  for _ in range(num_experiments):
     u = (ops.RotationX(2.0 * np.pi * random.random()) @
          ops.RotationY(2.0 * np.pi * random.random()) @
          ops.RotationZ(2.0 * np.pi * random.random()))
