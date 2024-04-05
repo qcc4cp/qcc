@@ -12,6 +12,7 @@ from typing import Callable, Tuple
 from absl import flags
 import numpy as np
 from scipy.linalg import sqrtm
+from scipy.stats import unitary_group
 from src.lib import dumpers
 from src.lib import ir
 from src.lib import ops
@@ -148,6 +149,10 @@ class qc:
   def arange(self, n: int) -> None:
     self.psi = state.State([float(i) for i in range(0, 2**n)])
     self.global_reg = self.global_reg + n
+
+  def random(self, n: int = 1) -> None:
+    u = ops.Operator(unitary_group.rvs(1 << n))
+    self.psi = u(state.zeros(n))
 
   # We know we can initialize any state, eg., with the code
   # found in src/state_prep_mottonen.py. Here, we take a
