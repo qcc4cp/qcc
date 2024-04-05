@@ -136,7 +136,7 @@ def run_experiment_2qubit() -> None:
             ops.Operator([[x, y], [-np.conj(y), np.conj(x)]]))
 
   # We perform the calculation on a (non-state) vector.
-  psi = np.random.random([4])
+  psi = np.random.random([4]) + 1j * np.random.random(4)
   psi = psi / norm(psi)
   print('Random input:', psi, ' -> |0>')
 
@@ -158,8 +158,7 @@ def run_experiment_2qubit() -> None:
   w3 = u(psi2[0].conj(), (-psi2[1]).conj()).transpose()
   psi3 = (ops.Identity() * w3) @ psi2
 
-  if not np.allclose(psi3[0], 1.0, 1e-6):
-    raise AssertionError('Incorrect 2-qubit state preparation.')
+  assert np.allclose(psi3[0], 1.0, 1e-6), 'Incorrect preparation.'
 
 
 def main(argv):
