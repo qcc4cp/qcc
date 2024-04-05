@@ -40,9 +40,7 @@ def bits2frac(bits: Tuple[int, ...]) -> float:
 def frac2bits(val: float, nbits: int) -> List[int]:
   """Approximate a float with n binary fractions."""
 
-  if val >= 1.0:
-    raise AssertionError('frac2bits: value must be strictly < 1.0')
-
+  assert val < 1.0, 'frac2bits: value must be strictly < 1.0'
   res = []
   while nbits:
     nbits -= 1
