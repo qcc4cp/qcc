@@ -29,8 +29,7 @@ def spectral_decomp(ndim: int):
   # This makes A Hermitian (but no longer unitary).
   #
   hmat = 0.5 * (umat + umat.adjoint())
-  if not np.allclose(hmat, hmat.adjoint()):
-    raise AssertionError('Something is wrong, created non-Hermitian.')
+  assert np.allclose(hmat, hmat.adjoint()), 'Created non-Hermitian.'
 
   # Compute eigenvalues and vectors.
   #
@@ -45,22 +44,19 @@ def spectral_decomp(ndim: int):
   # Check that the eigenvalues are real.
   #
   for i in range(ndim):
-    if not np.allclose(w[i].imag, 0.0):
-      raise AssertionError('Found non-real eigenvalue.')
+    assert np.allclose(w[i].imag, 0.0), 'Found non-real eigenvalue.'
 
   # Check that the eigenvectors are orthogonal.
   #
   for i in range(ndim):
     for j in range(i + 1, ndim):
       dot = np.dot(v[:, i], v[:, j].adjoint())
-      if not np.allclose(dot, 0.0, atol=1e-5):
-        raise AssertionError('Invalid, non-orthogonal basis found')
+      assert np.allclose(dot, 0.0, atol=1e-5), 'Non-orthogonal basis found'
 
   # Check that eigenvectors are orthonormal.
   for i in range(ndim):
     dot = np.dot(v[:, i], v[:, i].adjoint())
-    if not np.allclose(dot, 1.0, atol=1e-5):
-      raise AssertionError('Found non-orthonormal basis vectors')
+    assert np.allclose(dot, 1.0, atol=1e-5), 'Found non-orthonormal basis vectors'
 
   # Construct a matrix following the spectral theorem and
   # check equivalance.
@@ -70,8 +66,7 @@ def spectral_decomp(ndim: int):
   x = np.matrix(np.zeros((ndim, ndim)))
   for i in range(ndim):
     x = x + w[i] * np.outer(v[:, i], v[:, i].adjoint())
-  if not np.allclose(hmat, x, atol=1e-5):
-    raise AssertionError("Spectral decomp doesn't seem to work.")
+  assert np.allclose(hmat, x, atol=1e-5), 'Spectral decomp did not work.'
 
   # Can we use this elegant spectral decomposition to compute the
   # the inverse of a matrix?
@@ -82,8 +77,7 @@ def spectral_decomp(ndim: int):
   x = np.matrix(np.zeros((ndim, ndim)))
   for i in range(ndim):
     x = x + 1 / w[i] * np.outer(v[:, i], v[:, i].adjoint())
-  if not np.allclose(np.linalg.inv(hmat), x, atol=1e-5):
-    raise AssertionError("Inverse computation doesn't seem to work.")
+  assert np.allclose(np.linalg.inv(hmat), x, atol=1e-5), 'Inverse computation did not work.'
 
 
 def main(argv):
