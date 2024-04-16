@@ -199,6 +199,7 @@ class qc:
       if self.build_ir:
         self.ir.single(name, idx, gate, val)
       if self.eager:
+        assert idx < self.psi.nbits, 'Invalid qubit index'
         apply1(self.psi, gate.reshape(4), self.psi.nbits, idx,
                tensor.tensor_width())
 
@@ -215,6 +216,7 @@ class qc:
     if self.build_ir:
       self.ir.controlled(name, ctl_qubit, idx, gate, val)
     if self.eager:
+      assert idx < self.psi.nbits, 'Invalid qubit index'
       applyc(self.psi, gate.reshape(4), self.psi.nbits, ctl_qubit, idx,
              tensor.tensor_width())
     self.x(ctl_qubit, by_0)
