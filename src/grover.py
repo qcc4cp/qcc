@@ -14,7 +14,6 @@ from src.lib import ops
 from src.lib import state
 
 
-#
 # This function can be used if there is only 1 solution,
 # which is the simplest case. We keep it here, as it is
 # referenced in the book. It is no longer used in this code.
@@ -120,17 +119,11 @@ def run_experiment(nbits: int, solutions: int) -> None:
   result = f(maxbits[:-1])
   print('Matrix : Got f({}) = {}, want: 1, #: {:2d}, p: {:6.4f}'
         .format(maxbits[:-1], result, solutions, maxprob))
-  if result != 1:
-    raise AssertionError('something went wrong, measured invalid state')
+  assert result == 1, 'Something went wrong, invalid state'
 
 
 def run_experiment_circuit(nbits: int) -> None:
   """Run circuit-based experiment."""
-
-  # pylint disable=g-bare-generic
-  def multi(qc: circuit.qc, gate: ops.Operator, idx: List[int]):
-    for i in idx:
-      qc.apply1(gate, i, 'multi')
 
   # pylint disable=g-bare-generic
   def multi_masked(qc: circuit.qc, gate: ops.Operator, idx: List[int],
@@ -148,15 +141,14 @@ def run_experiment_circuit(nbits: int) -> None:
   #
   qc = circuit.qc('Grover', eager=False)
   reg = qc.reg(nbits, 0)
-  qc.reg(1, 1)
+  qc.reg(1, 1)  # ancilla.
   aux = qc.reg(nbits - 1, 0)
   f, bits = make_f1(nbits)
-
-  multi(qc, ops.Hadamard(), [i for i in range(nbits + 1)])
 
   iterations = int(math.pi / 4 * math.sqrt(2**nbits))
   idx = [i for i in range(nbits)]
 
+  qc.h([i for i in range(nbits + 1)])
   for _ in range(iterations):
     # Phase Inversion
     multi_masked(qc, ops.PauliX(), idx, bits, 0)
@@ -164,19 +156,18 @@ def run_experiment_circuit(nbits: int) -> None:
     multi_masked(qc, ops.PauliX(), idx, bits, 0)
 
     # Mean Inversion
-    multi(qc, ops.Hadamard(), idx)
-    multi(qc, ops.PauliX(), idx)
+    qc.h(idx)
+    qc.x(idx)
     qc.multi_control(reg, nbits, aux, ops.PauliZ(), 'Mean Inversion')
-    multi(qc, ops.PauliX(), idx)
-    multi(qc, ops.Hadamard(), idx)
+    qc.x(idx)
+    qc.h(idx)
 
   qc.run()
   maxbits, maxprob = qc.psi.maxprob()
   result = f(maxbits[:nbits])
   print('Circuit: Got f({}) = {}, want: 1, p: {:6.4f}'
         .format(maxbits[:nbits], result, maxprob))
-  if result != 1:
-    raise AssertionError('something went wrong, measured invalid state')
+  assert result == 1, 'Something went wrong, invalid state'
 
 
 def main(argv):
@@ -187,7 +178,7 @@ def main(argv):
     run_experiment(nbits, 1)
   for solutions in range(1, 9):
     run_experiment(7, solutions)
-  for nbits in range(8, 10):
+  for nbits in range(6, 10):
     run_experiment_circuit(nbits)
 
 
