@@ -48,7 +48,7 @@ def single_qubit():
         + y * ops.PauliY()
         + z * ops.PauliZ()
     )
-    assert np.allclose(rho, new_rho, atol=1e-06). 'Invalid Pauli Representation'
+    assert np.allclose(rho, new_rho, atol=1e-06), 'Invalid Pauli Representation'
 
     print(f'qubit({qc.psi[0]:11.2f}, {qc.psi[1]:11.2f}) = ', end='')
     print(f'{i:11.2f} I + {x:11.2f} X + {y:11.2f} Y + {z:11.2f} Z')
