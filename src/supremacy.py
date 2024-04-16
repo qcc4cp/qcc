@@ -263,9 +263,9 @@ def sim_circuit(states, nbits, depth, target_nbits, target_depth):
   # We assume 0 communication costs, so the following is an
   # optimistic estimate.
 
-  print('\nEstimate simulation time on larger circuit:\n')
-  gate_ratio = ngates / nbits / depth
-  print('Simulated circuit:')
+  print('\nEstimate simulation time for larger circuit:\n')
+  gate_density = ngates / nbits / depth
+  print('Simulated smaller circuit:')
   print('  Qubits                  : {:d}'.format(nbits))
   print('  Circuit Depth           : {:d}'.format(depth))
   print('  Gates                   : {:.2f}'.format(ngates))
@@ -278,7 +278,7 @@ def sim_circuit(states, nbits, depth, target_nbits, target_depth):
       2 ** (target_nbits - 1) * 16 / (1024 ** 4)))
   print('Machines used             : {}'.format(flags.FLAGS.machines))
   print('Estimated cores per server: {}'.format(flags.FLAGS.cores))
-  print('Estimated gate density    : {:.2f}'.format(gate_ratio))
+  print('Estimated gate density    : {:.2f}'.format(gate_density))
 
   estimated_sim_time_secs = (
       # time per gate per byte
@@ -286,7 +286,7 @@ def sim_circuit(states, nbits, depth, target_nbits, target_depth):
       # gates
       * target_nbits
       # gate ratio scaling factor to circuit size
-      * gate_ratio
+      * gate_density
       # depth
       * target_depth
       # memory
