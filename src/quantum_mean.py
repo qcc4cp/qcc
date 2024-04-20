@@ -56,10 +56,8 @@ def run_experiment(nbits: int):
   qclas = np.real(qc.psi[1] * np.linalg.norm(x))
 
   # Check results.
-  if not np.allclose(np.mean(xn), qmean, atol=0.001):
-    raise AssertionError('Incorrect quantum mean computation.')
-  if not np.allclose(np.mean(x), qclas, atol=0.001):
-    raise AssertionError('Incorrect quantum scaled mean computation.')
+  assert np.allclose(np.mean(xn), qmean, atol=0.001), 'Whaaa'
+  assert np.allclose(np.mean(x), qclas, atol=0.001), 'Whaaa'
   print(f'  Mean ({nbits} qb): classic: {np.mean(x):.3f}, quantum: {qclas:.3f}')
 
 
