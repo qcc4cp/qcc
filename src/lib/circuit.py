@@ -241,7 +241,7 @@ class qc:
     i0, c0_by_0 = self._ctl_by_0(idx0)
     i1, c1_by_0 = self._ctl_by_0(idx1)
 
-    with self.scope(self.ir, f'cc{desc}({idx0}, {idx1}, {idx2})'):
+    with self.scope(self.ir, f'cc-{desc}({idx0}, {idx1}, {idx2})'):
       self.x(i0, c0_by_0)
       self.x(i1, c1_by_0)
 
@@ -517,7 +517,7 @@ class qc:
       print(desc)
     if self.name:
       print(f'Circuit: {self.name}, Gates: {len(self.ir.gates)}, '
-            + 'QBits: {self.psi.nbits}')
+            + f'QBits: {self.psi.nbits}')
     print(self.ir, end='')
     if draw:
       print(dumpers.totext(self.ir))
