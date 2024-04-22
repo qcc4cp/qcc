@@ -19,6 +19,11 @@ from src.lib import tensor
 class Operator(tensor.Tensor):
   """Operators are represented by square, unitary matrices."""
 
+  def __new__(subtype, input_array, name=None):
+    obj = super().__new__(subtype, input_array)
+    obj.name = name
+    return obj
+
   def adjoint(self) -> Operator:
     return self.__class__(np.conj(self.transpose()))
 
@@ -103,19 +108,19 @@ class Operator(tensor.Tensor):
 # Single Qubit Gates / Generators.
 # --------------------------------------------------------------
 def Identity(d: int = 1) -> Operator:
-  return Operator([[1.0, 0.0], [0.0, 1.0]]).kpow(d)
+  return Operator([[1.0, 0.0], [0.0, 1.0]], 'id').kpow(d)
 
 
 def PauliX(d: int = 1) -> Operator:
-  return Operator([[0.0, 1.0], [1.0, 0.0]]).kpow(d)
+  return Operator([[0.0, 1.0], [1.0, 0.0]], 'x').kpow(d)
 
 
 def PauliY(d: int = 1) -> Operator:
-  return Operator([[0.0, -1.0j], [1.0j, 0.0]]).kpow(d)
+  return Operator([[0.0, -1.0j], [1.0j, 0.0]], 'y').kpow(d)
 
 
 def PauliZ(d: int = 1) -> Operator:
-  return Operator([[1.0, 0.0], [0.0, -1.0]]).kpow(d)
+  return Operator([[1.0, 0.0], [0.0, -1.0]], 'z').kpow(d)
 
 
 def Pauli(d: int = 1) -> Tuple[Operator, Operator, Operator, Operator]:
@@ -123,12 +128,12 @@ def Pauli(d: int = 1) -> Tuple[Operator, Operator, Operator, Operator]:
 
 
 def Hadamard(d: int = 1) -> Operator:
-  return Operator(1 / np.sqrt(2) * np.array([[1.0, 1.0], [1.0, -1.0]])).kpow(d)
+  return Operator(1 / np.sqrt(2) * np.array([[1.0, 1.0], [1.0, -1.0]]), 'h').kpow(d)
 
 
 # Phase gate, also called S or Z90. Rotate by 90 deg around z-axis.
 def Phase(d: int = 1) -> Operator:
-  return Operator([[1.0, 0.0], [0.0, 1.0j]]).kpow(d)
+  return Operator([[1.0, 0.0], [0.0, 1.0j]], 's').kpow(d)
 
 
 # Phase gate is also called S-gate.
@@ -144,19 +149,19 @@ def Tgate(d: int = 1) -> Operator:
 # V-gate, which is sqrt(X). Note that there are more roots:
 #   https://quantumcomputing.stackexchange.com/q/15381/11582
 def Vgate(d: int = 1) -> Operator:
-  return Operator(0.5 * np.array([(1 + 1j, 1 - 1j), (1 - 1j, 1 + 1j)])).kpow(d)
+  return Operator(0.5 * np.array([(1 + 1j, 1 - 1j), (1 - 1j, 1 + 1j)]), 'v').kpow(d)
 
 
 # Yroot is sqrt(Y).
 def Yroot(d: int = 1) -> Operator:
   """As found in: https://arxiv.org/pdf/quant-ph/0511250.pdf."""
 
-  return Operator(0.5 * np.array([(1 + 1j, -1 - 1j), (1 + 1j, 1 + 1j)])).kpow(d)
+  return Operator(0.5 * np.array([(1 + 1j, -1 - 1j), (1 + 1j, 1 + 1j)]), 'yroot').kpow(d)
 
 
 # IBM's U1-gate.
 def U1(lam: float, d: int = 1) -> Operator:
-  return Operator([(1.0, 0.0), (0.0, cmath.exp(1j * lam))]).kpow(d)
+  return Operator([(1.0, 0.0), (0.0, cmath.exp(1j * lam))], 'u1').kpow(d)
 
 
 # IBM's general U3-gate.
@@ -165,7 +170,7 @@ def U3(theta: float, phi: float, lam: float, d: int = 1) -> Operator:
       [(np.cos(theta / 2),
         -cmath.exp(1j * lam)*np.sin(theta / 2)),
        (cmath.exp(1j * phi)*np.sin(theta / 2),
-        cmath.exp(1j * (phi + lam))*np.cos(theta / 2))]).kpow(d)
+        cmath.exp(1j * (phi + lam))*np.cos(theta / 2))], 'u3').kpow(d)
 
 
 def Rk(k: int, d: int = 1) -> Operator:
@@ -176,7 +181,7 @@ def Rk(k: int, d: int = 1) -> Operator:
 # This is a simple implementation of the mechanism outlined here:
 # http://www.vcpc.univie.ac.at/~ian/hotlist/qc/talks/bloch-sphere-rotations.pdf
 #        (page 22)
-def Rotation(vparm: List[float], theta: float) -> Operator:
+def Rotation(vparm: List[float], theta: float, name: str) -> Operator:
   """Produce the single-qubit rotation operator."""
 
   v = np.asarray(vparm)
@@ -184,19 +189,19 @@ def Rotation(vparm: List[float], theta: float) -> Operator:
     raise ValueError('Rotation vector v must be a 3D real unit vector.')
 
   return Operator(np.cos(theta / 2) * Identity() - 1j * np.sin(theta / 2) * (
-      v[0] * PauliX() + v[1] * PauliY() + v[2] * PauliZ()))
+      v[0] * PauliX() + v[1] * PauliY() + v[2] * PauliZ()), name)
 
 
 def RotationX(theta: float) -> Operator:
-  return Rotation([1.0, 0.0, 0.0], theta)
+  return Rotation([1.0, 0.0, 0.0], theta, 'rx')
 
 
 def RotationY(theta: float) -> Operator:
-  return Rotation([0.0, 1.0, 0.0], theta)
+  return Rotation([0.0, 1.0, 0.0], theta, 'ry')
 
 
 def RotationZ(theta: float) -> Operator:
-  return Rotation([0.0, 0.0, 1.0], theta)
+  return Rotation([0.0, 0.0, 1.0], theta, 'rz')
 
 
 def ZeroProjector(nbits: int) -> Operator:
@@ -204,7 +209,7 @@ def ZeroProjector(nbits: int) -> Operator:
 
   zero_projector = np.zeros((2**nbits, 2**nbits))
   zero_projector[0, 0] = 1
-  return Operator(zero_projector)
+  return Operator(zero_projector, 'p0')
 
 
 def OneProjector(nbits: int) -> Operator:
@@ -213,7 +218,7 @@ def OneProjector(nbits: int) -> Operator:
   dim = 2**nbits
   zero_projector = np.zeros((dim, dim))
   zero_projector[dim - 1, dim - 1] = 1
-  return Operator(zero_projector)
+  return Operator(zero_projector, 'p1')
 
 
 # Note on indices for controlled operators:

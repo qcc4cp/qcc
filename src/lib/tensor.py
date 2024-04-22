@@ -48,7 +48,8 @@ def tensor_type():
 class Tensor(np.ndarray):
   """Tensor is a numpy array representing a state or operator."""
 
-  def __new__(cls, input_array) -> Tensor:
+  def __new__(cls, input_array, op_name = None) -> Tensor:
+    cls.name = op_name
     return np.asarray(input_array, dtype=tensor_type()).view(cls)
 
   def __array_finalize__(self, obj) -> None:
@@ -114,7 +115,9 @@ class Tensor(np.ndarray):
   def kron(self, arg: Tensor) -> Tensor:
     """Return the kronecker product of this object with arg."""
 
-    return self.__class__(np.kron(self, arg))
+    lhs = self.name if (hasattr(self, 'name') and self.name) else '?'
+    rhs = arg.name if (hasattr(arg, 'name') and arg.name) else '?'
+    return self.__class__(np.kron(self, arg), lhs + '*' + rhs)
 
   def __mul__(self, arg: Tensor) -> Tensor:  # type: ignore[override]
     """Inline * operator maps to kronecker product."""
@@ -126,7 +129,9 @@ class Tensor(np.ndarray):
 
     if n == 0:
       return self.__class__(1.0)
+    if n == 1:
+      return self.__class__(self, self.name)
     t = self
     for _ in range(n - 1):
       t = np.kron(t, self)
-    return self.__class__(t)
+    return self.__class__(t, (t.name if t.name else '?') + f'^{n}')
