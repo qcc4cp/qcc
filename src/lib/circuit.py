@@ -241,16 +241,16 @@ class qc:
     i0, c0_by_0 = self._ctl_by_0(idx0)
     i1, c1_by_0 = self._ctl_by_0(idx1)
 
-    with self.scope(self.ir, f'cc-{desc}({idx0}, {idx1}, {idx2})'):
+    with self.scope(self.ir, f'cc-{op.name} {desc}({idx0}, {idx1}, {idx2})'):
       self.x(i0, c0_by_0)
       self.x(i1, c1_by_0)
 
       v = ops.Operator(sqrtm(op))
-      self.cu(i0, idx2, v, desc + '^1/2')
+      self.cu(i0, idx2, v, op.name + '^1/2')
       self.cx(i0, i1)
-      self.cu(i1, idx2, v.adjoint(), desc + '^t')
+      self.cu(i1, idx2, v.adjoint(), op.name + '^t')
       self.cx(i0, i1)
-      self.cu(i1, idx2, v, desc + '^1/2')
+      self.cu(i1, idx2, v, op.name + '^1/2')
 
       self.x(i1, c1_by_0)
       self.x(i0, c0_by_0)
@@ -343,7 +343,7 @@ class qc:
         for y in range(i, -1, -1):
           self.cu1(reg[j], reg[y], -np.pi / 2 ** (j - y))
 
-  def multi_control(self, ctl, idx1, aux, gate, desc: str):
+  def multi_control(self, ctl, idx1, aux, gate, desc: str = ''):
     """Multi-controlled gate, using aux as ancilla."""
 
     # This is a simple version that requires n-1 ancillaries, instead
@@ -363,7 +363,7 @@ class qc:
     # whole gate sequences straight-forward, but changes the trivial
     # IR we're working with here. Something to keep in mind.
 
-    with self.scope(self.ir, f'multi({ctl}, {idx1}) # {desc})'):
+    with self.scope(self.ir, f'multi-{gate.name}({ctl}, {idx1}) # {desc})'):
       if not ctl:
         self.apply1(gate, idx1, desc)
         return

@@ -189,7 +189,7 @@ def Rotation(vparm: List[float], theta: float, name: str) -> Operator:
     raise ValueError('Rotation vector v must be a 3D real unit vector.')
 
   return Operator(np.cos(theta / 2) * Identity() - 1j * np.sin(theta / 2) * (
-      v[0] * PauliX() + v[1] * PauliY() + v[2] * PauliZ()), name)
+      v[0] * PauliX() + v[1] * PauliY() + v[2] * PauliZ()), name + f'({theta:.3f})')
 
 
 def RotationX(theta: float) -> Operator:

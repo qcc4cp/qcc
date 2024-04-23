@@ -15,7 +15,7 @@ def run_experiment(nbits: int):
   """Run a single mean computation."""
 
   # Random numbers, positive and negative.
-  x = np.array([random.randint(0, 10) - 5 for _ in range(2**nbits)])
+  x = np.array([random.randint(0, 100) - 50 for _ in range(2**nbits)])
   xn = x / np.linalg.norm(x)
 
   # Define a unitary which does:
@@ -48,7 +48,7 @@ def run_experiment(nbits: int):
     # Control-by-zero is indicated with a single-element list.
     ctl = [i if bit == 1 else [i] for i, bit in enumerate(bits)]
     qc.multi_control(ctl, ext, aux,
-                     ops.RotationY(2 * np.arcsin(xn[idx])), 'multi-ry')
+                     ops.RotationY(2 * np.arcsin(xn[idx])))
   qc.h(inp)
 
   # We 'measure' via peak-a-boo of state |00...001>
