@@ -41,18 +41,6 @@ from src.lib import state
 # The idea here is - can we use Grover's algorithm to find a positive
 # solution in sqrt(N) time.
 
-# For the solution using circuits, we ONLY evaluate a single clause.
-# This can be extended quite easily, of course.
-
-# In C/C++, a return value of 0 is considered False. However,
-# in Quantum computing, states are initialized as |0> and
-# applying an X-gate negates the state to |1>. So it is
-# the reverse, with |0> being True. Here, we use the C/C++
-# convention.
-FALSE = 0
-TRUE = 1
-
-
 def print_formula(clauses):
   """Convert formula, a list of clauses, to a string."""
 
@@ -62,22 +50,13 @@ def print_formula(clauses):
     substr = []
     for idx, _ in enumerate(expr):
       # An int of 0 means negation.
-      res = '-' if expr == FALSE else ' '
+      res = '-' if expr == 0 else ' '
       substr.append(res + 'x' + str(idx))
     expstr.append('(' + ' '.join(substr) + ')')
 
   # produce final formula.
   res = '&'.join(expstr)
   return res
-
-
-def match_bit(b, val):
-  """Match bit (0==False, 1==True) with possible negation (val==0)."""
-
-  if b == FALSE:
-    return True if val == FALSE else False
-  if b == TRUE:
-    return False if val == FALSE else True
 
 
 def eval_formula(bits, clauses: List[List[int]]):
@@ -88,7 +67,7 @@ def eval_formula(bits, clauses: List[List[int]]):
     # Compute result of a clause (logical or)
     value = False
     for idx, bit in enumerate(bits):
-      value = value or match_bit(bit, clause[idx])
+      value = value or (bit == clause[idx])
     # Compute conjuction (logical and)
     res = res and value
   return res
@@ -102,20 +81,13 @@ def make_clause(variables: int):
   #
   # We represent negation as int 0, unmodified as int 1.
   #   Ex: A list of [1 0 1] corresponds to (x0 or -x1 or x2)
-  #
-  clause = []
-  for _ in range(variables):
-    clause.append(random.randint(0, 1))
-  return clause
+  return [random.randint(0, 1) for _ in range(variables)]
 
 
 def make_formula(variables: int, clauses: int):
-  """Make a formula."""
+  """Make a formula from a list of clauses."""
 
-  formula = []
-  for _ in range(clauses):
-    formula.append(make_clause(variables))
-  return formula
+  return [make_clause(variables) for _ in range(clauses)]
 
 
 def make_f(variables: int, formula):
@@ -332,8 +304,7 @@ def grover_with_circuit(variables: int = 3):
   maxbits, maxprob = qc.psi.maxprob()
   print(f'Circuit: Want: {list(solution[0])}, ', end='')
   print(f'Got: {list(maxbits[:variables])}, p: {maxprob:.2f}')
-  if list(solution[0]) != maxbits[:variables]:
-    raise AssertionError('Incorrect Result')
+  assert list(solution[0]) == maxbits[:variables], 'Incorrect Result'
 
 
 def main(argv):
