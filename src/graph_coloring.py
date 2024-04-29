@@ -12,6 +12,7 @@ import itertools
 from typing import List, Tuple
 
 from absl import app
+import math
 import numpy as np
 
 from src.lib import circuit
@@ -59,7 +60,7 @@ def compare_pairs_equal(qc, a, b, c, d, w0, w1, chk):
 
 
 def test_qubit_equality_circuit():
-  """Test the equality circuitty for correctness."""
+  """Test the equality circuitry for correctness."""
 
   # To check whether pairs of qubits are the same we
   # follow this recipe:
@@ -142,12 +143,11 @@ class Graph:
     # are different.
     #   bits: are the measured bits from the quantum state.
     #   n   : number of bits used to encode colors.
-    different = 0
     for edge in self.edges:
       if (bits[edge[0] * n: edge[0] * n + n] !=
           bits[edge[1] * n: edge[1] * n + n]):
-        different += 1
-    return different
+        return True
+    return False
 
 
 def diffuser(qc: circuit.qc, reg, checker, aux):
@@ -171,7 +171,13 @@ def build_circuit(g: Graph):
 
   print(f'Solving [{g.desc}]: ', end='')
   print(f'{g.num} vertices, {len(g.edges)} edges -> {qc.nbits} qubits')
-  iterations = 1
+
+  # Note: This is the standard way to compute the iterations.
+  #       We could set this to 1 and change the multi_control gate
+  #       below to use a PauliX gate instead.
+  #       This is much faster (but I don't fully understand how
+  #       this works. Yet.)
+  iterations = int(math.pi / 4 * math.sqrt(2**(g.num*2)))
 
   qc.h(reg)
   for _ in range(iterations):
@@ -182,7 +188,7 @@ def build_circuit(g: Graph):
       compare_pairs_equal(sc, fr, fr + 1, to, to + 1, tmp[0], tmp[1], chk[idx])
 
     qc.qc(sc)
-    qc.multi_control(chk, res, tmp, ops.PauliX(), 'multi')
+    qc.multi_control(chk, res, tmp, ops.PauliZ(), 'multi')
     qc.qc(sc.inverse())
 
     diffuser(qc, reg, res, tmp)
@@ -191,14 +197,12 @@ def build_circuit(g: Graph):
   # probability. These will be the possible
   # solutions to the (inverse) graph coloring problem, which
   # is to find the coloring with all colors being the same.
-  #
   _, maxprob = qc.psi.maxprob()
   for idx, val in enumerate(qc.psi):
-    if np.real(val.conj() * val) > (maxprob - 0.005):
+    if np.real(val.conj() * val) > (maxprob - 0.000001):
       bits = helper.val2bits(idx, qc.nbits)
       print('  Color:', bits[0 : g.num * 2])
-      if g.verify(bits):
-        raise AssertionError('Incorrect color assignment found.')
+      assert not g.verify(bits), 'Incorrect color assignment found.'
 
 
 def main(argv):
