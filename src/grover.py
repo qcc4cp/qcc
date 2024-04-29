@@ -130,7 +130,7 @@ def run_experiment_circuit(nbits: int) -> None:
                    mask, allow: int):
     for i in idx:
       if mask[i] == allow:
-        qc.apply1(gate, i, 'multi-mask')
+        qc.apply1(gate, i, gate.name)
 
   # This implementation uses the 'trivial' multi-controlled gates,
   # which introduce _a lot_ of ancilla gates. As a result, there
@@ -139,7 +139,7 @@ def run_experiment_circuit(nbits: int) -> None:
   # then the circuit-based performance for many qubits will do
   # much better!.
   #
-  qc = circuit.qc('Grover', eager=False)
+  qc = circuit.qc('Grover')
   reg = qc.reg(nbits, 0)
   qc.reg(1, 1)  # ancilla.
   aux = qc.reg(nbits - 1, 0)
@@ -162,7 +162,6 @@ def run_experiment_circuit(nbits: int) -> None:
     qc.x(idx)
     qc.h(idx)
 
-  qc.run()
   maxbits, maxprob = qc.psi.maxprob()
   result = f(maxbits[:nbits])
   print('Circuit: Got f({}) = {}, want: 1, p: {:6.4f}'
