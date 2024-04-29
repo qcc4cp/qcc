@@ -169,7 +169,8 @@ def latex(ir) -> str:
   def new_col():
     col = [r'\qw&'] * ir.nregs
     carr.append(col)
-    return col
+    gcol = [False] * ir.nregs
+    return col, gcol
 
   def fix(s):
     s = s.replace('ry', 'Y_')
@@ -178,7 +179,7 @@ def latex(ir) -> str:
     s = s.replace('_adj', r'^\dagger')
     return s
 
-  def need_new_col(idx, gates):
+  def need_new_col(idx, gates, gcol):
     if not idx:
       return True
     if not gates[idx - 1].is_single():
@@ -186,16 +187,17 @@ def latex(ir) -> str:
     if not gates[idx].is_single():
       return True
     if ir.gates[idx].idx0 != gates[idx-1].idx0:
-      return False
+      if gcol[ir.gates[idx].idx0] == False:
+        return False
     return True
 
-  col = new_col()
+  col, gcol = new_col()
 
   for idx, op in enumerate(ir.gates):
     if not op.is_gate():
       continue
-    if need_new_col(idx, ir.gates):
-      col = new_col()
+    if need_new_col(idx, ir.gates, gcol):
+      col, gcol = new_col()
 
     name = op.name
     if op.name == 'h':
@@ -211,6 +213,7 @@ def latex(ir) -> str:
       col[op.idx0] = (r'\gate' +
                        '{}{}{}&'.format('{', name + '{' + parm + '}', '}'))
       col[op.idx0] = fix(col[op.idx0])
+      gcol[op.idx0] = True
 
     if op.is_ctl():
       col[op.ctl] = (r'\ctrl' +
