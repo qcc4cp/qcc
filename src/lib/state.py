@@ -72,7 +72,7 @@ class State(tensor.Tensor):
     # over the state vector, find the index of the maximum
     # amplitude with a numpy function, and return the probability
     # and the index as a bitstring.
-    idx = np.argmax(self)
+    idx = np.abs(self).argmax()
     maxprob = np.real(self[idx].conj() * self[idx])
     maxbits = helper.val2bits(idx, self.nbits)
     return maxbits, maxprob
