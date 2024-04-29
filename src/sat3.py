@@ -62,15 +62,11 @@ def print_formula(clauses):
 def eval_formula(bits, clauses: List[List[int]]):
   """Evaluate a formula."""
 
-  res = True
   for clause in clauses:
-    # Compute result of a clause (logical or)
-    value = False
-    for idx, bit in enumerate(bits):
-      value = value or (bit == clause[idx])
-    # Compute conjuction (logical and)
-    res = res and value
-  return res
+    res = [bit == clause[idx] for idx, bit in enumerate(bits)]
+    if not True in res:
+      return False
+  return True
 
 
 def make_clause(variables: int):
@@ -113,17 +109,13 @@ def make_f(variables: int, formula):
   return lambda bits: answers[helper.bits2val(bits)]
 
 
-def find_solutions(variables: int, formula):
+def find_negative_solutions(variables: int, formula):
   """Find number of (negative) solutions."""
 
-  solutions = []
   for bits in itertools.product([0, 1], repeat=variables):
     res = eval_formula(bits, formula)
-
-    # Note again the negation here.
     if not res:
-      solutions.append(bits)
-  return solutions
+      return bits
 
 
 def grover_with_oracle(nbits: int, clauses: int, solutions: int):
@@ -229,7 +221,7 @@ def grover_with_circuit(variables: int = 3):
   # For single OR-clauses, there is only 1 negative solution,
   # which is the one where every single literatal is False.
   # Let's verify (solutions will just be the formula inverted).
-  solution = find_solutions(variables, formula)
+  solution = find_negative_solutions(variables, formula)
 
   # Let's compute the number of iterations we will need.
   iterations = int(math.pi / 4 * math.sqrt(2**variables))
@@ -293,7 +285,7 @@ def grover_with_circuit(variables: int = 3):
     qc.qc(cc)
 
     # Phase inversion - connect the result to the chk qubit.
-    qc.cx(w[idx - 1], chk)
+    qc.cz(w[idx - 1], chk)
 
     # Uncompute the sub-circuit.
     qc.qc(cc.inverse())
@@ -302,9 +294,9 @@ def grover_with_circuit(variables: int = 3):
     diffuser(qc, reg, chk, aux)
 
   maxbits, maxprob = qc.psi.maxprob()
-  print(f'Circuit: Want: {list(solution[0])}, ', end='')
+  print(f'Circuit: Want: {solution}, ', end='')
   print(f'Got: {list(maxbits[:variables])}, p: {maxprob:.2f}')
-  assert list(solution[0]) == maxbits[:variables], 'Incorrect Result'
+  assert list(solution) == maxbits[:variables], 'Incorrect Result'
 
 
 def main(argv):
