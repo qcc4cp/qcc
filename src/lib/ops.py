@@ -108,19 +108,19 @@ class Operator(tensor.Tensor):
 # Single Qubit Gates / Generators.
 # --------------------------------------------------------------
 def Identity(d: int = 1) -> Operator:
-  return Operator([[1.0, 0.0], [0.0, 1.0]], 'id').kpow(d)
+  return Operator([[1.0, 0.0], [0.0, 1.0]], 'Id').kpow(d)
 
 
 def PauliX(d: int = 1) -> Operator:
-  return Operator([[0.0, 1.0], [1.0, 0.0]], 'x').kpow(d)
+  return Operator([[0.0, 1.0], [1.0, 0.0]], 'X').kpow(d)
 
 
 def PauliY(d: int = 1) -> Operator:
-  return Operator([[0.0, -1.0j], [1.0j, 0.0]], 'y').kpow(d)
+  return Operator([[0.0, -1.0j], [1.0j, 0.0]], 'Y').kpow(d)
 
 
 def PauliZ(d: int = 1) -> Operator:
-  return Operator([[1.0, 0.0], [0.0, -1.0]], 'z').kpow(d)
+  return Operator([[1.0, 0.0], [0.0, -1.0]], 'Z').kpow(d)
 
 
 def Pauli(d: int = 1) -> Tuple[Operator, Operator, Operator, Operator]:
@@ -128,12 +128,12 @@ def Pauli(d: int = 1) -> Tuple[Operator, Operator, Operator, Operator]:
 
 
 def Hadamard(d: int = 1) -> Operator:
-  return Operator(1 / np.sqrt(2) * np.array([[1.0, 1.0], [1.0, -1.0]]), 'h').kpow(d)
+  return Operator(1 / np.sqrt(2) * np.array([[1.0, 1.0], [1.0, -1.0]]), 'H').kpow(d)
 
 
 # Phase gate, also called S or Z90. Rotate by 90 deg around z-axis.
 def Phase(d: int = 1) -> Operator:
-  return Operator([[1.0, 0.0], [0.0, 1.0j]], 's').kpow(d)
+  return Operator([[1.0, 0.0], [0.0, 1.0j]], 'S').kpow(d)
 
 
 # Phase gate is also called S-gate.
@@ -149,19 +149,19 @@ def Tgate(d: int = 1) -> Operator:
 # V-gate, which is sqrt(X). Note that there are more roots:
 #   https://quantumcomputing.stackexchange.com/q/15381/11582
 def Vgate(d: int = 1) -> Operator:
-  return Operator(0.5 * np.array([(1 + 1j, 1 - 1j), (1 - 1j, 1 + 1j)]), 'v').kpow(d)
+  return Operator(0.5 * np.array([(1 + 1j, 1 - 1j), (1 - 1j, 1 + 1j)]), 'V').kpow(d)
 
 
 # Yroot is sqrt(Y).
 def Yroot(d: int = 1) -> Operator:
   """As found in: https://arxiv.org/pdf/quant-ph/0511250.pdf."""
 
-  return Operator(0.5 * np.array([(1 + 1j, -1 - 1j), (1 + 1j, 1 + 1j)]), 'yroot').kpow(d)
+  return Operator(0.5 * np.array([(1 + 1j, -1 - 1j), (1 + 1j, 1 + 1j)]), 'YRoot').kpow(d)
 
 
 # IBM's U1-gate.
 def U1(lam: float, d: int = 1) -> Operator:
-  return Operator([(1.0, 0.0), (0.0, cmath.exp(1j * lam))], 'u1').kpow(d)
+  return Operator([(1.0, 0.0), (0.0, cmath.exp(1j * lam))], 'U1').kpow(d)
 
 
 # IBM's general U3-gate.
@@ -170,7 +170,7 @@ def U3(theta: float, phi: float, lam: float, d: int = 1) -> Operator:
       [(np.cos(theta / 2),
         -cmath.exp(1j * lam)*np.sin(theta / 2)),
        (cmath.exp(1j * phi)*np.sin(theta / 2),
-        cmath.exp(1j * (phi + lam))*np.cos(theta / 2))], 'u3').kpow(d)
+        cmath.exp(1j * (phi + lam))*np.cos(theta / 2))], 'U3').kpow(d)
 
 
 def Rk(k: int, d: int = 1) -> Operator:
@@ -193,15 +193,15 @@ def Rotation(vparm: List[float], theta: float, name: str) -> Operator:
 
 
 def RotationX(theta: float) -> Operator:
-  return Rotation([1.0, 0.0, 0.0], theta, 'rx')
+  return Rotation([1.0, 0.0, 0.0], theta, 'Rx')
 
 
 def RotationY(theta: float) -> Operator:
-  return Rotation([0.0, 1.0, 0.0], theta, 'ry')
+  return Rotation([0.0, 1.0, 0.0], theta, 'Ry')
 
 
 def RotationZ(theta: float) -> Operator:
-  return Rotation([0.0, 0.0, 1.0], theta, 'rz')
+  return Rotation([0.0, 0.0, 1.0], theta, 'Rz')
 
 
 def ZeroProjector(nbits: int) -> Operator:
@@ -209,7 +209,7 @@ def ZeroProjector(nbits: int) -> Operator:
 
   zero_projector = np.zeros((2**nbits, 2**nbits))
   zero_projector[0, 0] = 1
-  return Operator(zero_projector, 'p0')
+  return Operator(zero_projector, 'P0')
 
 
 def OneProjector(nbits: int) -> Operator:
@@ -218,7 +218,7 @@ def OneProjector(nbits: int) -> Operator:
   dim = 2**nbits
   zero_projector = np.zeros((dim, dim))
   zero_projector[dim - 1, dim - 1] = 1
-  return Operator(zero_projector, 'p1')
+  return Operator(zero_projector, 'P1')
 
 
 # Note on indices for controlled operators:
