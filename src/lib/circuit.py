@@ -89,7 +89,7 @@ class qc:
     self.simple_gates = [
         ['h', ops.Hadamard()],
         ['s', ops.Sgate()],
-        ['y', ops.Tgate()],
+        ['t', ops.Tgate()],
         ['v', ops.Vgate()],
         ['x', ops.PauliX()],
         ['y', ops.PauliY()],
