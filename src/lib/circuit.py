@@ -89,7 +89,7 @@ class qc:
     self.simple_gates = [
         ['h', ops.Hadamard()],
         ['s', ops.Sgate()],
-        ['t', ops.Tgate()],
+        ['y', ops.Tgate()],
         ['v', ops.Vgate()],
         ['x', ops.PauliX()],
         ['y', ops.PauliY()],
@@ -241,16 +241,16 @@ class qc:
     i0, c0_by_0 = self._ctl_by_0(idx0)
     i1, c1_by_0 = self._ctl_by_0(idx1)
 
-    with self.scope(self.ir, f'cc-{op.name} {desc}({idx0}, {idx1}, {idx2})'):
+    with self.scope(self.ir, f'CC{op.name}\\\\{desc}({idx0},{idx1},{idx2})'):
       self.x(i0, c0_by_0)
       self.x(i1, c1_by_0)
 
       v = ops.Operator(sqrtm(op))
-      self.cu(i0, idx2, v, op.name + '^1/2')
+      self.cu(i0, idx2, v, op.name + '^{1/2}')
       self.cx(i0, i1)
       self.cu(i1, idx2, v.adjoint(), op.name + '^t')
       self.cx(i0, i1)
-      self.cu(i1, idx2, v, op.name + '^1/2')
+      self.cu(i1, idx2, v, op.name + '^{1/2}')
 
       self.x(i1, c1_by_0)
       self.x(i0, c0_by_0)

@@ -177,6 +177,7 @@ def latex(ir) -> str:
     s = s.replace('rz', 'Z_')
     s = s.replace('gate{cx', 'targ{')
     s = s.replace('_adj', r'^\dagger')
+    s = s.replace(r'^T', r'^\dagger')
     return s
 
   def need_new_col(idx, gates, gcol):
@@ -194,32 +195,32 @@ def latex(ir) -> str:
   col, gcol = new_col()
 
   for idx, op in enumerate(ir.gates):
+    if op.is_section():
+      col[0] = r'\qw\slice{' + op.name + '}&'
+      continue
     if not op.is_gate():
       continue
     if need_new_col(idx, ir.gates, gcol):
       col, gcol = new_col()
 
-    name = op.name
-    if op.name == 'h':
-      name = 'H'
-    if op.name == 'cu1' or op.name == 'u1':
-      name = ''
+    name = op.name.upper()
+    #if op.name == 'cu1' or op.name == 'u1':
+    #  name = ''
 
     parm = ''
     if op.val is not None:
       parm = '{}'.format(helper.pi_fractions(op.val, r'\pi'))
 
     if op.is_single():
-      col[op.idx0] = (r'\gate' +
-                       '{}{}{}&'.format('{', name + '{' + parm + '}', '}'))
+      col[op.idx0] = (r'\gate{' + f'{name}' + parm + '}&')
       col[op.idx0] = fix(col[op.idx0])
       gcol[op.idx0] = True
 
     if op.is_ctl():
-      col[op.ctl] = (r'\ctrl' +
-                      '{}{}{}&'.format('{', op.idx1 - op.ctl, '}'))
-      col[op.idx1]= (r'\gate' +
-                     '{}{}{}&'.format('{', name + parm, '}'))
+      col[op.ctl] = (r'\ctrl{' +
+                      '{}{}&'.format(op.idx1 - op.ctl, '}'))
+      col[op.idx1]= (r'\gate{' +
+                     '{}{}&'.format(name + parm, '}'))
       col[op.ctl] = fix(col[op.ctl])
       col[op.idx1] = fix(col[op.idx1])
 
