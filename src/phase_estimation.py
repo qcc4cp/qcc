@@ -28,7 +28,7 @@ from src.lib import ops
 from src.lib import state
 
 
-def expo_u(psi: state.State, u: ops.Operator, t: int) -> state.State:
+def phase_estimation(psi: state.State, u: ops.Operator, t: int) -> state.State:
   """Exponentiate U and control it from the t register."""
 
   # Unpack the binary fractions of the phase into the first t qubits.
@@ -65,7 +65,6 @@ def run_experiment(nbits: int, t: int = 8):
   #
   # Pick single eigenvalue at 'eigen_index'
   # (any eigenvalue / eigenvector pair will work).
-  #
   eigen_index = 1
   phi = np.real(np.log(eigvals[eigen_index]) / (2j * np.pi))
   if phi < 0:
@@ -79,15 +78,13 @@ def run_experiment(nbits: int, t: int = 8):
   # Combine the 't' register with a register wide enough to hold
   # the unitary and construct contolled gates. Also apply
   # inverse QFT.
-  #
   psi = state.zeros(t) * state.State(eigvecs[:, eigen_index])
-  psi = expo_u(psi, u, t)
+  psi = phase_estimation(psi, u, t)
   psi = ops.Qft(t).adjoint()(psi)
 
   # Find state with highest measurement probability and show results.
-  #
   maxbits, maxprob = psi.maxprob()
-  phi_estimate = sum(maxbits[i] * 2 ** (-i - 1) for i in range(t))
+  phi_estimate = helper.bits2frac(maxbits[:t])
 
   delta = abs(phi - phi_estimate)
   print('Phase   : {:.4f}'.format(phi))
@@ -127,14 +124,8 @@ def run_experiment_multi(nbits: int, t: int = 8):
 
   # Collect all eigenvalues, not just the one at 'eigen_index'
   # as above.
-  #
-  phi = []
-  for v in eigvals:
-    val = np.real(np.log(v) / (2j*np.pi))
-    if val < 0:
-      val += 1
-    phi.append(val)
-  phi = sorted(phi, key=float)
+  phi = np.array([np.real(np.log(v) / (2j*np.pi)) for v in eigvals])
+  phi[phi < 0] += 1
 
   # Superposition will be equally weighted (other probability
   # distributions are possible, but not essential for this
@@ -144,15 +135,11 @@ def run_experiment_multi(nbits: int, t: int = 8):
 
   # Create a state as a superposition of all the
   # eigenvectors, equally weighted by 'fac'.
-  #
-  ini = np.zeros(2**nbits, dtype=np.complex128)
-  for idx in range(2**nbits):
-    ini += fac * eigvecs[:, idx]
+  ini = np.sum(fac * eigvecs, axis=1)
 
   # Make state and circuit to estimate phi (similar to above).
-  #
   psi = state.zeros(t) * state.State(ini)
-  psi = expo_u(psi, u, t)
+  psi = phase_estimation(psi, u, t)
   psi = ops.Qft(t).adjoint()(psi)
 
   # Find states with highest measurement probabilities and show results.
@@ -160,29 +147,13 @@ def run_experiment_multi(nbits: int, t: int = 8):
   # match estimates and phi's is possible, but not essential for our
   # purposes here.
   #
-  estimates = []
-  for bits in helper.bitprod(psi.nbits):
-    # The value of 0.05 is a good guestimate for the given
-    # values of 't' and 'nbits' (derived experimentally).
-    if psi.prob(*bits) < 0.05:
-      continue
-
-    phi_estimate = helper.bits2frac(bits)
-    estimates.append(phi_estimate)
-
-  # Finally, print the phi's and estimates. They will not
-  # always match perfectly.
-  #
+  estimates = [helper.bits2frac(bits)
+               for bits in helper.bitprod(psi.nbits)
+               if psi.prob(*bits) >= 0.03]
   for p in phi:
     print(f'Phase : {p:.4f} ', end='')
-    found = False
-    for est in estimates:
-      if abs(p - est) < 0.005:
-        print('-> Found')
-        found = True
-        break
-    if not found:
-      print('   ***')
+    est = [x for x in estimates if abs(p - x) < 0.01]
+    print('-> Found' if len(est) else '-> ***')
   print()
 
 
