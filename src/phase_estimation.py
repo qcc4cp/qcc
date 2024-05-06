@@ -167,23 +167,23 @@ def run_experiment_multi(nbits: int, t: int = 8):
     if psi.prob(*bits) < 0.05:
       continue
 
-    phi_estimate = sum(bits[i] * 2**(-i-1) for i in range(t))
+    phi_estimate = helper.bits2frac(bits)
     estimates.append(phi_estimate)
-
-  # Sort and make unique the values in 'estimates'.
-  #
-  estimates = sorted(list(set(estimates)), key=float)
 
   # Finally, print the phi's and estimates. They will not
   # always match perfectly.
   #
   for p in phi:
     print(f'Phase : {p:.4f} ', end='')
-  print('')
-  for est in estimates:
-    print(f'Estim : {est:.4f} ', end='')
-  marker = 'Ok' if len(phi) == len(estimates) else ''
-  print(marker)
+    found = False
+    for est in estimates:
+      if abs(p - est) < 0.005:
+        print('-> Found')
+        found = True
+        break
+    if not found:
+      print('   ***')
+  print()
 
 
 def main(argv):
