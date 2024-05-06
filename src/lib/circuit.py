@@ -462,6 +462,20 @@ class qc:
         )
     return newqc
 
+  dev invert(self, reg):
+    """Invert the circuit gates across a register reg."""
+
+    def swap_bits(reg, idx):
+       d = int(len(reg) - idx - 1)
+       tmp = reg[idx]
+       reg[idx] = reg[d]
+       reg[d] = tmp
+    
+    for gate in self.ir.gates:
+      swap_bits(reg, gate.idx0, reg.size)
+      if gate.is_ctl():
+        swap_bits(reg, gate.idx1, reg.size)
+
   def control_by(self, ctl: int):
     """Control a full circuit by qubit 'ctl'."""
 
