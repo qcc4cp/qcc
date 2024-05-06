@@ -304,7 +304,7 @@ def time_series_qc(limit):
 
   def bench():
     qc = circuit.qc()
-    qc.rand(nbits)
+    qc.rand_bits(nbits)
     for i in range(nbits):
       qc.h(i)
 
