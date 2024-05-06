@@ -20,4 +20,5 @@ from src.lib import ops
 from src.lib import state
 from src.lib import tensor
 
-print('QCC: ' + __file__ + ': initialized')
+np.set_printoptions(precision=3)
+print('QCC: ' + __file__ + ': initialized, precision=3')
