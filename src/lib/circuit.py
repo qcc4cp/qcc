@@ -462,7 +462,7 @@ class qc:
         )
     return newqc
 
-  dev invert(self, reg):
+  def invert(self, reg):
     """Invert the circuit gates across a register reg."""
 
     def swap_bits(reg, idx):
