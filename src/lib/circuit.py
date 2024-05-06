@@ -144,7 +144,7 @@ class qc:
     self._tprod(state.bitstring(*bits), len(bits))
 
   def rand_bits(self, n: int) -> None:
-    self._tprod(state.rand(n), n)
+    self._tprod(state.rand_bits(n), n)
 
   def arange(self, n: int) -> None:
     self.psi = state.State([float(i) for i in range(0, 2**n)])
