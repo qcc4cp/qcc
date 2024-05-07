@@ -32,7 +32,7 @@ def tensor_width():
 
   try:  # May be neccessary for interactive use.
     return flags.FLAGS.tensor_width
-  except:
+  except Exception:
     return 64
 
 
@@ -71,7 +71,7 @@ class Tensor(np.ndarray):
   def is_hermitian(self) -> bool:
     """Check if this tensor is hermitian - Udag = U."""
 
-    if len(self.shape) != 2 or self.shape[0] != self.shape[1]:
+    if self.ndim != 2 or self.shape[0] != self.shape[1]:
       return False
     return self.is_close(np.conj(self.transpose()))
 
