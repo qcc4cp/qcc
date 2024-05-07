@@ -5,7 +5,7 @@ import cmath
 import math
 import random
 import sys
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
 import numpy as np
 from src.lib import helper
