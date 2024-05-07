@@ -64,7 +64,7 @@ def eval_formula(bits, clauses: List[List[int]]):
 
   for clause in clauses:
     res = [bit == clause[idx] for idx, bit in enumerate(bits)]
-    if not True in res:
+    if True not in res:
       return False
   return True
 
