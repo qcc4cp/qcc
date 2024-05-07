@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-import itertools
 from typing import Callable, Tuple
 
 from absl import flags

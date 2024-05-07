@@ -27,9 +27,9 @@ def build_graph(num: int = 0) -> Tuple[int, List[Tuple[int, int, float]]]:
   weight = 5.0
   nodes = [(0, 1, 1.0), (1, 2, 2.0), (0, 2, 3.0)]
   for i in range(num - 3):
-    l = random.sample(range(0, 3 + i - 1), 2)
-    nodes.append((3 + i, l[0], weight * np.random.random()))
-    nodes.append((3 + i, l[1], weight * np.random.random()))
+    rand_nodes = random.sample(range(0, 3 + i - 1), 2)
+    nodes.append((3 + i, rand_nodes[0], weight * np.random.random()))
+    nodes.append((3 + i, rand_nodes[1], weight * np.random.random()))
   return num, nodes
 
 

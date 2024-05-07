@@ -188,7 +188,7 @@ def latex(ir) -> str:
     if not gates[idx].is_single():
       return True
     if ir.gates[idx].idx0 != gates[idx-1].idx0:
-      if gcol[ir.gates[idx].idx0] == False:
+      if not gcol[ir.gates[idx].idx0]:
         return False
     return True
 

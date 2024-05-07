@@ -34,9 +34,9 @@ def compute_alpha_y(vec, k: int, j: int):
   # This is the implementation of Equation (8) in the reference.
   # Note the off-by-1 issues (the paper is 1-based).
   m = 2 ** (k - 1)
-  enumerator = sum(vec[(2 * (j + 1) - 1) * m + l] ** 2 for l in range(m))
+  enumerator = sum(vec[(2 * (j + 1) - 1) * m + bit] ** 2 for bit in range(m))
   m = 2**k
-  divisor = sum(vec[j * m + l] ** 2 for l in range(m))
+  divisor = sum(vec[j * m + bit] ** 2 for bit in range(m))
   if divisor != 0:
     return 2 * np.arcsin(np.sqrt(enumerator / divisor))
   return 0.0
@@ -48,8 +48,8 @@ def compute_alpha_z(omega, k: int, j: int):
   # This is the implementation of Equation (5) in the reference.
   # Note the off-by-1 issues (the paper is 1-based).
   m = 2 ** (k - 1)
-  ind1 = [(2 * (j + 1) - 1) * m + l for l in range(m)]
-  ind2 = [(2 * (j + 1) - 2) * m + l for l in range(m)]
+  ind1 = [(2 * (j + 1) - 1) * m + bit for bit in range(m)]
+  ind2 = [(2 * (j + 1) - 2) * m + bit for bit in range(m)]
   diff = (omega[ind1] - omega[ind2]) / m
   return sum(diff)
 
