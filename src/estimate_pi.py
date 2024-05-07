@@ -54,9 +54,8 @@ def run_experiment(nbits_phase):
   pi = 1 / (2 * theta)
   delta = np.abs(pi - np.pi)
 
-  print(f'Pi Estimate: {pi:.5f} (qb: {nbits_phase:2d}) Delta: {delta:.6f}')
-  if delta > 0.06:
-    raise AssertionError('Incorrect Estimation of Pi.')
+  print(f'Pi Estimate: {pi:.6f} (qb: {nbits_phase:2d}) Delta: {delta:.6f}')
+  assert delta < 0.06, 'Incorrect Estimation of Pi.'
 
 
 # pylint: disable=unused-argument
