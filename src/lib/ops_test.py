@@ -206,8 +206,8 @@ class OpsTest(absltest.TestCase):
     phi = state.zeros(5)
     for i in range(5):
       phi = ops.Hadamard()(phi, i)
-    for i in range(len(phi)):
-      if phi[i] != psi[i]:
+    for idx, val in enumerate(phi):
+      if val != psi[idx]:
         raise AssertionError('Incorrect QFT vs Hadamards.')
 
   def test_padding(self):

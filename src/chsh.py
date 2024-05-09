@@ -67,13 +67,13 @@ def measure(psi: state.State):
   # which will ensure that states are selected weighted
   # by their probabilities.
   #
-  r = random.random() - 0.001
+  r = random.random() - 1e-6
   total = 0
-  for i in range(len(psi)):
-    total += psi[i] * psi[i].conj()
+  for idx, val in enumerate(psi):
+    total += val * val.conj()
     if r < total:
-      psi = helper.val2bits(i, 2)
-      return psi[0], psi[1]
+      bits = helper.val2bits(idx, 2)
+      return bits[0], bits[1]
 
 
 def run_experiments(experiments: int, alpha: float) -> float:

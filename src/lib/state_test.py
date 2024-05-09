@@ -150,6 +150,12 @@ class StateTest(absltest.TestCase):
         np.allclose(denormalized, state.State([0.5**0.5, 0.5**0.5]))
     )
 
+  def test_diff(self) -> None:
+    s0 = state.bitstring(0, 1, 0, 0, 0)
+    s1 = state.bitstring(0, 1, 0, 0, 1)
+    self.assertFalse(s0.diff(s1, False))
+    self.assertTrue(s0.diff(s0, False))
+
 
 if __name__ == '__main__':
   absltest.main()
