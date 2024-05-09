@@ -107,11 +107,11 @@ def run_experiment(nbits: int, numbers: List[int],
   # For n marked numbers there should be n results.
   _, maxprob = psi.maxprob()
   results = []
-  for idx in range(len(psi)):
-    if psi[idx] * psi[idx].conj() >= maxprob - 0.01:
+  for idx, val in enumerate(psi):
+    if val * val.conj() >= maxprob - 0.01:
       bits = helper.val2bits(idx, 8)[:-1]
-      val = helper.bits2val(bits)
-      results.append(val)
+      res = helper.bits2val(bits)
+      results.append(res)
 
   # Compute new max limit by randomly selecting one of the results,
   # this simulating an actual, random measurement result:

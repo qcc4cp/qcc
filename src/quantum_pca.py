@@ -119,7 +119,7 @@ def main(argv):
   pca(x)
 
   for _ in range(10):
-    for idx in range(len(x[0])):
+    for idx, _ in enumerate(x[0]):
       x[1][idx] = random.random() * 10000
     pca(x)
 
