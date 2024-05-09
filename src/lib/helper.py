@@ -23,7 +23,7 @@ def bits2val(bits: List[int]) -> int:
   return sum(v * (1 << (len(bits) - i - 1)) for i, v in enumerate(bits))
 
 
-def val2bits(val: int, nbits: int) -> List[int]:
+def val2bits(val: int, nbits: int):
   """Convert decimal integer to list of {0, 1}."""
 
   # We return the bits in order high to low. For example,
@@ -37,7 +37,7 @@ def bits2frac(bits: Tuple[int, ...]) -> float:
   return sum(bit * 2 ** (-idx - 1) for idx, bit in enumerate(bits))
 
 
-def frac2bits(val: float, nbits: int) -> List[int]:
+def frac2bits(val: float, nbits: int):
   """Approximate a float with n binary fractions."""
 
   assert val < 1.0, 'frac2bits: value must be strictly < 1.0'
@@ -65,7 +65,7 @@ def density_to_cartesian(rho: np.ndarray) -> Tuple[float, float, float]:
 def qubit_to_bloch(psi: np.ndarray):
   """Compute Bloch spere coordinates from 2x1 state vector/qubit."""
 
-  return density_to_cartesian(psi.density())
+  return density_to_cartesian(np.outer(psi, psi.conj()))
 
 
 def dump_bloch(x: float, y: float, z: float):
