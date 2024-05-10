@@ -17,8 +17,7 @@ def run_experiment(a, b):
 
   norm_a = np.linalg.norm(a)
   norm_b = np.linalg.norm(b)
-  if norm_a == 0 or norm_b == 0:
-    return
+  assert norm_a != 0 and norm_b != 0, 'Invalid zero-vectors.'
   normed_a = a / norm_a
   normed_b = b / norm_b
   z = (norm_a**2) + (norm_b**2)
@@ -55,8 +54,7 @@ def run_experiment(a, b):
   #
   eucl_dist_c = np.linalg.norm(a - b)
 
-  if not np.allclose(eucl_dist_q, eucl_dist_c, atol=1e-4):
-    raise AssertionError('Incorrect computation')
+  assert np.allclose(eucl_dist_q, eucl_dist_c, atol=1e-4), 'Whaaa'
   print(f'  Classic: {eucl_dist_c:.2f}, quantum: {eucl_dist_q:.2f}, Correct')
 
 
