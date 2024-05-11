@@ -69,9 +69,7 @@ def run_experiment(fr: int, to: int) -> Tuple[int, int]:
 
   print('Found Factors: N = {:4d} = {:4d} * {:4d} (r={:4})'.
         format(factor1 * factor2, factor1, factor2, order))
-  if factor1 * factor2 != n:
-    raise AssertionError('Invalid factoring')
-
+  assert factor1 * factor2 ==n, 'Invalid factoring'
   return (factor1, factor2)
 
 
