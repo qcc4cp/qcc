@@ -27,7 +27,7 @@ class Operator(tensor.Tensor):
   def adjoint(self) -> Operator:
     return self.__class__(np.conj(self.transpose()))
 
-  def dump(self, desc = None, digits = 3) -> None:
+  def dump(self, desc=None, digits=3) -> None:
     np.set_printoptions(precision=digits)
     if desc:
       print(f'{desc} ({self.nbits}-qubit(s) operator)')
@@ -128,7 +128,8 @@ def Pauli(d: int = 1) -> Tuple[Operator, Operator, Operator, Operator]:
 
 
 def Hadamard(d: int = 1) -> Operator:
-  return Operator(1 / np.sqrt(2) * np.array([[1.0, 1.0], [1.0, -1.0]]), 'H').kpow(d)
+  return Operator(1 / np.sqrt(2) * np.array([[1.0, 1.0], [1.0, -1.0]]),
+                  'H').kpow(d)
 
 
 # Phase gate, also called S or Z90. Rotate by 90 deg around z-axis.
@@ -149,14 +150,16 @@ def Tgate(d: int = 1) -> Operator:
 # V-gate, which is sqrt(X). Note that there are more roots:
 #   https://quantumcomputing.stackexchange.com/q/15381/11582
 def Vgate(d: int = 1) -> Operator:
-  return Operator(0.5 * np.array([(1 + 1j, 1 - 1j), (1 - 1j, 1 + 1j)]), 'V').kpow(d)
+  return Operator(0.5 * np.array([(1 + 1j, 1 - 1j), (1 - 1j, 1 + 1j)]),
+                  'V').kpow(d)
 
 
 # Yroot is sqrt(Y).
 def Yroot(d: int = 1) -> Operator:
   """As found in: https://arxiv.org/pdf/quant-ph/0511250.pdf."""
 
-  return Operator(0.5 * np.array([(1 + 1j, -1 - 1j), (1 + 1j, 1 + 1j)]), 'YRoot').kpow(d)
+  return Operator(0.5 * np.array([(1 + 1j, -1 - 1j), (1 + 1j, 1 + 1j)]),
+                  'YRoot').kpow(d)
 
 
 # IBM's U1-gate.

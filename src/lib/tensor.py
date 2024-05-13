@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 import math
+from absl import flags
 import numpy as np
 
 
@@ -23,7 +24,7 @@ import numpy as np
 # the absl command-line parser has not yet been called. This is why
 # we bracked tensor_width() in an exception block.
 
-from absl import flags
+
 flags.DEFINE_integer('tensor_width', 64, 'Bitwidth of FP numbers (64 or 128)')
 
 
@@ -48,7 +49,7 @@ def tensor_type():
 class Tensor(np.ndarray):
   """Tensor is a numpy array representing a state or operator."""
 
-  def __new__(cls, input_array, op_name = None) -> Tensor:
+  def __new__(cls, input_array, op_name=None) -> Tensor:
     cls.name = op_name
     return np.asarray(input_array, dtype=tensor_type()).view(cls)
 

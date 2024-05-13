@@ -218,9 +218,9 @@ def latex(ir) -> str:
 
     if op.is_ctl():
       col[op.ctl] = (r'\ctrl{' +
-                      '{}{}&'.format(op.idx1 - op.ctl, '}'))
-      col[op.idx1]= (r'\gate{' +
-                     '{}{}&'.format(name + parm, '}'))
+                     '{}{}&'.format(op.idx1 - op.ctl, '}'))
+      col[op.idx1] = (r'\gate{' +
+                      '{}{}&'.format(name + parm, '}'))
       col[op.ctl] = fix(col[op.ctl])
       col[op.idx1] = fix(col[op.idx1])
 
