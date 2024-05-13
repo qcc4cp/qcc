@@ -47,13 +47,9 @@ def classic_order(num: int, modulus: int) -> int:
   """Find the order classically via simple iteration."""
 
   order = 1
-  while True:
-    newval = (num ** order) % modulus
-    if newval == 1:
-      return order
+  while 1 != (num ** order) % modulus:
     order += 1
   return order
-
 
 def run_experiment(fr: int, to: int) -> Tuple[int, int]:
   """Run the classical part of Shor's algorithm."""
