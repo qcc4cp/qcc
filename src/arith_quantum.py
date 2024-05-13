@@ -1,4 +1,4 @@
-# python3
+x# python3
 """Example: Arithmetic with Quantum Circuits doing arithmetic via QFT."""
 
 # ACHTUNG: This version did not work with a given Python environment.
@@ -110,9 +110,7 @@ def arith_quantum_constant(n: int, init_a: int, c: int) -> None:
 
   maxbits, _ = qc.psi.maxprob()
   result = helper.bits2val(maxbits[0:n][::-1])
-  if result != init_a + c:
-    print(f'{init_a} + {c} = {result}')
-    raise AssertionError('incorrect addition')
+  assert result == init_a + c, f'{init_a} + {c} != {result}'
 
 
 def arith_quantum_mult(nbits_a: int, init_a: int,
@@ -153,8 +151,7 @@ def arith_quantum_mult(nbits_a: int, init_a: int,
 
   maxbits, _ = qc.psi.maxprob()
   result = helper.bits2val(maxbits[c[0] : c[0 + nbits_b * 2]][::-1])
-  if result != init_a * init_b:
-    raise AssertionError('incorrect addition')
+  assert result == init_a * init_b, 'incorrect multiplication'
 
 
 def main(argv):
