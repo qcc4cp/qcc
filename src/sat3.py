@@ -41,6 +41,7 @@ from src.lib import state
 # The idea here is - can we use Grover's algorithm to find a positive
 # solution in sqrt(N) time.
 
+
 def print_formula(clauses):
   """Convert formula, a list of clauses, to a string."""
 

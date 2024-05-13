@@ -9,10 +9,10 @@
 
 
 import itertools
+import math
 from typing import List, Tuple
 
 from absl import app
-import math
 import numpy as np
 
 from src.lib import circuit

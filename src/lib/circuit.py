@@ -139,7 +139,7 @@ class qc:
   def ones(self, n: int) -> None:
     self._tprod(state.ones(n), n)
 
-  def bitstring(self, *bits: Tuple[int]) -> None:
+  def bitstring(self, *bits: Tuple[int, ...]) -> None:
     self._tprod(state.bitstring(*bits), len(bits))
 
   def rand_bits(self, n: int) -> None:
@@ -174,11 +174,11 @@ class qc:
 
   # --- Gates  ----------------------------------------------------
   def add_single(self, name: str, gate: ops.Operator):
-    setattr(self, name, lambda idx, cond = True:
+    setattr(self, name, lambda idx, cond=True:
             self.apply1(gate, idx, name) if cond else None)
 
   def add_ctl(self, name: str, gate: ops.Operator):
-    setattr(self, name, lambda idx0, idx1, cond = True:
+    setattr(self, name, lambda idx0, idx1, cond=True:
             self.applyc(gate, idx0, idx1, name) if cond else None)
 
   def apply1(
@@ -465,11 +465,11 @@ class qc:
     """Invert the circuit gates across a register reg."""
 
     def swap_bits(reg, idx):
-       d = int(len(reg) - idx - 1)
-       tmp = reg[idx]
-       reg[idx] = reg[d]
-       reg[d] = tmp
-    
+      d = int(len(reg) - idx - 1)
+      tmp = reg[idx]
+      reg[idx] = reg[d]
+      reg[d] = tmp
+
     for gate in self.ir.gates:
       swap_bits(reg, gate.idx0, reg.size)
       if gate.is_ctl():
