@@ -34,19 +34,19 @@ class State(tensor.Tensor):
 
     return self[helper.bits2val(bits)]
 
-  def prob(self, *bits: Tuple[int]) -> float:
+  def prob(self, *bits: Tuple[int, ...]) -> float:
     """Return probability for state indexed by 'bits'."""
 
     amplitude = self.ampl(*bits)
     return np.real(amplitude.conj() * amplitude)
 
-  def phase(self, *bits: Tuple[int]) -> float:
+  def phase(self, *bits: Tuple[int, ...]) -> float:
     """Return phase of a state from the complex amplitude."""
 
     amplitude = self.ampl(*bits)
     return math.degrees(cmath.phase(amplitude))
 
-  def diff(self, psi, dump = True) -> bool:
+  def diff(self, psi, dump=True) -> bool:
     """Print element-wise differences to another state."""
 
     same = True
@@ -119,7 +119,6 @@ class State(tensor.Tensor):
     for g in range(0, 1 << self.nbits, 1 << (index + 1)):
       idx_base = g * (1 << self.nbits)
       for i in range(g, g + pow_2_index):
-        #idx = idx_base + i
         if (idx_base + i) & (1 << control):
           t1 = g00 * self[i] + g01 * self[i + pow_2_index]
           t2 = g10 * self[i] + g11 * self[i + pow_2_index]
@@ -186,6 +185,7 @@ def qubit(alpha: complex = None, beta: complex = None) -> State:
 # The result of this tensor product is
 #   always [1, 0, 0, ..., 0]^T or [0, 0, 0, ..., 1]^T
 
+
 def zeros_or_ones(d: int = 1, idx: int = 0) -> State:
   """Produce the all-0/1 basis vector for `d` qubits."""
 
@@ -235,7 +235,7 @@ def bitstring(*bits) -> State:
   """Produce a state from a given bit sequence, eg., |0101>."""
 
   arr = np.asarray(bits)
-  assert len(arr) > 0, 'Need to specify at least 1 qubit'
+  assert len(arr), 'Need to specify at least 1 qubit'
   assert ((arr == 1) | (arr == 0)).all(), 'Bits must be 0 or 1'
 
   t = np.zeros(1 << len(bits), dtype=tensor.tensor_type())
