@@ -67,7 +67,7 @@ def single_qubit():
     a3 = x * (2 * plus_projector - zero_projector - one_projector)
     a4 = y * (2 * i_projector - zero_projector - one_projector)
     a = 0.5 * (a1 + a2 + a3 + a4)
-    assert np.allclose(rho, a, atol=1e-06), 'Invalid representation as projectors'
+    assert np.allclose(rho, a, atol=1e-06), 'Invalid projector representation'
 
 
 def two_qubit():

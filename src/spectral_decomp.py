@@ -56,7 +56,7 @@ def spectral_decomp(ndim: int):
   # Check that eigenvectors are orthonormal.
   for i in range(ndim):
     dot = np.dot(v[:, i], v[:, i].adjoint())
-    assert np.allclose(dot, 1.0, atol=1e-5), 'Found non-orthonormal basis vectors'
+    assert np.allclose(dot, 1.0, atol=1e-5), 'Non-orthonormal basis vectors'
 
   # Construct a matrix following the spectral theorem and
   # check equivalance.
@@ -77,7 +77,7 @@ def spectral_decomp(ndim: int):
   x = np.matrix(np.zeros((ndim, ndim)))
   for i in range(ndim):
     x = x + 1 / w[i] * np.outer(v[:, i], v[:, i].adjoint())
-  assert np.allclose(np.linalg.inv(hmat), x, atol=1e-5), 'Inverse computation did not work.'
+  assert np.allclose(np.linalg.inv(hmat), x, atol=1e-5), 'Inverse failed.'
 
 
 def main(argv):
