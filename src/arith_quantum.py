@@ -1,4 +1,4 @@
-x# python3
+# python3
 """Example: Arithmetic with Quantum Circuits doing arithmetic via QFT."""
 
 # ACHTUNG: This version did not work with a given Python environment.
@@ -79,15 +79,12 @@ def arith_quantum(n: int, init_a: int, init_b: int,
 # we can just apply the rotations, no need for the b register in the
 # general case. We just have to precompute the angles, as done here.
 def precompute_angles(a: int, n: int) -> List[float]:
-  """Pre-compute angles for the Fourier Transform, for fixed a."""
-
-  # Convert 'a' to a string of 0's and 1's.
-  s = bin(int(a))[2:].zfill(n)
+  """Pre-compute angles used in the Fourier Transform, for a."""
 
   angles = [0.0] * n
   for i in range(n):
     for j in range(i, n):
-      if s[j] == '1':
+      if (a & (1 << n - j - 1)):
         angles[n - i - 1] += 2 ** (-(j - i))
     angles[n - i - 1] *= math.pi
   return angles
@@ -101,9 +98,8 @@ def arith_quantum_constant(n: int, init_a: int, c: int) -> None:
   for i in range(n + 1):
     qft(qc, a, n - i)
 
-  angles = precompute_angles(c, n)
-  for i in range(n):
-    qc.u1(a[i], angles[i])
+  for idx, angle in enumerate(precompute_angles(c, n)):
+    qc.u1(a[idx], angle)
 
   for i in range(n + 1):
     inverse_qft(qc, a, i)

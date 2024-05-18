@@ -54,13 +54,10 @@ def modular_inverse(a: int, m: int) -> int:
 def precompute_angles(a: int, n: int) -> List[float]:
   """Pre-compute angles used in the Fourier Transform, for a."""
 
-  # Convert 'a' to a string of 0's and 1's.
-  s = bin(a)[2:].zfill(n)
-
   angles = [0.0] * n
   for i in range(n):
     for j in range(i, n):
-      if s[j] == '1':
+      if (a & (1 << n - j - 1)):
         angles[n - i - 1] += 2 ** (-(j - i))
     angles[n - i - 1] *= math.pi
   return angles
@@ -69,36 +66,23 @@ def precompute_angles(a: int, n: int) -> List[float]:
 def add(qc, q, a: int, n: int, factor: float) -> None:
   """Un-controlled add in fourier space."""
 
-  angles = precompute_angles(a, n)
-  for i in range(n):
-    qc.u1(q[i], factor * angles[i])
+  for idx, angle in enumerate(precompute_angles(a, n)):
+    qc.u1(q[idx], factor * angle)
 
 
 def cadd(qc, q, ctl, a: int, n: int, factor: float) -> None:
   """Controlled add in fourier space."""
 
-  angles = precompute_angles(a, n)
-  for i in range(n):
-    qc.cu1(ctl, q[i], factor * angles[i])
-
-
-def ccphase(qc, angle: float, ctl1: int, ctl2: int, idx: int) -> None:
-  """Controlled-controlled phase gate."""
-
-  qc.cu1(ctl1, idx, angle / 2)
-  qc.cx(ctl2, ctl1)
-  qc.cu1(ctl1, idx, -angle / 2)
-  qc.cx(ctl2, ctl1)
-  qc.cu1(ctl2, idx, angle / 2)
+  for idx, angle in enumerate(precompute_angles(a, n)):
+    qc.cu1(ctl, q[idx], factor * angle)
 
 
 def ccadd(qc, q, ctl1: int, ctl2: int, a: int, n: int,
           factor: float) -> None:
   """Controlled-controlled add in fourier space."""
 
-  angles = precompute_angles(a, n)
-  for i in range(n):
-    ccphase(qc, factor * angles[i], ctl1, ctl2, q[i])
+  for idx, angle in enumerate(precompute_angles(a, n)):
+    qc.ccu1(ctl1, ctl2, q[idx], factor * angle)
 
 
 def qft(qc, up_reg, n: int, with_swaps: bool = False) -> None:

@@ -226,9 +226,6 @@ class qc:
     self.applyc(ops.PauliX(), idx0, idx1, 'cx')
     self.apply1(xgate, idx0, 'x')
 
-  def cu1(self, idx0: int, idx1: int, value):
-    self.applyc(ops.U1(value), idx0, idx1, 'cu1', val=value)
-
   def cu(self, idx0: int, idx1: int, op: ops.Operator, desc: str = None):
     assert op.shape[0] == 2, 'cu only supports 2x2 operators'
     self.applyc(op, idx0, idx1, desc)
@@ -262,6 +259,12 @@ class qc:
 
   def u1(self, idx: int, val):
     self.apply1(ops.U1(val), idx, 'u1', val=val)
+
+  def cu1(self, idx0: int, idx1: int, value):
+    self.applyc(ops.U1(value), idx0, idx1, 'cu1', val=value)
+
+  def ccu1(self, idx0: int, idx1: int, tgt:int, value):
+    self.ccu(idx0, idx1, tgt, ops.U1(value), 'ccu1')
 
   def rx(self, idx: int, theta: float):
     self.apply1(ops.RotationX(theta), idx, 'rx', val=theta)
