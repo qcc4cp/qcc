@@ -46,8 +46,7 @@ def modular_inverse(a: int, m: int) -> int:
   # Modular inverse of x mod m is the number x^-1 such that
   #   x * x^-1 = 1 mod m
   g, x, _ = egcd(a, m)
-  if g != 1:
-    raise AssertionError(f'Modular inverse ({a}, {m}) does not exist.')
+  assert g == 1, f'Modular inverse ({a}, {m}) does not exist.'
   return x % m
 
 
@@ -86,31 +85,11 @@ def ccadd(qc, q, ctl1: int, ctl2: int, a: int, n: int,
 
 
 def qft(qc, up_reg, n: int, with_swaps: bool = False) -> None:
-  """QFT."""
-
-  for i in reversed(range(n)):
-    qc.h(up_reg[i])
-    for j in reversed(range(i)):
-      qc.cu1(up_reg[i], up_reg[j], math.pi/2**(i - j))
-
-  if with_swaps:
-    for i in range(n // 2):
-      qc.swap(up_reg[i], up_reg[n - 1 - i])
+  qc.qft(up_reg[:n], with_swaps)
 
 
 def inverse_qft(qc, up_reg, n: int, with_swaps: bool = False) -> None:
-  """Inverse QFT."""
-
-  if with_swaps:
-    for i in range(n // 2):
-      qc.swap(up_reg[i], up_reg[n - 1 - i])
-
-  for i in range(n):
-    qc.h(up_reg[i])
-    if i != n - 1:
-      j = i + 1
-      for y in range(i, -1, -1):
-        qc.cu1(up_reg[j], up_reg[y], -math.pi / 2 ** (j - y))
+  qc.inverse_qft(up_reg[:n], with_swaps)
 
 
 def cc_add_mod_n(qc, q, ctl1, ctl2, aux, a, number, n):
@@ -184,7 +163,7 @@ def main(argv):
         .format(number, a, nbits, nbits * 4 + 2, nbits * 2))
   qc = circuit.qc('order_finding')
 
-  # Aux register for additional and multiplication.
+  # Aux register for addition and multiplication.
   aux = qc.reg(nbits + 2, name='q0')
 
   # Register for QFT. This reg will hold the resulting x-value.
@@ -201,8 +180,6 @@ def main(argv):
   for i in range(nbits * 2):
     cmultmodn(qc, up[i], down, aux, int(a ** (2**i)), number, nbits)
   inverse_qft(qc, up, 2 * nbits, with_swaps=True)
-
-  qc.dump_to_file()
 
   print('Measurement...')
   total_prob = 0.0

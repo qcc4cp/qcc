@@ -111,7 +111,7 @@ def construct_circuit(b, w, u, c, clock_bits):
   u_phase = u
   u_phase_inv_gates = []
   for idx in range(clock_bits):
-    op = ops.ControlledU(clock[idx], breg[breg.size - 1], u_phase)
+    op = ops.ControlledU(clock[idx], breg[-1], u_phase)
     qc.unitary(op, breg[0])
     u_phase_inv_gates.append(np.linalg.inv(u_phase))
     u_phase = u_phase @ u_phase
@@ -132,7 +132,7 @@ def construct_circuit(b, w, u, c, clock_bits):
 
   # Uncompute.
   for idx in reversed(range(clock_bits)):
-    op = ops.ControlledU(clock[idx], breg[breg.size - 1],
+    op = ops.ControlledU(clock[idx], breg[-1],
                          u_phase_inv_gates[idx])
     qc.unitary(op, breg[0])
 

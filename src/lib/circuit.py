@@ -189,10 +189,8 @@ class qc:
     indices = []
     if isinstance(idx_set, int):
       indices.append(idx_set)
-    if isinstance(idx_set, state.Reg):
-      indices += idx_set.reg
-    if isinstance(idx_set, list):
-      indices += idx_set
+    if isinstance(idx_set, (state.Reg, list)):
+      indices += idx_set[:]
 
     for idx in indices:
       if self.build_ir:
@@ -207,7 +205,7 @@ class qc:
     """Apply controlled gates."""
 
     if isinstance(idx, state.Reg):
-      assert idx.size == 1, 'Controlled n-qbit register not supported'
+      assert len(idx) == 1, 'Controlled n-qbit register not supported'
       idx = idx[0]
 
     ctl_qubit, by_0 = self._ctl_by_0(ctl)
@@ -326,10 +324,10 @@ class qc:
   def qft(self, reg, with_swaps: bool = False) -> None:
     """QFT."""
 
-    for i in reversed(range(reg.size)):
-      self.h(reg[i])
-      for j in reversed(range(i)):
-        self.cu1(reg[i], reg[j], np.pi / 2 ** (i - j))
+    for idx, r in enumerate(reversed(reg)):
+      self.h(r)
+      for j in reversed(range(idx)):
+        self.cu1(reg[idx], reg[j], np.pi / 2 ** (idx - j))
     if with_swaps:
       self.flip(reg)
 
@@ -338,12 +336,11 @@ class qc:
 
     if with_swaps:
       self.flip(reg)
-    for i in range(reg.size):
-      self.h(reg[i])
-      if i != reg.size - 1:
-        j = i + 1
-        for y in range(i, -1, -1):
-          self.cu1(reg[j], reg[y], -np.pi / 2 ** (j - y))
+    for idx, r in enumerate(reg):
+      self.h(r)
+      if idx != len(reg) - 1:
+        for y in range(idx, -1, -1):
+          self.cu1(reg[idx + 1], reg[y], -np.pi / 2 ** (idx + 1 - y))
 
   def multi_control(self, ctl, idx1, aux, gate, desc: str = ''):
     """Multi-controlled gate, using aux as ancilla."""
@@ -370,7 +367,7 @@ class qc:
         self.apply1(gate, idx1, desc)
         return
       if isinstance(ctl, state.Reg):
-        ctl = ctl.reg
+        ctl = ctl[:]
       if len(ctl) == 1:
         self.applyc(gate, ctl[0], idx1, desc)
         return
@@ -398,11 +395,8 @@ class qc:
   def flip(self, reg: state.Reg):
     """Flip a quantum register via swaps."""
 
-    # Old version (possibly incorrect)
-    # for idx in range(reg[0], reg[0] + reg.nbits // 2):
-    #   self.swap(idx, reg[0] + reg.nbits - idx - 1)
-    for i in range(reg.size // 2):
-      self.swap(reg[i], reg[reg.size - 1 - i])
+    for i in range(len(reg) // 2):
+      self.swap(reg[i], reg[len(reg) - 1 - i])
 
   # --- qc of qc ------------------------------------------
   def qc(self, qc_parm: qc, offset=0):
