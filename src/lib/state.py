@@ -250,14 +250,12 @@ def rand_bits(n: int) -> State:
   return bitstring(*bits)
 
 
-class Reg:
-  """Simple register class."""
+class Reg(list):
+  """Simple register class, derive from list."""
 
   def __init__(self, size: int, init=None, global_reg: int = 0) -> None:
-    self.global_idx = list(range(global_reg, global_reg + size))
+    super().__init__([global_reg + idx for idx in range(size)])
     self.val = [0] * size
-    global_reg += size
-
     if init:
       if isinstance(init, int):
         init = format(init, '0{}b'.format(size))
@@ -267,19 +265,7 @@ class Reg:
             self.val[idx] = 1
 
   def __str__(self) -> str:
-    s = '|'
-    for _, val in enumerate(self.val):
-      s += f'{val}'
-    return s + '>'
-
-  def __getitem__(self, idx: int) -> int:
-    return self.global_idx[idx]
-
-  def __setitem__(self, idx: int, val: int) -> None:
-    self.val[idx] = val
-
-  def __len__(self) -> int:
-    return len(self.global_idx)
+    return '|' + ''.join([f'{val}' for val in self.val]) + '>'
 
   def psi(self) -> State:
     return bitstring(*self.val)
