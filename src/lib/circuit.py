@@ -74,7 +74,7 @@ class qc:
     self.psi = state.State(1.0)
     self.ir = ir.Ir()
     self.eager = eager
-    self.build_ir = not eager
+    self.build_ir = True
     self.global_reg = 0
     self.sub_circuits = 0
 
@@ -235,7 +235,7 @@ class qc:
     i0, c0_by_0 = self._ctl_by_0(idx0)
     i1, c1_by_0 = self._ctl_by_0(idx1)
 
-    with self.scope(self.ir, f'CC{op.name}\\\\{desc}({idx0},{idx1},{idx2})'):
+    with self.scope(self.ir, f'CC{op.name}\\{desc}({idx0},{idx1},{idx2})'):
       self.x(i0, c0_by_0)
       self.x(i1, c1_by_0)
 
@@ -262,7 +262,7 @@ class qc:
     self.applyc(ops.U1(value), idx0, idx1, 'cu1', val=value)
 
   def ccu1(self, idx0: int, idx1: int, tgt:int, value):
-    self.ccu(idx0, idx1, tgt, ops.U1(value), 'ccu1')
+    self.ccu(idx0, idx1, tgt, ops.U1(value))
 
   def rx(self, idx: int, theta: float):
     self.apply1(ops.RotationX(theta), idx, 'rx', val=theta)
