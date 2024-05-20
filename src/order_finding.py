@@ -164,17 +164,18 @@ def main(argv):
   qc = circuit.qc('order_finding')
 
   # Aux register for addition and multiplication.
-  aux = qc.reg(nbits + 2, name='q0')
+  aux = qc.reg(nbits + 2)
 
   # Register for QFT. This reg will hold the resulting x-value.
-  up = qc.reg(nbits * 2, name='q1')
+  up = qc.reg(nbits * 2)
 
   # Register for multiplications.
-  down = qc.reg(nbits, name='q2')
+  down = qc.reg(nbits)
 
   # Check early to see whether modular inverse even exists.
   _ = modular_inverse(int(a), number)
 
+  # The main phase estimation loop over the multiplication mod N.
   qc.h(up)
   qc.x(down[0])
   for i in range(nbits * 2):
@@ -186,13 +187,13 @@ def main(argv):
   for bits in helper.bitprod(nbits * 4 + 2):
     prob = qc.psi.prob(*bits)
     if prob > 0.01:
-      intval = helper.bits2val(bits[nbits + 2 : nbits + 2 + nbits * 2][::-1])
-      phase = helper.bits2frac(bits[nbits + 2 : nbits + 2 + nbits * 2][::-1])
+      bitslice = bits[nbits + 2 : nbits + 2 + nbits * 2][::-1]
+      intval = helper.bits2val(bitslice)
+      phase = helper.bits2frac(bitslice)
 
       r = fractions.Fraction(phase).limit_denominator(8).denominator
       guesses = [math.gcd(a ** (r // 2) - 1, number),
                  math.gcd(a ** (r // 2) + 1, number)]
-
       print('Final x: {:3d} phase: {:3f} prob: {:.3f} factors: {}'.
             format(intval, phase, prob.real, guesses))
 
