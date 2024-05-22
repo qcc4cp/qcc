@@ -82,14 +82,14 @@ def incr_mod_9(qc, aux):
 
   # We achieve this with help of an ancilla:
   #
-  #  -X------------ o  X  0
-  #  -o--X--------- 0  |  0
-  #  -o--o--X------ 0  |  0
-  #  -o--o--o--X--- o  X  0
-  #                 |  |  |
+  #  -X------------ o     X  0
+  #  -o--X--------- 0     |  0
+  #  -o--o--X------ 0     |  0
+  #  -o--o--o--X--- o  X  |  0
+  #                 |  |  |  |
   #  needs an extra ancillary:
-  #                 |  |  |
-  #  ...            X--o--X  -> |0>
+  #                 |  |  |  |
+  #  ...            X--o--o--X  -> |0>
   #
   for i in range(4):
     ctl = []
