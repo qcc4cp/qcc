@@ -32,7 +32,7 @@ from src.lib import state
 #    https://en.wikipedia.org/wiki/Schmidt_decomposition
 
 
-def compute_eigvals(psi: state.State, expected_nonzero: int, tolerance: float):
+def compute_eigvals(psi: state.State, expected: int, tolerance: float):
   """Compute the eigenvalues for the individial substates."""
 
   # To find the factors \alpha and the new bases,
@@ -48,18 +48,16 @@ def compute_eigvals(psi: state.State, expected_nonzero: int, tolerance: float):
 
   # The set of eigenvalues must be identical between the two sub states.
   #
-  if not np.allclose(eigvals0, eigvals1, atol=1e06):
-    raise AssertionError('Invalid set of eigenvalues.')
+  assert np.allclose(eigvals0, eigvals1, atol=1e06), 'Whaa'
 
   # The eigenvalues must add up to 1.0.
   #
-  if not np.allclose(np.sum(eigvals0), 1.0):
-    raise AssertionError('Eigenvalues do not add up to 1.0')
+  assert np.allclose(np.sum(eigvals0), 1.0), 'Whaa'
 
   # Count the number of nonzero eigenvalues and match against expected.
   #
   nonzero = np.sum(eigvals0 > tolerance)
-  if nonzero != expected_nonzero:
+  if nonzero != expected:
     print(f'\t\tCase of unstable math: {eigvals0[0]:.4f}, {eigvals0[1]:.4f}')
 
   # Construct the state from the eigenvalues and the new bases
@@ -70,8 +68,7 @@ def compute_eigvals(psi: state.State, expected_nonzero: int, tolerance: float):
   a1, _, _ = np.linalg.svd(rho1)
   newpsi = (np.sqrt(d0[0]) * np.kron(a0[:, 0], a1[0, :]) +
             np.sqrt(d0[1]) * np.kron(a0[:, 1], a1[1, :]))
-  if not np.allclose(psi, newpsi, atol=1e-3):
-    raise AssertionError('Found incorrect Schmidt basis.')
+  assert np.allclose(psi, newpsi, atol=1e-3), 'Incorrect Schmidt basis'
 
   return eigvals0
 
