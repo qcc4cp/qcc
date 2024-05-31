@@ -40,31 +40,28 @@ def purify(rho: ops.Operator, nbits: int):
     psi1 += (np.sqrt(rho_eig_val[i]) *
              np.kron(rho_eig_vec[:, i], rho_eig_vec[:, i]))
 
+  mat = psi1.reshape((2**nbits, 2**nbits))
+  assert np.allclose(np.trace(mat@mat), 1.0, atol = 1e-5)
+
   # Version 2 using einsum's:
   #
   psi2 = np.einsum('k,ki,kj->ij', np.sqrt(rho_eig_val),
                    rho_eig_vec.T, rho_eig_vec.T).reshape(-1)
-
-  if not np.allclose(psi1, psi2):
-    raise AssertionError('Something wrong with purification.')
+  assert np.allclose(psi1, psi2), 'Wrong purification.'
 
   # Verify the original reduced density matrix with the method
   # used in quantum_pca.py:
   #
   reduced = np.dot(psi1.reshape((2**nbits, 2**nbits)),
                    psi1.reshape((2**nbits, 2**nbits)).transpose())
-  if not np.allclose(rho, reduced):
-    raise AssertionError('Something wrong with reduced density')
+  assert np.allclose(rho, reduced), 'Wrong reduced density'
 
   # Another way to compute the reduced density matrix:
   #
-  reduced = state.State(psi1).density()
   reduced = (ops.TraceOut(rho,
                           [x for x in range(int(nbits),
                                             int(nbits*2))]) / (2**nbits))
-
-  if not np.allclose(rho, reduced):
-    raise AssertionError('Something wrong with reduced density')
+  assert np.allclose(rho, reduced), 'Wrong reduced density'
 
 
 def main(argv):
