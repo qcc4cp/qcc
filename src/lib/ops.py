@@ -377,8 +377,7 @@ def TraceOutSingle(rho: Operator, index: int) -> Operator:
   """Trace out single qubit from density matrix."""
 
   nbits = int(math.log2(rho.shape[0]))
-  if index > nbits:
-    raise AssertionError('Error in TraceOutSingle invalid index (>nbits).')
+  assert index <= nbits, 'TraceOutSingle: Invalid index.'
 
   eye = Identity()
   zero = Operator([1.0, 0.0])
@@ -393,12 +392,9 @@ def TraceOutSingle(rho: Operator, index: int) -> Operator:
       p0 = p0 * eye
       p1 = p1 * eye
 
-  rho0 = p0 @ rho
-  rho0 = rho0 @ p0.transpose()
-  rho1 = p1 @ rho
-  rho1 = rho1 @ p1.transpose()
-  rho_reduced = rho0 + rho1
-  return rho_reduced
+  rho0 = p0 @ rho @ p0.transpose()
+  rho1 = p1 @ rho @ p1.transpose()
+  return rho0 + rho1
 
 
 def TraceOut(rho: Operator, index_set: List[int]) -> Operator:
@@ -406,8 +402,6 @@ def TraceOut(rho: Operator, index_set: List[int]) -> Operator:
 
   for idx, val in enumerate(index_set):
     nbits = int(math.log2(rho.shape[0]))
-    if val > nbits:
-      raise AssertionError('Error TraceOut, invalid index (>nbits).')
     rho = TraceOutSingle(rho, val)
 
     # Tracing out a bit means that rho is now 1 bit smaller, the
