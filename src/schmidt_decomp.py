@@ -48,7 +48,7 @@ def compute_eigvals(psi: state.State, expected: int, tolerance: float):
 
   # The set of eigenvalues must be identical between the two sub states.
   #
-  assert np.allclose(eigvals0, eigvals1, atol=1e06), 'Whaa'
+  assert np.allclose(eigvals0, eigvals1, atol=1e-6), 'Whaa'
 
   # The eigenvalues must add up to 1.0.
   #
@@ -64,10 +64,10 @@ def compute_eigvals(psi: state.State, expected: int, tolerance: float):
   # which we derive via SVD. Then we check whether the new state
   # matches the original state.
   #
-  a0, d0, _ = np.linalg.svd(rho0)
+  u0, d0, _ = np.linalg.svd(rho0)
   a1, _, _ = np.linalg.svd(rho1)
-  newpsi = (np.sqrt(d0[0]) * np.kron(a0[:, 0], a1[0, :]) +
-            np.sqrt(d0[1]) * np.kron(a0[:, 1], a1[1, :]))
+  newpsi = (np.sqrt(d0[0]) * np.kron(u0[:, 0], a1[0, :]) +
+            np.sqrt(d0[1]) * np.kron(u0[:, 1], a1[1, :]))
   assert np.allclose(psi, newpsi, atol=1e-3), 'Incorrect Schmidt basis'
 
   return eigvals0
