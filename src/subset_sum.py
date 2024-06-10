@@ -111,11 +111,10 @@ def run_experiment(num_list: List[int]) -> bool:
       print(' Found Solution:',
             dump_solution(solutions[0], num_list))
       return True
-    raise AssertionError('False positive found.')
+    assert False, 'False positive found.'
 
   print('  No Solution Found.', sorted(num_list))
-  if solutions:
-    raise AssertionError('False negative found.')
+  assert not solutions, 'False negative found.'
   return False
 
 

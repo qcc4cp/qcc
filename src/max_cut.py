@@ -20,8 +20,7 @@ flags.DEFINE_integer('iterations', 10, 'Number of experiments')
 def build_graph(num: int = 0) -> Tuple[int, List[Tuple[int, int, float]]]:
   """Build a graph of num nodes."""
 
-  if num < 3:
-    raise app.UsageError('Must request graph of at least 3 nodes.')
+  assert  num >= 3, 'Must request graph of at least 3 nodes.'
 
   # Nodes are tuples: (from: int, to: int, weight: float).
   weight = 5.0
@@ -61,8 +60,8 @@ def graph_to_hamiltonian(n: int,
     op = ops.Identity(idx1) * (node[2] * ops.PauliZ())
     op = op * ops.Identity(idx2 - idx1 + 1)
     op = op * (node[2] * ops.PauliZ())
-
     op = op * ops.Identity(n - idx2 + 1)
+
     hamil = hamil + op
   return ops.Operator(hamil)
 
