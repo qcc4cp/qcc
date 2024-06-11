@@ -34,7 +34,7 @@ def single_qubit():
     # trace is the computed factor:
     #
     rho = qc.psi.density()
-    i = np.trace(ops.Identity() @ rho)
+    c = np.trace(ops.Identity() @ rho)
     x = np.trace(ops.PauliX() @ rho)
     y = np.trace(ops.PauliY() @ rho)
     z = np.trace(ops.PauliZ() @ rho)
@@ -43,7 +43,7 @@ def single_qubit():
     # from the Pauli matrices using the computed factors:
     #
     new_rho = 0.5 * (
-        i * ops.Identity()
+        c * ops.Identity()
         + x * ops.PauliX()
         + y * ops.PauliY()
         + z * ops.PauliZ()
@@ -62,8 +62,8 @@ def single_qubit():
     plus_projector = state.plus(1).density()
     i_projector = state.plusi(1).density()
 
-    a1 = (i + z) * zero_projector
-    a2 = (i - z) * one_projector
+    a1 = (c + z) * zero_projector
+    a2 = (c - z) * one_projector
     a3 = x * (2 * plus_projector - zero_projector - one_projector)
     a4 = y * (2 * i_projector - zero_projector - one_projector)
     a = 0.5 * (a1 + a2 + a3 + a4)
