@@ -172,11 +172,6 @@ def build_circuit(g: Graph):
   print(f'Solving [{g.desc}]: ', end='')
   print(f'{g.num} vertices, {len(g.edges)} edges -> {qc.nbits} qubits')
 
-  # Note: This is the standard way to compute the iterations.
-  #       We could set this to 1 and change the multi_control gate
-  #       below to use a PauliX gate instead.
-  #       This is much faster (but I don't fully understand how
-  #       this works. Yet.)
   iterations = int(math.pi / 4 * math.sqrt(2**(g.num*2)))
 
   qc.h(reg)

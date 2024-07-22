@@ -31,7 +31,9 @@ def pca(x):
   #       comparing the results below.
   #
   x[0] = x[0] - np.average(x[0])
-  x[1] = (x[1] - np.average(x[1])) / 1000
+  x[0] = x[0] / np.linalg.norm(x[0])
+  x[1] = (x[1] - np.average(x[1]))
+  x[1] = 2 * x[1] / np.linalg.norm(x[1])
 
   # Compute the unbiased covariance matrix
   #   It is unbiased, hence the 15, else we could use 15-1
