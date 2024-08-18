@@ -5,6 +5,7 @@ import random
 
 from absl import app
 import numpy as np
+import scipy as sp
 
 from src.lib import helper
 from src.lib import ops
@@ -21,7 +22,7 @@ def to_su2(u):
 def trace_dist(u, v):
   """Compute trace distance between two 2x2 matrices."""
 
-  return np.real(0.5 * np.trace(np.sqrt((u - v).adjoint() @ (u - v))))
+  return np.real(0.5 * np.trace(sp.linalg.sqrtm((u - v).adjoint() @ (u - v))))
 
 
 def create_unitaries(base, limit):
@@ -144,7 +145,7 @@ def random_gates(min_length, max_length, num_experiments):
   phi2 = min_u(state.zeros(1))
   print('Trace distance: {:.4f}, States dot product: {:6.4f}'.
         format(min_dist,
-               (np.real(np.dot(phi1, phi2.conj())))))
+               (np.abs(np.dot(phi1, phi2.conj())))))
 
 
 def main(argv):
