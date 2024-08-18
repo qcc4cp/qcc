@@ -60,16 +60,16 @@ def main(argv):
   # Step 1: Alice and Bob share an entangled pair and separate.
   psi = bell.bell_state(0, 0)
 
-  # Step 2: Alice wants to teleport a qubit |x> to Bob
-  #         with |x> = a|0> + b|1>, a^2 + b^2 == 1:
+  # Step 2: Alice wants to teleport a qubit |psi> to Bob
+  #         with |phi> = a|0> + b|1>, a^2 + b^2 == 1:
   a = 0.6
   b = math.sqrt(1.0 - a * a)
-  x = state.qubit(a, b)
+  phi = state.qubit(a, b)
   print('Quantum Teleportation')
   print(f'Start with EPR Pair a={a:.2f}, b={b:.2f}')
 
   # Produce combined state.
-  alice = x * psi
+  alice = phi * psi
 
   # Alice lets the 1st qubit interact with the 2nd qubit, which is her
   # part of the entangle state with Bob.
