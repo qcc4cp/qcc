@@ -15,8 +15,7 @@ from src.lib import state
 
 
 # This function can be used if there is only 1 solution,
-# which is the simplest case. We keep it here, as it is
-# referenced in the book. It is no longer used in this code.
+# which is the simplest case.
 #
 def make_f1(d: int = 3):
   """Construct function that will return 1 for only one bit string."""
