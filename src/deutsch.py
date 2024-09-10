@@ -116,10 +116,10 @@ def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
-  run_experiment(0)
-  run_experiment(1)
-  run_experiment(2)
-  run_experiment(3)
+  run_experiment(0b00)
+  run_experiment(0b01)
+  run_experiment(0b10)
+  run_experiment(0b11)
 
 
 if __name__ == '__main__':
