@@ -24,12 +24,8 @@ from src.lib import state
 def pca(x):
   """A single quantum principal component analysis."""
 
-  # We center and normalize (by dividing by 1000) the data.
-  #
-  # Note: The factor 1000 helps with the numerics. Other factors
-  #       work, but the atol would have to be adjusted when
-  #       comparing the results below.
-  #
+  # We center and normalize the data.
+  # We use a factor of 2 for x[1] for numerical stability.
   x[0] = x[0] - np.average(x[0])
   x[0] = x[0] / np.linalg.norm(x[0])
   x[1] = (x[1] - np.average(x[1]))
