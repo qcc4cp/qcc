@@ -50,16 +50,9 @@ def compute_sorted_eigenvalues(a):
   # Eigenvalue/vector computation.
   w, v = np.linalg.eig(a)
 
-  # Sort the eigenvalues and eigenvectors.
+  # Return sorted (real) eigenvalues and eigenvectors.
   idx = w.argsort()
-  w = w[idx]
-  v = v[:, idx]
-
-  # From the experiments in 'spectral_decomp.py', we know that for
-  # a Hermitian A:
-  #   Eigenvalues are real (that's why a Hamiltonian must be Hermitian)
-  w = np.real(w)
-  return w, v
+  return np.real(w[idx]), v[:, idx]
 
 
 def compute_u_matrix(a, w, v, t):
@@ -100,21 +93,20 @@ def construct_circuit(b, w, u, c, clock_bits):
   qc = circuit.qc('hhl')
 
   # State preparation - just initialize the b register.
-  breg = qc.state(b)
-  clock = qc.reg(clock_bits, 0)
   anc = qc.reg(1, 0)
+  clock = qc.reg(clock_bits, 0)
+  breg = qc.state(b)
 
   # Move clock bits into Hadamard basis.
   qc.h(clock)
 
   # Phase estimation to bring the eigenvalues into the clock register.
-  u_phase = u
-  u_phase_inv_gates = []
+  u_inv_gates = []
   for idx in range(clock_bits):
-    op = ops.ControlledU(clock[idx], breg[-1], u_phase)
-    qc.unitary(op, breg[0])
-    u_phase_inv_gates.append(np.linalg.inv(u_phase))
-    u_phase = u_phase @ u_phase
+    op = ops.ControlledU(clock[idx], breg[0], u)
+    qc.unitary(op, clock[idx])
+    u_inv_gates.append(np.linalg.inv(u))
+    u = u @ u
 
   # Inverse QFT. After this, the eigenvalues will be in the clock register.
   qc.inverse_qft(clock, True)
@@ -124,21 +116,18 @@ def construct_circuit(b, w, u, c, clock_bits):
   for idx, angle in enumerate(angles):
     qc.cry(clock[idx], anc, angle)
 
-  # Measure (and force) ancilla to state |1>.
-  qc.measure_bit(anc[0], 1, collapse=True)
-
-  # QFT
-  qc.qft(clock, True)
-
   # Uncompute.
+  qc.qft(clock, True)
   for idx in reversed(range(clock_bits)):
-    op = ops.ControlledU(clock[idx], breg[-1],
-                         u_phase_inv_gates[idx])
-    qc.unitary(op, breg[0])
+    op = ops.ControlledU(clock[idx], breg[0],
+                         u_inv_gates[idx])
+    qc.unitary(op, clock[idx])
 
   # Move clock bits out of Hadamard basis.
   qc.h(clock)
 
+  # Measure (and force) ancilla to state |1>.
+  qc.measure_bit(anc[0], 1, collapse=True)
   return qc
 
 
@@ -202,6 +191,16 @@ def main(argv):
                     [-3, -5, -9, 15]]) / 4
   b = ops.Operator([0, 0, 0, 1]).transpose()
   run_experiment(a, b, clock_bits=4)
+
+  # Maps to Eigenvalues |01> and |11> interpreted as decimal 1 and 3
+  a = ops.Operator([[1.0, -1/2], [-1/2, 1]])
+  b = ops.Operator([0, 1])
+  run_experiment(a, b, clock_bits=2)
+
+  # Maps to Eigenvalues |01> and |11> interpreted as decimal 1/2 and 1/3
+  a = ops.Operator([[1.0, -1/2], [-1/2, 1]])
+  b = ops.Operator([1, 0])
+  run_experiment(a, b, clock_bits=2)
 
 
 if __name__ == '__main__':
