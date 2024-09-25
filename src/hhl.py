@@ -68,7 +68,7 @@ def compute_u_matrix(a, w, v, t):
   # Both U and U^2 are in the eigenvector basis of A. To convert these
   # operators to the computational basis we apply the similarity
   # transformation:
-  u = v @ u @ v.transpose().conj()
+  u = v @ u @ v.adjoint()
   return u
 
 
@@ -139,22 +139,27 @@ def run_experiment(a, b, clock_bits):
 
   print(f'\nClock bits   : {clock_bits}')
   print(f'Dimensions A : {a.shape[0]}x{a.shape[1]}')
+  n = 2**clock_bits
 
   # Compute eigenvalue/vectors.
   w, v = compute_sorted_eigenvalues(a)
 
-  # We know that:
-  #   lam_i = (N * w[j] * t) / (2 * np.pi)
+  # The eigenvalues are not integers in general, but we want
+  # them to be integers in order to map them to the clock
+  # register.
   #
-  # We want lam_i to be integers, so we compute 't' as:
-  #   t = lam[0] / N / w[1] * 2 * np.pi
-  n = 2**clock_bits
-  t = 2 * np.pi / w[0] / n
-
-  # With 't' we can now compute the integer eigenvalues:
-  lam = [(n * np.real(w[i]) * t / (2 * np.pi)) for i in range(a.shape[0])]
+  # Assuming that the eigenvalues are integer factors of
+  # each other, we can just compute the new lambdas as:
+  lam = [w[i] / w[0] for i in range(a.shape[0])]
   for i in range(a.shape[0]):
     print(f'  lambda[{i}]  : {lam[i]:.1f}')
+
+  # What does that mean for our evolution paramter t?
+  # We know that
+  #   lam_i = (N * w[j] * t) / (2 * np.pi)
+  # So to map the lam_i to integer values when we construct the
+  # Hamiltonian U, we compute the factor t as
+  t =  2 * np.pi / (w[0] * n)
 
   # Compute the U matrix.
   u = compute_u_matrix(a, w, v, t)
