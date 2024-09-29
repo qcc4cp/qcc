@@ -23,7 +23,7 @@ def check_classic_solution(a, b):
 
   x = np.linalg.solve(a, b)
   ratio = []
-  for i in range(1, 2**b.nbits):
+  for i in range(1, len(x)):
     ratio.append(np.real((x[i] * x[i].conj()) / (x[0] * x[0].conj())))
     print(f'Classic ratio: {ratio[-1]:6.3f}')
   return ratio
@@ -33,7 +33,7 @@ def check_results(qc, a, b):
   """Check the results by inspecting the final state."""
 
   ratio_classical = check_classic_solution(a, b)
-  res = (np.abs(qc.psi) > 0.07).nonzero()[0]
+  res = (np.abs(qc.psi) > 0.05).nonzero()[0]
   ratio_quantum = [np.real(qc.psi[res[j]] ** 2 / qc.psi[res[0]] ** 2)
                    for j in range(1, len(res))]
 
@@ -82,7 +82,12 @@ def compute_angles(w, c):
   # We know that theta = 2 arcsin(1/lam_j):
   unis = np.unique(w)
   angles = [2 * np.arcsin(c / eigen) for eigen in unis]
-  if int(np.round(w[1])) & 1 == 1:
+
+  # If the secone eigenvalue (>1) has bit 0 set, it means
+  # that value is odd, eg., 3. In this case, revert the
+  # rotation already done by the first w.
+  v = int(np.round(w[1]))
+  if v == 3:
     angles[1] = angles[1] - angles[0]
   return angles
 
@@ -131,15 +136,16 @@ def construct_circuit(b, w, u, c, clock_bits):
   return qc
 
 
-def run_experiment(a, b, clock_bits):
+def run_experiment(a, b):
   """Run a single instance of HHL for Ax = b."""
 
   if not a.is_hermitian():
     raise AssertionError('Input A must be Hermitian.')
 
+  clock_bits = len(b)
+  n = 2**clock_bits
   print(f'\nClock bits   : {clock_bits}')
   print(f'Dimensions A : {a.shape[0]}x{a.shape[1]}')
-  n = 2**clock_bits
 
   # Compute eigenvalue/vectors.
   w, v = compute_sorted_eigenvalues(a)
@@ -180,32 +186,26 @@ def main(argv):
   print('General HHL Algorithm...')
 
   a = ops.Operator([[3 / 5, -1 / 5], [-1 / 5, 3 / 5]])
-  b = ops.Operator([1, 0])
-  run_experiment(a, b, clock_bits=4)
+  for v in [[0, 1], [1, 0]]:
+    run_experiment(a, ops.Operator(v))
 
   a = ops.Operator([[11, 5, -1, -1],
                     [5, 11, 1, 1],
                     [-1, 1, 11, -5],
                     [-1, 1, -5, 11]]) / 16
-  b = ops.Operator([0, 0, 0, 1]).transpose()
-  run_experiment(a, b, clock_bits=4)
+  for v in [[0, 0, 0, 1], [1, 0, 0, 0]]:
+    run_experiment(a, ops.Operator(v))
 
   a = ops.Operator([[15, 9, 5, -3],
                     [9, 15, 3, -5],
                     [5, 3, 15, -9],
                     [-3, -5, -9, 15]]) / 4
-  b = ops.Operator([0, 0, 0, 1]).transpose()
-  run_experiment(a, b, clock_bits=4)
+  for v in [[0, 0, 0, 1], [1, 0, 0, 0]]:
+    run_experiment(a, ops.Operator(v))
 
-  # Maps to Eigenvalues |01> and |11> interpreted as decimal 1 and 3
   a = ops.Operator([[1.0, -1/2], [-1/2, 1]])
-  b = ops.Operator([0, 1])
-  run_experiment(a, b, clock_bits=2)
-
-  # Maps to Eigenvalues |01> and |11> interpreted as decimal 1/2 and 1/3
-  a = ops.Operator([[1.0, -1/2], [-1/2, 1]])
-  b = ops.Operator([1, 0])
-  run_experiment(a, b, clock_bits=2)
+  for v in [[0, 1], [1, 0]]:
+    run_experiment(a, ops.Operator(v))
 
 
 if __name__ == '__main__':
