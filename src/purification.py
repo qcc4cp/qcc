@@ -57,11 +57,10 @@ def purify(rho: ops.Operator, nbits: int):
   assert np.allclose(rho, reduced), 'Wrong reduced density'
 
   # Another way to compute the reduced density matrix:
-  # (WIP: Incorrect)
-  # reduced = (ops.TraceOut(ops.Operator(mat),
-  #                         [x for x in range(int(nbits),
-  #                                           int(nbits*2))]) / (2**nbits))
-  # assert np.allclose(rho, reduced), 'Wrong reduced density'
+  reduced = ops.TraceOut(state.State(psi1).density(),
+                         [x for x in range(int(nbits),
+                                           int(nbits*2))])
+  assert np.allclose(rho, reduced), 'Wrong reduced density'
 
 
 def main(argv):
