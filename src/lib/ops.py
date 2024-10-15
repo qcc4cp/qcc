@@ -377,7 +377,7 @@ def TraceOutSingle(rho: Operator, index: int) -> Operator:
   """Trace out single qubit from density matrix."""
 
   nbits = int(math.log2(rho.shape[0]))
-  assert index <= nbits, 'TraceOutSingle: Invalid index.'
+  assert 0 <= index < nbits, 'TraceOutSingle: Invalid index.'
 
   eye = Identity()
   zero = Operator([1.0, 0.0])

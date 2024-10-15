@@ -237,6 +237,29 @@ class CircuitTest(absltest.TestCase):
     p1, _ = qc.measure_bit(0, 1, collapse=False)
     self.assertTrue(np.allclose(p1, 0.64))
 
+  def test_z_error(self):
+    qc = circuit.qc('x-flip / correction')
+    qc.qubit(0.6)
+
+    qc.reg(2, 0)
+    qc.cx(0, 2)
+    qc.cx(0, 1)
+    self.assertTrue(np.allclose(qc.psi.prob(0, 0, 0), 0.36, atol=0.001))
+    self.assertTrue(np.allclose(qc.psi.prob(1, 1, 1), 0.64, atol=0.001))
+
+    qc.h([0, 1, 2])
+    qc.z(0)
+    qc.h([0, 1, 2])
+
+    # Fix
+    qc.cx(0, 1)
+    qc.cx(0, 2)
+    qc.ccx(1, 2, 0)
+    p0, _ = qc.measure_bit(0, 0, collapse=False)
+    self.assertTrue(np.allclose(p0, 0.36))
+    p1, _ = qc.measure_bit(0, 1, collapse=False)
+    self.assertTrue(np.allclose(p1, 0.64))
+
   def test_shor_9_qubit_correction(self):
     for i in range(9):
       qc = circuit.qc('shor-9')

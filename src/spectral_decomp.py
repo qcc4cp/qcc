@@ -40,7 +40,7 @@ def spectral_decomp(ndim: int):
   #     v[:, i] : eigenvector corresponding to w[i]
   #
   w, v = np.linalg.eig(hmat)
-
+  
   # Check that the eigenvalues are real.
   #
   for i in range(ndim):
@@ -50,12 +50,12 @@ def spectral_decomp(ndim: int):
   #
   for i in range(ndim):
     for j in range(i + 1, ndim):
-      dot = np.dot(v[:, i], v[:, j].adjoint())
+      dot = np.dot(v[:, i], v[:, j].conj())
       assert np.allclose(dot, 0.0, atol=1e-5), 'Non-orthogonal basis found'
 
   # Check that eigenvectors are orthonormal.
   for i in range(ndim):
-    dot = np.dot(v[:, i], v[:, i].adjoint())
+    dot = np.dot(v[:, i], v[:, i].conj())
     assert np.allclose(dot, 1.0, atol=1e-5), 'Non-orthonormal basis vectors'
 
   # Construct a matrix following the spectral theorem and
@@ -65,7 +65,7 @@ def spectral_decomp(ndim: int):
   #
   x = np.matrix(np.zeros((ndim, ndim)))
   for i in range(ndim):
-    x = x + w[i] * np.outer(v[:, i], v[:, i].adjoint())
+    x = x + w[i] * np.outer(v[:, i], v[:, i].conj())
   assert np.allclose(hmat, x, atol=1e-5), 'Spectral decomp did not work.'
 
   # Can we use this elegant spectral decomposition to compute the
@@ -76,7 +76,7 @@ def spectral_decomp(ndim: int):
   #
   x = np.matrix(np.zeros((ndim, ndim)))
   for i in range(ndim):
-    x = x + 1 / w[i] * np.outer(v[:, i], v[:, i].adjoint())
+    x = x + 1 / w[i] * np.outer(v[:, i], v[:, i].conj())
   assert np.allclose(np.linalg.inv(hmat), x, atol=1e-5), 'Inverse failed.'
 
 
