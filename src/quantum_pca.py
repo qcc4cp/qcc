@@ -36,7 +36,7 @@ def pca(x):
   #   (which doesn't make a difference).
   #
   m = np.array([[np.dot(x[0], x[0]), np.dot(x[0], x[1])],
-                [np.dot(x[1], x[0]), np.dot(x[1], x[1])]]) / 15
+                [np.dot(x[1], x[0]), np.dot(x[1], x[1])]]) / (len(x[0]) - 1)
 
   # We scale down M to make it a density matrix (where the trace
   # has to be 1). Later we must not forget to scale up the
