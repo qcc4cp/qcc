@@ -62,7 +62,7 @@ def run_experiment(nbits: int):
   # Print and check results, we allow for a 1% deviation.
   print(
       f' Median ({nbits} qb): Classic: {np.mean(x):.3f},'
-      f' Quantum: {x[median]:.3f}'
+      f' Quantum: {x[median]:.0f}'
   )
   if max(np.mean(x), x[median]) / min(np.mean(x), x[median]) > 1.02:
     raise AssertionError('Incorrect median computation.')
