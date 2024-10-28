@@ -311,7 +311,7 @@ def OracleUf(nbits: int, f: Callable[[List[int]], int]) -> Operator:
     xor = bits[-1] ^ fx
 
     new_bits = bits[0:-1]
-    new_bits.append(xor)
+    new_bits.append(int(xor))
 
     # Construct new column (int) from the new bit sequence.
     new_col = helper.bits2val(new_bits)
