@@ -72,12 +72,12 @@ void applyc(cmplx_type *psi, cmplx_type gate[4],
 template <typename cmplx_type, int npy_type>
 void apply1_python(PyObject *param_psi, PyObject *param_gate,
                    int nbits, int tgt) {
-  PyObject *psi_arr =
-    PyArray_FROM_OTF(param_psi, npy_type, NPY_IN_ARRAY);
+  PyArrayObject *psi_arr =
+      (PyArrayObject*) PyArray_FROM_OTF(param_psi, npy_type, NPY_IN_ARRAY);
   cmplx_type *psi = ((cmplx_type *)PyArray_GETPTR1(psi_arr, 0));
 
-  PyObject *gate_arr =
-    PyArray_FROM_OTF(param_gate, npy_type, NPY_IN_ARRAY);
+  PyArrayObject *gate_arr =
+    (PyArrayObject*) PyArray_FROM_OTF(param_gate, npy_type, NPY_IN_ARRAY);
   cmplx_type *gate = ((cmplx_type *)PyArray_GETPTR1(gate_arr, 0));
 
   apply1<cmplx_type>(psi, gate, nbits, tgt);
@@ -109,12 +109,12 @@ static PyObject *apply1_c(PyObject *dummy, PyObject *args) {
 template <typename cmplx_type, int npy_type>
 void applyc_python(PyObject *param_psi, PyObject *param_gate,
                    int nbits, int ctl, int tgt) {
-  PyObject *psi_arr =
-    PyArray_FROM_OTF(param_psi, npy_type, NPY_IN_ARRAY);
+  PyArrayObject *psi_arr =
+      (PyArrayObject*) PyArray_FROM_OTF(param_psi, npy_type, NPY_IN_ARRAY);
   cmplx_type *psi = ((cmplx_type *)PyArray_GETPTR1(psi_arr, 0));
 
-  PyObject *gate_arr =
-    PyArray_FROM_OTF(param_gate, npy_type, NPY_IN_ARRAY);
+  PyArrayObject *gate_arr =
+    (PyArrayObject*) PyArray_FROM_OTF(param_gate, npy_type, NPY_IN_ARRAY);
   cmplx_type *gate = ((cmplx_type *)PyArray_GETPTR1(gate_arr, 0));
 
   applyc<cmplx_type>(psi, gate, nbits, ctl, tgt);
