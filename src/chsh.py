@@ -111,8 +111,7 @@ def main(argv):
   #
   percent = run_experiments(1000, 2.0 * np.pi / 8)
   print(f'Optimal Angle 2 pi / 8, winning: {percent:.1f}%')
-  if percent < 80.0:
-    raise AssertionError('Incorrect result, should reach above 80%')
+  assert percent > 80.0, 'Incorrect result, should reach above 80%'
 
   # Run a few incrementals and see how the results change.
   #
