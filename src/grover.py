@@ -172,12 +172,15 @@ def main(argv):
   if len(argv) > 1:
     raise app.UsageError('Too many command-line arguments.')
 
+  print('Grover: Find single solution, increasing qubits.')
   for nbits in range(3, 10):
     run_experiment(nbits, 1)
-  for solutions in range(1, 9):
-    run_experiment(7, solutions)
+  print('Grover: Via circuit.')
   for nbits in range(6, 10):
     run_experiment_circuit(nbits)
+  print('Amplitude Amplification: Find increasing solutions, stable qubits.')
+  for solutions in range(1, 9):
+    run_experiment(7, solutions)
 
 
 if __name__ == '__main__':
