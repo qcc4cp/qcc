@@ -74,7 +74,7 @@ class qc:
     self.psi = state.State(1.0)
     self.ir = ir.Ir()
     self.eager = eager
-    self.build_ir = True
+    self.build_ir = not eager
     self.global_reg = 0
     self.sub_circuits = 0
 
@@ -344,6 +344,9 @@ class qc:
 
   def multi_control(self, ctl, idx1, aux, gate, desc: str = ''):
     """Multi-controlled gate, using aux as ancilla."""
+
+    if aux:
+      assert len(aux) >= len(ctl)-1, 'Incorrect number of ancilla qubits.'
 
     # This is a simple version that requires n-1 ancillaries, instead
     # of possibly n-2. The benefit is that the gate can be used as a
