@@ -152,7 +152,7 @@ class CircuitTest(absltest.TestCase):
   def test_multi1(self):
     c = circuit.qc('multi', eager=False)
     c.reg(6)
-    aux = c.reg(6)
+    aux = c.reg(4)
     ctl = [0, 1, 2, 3, 4]
     c.multi_control(ctl, 5, aux, ops.PauliX(), f'multi-x({ctl}, 5)')
     self.assertEqual(41, c.ir.ngates)
@@ -160,34 +160,34 @@ class CircuitTest(absltest.TestCase):
   def test_multi0(self):
     c = circuit.qc('multi', eager=True)
     c.reg(4, (1, 0, 0, 1))
-    aux = c.reg(4)
+    aux = c.reg(2)
     ctl = [0, [1], [2]]
     c.multi_control(ctl, 3, aux, ops.PauliX(), f'multi-x({ctl}, 5)')
-    self.assertGreater(c.psi.prob(1, 0, 0, 0, 0, 0, 0, 0), 0.99)
+    self.assertGreater(c.psi.prob(1, 0, 0, 0, 0, 0), 0.99)
 
   def test_multi_n(self):
     c = circuit.qc('multi', eager=True)
     c.reg(4, (1, 0, 0, 1))
-    aux = c.reg(4)
+    aux = c.reg(2)
     ctl = []
     c.multi_control(ctl, 3, aux, ops.PauliX(), 'single')
-    self.assertGreater(c.psi.prob(1, 0, 0, 0, 0, 0, 0, 0), 0.99)
+    self.assertGreater(c.psi.prob(1, 0, 0, 0, 0, 0), 0.99)
 
     ctl = [0]
     c.multi_control(ctl, 3, aux, ops.PauliX(), 'single')
-    self.assertGreater(c.psi.prob(1, 0, 0, 1, 0, 0, 0, 0), 0.99)
+    self.assertGreater(c.psi.prob(1, 0, 0, 1, 0, 0 ), 0.99)
 
     ctl = [1]
     c.multi_control(ctl, 3, aux, ops.PauliX(), 'single')
-    self.assertGreater(c.psi.prob(1, 0, 0, 1, 0, 0, 0, 0), 0.99)
+    self.assertGreater(c.psi.prob(1, 0, 0, 1, 0, 0), 0.99)
 
     ctl = [[1]]
     c.multi_control(ctl, 3, aux, ops.PauliX(), 'single')
-    self.assertGreater(c.psi.prob(1, 0, 0, 0, 0, 0, 0, 0), 0.99)
+    self.assertGreater(c.psi.prob(1, 0, 0, 0, 0, 0), 0.99)
 
     ctl = [0, [1], [2]]
     c.multi_control(ctl, 3, aux, ops.PauliX(), 'single')
-    self.assertGreater(c.psi.prob(1, 0, 0, 1, 0, 0, 0, 0), 0.99)
+    self.assertGreater(c.psi.prob(1, 0, 0, 1, 0, 0), 0.99)
 
   def test_x_error_first_approach(self):
     error_qubit = 0
