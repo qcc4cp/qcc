@@ -1,4 +1,4 @@
-# python3
+©©≈ß# python3
 """class State wraps a tensor as underlying representation."""
 
 import cmath
@@ -169,11 +169,8 @@ def qubit(alpha: complex = None, beta: complex = None) -> State:
   if alpha is None:
     alpha = np.sqrt(1.0 - np.real(np.conj(beta) * beta))
 
-  if not math.isclose(
-      np.real(np.conj(alpha) * alpha) + np.real(np.conj(beta) * beta), 1.0
-  ):
-    raise ValueError('Qubit probabilities do not sum to 1.')
-
+  norm = np.real(np.conj(alpha) * alpha) + np.real(np.conj(beta) * beta)
+  assert math.isclose(norm, 1.0), 'Qubit probabilities not equal to 1.'
   return State([alpha, beta])
 
 
