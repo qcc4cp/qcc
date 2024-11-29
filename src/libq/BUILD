@@ -9,10 +9,7 @@ cc_library(
     copts = [
         "-O3",
         "-ffast-math",
-        "-march=skylake",
         "-fstrict-aliasing",
-        "-Wno-class-memaccess",
-        "-Wno-alloc-size-larger-than",
     ],
 )
 
@@ -27,10 +24,7 @@ cc_library(
     copts = [
         "-O3",
         "-ffast-math",
-        "-march=skylake",
         "-fstrict-aliasing",
-        "-Wno-class-memaccess",
-        "-Wno-alloc-size-larger-than",
     ],
 )
 
@@ -48,7 +42,6 @@ cc_test(
     copts = [
         "-O3",
         "-ffast-math",
-        "-march=skylake",
         "-fstrict-aliasing",
     ],
     deps = [
@@ -62,7 +55,6 @@ cc_test(
     copts = [
         "-O3",
         "-ffast-math",
-        "-march=skylake",
         "-fstrict-aliasing",
     ],
     deps = [
@@ -76,7 +68,6 @@ cc_test(
     copts = [
         "-O3",
         "-ffast-math",
-        "-march=skylake",
         "-fstrict-aliasing",
     ],
     deps = [
@@ -90,7 +81,6 @@ cc_test(
     copts = [
         "-O3",
         "-ffast-math",
-        "-march=skylake",
         "-fstrict-aliasing",
     ],
     deps = [
