@@ -5,7 +5,7 @@ import random
 
 from absl import app
 import numpy as np
-import scipy as sp
+import scipy.linalg
 
 from src.lib import helper
 from src.lib import ops
@@ -22,7 +22,7 @@ def to_su2(u):
 def trace_dist(u, v):
   """Compute trace distance between two 2x2 matrices."""
 
-  return np.real(0.5 * np.trace(sp.linalg.sqrtm((u - v).adjoint() @ (u - v))))
+  return np.real(0.5 * np.trace(scipy.linalg.sqrtm((u - v).adjoint() @ (u - v))))
 
 
 def create_unitaries(base, limit):
