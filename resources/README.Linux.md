@@ -33,7 +33,7 @@ To run the code a few tools are needed:
 
 Much of the code is in Python and will run out of the box.  There is
 some C++ for the high performance simulation which requires
-configuration.
+configuration. *The Python code will run without C++ acceleration, just much slower.*
 
 The file `src/lib/BUILD` contains the build rule for the C++ xgates
 extension module.  This module needs to be able to access the Python
@@ -51,7 +51,6 @@ cc_library(
     copts = [
         "-O3",
         "-ffast-math",
-    	"-march=skylake",
         "-DNPY_NO_DEPRECATED_API",
         "-DNPY_1_7_API_VERSION",
     ],
@@ -69,6 +68,14 @@ specification for the external installations is in the `WORKSPACE`
 file. Point `path` to your installation's header files,
 excluding the final `include` part of the path. The `include` path is
 specified in the files `external/numpy.BUILD` and `external/python.BUILD`. 
+
+*Hint*: For `numpy`, search your machine for `ndarraytype.h`. It will be
+in a directory `.../numpy/core/include/numpy/ndarraytypes.h`. In the specification, 
+copy everything up and not including the `include/...` parts, with trailing `/`.
+
+*Hint*: For `python` headers, search your machine for `Python.h`. It will be
+in a directory `.../include/python3.11/` or some other Python version. Include
+this path in the Python spec below, including the trailing `/`.
 
 ```
 new_local_repository(
@@ -139,6 +146,12 @@ do
 done
 ```
 
+## Minimal Setup
+If you can't get `xgates` to build, you can still run all Python algorithms by using the Python interpreter directly, for example:
+```
+  python3 ./estimate_pi.py
+```
+All algorithms will work, they might just run much slower.
 
 
 
