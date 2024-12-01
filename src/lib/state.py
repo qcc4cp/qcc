@@ -1,4 +1,4 @@
-©©≈ß# python3
+# python3
 """class State wraps a tensor as underlying representation."""
 
 import cmath
