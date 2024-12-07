@@ -42,10 +42,6 @@ RUN mkdir -p /home/repro/sources/
 WORKDIR /home/repro/sources/
 RUN git clone https://github.com/qcc4cp/qcc.git
 
-# Update WORKSPACE
-WORKDIR /home/repro/sources/qcc
-RUN sed -i 's/python3.7/python3.9/g' WORKSPACE
-
 # Build qcc
 WORKDIR /home/repro/sources/qcc/src/lib
 RUN bazel build all
