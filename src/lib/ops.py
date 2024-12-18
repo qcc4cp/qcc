@@ -445,7 +445,7 @@ def Measure(
     op = op * Identity().kpow(psi.nbits - idx - 1)
 
   # Probability is the trace.
-  prob0 = np.trace(np.matmul(op, rho))
+  prob = np.trace(np.matmul(op, rho))
 
   # Collapse state and normalize
   if collapse:
@@ -454,7 +454,7 @@ def Measure(
 
     assert divisor > 1e-10, 'Measurement collapses to 0.0.'
     normed = mvmul / divisor
-    return np.real(prob0), state.State(normed)
+    return np.real(prob), state.State(normed)
 
   # Return original state to enable chaining.
-  return np.real(prob0), psi
+  return np.real(prob), psi
