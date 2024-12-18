@@ -59,8 +59,9 @@ To run individual algorithms via `bazel`, run any of these command lines. Note t
    bazel run teleportation
    bazel run vqe_simple
 
-# Additional algorithms and techniques, to clarify, or
-# in preparation of a new edition of the book:
+# Additional algorithms and techniques, to clarify, and
+# for the 2nd edition of the book (which will come out
+# end of 2025):
    bazel run amplitude_estimation
    bazel run bell_basis
    bazel run chsh
