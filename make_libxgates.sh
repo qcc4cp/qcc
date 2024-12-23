@@ -61,8 +61,8 @@ echo "Target : ${OUT}"
 # Main compiler invokation:
 #
 cc -I${NUMPY} -I${PY} ${LIB} -O3 -ffast-math -DNPY_NO_DEPRECATED_API \
-   -fPIC -std=c++0x -MD ${SHARED} \
-   src/lib/xgates.cc -o ${OUT} || exit 1
+   -fPIC -std=c++0x ${SHARED} -o ${OUT} \
+   src/lib/xgates.cc || exit 1
 
 echo "Made   :"
 ls -l ${OUT}
