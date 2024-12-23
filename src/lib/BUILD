@@ -137,22 +137,9 @@ py_library(
         ":helper",
         ":ir",
         ":ops",
-        ":optimizer",
         ":state",
         ":tensor",
     ],
-)
-
-# Depending on the build environment, it can be difficult to build
-# the target 'xgates'. If you fail to build it, you may simply delete
-# the corresponding entry in this filegroup. Execution will be re-directed
-# to a working but slow Python implementation.
-filegroup(
-  name = "all",
-  srcs = [
-    ":qcall",
-    ":libxgates.so",
-  ]
 )
 
 py_test(
@@ -168,7 +155,6 @@ py_test(
         ":bell",
     ],
 )
-
 
 py_test(
     name = "tensor_test",
@@ -244,20 +230,9 @@ py_test(
     ],
 )
 
-
-# This test depends on xgates. However, bazel doesn't allow dependencies
-# to cc_libraries. This means this test should NOT be run with
-#     bazel test circuit_test
-#
-# Instead, it has to be run manually, via
-#     bazel run circuit_test
-#
-# If the target 'xgates' fails to build, you may still run all algorithms
-# using a slower Python fallback implementation. In this case (which,
-# hopefully, you will not encounter), simply ignore this particular test.
-#
-py_binary(
+py_test(
     name = "circuit_test",
+    size = "small",
     srcs = ["circuit_test.py"],
     python_version = "PY3",
     srcs_version = "PY3",
