@@ -15,7 +15,6 @@ from scipy.stats import unitary_group
 from src.lib import dumpers
 from src.lib import ir
 from src.lib import ops
-from src.lib import optimizer
 from src.lib import state
 from src.lib import tensor
 
@@ -163,9 +162,6 @@ class qc:
     self._tprod(psi, psi.nbits)
     self.ir.reg(t.nbits, 'state', ret)
     return ret
-
-  def optimize(self):
-    self.ir = optimizer.optimize(self.ir)
 
   def _ctl_by_0(self, ctl):
     if isinstance(ctl, int):

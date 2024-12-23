@@ -322,8 +322,9 @@ class CircuitTest(absltest.TestCase):
     for _ in range(15, 0, -1):
       decr(qc, 0, 4, aux, [])
 
+    # Optimizer is not yet ready.
     # print(qc.stats())
-    qc.optimize()
+    # qc.optimize()
     # print(qc.stats())
 
   def test_to_ctl_single(self):
