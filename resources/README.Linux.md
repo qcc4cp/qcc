@@ -1,14 +1,15 @@
 # Manual Installation on Linux
 
 The following instructions focus on Debian Linux but should work for Ubuntu as well. 
-Note that if you can use Docker, all these steps are performed for you by Docker when
+Note that if you can use Docker, many of these steps are performed for you by Docker when
 the container is being created.
 
 ## Dependencies
 
 To run the code a few tools are needed:
 
-*  The `bazel` build system. Install from [bazel's homepage](https://docs.bazel.build/versions/master/install.html)
+*  The use of the `bazel` build system is optional but can be helpful.\
+   Install from [bazel's homepage](https://docs.bazel.build/versions/master/install.html)
 
 *  We will need Python's `pip` tool to install packages and `git` to manage the source.
   Here is one way to install them:
@@ -35,6 +36,14 @@ Much of the code is in Python and will run out of the box.  There is
 some C++ for the high performance simulation which requires
 configuration. *The Python code will run without C++ acceleration, just much slower.*
 
+There are two ways to build the accelerated library:
+1.   Manually, with the script [qcc/make_libxgates.so](../make_libxgates.sh),
+     documented [here](README.buildxgates.md).
+  
+
+3.   Using `bazel`. This is described in the following. It only works for `bazel`
+    version 5, 6, and 7 (not version 8 and `Bzlmod`).
+    
 The file `src/lib/BUILD` contains the build rule for the C++ xgates
 extension module.  This module needs to be able to access the Python
 header (`Python.h`), as well as certain `numpy` headers. These files'
@@ -63,18 +72,27 @@ cc_library(
 
 There is a subtlety about `bazel`: All headers must be within the
 source tree, or in `/usr/include/...` To work around this, we have to
-point `bazel` to the installation directories of `numpy` and `python`.  The
-specification for the external installations is in the `WORKSPACE`
+point `bazel` to the installation directories of `numpy` and `python`.  
+
+To find the Python headers, you can run
+```
+python3 -c 'import distutils.sysconfig; print(distutils.sysconfig.get_python_inc())'
+```
+To find the numpy headers, you can run
+```
+python3 -c 'import numpy; print(numpy.get_include())'`
+```
+The specification for the external installations is in the `WORKSPACE`
 file. Point `path` to your installation's header files,
 excluding the final `include` part of the path. The `include` path is
 specified in the files `external/numpy.BUILD` and `external/python.BUILD`. 
 
-*Hint*: For `numpy`, search your machine for `ndarraytype.h`. It will be
-in a directory `.../numpy/core/include/numpy/ndarraytypes.h`. In the specification, 
-copy everything up and not including the `include/...` parts, with trailing `/`.
+*Hint*: For example for `numpy`, assume file `ndarraytype.h` is in a directory 
+`.../numpy/core/include/numpy/ndarraytypes.h`. In the specification, 
+copy everything up to and not including the `include/...` parts, with a trailing `/`.
 
-*Hint*: For `python` headers, search your machine for `Python.h`. It will be
-in a directory `.../include/python3.11/` or some other Python version. Include
+*Hint*: For `python` headers, assume `Python.h` is 
+in a directory `.../include/python3.9/`. Include
 this path in the Python spec below, including the trailing `/`.
 
 ```
