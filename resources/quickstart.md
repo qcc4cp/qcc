@@ -15,7 +15,7 @@ For this guide, you don't need `bazel` or
 compile the accelerated C++ routines. Make sure you 
 point Python to the sources by setting the enviroment
 variable `PYTHONPATH` to the root directory (`qcc`) of the sources.
-For example, on Linux:
+For example, on MacOS:
 ```
   export PYTHONPATH=/Users/rhundt/qcc
 ```
@@ -28,10 +28,10 @@ On Windows:
   $Env:PYTHONPATH = C:\users\rhundt\qcc
 ```
 
-Note that the main installation instruction use `bazel` to run the algorithms. This is not strictly necessary, you can run the algorithms individually just by invoking them on the Python command-line, such as:
+You can use `bazel` (versions 5-7) to build the accelerated library `libxgates.so` and run the algorithms. However, this is not necessary. You can [manually build](README.buildxgates.md)  the library  and run the algorithms (and tests) individually just by invoking them on the Python command-line, such as:
 ```
    $ cd qcc/src
-   $ python ./arith_classic.py   # and any of the other Python algorithms
+   $ python ./arith_classic.py   # and any of the other Python algorithms (or tests)
    $ ...
 ```
    
