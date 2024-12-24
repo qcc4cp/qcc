@@ -54,7 +54,7 @@ represent all matrices, vectors, operators, and states:
 >>>
 ```
 
-There is no error or warning message, which means this worked. We can double check:
+There is no error or warning message, which means this worked and `PYTHONPATH` was set correctly to the root directory (`qcc`). We can double check:
 ```
 >>> print(tensor)
 <module 'src.lib.tensor' from '/Users/rhundt/qcc/src/lib/tensor.py'>
