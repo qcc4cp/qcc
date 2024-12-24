@@ -31,67 +31,66 @@ There are several ways to get started on this code base:
 ## Run
 
 The main algorithms are all in `src`.
-To run individual algorithms via `bazel`, run any of these command lines. Note the missing `.py` extensions when using `bazel`). Alternatively, run each Python file with `python <file>` (PYTHONPATH must point to the root directory):
+To run individual algorithms, run any of these command lines. To run a Python file with `bazel`, run `bazel run python-file` but omit the `.py` extensions (for example `bazel run arith_classic`. PYTHONPATH must point to the root directory:
 
 ```
 # Algorithms discussed in the book:
-   bazel run arith_classic
-   bazel run arith_quantum
-   bazel run bernstein
-   bazel run counting
-   bazel run deutsch
-   bazel run deutsch_jozsa
-   bazel run entanglement_swap
-   bazel run grover
-   bazel run max_cut
-   bazel run order_finding
-   bazel run phase_estimation
-   bazel run phase_kick
-   bazel run quantum_walk
-   bazel run shor_classic
-   bazel run simon
-   bazel run simon_general
-   bazel run solovay_kitaev
-   bazel run subset_sum
-   bazel run superdense
-   bazel run supremacy
-   bazel run swap_test
-   bazel run teleportation
-   bazel run vqe_simple
+   python3 arith_classic
+   python3 arith_quantum
+   python3 bernstein
+   python3 counting
+   python3 deutsch
+   python3 deutsch_jozsa
+   python3 entanglement_swap
+   python3 grover
+   python3 max_cut
+   python3 order_finding
+   python3 phase_estimation
+   python3 phase_kick
+   python3 quantum_walk
+   python3 shor_classic
+   python3 simon
+   python3 simon_general
+   python3 solovay_kitaev
+   python3 subset_sum
+   python3 superdense
+   python3 supremacy
+   python3 swap_test
+   python3 teleportation
+   python3 vqe_simple
 
 # Additional algorithms and techniques, to clarify, and
 # for the 2nd edition of the book (which will come out
 # end of 2025):
-   bazel run amplitude_estimation
-   bazel run bell_basis
-   bazel run chsh
-   bazel run estimate_pi
-   bazel run euclidean_distance
-   bazel run graph_coloring
-   bazel run hadamard_test
-   bazel run hamiltonian_encoding
-   bazel run hhl
-   bazel run hhl_2x2
-   bazel run inversion_test
-   bazel run minimum_finding
-   bazel run oracle_synth
-   bazel run pauli_rep
-   bazel run purification
-   bazel run qram
-   bazel run quantum_mean
-   bazel run quantum_median
-   bazel run quantum_pca
-   bazel run sat3
-   bazel run schmidt_decomp
-   bazel run spectral_decomp
-   bazel run state_prep
-   bazel run state_prep_mottonen
-   bazel run zy_decomp
+   python3 amplitude_estimation
+   python3 bell_basis
+   python3 chsh
+   python3 estimate_pi
+   python3 euclidean_distance
+   python3 graph_coloring
+   python3 hadamard_test
+   python3 hamiltonian_encoding
+   python3 hhl
+   python3 hhl_2x2
+   python3 inversion_test
+   python3 minimum_finding
+   python3 oracle_synth
+   python3 pauli_rep
+   python3 purification
+   python3 qram
+   python3 quantum_mean
+   python3 quantum_median
+   python3 quantum_pca
+   python3 sat3
+   python3 schmidt_decomp
+   python3 spectral_decomp
+   python3 state_prep
+   python3 state_prep_mottonen
+   python3 zy_decomp
 
 ```
 
 To test aspects of the sparse implementation:
-
 ```
   cd src/libq
   bazel test ...
