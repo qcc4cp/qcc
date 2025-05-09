@@ -124,7 +124,7 @@ def compute_sorted_eigenvalues(a, verify: bool = True):
   #      A = sum_i {lambda_i * |u_i><u_i|}
   if verify:
     dim = a.shape[0]
-    x = np.matrix(np.zeros((dim, dim)))
+    x = np.zeros((dim, dim))
     for i in range(dim):
       x = x + w[i] * np.outer(v[:, i], v[:, i].adjoint())
     if not np.allclose(a, x, atol=1e-5):

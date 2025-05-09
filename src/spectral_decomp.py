@@ -63,7 +63,7 @@ def spectral_decomp(ndim: int):
   #
   #  A = sum_i {lambda_i * |u_i><u_i|}
   #
-  x = np.matrix(np.zeros((ndim, ndim)))
+  x = np.zeros((ndim, ndim))
   for i in range(ndim):
     x = x + w[i] * np.outer(v[:, i], v[:, i].conj())
   assert np.allclose(hmat, x, atol=1e-5), 'Spectral decomp did not work.'
@@ -74,7 +74,7 @@ def spectral_decomp(ndim: int):
   # Let's compute the inverse by using only the inverse of the eigenvalues,
   # as (1 / eigenvalue), but keep the same eigenvectors otherwise:
   #
-  x = np.matrix(np.zeros((ndim, ndim)))
+  x = np.zeros((ndim, ndim))
   for i in range(ndim):
     x = x + 1 / w[i] * np.outer(v[:, i], v[:, i].conj())
   assert np.allclose(np.linalg.inv(hmat), x, atol=1e-5), 'Inverse failed.'
