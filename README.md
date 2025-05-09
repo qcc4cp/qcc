@@ -144,4 +144,6 @@ Reach Robert at
 *  Michael Broughton, for help with purification.
 *  Mikhail Remnev, for pointing out a .dylib problem in MacOS
 *  Andrea Novellini, for fixing a WORKSPACE issue with bazel 7.0.x
+*  Pinkman for helping on code quality
+*  Pijus Petkevicius for many helpful comments on the book
 
