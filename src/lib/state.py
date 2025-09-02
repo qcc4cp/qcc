@@ -21,13 +21,12 @@ class State(tensor.Tensor):
   def adjoint(self):
     return self.conj().transpose()
 
-  def normalize(self):
+  def normalize(self) -> tensor.Tensor:
     """Renormalize the state. Sum of squared amplitudes==1.0."""
 
     dprod = np.conj(self) @ self
     assert not dprod.is_close(0.0), 'Normalizing to 0-probability state'
-    self /= np.sqrt(np.real(dprod))  # modify object in place.
-    return self
+    return self / np.sqrt(np.real(dprod))
 
   def ampl(self, *bits: Tuple[int]) -> np.complexfloating:
     """Return amplitude for state indexed by 'bits'."""

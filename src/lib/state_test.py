@@ -145,9 +145,9 @@ class StateTest(absltest.TestCase):
 
   def test_normalize(self) -> None:
     denormalized = state.State([1.0, 1.0])
-    denormalized.normalize()
+    normalized = denormalized.normalize()
     self.assertTrue(
-        np.allclose(denormalized, state.State([0.5**0.5, 0.5**0.5]))
+        np.allclose(normalized, state.State([0.5**0.5, 0.5**0.5]))
     )
 
   def test_diff(self) -> None:
