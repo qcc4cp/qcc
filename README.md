@@ -1,6 +1,6 @@
 # Quantum Computing for Programmers
 
-This is the open-source repository for the book [Quantum Computing for Programmers](https://www.cambridge.org/us/academic/subjects/computer-science/algorithmics-complexity-computer-algebra-and-computational-g/quantum-computing-programmers?format=HB) by Robert Hundt, Cambridge University Press (QCC4CP for short). The book describes this implementation in great detail, including all the underlying math and derivations. Note, however, that this code base is evolving - not all algorithms found here are discussed in the book.
+This is the open-source repository for the book [Quantum Computing for Programmers, 2nd Edition](http://www.cambridge.org/9781009548533) by Robert Hundt, Cambridge University Press. The book describes the implementations in this reposoitory in great detail, including all the underlying math and derivations. Note, however, that this code base is evolving.
 
 To get started quickly on the Python sources, you may find the [Quickstart Guide](https://github.com/qcc4cp/qcc/blob/main/resources/quickstart.md) helpful.
 
