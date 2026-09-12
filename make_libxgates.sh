@@ -24,9 +24,6 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Choose the interpreter: $PYTHON if set, else a venv sibling, else python3.
 PYTHON="${PYTHON:-}"
-if [[ -z "${PYTHON}" && -x "${REPO_ROOT}/../.venv/bin/python" ]]; then
-    PYTHON="${REPO_ROOT}/../.venv/bin/python"
-fi
 if [[ -z "${PYTHON}" ]]; then
     PYTHON="$(command -v python3)"
 fi
