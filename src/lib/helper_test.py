@@ -1,5 +1,17 @@
-# python3
+#!/usr/bin/env python3
+# Copyright 2023 Robert Hundt.
+#
+# This file is part of the source code accompanying the book
+# "Quantum Computing for Programmers" by Robert Hundt,
+# Cambridge University Press. See www.cambridge.org/9781009548533
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
 import math
+
 from absl.testing import absltest
 import numpy as np
 
@@ -10,7 +22,7 @@ from src.lib import state
 
 class HelpersTest(absltest.TestCase):
 
-  def test_bits_converstions(self):
+  def test_bits_conversions(self):
     bits = helper.val2bits(6, 3)
     self.assertEqual(bits, [1, 1, 0])
 
