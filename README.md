@@ -42,6 +42,14 @@ repository root** so that `src` is importable:
    python3 -m src.arith_classic     # note: no .py, and the 'src.' prefix
 ```
 
+You must run from the repository root: `python3 -m` puts the current directory
+(the repo root) on `sys.path`, which is what makes `from src.lib import ...`
+resolve. The `PYTHONPATH=$PWD/src/lib` setting is *only* so the optional C++
+accelerator (`import libxgates`) is found; it is not needed for the pure-Python
+fallback. (The Quickstart's minimal setup instead points `PYTHONPATH` at the
+repo root, which is the equivalent way to make `src` importable when you are
+working from the interactive interpreter rather than with `-m`.)
+
 Equivalently, run everything at once with the helper script, which also builds
 the C++ accelerator on first use:
 

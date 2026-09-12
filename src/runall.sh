@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
-# Run all algorithm .py targets in this directory.
+# Run all algorithm .py targets in this directory, or a single named one.
+#
+# Usage:
+#     ./src/runall.sh            # run every algorithm
+#     ./src/runall.sh grover     # run just src/grover.py
 #
 # The algorithms import via "from src.lib import ...", so they must be run as
 # modules (python -m src.<name>) from the repo root, with src/lib on
@@ -36,9 +40,25 @@ if [[ ! -f "${SRC_DIR}/lib/libxgates.so" ]]; then
     fi
 fi
 
+# An optional argument runs just that one algorithm, e.g.
+#     ./src/runall.sh grover
+# The argument is the algorithm name without the .py extension or 'src.' prefix.
+TARGET="${1:-}"
+if [[ -n "${TARGET}" ]]; then
+    TARGET="$(basename "${TARGET}" .py)"   # tolerate 'grover.py' too
+    if [[ ! -f "${SRC_DIR}/${TARGET}.py" ]]; then
+        echo "*** No such algorithm: '${TARGET}' (expected ${SRC_DIR}/${TARGET}.py)" >&2
+        exit 1
+    fi
+    echo
+    echo "--- [${TARGET}.py] ------------------------"
+    ( cd "${REPO_ROOT}" && "${PY}" -m "src.${TARGET}" )
+    exit $?
+fi
+
 #
-# Iterate over all algorithm files (sorted), skipping unit tests, and run
-# each as a module from the repo root.
+# With no argument, iterate over all algorithm files (sorted), skipping unit
+# tests, and run each as a module from the repo root.
 #
 for path in $(ls -1 "${SRC_DIR}"/*.py | sort); do
     base="$(basename "${path}" .py)"
