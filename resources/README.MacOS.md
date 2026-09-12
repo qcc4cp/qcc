@@ -1,83 +1,67 @@
-These instructions may be helpful for MacOS.
+# Installation on macOS
 
-The first problem you encounter may be that the header Python.h cannot be found.
-It may be necessary to edit the file [`qcc/WORKSPACE`](WORKSPACE) and modify the 'external
-repository', pointing to your Python installation. For example:
+Most of the code is Python and runs out of the box once the Python
+dependencies are installed. The optional C++ accelerator (`libxgates`) speeds
+up simulation but is not required — there is an automatic pure-Python fallback.
 
+## Dependencies
+
+Install the Python packages (into a virtualenv or your system Python):
 ```
-[...]
-new_local_repository(
-    name = "third_party_python",
-    path = "[system path]/Python/3.7/include/python3.7m",
-    build_file = __workspace_dir__ + "/python.BUILD",
-)
+python3 -m pip install absl-py numpy scipy
 ```
-
-With a corresponding file [`python.BUILD`](python.BUILD). You have to ensure that the paths
-are set according to your machine setup:
-
+A C/C++ compiler (`clang`, provided by the Xcode command-line tools) is needed
+only to build the accelerator:
 ```
-package(
-    default_visibility = ["//visibility:public"]
-)
-
-cc_library(
-    name = "python",
-    srcs = [
-    ],
-    hdrs = glob([
-        "**/*.h",
-    ]),
-    includes = [""],
-)
+xcode-select --install
+```
+Get the sources:
+```
+git clone https://github.com/qcc4cp/qcc.git
 ```
 
-The BUILD file [`qcc/src/lib/BUILD`](src/lib/BUILD) should already point and use this external
-repository:
+## Build the accelerator (optional)
 
+From the repository root:
 ```
-cc_library(
-    name = "xgates",
-    srcs = [
-	"xgates.cc",
-    ],
-    copts = [
-        "-O3",
-        "-ffast-math",
-        "-march=skylake",
-        "-DNPY_NO_DEPRECATED_API",
-        "-DNPY_1_7_API_VERSION",
-    ],
-    deps = [
-	"@third_party_numpy//:numpy",
-	"@third_party_python//:python",
-    ],
-)
+./make_libxgates.sh
+```
+The script queries the active Python interpreter for the Python and NumPy
+header paths and picks the correct macOS flags
+(`-dynamiclib -undefined dynamic_lookup`) automatically — there is nothing to
+configure and no interpreter version is hardcoded. To build against a specific
+interpreter, e.g. a virtualenv:
+```
+PYTHON=/path/to/venv/bin/python ./make_libxgates.sh
+```
+This produces `src/lib/libxgates.so`. Make it importable:
+```
+export PYTHONPATH=$PWD/src/lib
 ```
 
-On MacOS it appears to make a difference whether or not the command-line option `-c opt` is passed
-to build targets. For example the file [`runall.sh`](src/runall.sh) uses this flag. 
-
-Run these commands to verify things work as expected. Replace ... with the appropriate path in your system.
-
+Alternatively, build it with Bazel (Bazel 7+, Bzlmod):
 ```
-# This should build libqgates.so in .../qcc/bazel-bin/src/lib
-# Some systems require 
-#    bazel build -c opt [target]
-# on all build/run targets.
+bazel build //src/lib:libxgates.so
+```
+The Python and NumPy headers are discovered automatically by the module
+extension in `bazel/python_headers.bzl`; it prefers a virtualenv at
+`../.venv/bin/python`, or you can point it at any interpreter with
+`--repo_env=PYTHON_BIN=/path/to/python`.
 
-cd .../qcc/src/lib
-bazel build xgates
+## Run
 
-# Set PYTHONPATH to point to this directory
-export PYTHONPATH=.../qcc/bazel-bin/src/lib
-
-# Test it
-bazel run circuit_test
-
-# Test all tests
-bazel test ...
-
-# Run all the algorithms
-cd .../qcc/src
-./runall.sh
+Without Bazel, run each algorithm as a module from the repository root (the
+algorithms import `from src.lib import ...`):
+```
+export PYTHONPATH=$PWD/src/lib
+python3 -m src.grover
+```
+Run them all with the helper script (it builds the accelerator on first use):
+```
+./src/runall.sh
+```
+With Bazel:
+```
+bazel test //src/lib:all      # run the library unit tests
+bazel run  //src:grover       # run an algorithm
+```

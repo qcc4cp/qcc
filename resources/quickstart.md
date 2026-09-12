@@ -28,11 +28,11 @@ On Windows:
   $Env:PYTHONPATH = C:\users\rhundt\qcc
 ```
 
-Execution speed benefits greatly from C++ acceleration but all algorithms will run without it. You can [manually build](README.buildxgates.md) the library
-or use `bazel` (versions 5-7) to build it ([details](README.Linux.md)). With or without the library, run the algorithms (and tests) individually with Python such as:
+Execution speed benefits greatly from C++ acceleration but all algorithms will run without it. You can [manually build](README.buildxgates.md) the library with `./make_libxgates.sh`, or use `bazel` ([details](README.Linux.md)). With or without the library, run the algorithms (and tests) individually with Python from the repository root, using module syntax so that `src` is importable:
 ```
-   $ cd qcc/src
-   $ python3 ./arith_classic.py   # and any of the other Python algorithms (or tests)
+   $ cd qcc
+   $ export PYTHONPATH=$PWD/src/lib
+   $ python3 -m src.arith_classic   # and any of the other algorithms (or tests)
    $ ...
 ```
    

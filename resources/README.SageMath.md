@@ -34,9 +34,11 @@ print('QCC: ' + __file__ + ': initialized')
 
 #### Set environment
 Once the file is setup, point the `PYTHONSTARTUP` environment variable to it
-(also set `PYTHONPATH` to find the accelerated `xgates` library). For example (with similar constructions on Windows):
+(also set `PYTHONPATH` to find the accelerated `libxgates` library, built by
+`./make_libxgates.sh` into `src/lib`). For example (with similar constructions
+on Windows):
 ```
-export PYTHONPATH=$HOME/qcc:$HOME/qcc/bazel-bin/src/lib
+export PYTHONPATH=$HOME/qcc:$HOME/qcc/src/lib
 export PYTHONSTARTUP=$HOME/qcc/src/lib/startup.py
 ```
 

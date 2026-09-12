@@ -1,13 +1,6 @@
-new_local_repository(
-    name = "third_party_python",
-    build_file = "//external:python.BUILD",
-    # Configure:
-    path = "/usr/include/python3.9",
-)
-
-new_local_repository(
-    name = "third_party_numpy",
-    build_file = "//external:numpy.BUILD",
-    # Configure:
-    path = "/usr/local/lib/python3.9/dist-packages/numpy/_core/",
-)
+# This repository uses Bzlmod (MODULE.bazel) for external dependencies.
+#
+# Under Bazel 7+ (and by default in Bazel 8/9) this WORKSPACE file is ignored.
+# The Python and NumPy C headers used to build src/lib/libxgates.so are now
+# provided by the module extension in bazel/python_headers.bzl, wired up in
+# MODULE.bazel. This file is intentionally left empty.

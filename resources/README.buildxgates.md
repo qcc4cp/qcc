@@ -1,41 +1,63 @@
 # Building libxgates.so
 
-The book described how to accelerate Python with a C++ library and this
-document described how to build this library.
+The book describes how to accelerate Python with a C++ library. This
+document describes how to build that library. Building it is optional: all
+algorithms run without it, just about 10x slower, via a pure-Python fallback.
 
-#### Ingredients
-The main source file for the library is in `src/lib/xgates.cc`. It has dependencies on Python headers, the Python library, 
-and the numpy headers. 
+#### The easy way
 
-To find the Python headers, you can run
+Run the provided script from the repository root:
 ```
-python3 -c 'import distutils.sysconfig; print(distutils.sysconfig.get_python_inc())'
+$ ./make_libxgates.sh
 ```
+The script queries the active Python interpreter for the Python and NumPy
+header locations, picks the right flags for your OS (macOS or Linux), and
+builds `src/lib/libxgates.so`. It does not hardcode any interpreter version or
+path and does not link `libpython` (Python symbols are resolved at load time
+from the embedding interpreter).
 
-To find the numpy headers, you can run
+To build against a specific interpreter, for example a virtualenv, set
+`PYTHON`:
 ```
-python3 -c 'import numpy; print(numpy.get_include())'`
-```
-
-The Python library will be somewhere in the neighborhood of these directories or in standard
-Linux directories, eg
-```
-LIB=/usr/lib/python3.11/config-3.11-x86_64-linux-gnu/libpython3.11.so
-```
-
-Once these are found, you can build the library manually. All these steps are
-in a script called [`qcc/make_libxgates.sh`](../make_libxgates.sh). It is recommended to just modify
-this script to build the library on your system. 
-
-The script determines the compiler option to build a loadable module (eg., `-shared`) and 
-calls the compiler to build `qcc/libxgates.so`. For example:
-```
-OUT=./libxgates.so
-cc -I${NUMPY} -I${PY} ${LIB} -O3 -ffast-math -DNPY_NO_DEPRECATED_API \
-   -fPIC -std=c++0x ${SHARED} -o ${OUT} \
-   src/lib/xgates.cc || exit 1
+$ PYTHON=/path/to/venv/bin/python ./make_libxgates.sh
 ```
 
-This builds the library in the root directory, which means you have to point the environment variable
-`PYTHONPATH` to this directory (which you have to do anyways in order to import the other
-Python modules).
+Once built, make the library importable by pointing `PYTHONPATH` at `src/lib`
+(the same variable you set to import the other modules):
+```
+$ export PYTHONPATH=$PWD/src/lib
+```
+
+#### What the script does
+
+The main source file is `src/lib/xgates.cc`. It depends on the Python C
+headers and the NumPy C headers, discovered as:
+```
+# Python headers:
+python3 -c "import sysconfig; print(sysconfig.get_path('include'))"
+
+# NumPy headers:
+python3 -c 'import numpy; print(numpy.get_include())'
+```
+(The old `distutils.sysconfig` API was removed in Python 3.12; `sysconfig` is
+the modern replacement.)
+
+The compiler invocation is essentially:
+```
+cc -I${NUMPY_INC} -I${PY_INC} \
+   -O3 -ffast-math -DNPY_NO_DEPRECATED_API \
+   -fPIC -std=c++14 ${SHARED} \
+   -o src/lib/libxgates.so \
+   src/lib/xgates.cc
+```
+where `${SHARED}` is `-dynamiclib -undefined dynamic_lookup` on macOS and
+`-shared` on Linux. `NPY_NO_DEPRECATED_API` opts in to the modern NumPy C-API
+and is required for NumPy 2.x.
+
+#### Building with Bazel instead
+
+Alternatively, build the library with Bazel:
+```
+$ bazel build //src/lib:libxgates.so
+```
+See [README.Linux.md](README.Linux.md) for the Bazel setup.

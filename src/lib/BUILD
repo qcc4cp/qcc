@@ -1,3 +1,6 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("@rules_python//python:defs.bzl", "py_library", "py_test")
+
 cc_binary(
     name = "libxgates.so",
     linkshared = True,
@@ -8,8 +11,14 @@ cc_binary(
         "-O3",
         "-ffast-math",
         "-DNPY_NO_DEPRECATED_API",
-        "-DNPY_1_7_API_VERSION",
     ],
+    # Python symbols are resolved at load time from the embedding interpreter,
+    # so we must not fail the link on unresolved Python/NumPy symbols. On macOS
+    # this requires -undefined dynamic_lookup.
+    linkopts = select({
+        "@platforms//os:macos": ["-undefined", "dynamic_lookup"],
+        "//conditions:default": [],
+    }),
     deps = [
         "@third_party_numpy//:numpy",
         "@third_party_python//:python",
@@ -23,6 +32,10 @@ py_library(
         "tensor.py",
     ],
     srcs_version = "PY3",
+    deps = [
+        "@qcc_pip//numpy",
+        "@qcc_pip//absl_py",
+    ],
 )
 
 py_library(
@@ -32,7 +45,7 @@ py_library(
         "helper.py",
     ],
     srcs_version = "PY3",
-    deps = [
+    deps = [        "@qcc_pip//numpy",
     ],
 )
 
@@ -46,6 +59,7 @@ py_library(
     deps = [
         ":helper",
         ":tensor",
+        "@qcc_pip//numpy",
     ],
 )
 
@@ -60,6 +74,7 @@ py_library(
         ":helper",
         ":state",
         ":tensor",
+        "@qcc_pip//numpy",
     ],
 )
 
@@ -70,7 +85,7 @@ py_library(
         "bell.py",
     ],
     srcs_version = "PY3",
-    deps = [
+    deps = [        "@qcc_pip//numpy",
     ],
 )
 
@@ -125,6 +140,9 @@ py_library(
         ":ops",
         ":state",
         ":tensor",
+        "@qcc_pip//numpy",
+        "@qcc_pip//scipy",
+        "@qcc_pip//absl_py",
     ],
 )
 
@@ -153,6 +171,8 @@ py_test(
         ":state",
         ":ops",
         ":bell",
+        "@qcc_pip//numpy",
+        "@qcc_pip//absl_py",
     ],
 )
 
@@ -164,6 +184,7 @@ py_test(
     srcs_version = "PY3",
     deps = [
         ":tensor",
+        "@qcc_pip//absl_py",
     ],
 )
 
@@ -176,6 +197,8 @@ py_test(
     deps = [
         ":helper",
         ":state",
+        "@qcc_pip//numpy",
+        "@qcc_pip//absl_py",
     ],
 )
 
@@ -188,7 +211,9 @@ py_test(
     deps = [
         ":ops",
         ":state",
-     ],
+        "@qcc_pip//numpy",
+        "@qcc_pip//absl_py",
+    ],
 )
 
 py_test(
@@ -201,7 +226,8 @@ py_test(
         ":tensor",
 	":state",
 	":ops",
-
+        "@qcc_pip//numpy",
+        "@qcc_pip//absl_py",
     ],
 )
 
@@ -214,6 +240,7 @@ py_test(
     deps = [
         ":ops",
         ":state",
+        "@qcc_pip//absl_py",
     ],
 )
 
@@ -227,6 +254,8 @@ py_test(
         ":bell",
         ":ops",
         ":state",
+        "@qcc_pip//numpy",
+        "@qcc_pip//absl_py",
     ],
 )
 
@@ -238,5 +267,7 @@ py_test(
     srcs_version = "PY3",
     deps = [
         ":qcall",
+        "@qcc_pip//numpy",
+        "@qcc_pip//absl_py",
     ],
 )

@@ -1,3 +1,5 @@
+load("@rules_python//python:defs.bzl", "py_binary", "py_library")
+
 py_library(
     name = "qcall",
     srcs = [],
@@ -9,6 +11,9 @@ py_library(
         "//src/lib:optimizer",
         "//src/lib:state",
         "//src/lib:tensor",
+        "@qcc_pip//absl_py",
+        "@qcc_pip//numpy",
+        "@qcc_pip//scipy",
     ],
 )
 

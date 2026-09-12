@@ -13,7 +13,10 @@ The code is organized as follows:
 *  `src/benchmarks` contains a few benchmarks, as they are mentioned in the book.
 *  `resources` contains additional text, sections and chapters.
 *  `errata` contains the errata for the book - corrections and clarifications.
-*  `external` contains the *.BUILD files to point `bazel` to `python` and `numpy`.
+*  `bazel/` contains the Bazel module extension that locates the `python` and
+   `numpy` C headers from the active interpreter (used to build the C++
+   accelerator). External dependencies are managed with Bzlmod in
+   `MODULE.bazel`.
 
 ## Installation
 
@@ -30,78 +33,62 @@ There are several ways to get started on this code base:
 
 ## Run
 
-The main algorithms are all in `src`.
-To run individual algorithms, run any of these command lines. To run a Python file with `bazel`, run `bazel run python-file` but omit the `.py` extensions (for example `bazel run arith_classic`. PYTHONPATH must point to the root directory:
+The main algorithms are all in `src`. Because the algorithms import the
+library as `from src.lib import ...`, run them **as modules from the
+repository root** so that `src` is importable:
+
+```
+   export PYTHONPATH=$PWD/src/lib   # so 'import libxgates' finds the accelerator
+   python3 -m src.arith_classic     # note: no .py, and the 'src.' prefix
+```
+
+Equivalently, run everything at once with the helper script, which also builds
+the C++ accelerator on first use:
+
+```
+   ./src/runall.sh                  # runs every algorithm
+   ./src/runall.sh grover           # or just one
+```
+
+With `bazel`, run an algorithm by its target label (no `.py` extension):
+
+```
+   bazel run //src:arith_classic
+```
+
+The available algorithms are:
 
 ```
 # Algorithms discussed in the book:
-   python3 arith_classic
-   python3 arith_quantum
-   python3 bernstein
-   python3 counting
-   python3 deutsch
-   python3 deutsch_jozsa
-   python3 entanglement_swap
-   python3 grover
-   python3 max_cut
-   python3 order_finding
-   python3 phase_estimation
-   python3 phase_kick
-   python3 quantum_walk
-   python3 shor_classic
-   python3 simon
-   python3 simon_general
-   python3 solovay_kitaev
-   python3 subset_sum
-   python3 superdense
-   python3 supremacy
-   python3 swap_test
-   python3 teleportation
-   python3 vqe_simple
+   arith_classic     deutsch_jozsa     phase_estimation  simon
+   arith_quantum     entanglement_swap phase_kick        simon_general
+   bernstein         grover            quantum_walk      solovay_kitaev
+   counting          max_cut           shor_classic      subset_sum
+   deutsch           order_finding     superdense        supremacy
+   swap_test         teleportation     vqe_simple
 
-# Additional algorithms and techniques, to clarify, and
-# for the 2nd edition of the book (which will come out
-# end of 2025):
-   python3 amplitude_estimation
-   python3 bell_basis
-   python3 chsh
-   python3 estimate_pi
-   python3 euclidean_distance
-   python3 graph_coloring
-   python3 hadamard_test
-   python3 hamiltonian_encoding
-   python3 hhl
-   python3 hhl_2x2
-   python3 inversion_test
-   python3 minimum_finding
-   python3 oracle_synth
-   python3 pauli_rep
-   python3 purification
-   python3 qram
-   python3 quantum_mean
-   python3 quantum_median
-   python3 quantum_pca
-   python3 sat3
-   python3 schmidt_decomp
-   python3 spectral_decomp
-   python3 state_prep
-   python3 state_prep_mottonen
-   python3 zy_decomp
-
+# Additional algorithms and techniques (2nd edition):
+   amplitude_estimation  hamiltonian_encoding  quantum_mean     spectral_decomp
+   bell_basis            hhl                   quantum_median   state_prep
+   chsh                  hhl_2x2               quantum_pca      state_prep_mottonen
+   estimate_pi           inversion_test        sat3             zy_decomp
+   euclidean_distance    minimum_finding       schmidt_decomp
+   graph_coloring        oracle_synth          purification
+   hadamard_test         pauli_rep             qram
 ```
+
+Run any of them with `python3 -m src.<name>` from the repository root or
+`bazel run //src:<name>`.
 
 To test aspects of the sparse implementation:
 ```
-  cd src/libq
-  bazel test ...
+  bazel test //src/libq:all
 ```
 
 To run the benchmarks:
-
 ```
-  cd src/benchmarks
-  bazel run larose_benchmark
-  bazel run tensor_math
+  bazel run //src/benchmarks:larose_benchmark
+  bazel run //src/benchmarks:tensor_math
 ```
 
 ## Transpilation

@@ -8,7 +8,6 @@
 
 #include <numpy/ndarraytypes.h>
 #include <numpy/ufuncobject.h>
-#include <numpy/npy_3kcompat.h>
 
 typedef std::complex<double> cmplxd;
 typedef std::complex<float> cmplxf;
@@ -73,11 +72,11 @@ template <typename cmplx_type, int npy_type>
 void apply1_python(PyObject *param_psi, PyObject *param_gate,
                    int nbits, int tgt) {
   PyArrayObject *psi_arr =
-      (PyArrayObject*) PyArray_FROM_OTF(param_psi, npy_type, NPY_IN_ARRAY);
+      (PyArrayObject*) PyArray_FROM_OTF(param_psi, npy_type, NPY_ARRAY_IN_ARRAY);
   cmplx_type *psi = ((cmplx_type *)PyArray_GETPTR1(psi_arr, 0));
 
   PyArrayObject *gate_arr =
-    (PyArrayObject*) PyArray_FROM_OTF(param_gate, npy_type, NPY_IN_ARRAY);
+    (PyArrayObject*) PyArray_FROM_OTF(param_gate, npy_type, NPY_ARRAY_IN_ARRAY);
   cmplx_type *gate = ((cmplx_type *)PyArray_GETPTR1(gate_arr, 0));
 
   apply1<cmplx_type>(psi, gate, nbits, tgt);
@@ -110,11 +109,11 @@ template <typename cmplx_type, int npy_type>
 void applyc_python(PyObject *param_psi, PyObject *param_gate,
                    int nbits, int ctl, int tgt) {
   PyArrayObject *psi_arr =
-      (PyArrayObject*) PyArray_FROM_OTF(param_psi, npy_type, NPY_IN_ARRAY);
+      (PyArrayObject*) PyArray_FROM_OTF(param_psi, npy_type, NPY_ARRAY_IN_ARRAY);
   cmplx_type *psi = ((cmplx_type *)PyArray_GETPTR1(psi_arr, 0));
 
   PyArrayObject *gate_arr =
-    (PyArrayObject*) PyArray_FROM_OTF(param_gate, npy_type, NPY_IN_ARRAY);
+    (PyArrayObject*) PyArray_FROM_OTF(param_gate, npy_type, NPY_ARRAY_IN_ARRAY);
   cmplx_type *gate = ((cmplx_type *)PyArray_GETPTR1(gate_arr, 0));
 
   applyc<cmplx_type>(psi, gate, nbits, ctl, tgt);
@@ -163,7 +162,8 @@ static struct PyModuleDef xgates_definition = {
 };
 
 PyMODINIT_FUNC PyInit_xgates(void) {
-  Py_Initialize();
+  // import_array() initializes the NumPy C-API. It expands to a return
+  // statement on failure, so it must run before the module is created.
   import_array();
   return PyModule_Create(&xgates_definition);
 }
