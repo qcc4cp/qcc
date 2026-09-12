@@ -42,10 +42,16 @@ echo "python : ${PY_INC}"
 # the embedding interpreter, so we do NOT link libpython directly. On macOS
 # this needs -undefined dynamic_lookup; on Linux the default already allows
 # unresolved symbols in a shared object.
+#
+# Parallelism (XGATES_PARALLEL env var, see xgates.cc):
+#   * macOS uses Grand Central Dispatch, which lives in libSystem and needs
+#     no extra flag or library.
+#   * Linux uses OpenMP; -fopenmp both activates the code path (defines
+#     _OPENMP) and links the runtime (libgomp), so it goes in SHARED.
 OS="$(uname -s)"
 case "${OS}" in
     Darwin) SHARED=(-dynamiclib -undefined dynamic_lookup) ;;
-    Linux)  SHARED=(-shared) ;;
+    Linux)  SHARED=(-shared -fopenmp) ;;
     *)
         echo "WARNING: unrecognized OS '${OS}'; assuming -shared." >&2
         SHARED=(-shared)
