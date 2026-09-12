@@ -99,6 +99,55 @@ To run the benchmarks:
   bazel run //src/benchmarks:tensor_math
 ```
 
+## Parallel execution
+
+The C++ accelerator (`libxgates`) can apply gates using multiple threads.
+Applying a single gate to an `n`-qubit state updates `2^(n-1)` independent
+pairs of amplitudes, and those updates can be spread across CPU cores. This
+is opt-in and controlled entirely by an environment variable:
+
+```
+   export XGATES_PARALLEL=8         # use up to 8 threads per gate
+   python3 -m src.order_finding --N=21 --a=11
+```
+
+* Unset, `0`, or `1` keeps the original single-threaded behavior with no
+  overhead. Any value `N > 1` splits each gate into up to `N` chunks.
+* Small state vectors stay single-threaded regardless of the setting: below
+  an internal size threshold, thread-dispatch overhead would outweigh the
+  benefit, so tiny circuits see no change.
+* Both floating-point widths are supported (`--tensor_width=64`, the
+  default, and `--tensor_width=128`).
+
+The threading backend is chosen when `libxgates` is compiled:
+`make_libxgates.sh` uses Grand Central Dispatch on macOS (part of the base
+system, no extra library) and OpenMP on Linux (the `-fopenmp` flag links
+`libgomp` automatically). If neither is available, the build falls back to
+the serial code path and still works.
+
+### A note on scaling: this workload is memory-bandwidth bound
+
+Each gate reads and writes the entire state vector while doing only a few
+arithmetic operations per amplitude (arithmetic intensity is very low). As a
+result the kernel is limited by memory bandwidth, not by CPU compute. Two
+consequences follow:
+
+* **Speedup plateaus once memory bandwidth is saturated.** A single thread
+  already consumes a large fraction of available bandwidth, so adding
+  threads helps only until the memory system is saturated, after which more
+  threads give little or no gain. The saturation point depends on the
+  machine: on a laptop-class SoC it can be as few as 8-12 threads (roughly
+  3-4x over serial), whereas a many-core server with far more aggregate
+  bandwidth keeps scaling to much higher thread counts. Pick `XGATES_PARALLEL`
+  to match your hardware; more is not always better.
+* **`complex64` scales better than `complex128`.** The default 64-bit width
+  moves half as many bytes per gate, so it both runs faster and reaches a
+  higher effective speedup than the 128-bit width.
+
+The state vector itself grows as `2^n` amplitudes (8 bytes each for
+`complex64`, 16 for `complex128`), so memory *capacity* — not compute —
+becomes the ceiling for large qubit counts.
+
 ## Transpilation
 
 To experiment with transpilation, a few things must work together:
