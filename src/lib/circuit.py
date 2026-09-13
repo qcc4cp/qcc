@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import os
 from typing import Callable, Tuple
 
 from absl import flags
@@ -33,13 +34,20 @@ from src.lib import tensor
 # import libxgates as xgates
 
 
+_BACKEND = os.environ.get('QCC_BACKEND', 'libxgates').lower()
+
 try:
   # pylint: disable=g-import-not-at-top
-  import libxgates as xgates
+  if _BACKEND == 'planner':
+    from src.lib import planned_xgates as xgates
+  else:
+    import libxgates as xgates
 
   apply1 = xgates.apply1
   applyc = xgates.applyc
 except Exception:  # pylint: disable=broad-except
+  if _BACKEND == 'planner':
+    raise
   print("""
   **************************************************************
   WARNING: Could not find 'libxgates.so'.
