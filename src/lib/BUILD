@@ -128,6 +128,41 @@ py_library(
 )
 
 py_library(
+    name = "planned_fusion",
+    visibility = ["//visibility:public"],
+    srcs = [
+        "planned_fusion.py",
+    ],
+    srcs_version = "PY3",
+)
+
+py_library(
+    name = "block_planner",
+    visibility = ["//visibility:public"],
+    srcs = [
+        "block_planner.py",
+    ],
+    srcs_version = "PY3",
+    deps = [
+        ":planned_fusion",
+    ],
+)
+
+py_library(
+    name = "planned_xgates",
+    visibility = ["//visibility:public"],
+    srcs = [
+        "planned_xgates.py",
+    ],
+    srcs_version = "PY3",
+    deps = [
+        ":block_planner",
+        ":state",
+        ":tensor",
+    ],
+)
+
+py_library(
     name = "circuit",
     visibility = ["//visibility:public"],
     srcs = [
@@ -138,6 +173,7 @@ py_library(
         ":dumpers",
         ":ir",
         ":ops",
+        ":planned_xgates",
         ":state",
         ":tensor",
         "@qcc_pip//numpy",
