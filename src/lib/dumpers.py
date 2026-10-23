@@ -3,6 +3,8 @@
 
 """Various output formats for the compiler IR."""
 
+import itertools
+import math
 from typing import List
 
 from src.lib import helper
@@ -161,78 +163,174 @@ def cirq(ir) -> str:
   return res
 
 
-def latex(ir) -> str:
-  """Minimal Dumper to quantikz Latex Format."""
+# --- LaTeX dumper -------------------------------------------------
+#
+# Gate names as used in circuit.py, mapped to their math-mode label.
+_LATEX_NAMES = {
+    'h': 'H', 'x': 'X', 'y': 'Y', 'z': 'Z', 's': 'S', 't': 'T', 'v': 'V',
+    'yroot': r'\sqrt{Y}', 'u1': 'U_1', 'rx': 'R_x', 'ry': 'R_y', 'rz': 'R_z',
+}
 
-  carr: List[List[str]] = []
+_LATEX_SPECIALS = {
+    '\\': r'\textbackslash{}', '#': r'\#', '_': r'\_', '&': r'\&',
+    '%': r'\%', '{': r'\{', '}': r'\}', '^': r'\^{}', '~': r'\~{}',
+    '$': r'\$', '|': r'\textbar{}', '<': r'\textless{}', '>': r'\textgreater{}',
+}
 
-  def new_col():
-    col = [r'\qw&'] * ir.nregs
-    carr.append(col)
-    gcol = [False] * ir.nregs
-    return col, gcol
 
-  def fix(s):
-    s = s.replace('ry', 'Y_')
-    s = s.replace('rz', 'Z_')
-    s = s.replace('gate{cx', 'targ{')
-    s = s.replace('_adj', r'^\dagger')
-    s = s.replace(r'^T', r'^\dagger')
-    return s
+def _latex_text(s: str) -> str:
+  """Escape arbitrary text (e.g., section names) for LaTeX text mode."""
 
-  def need_new_col(idx, gates, gcol):
-    if not idx:
-      return True
-    if not gates[idx - 1].is_single():
-      return True
-    if not gates[idx].is_single():
-      return True
-    if ir.gates[idx].idx0 != gates[idx-1].idx0:
-      if not gcol[ir.gates[idx].idx0]:
-        return False
-    return True
+  return ''.join(_LATEX_SPECIALS.get(c, c) for c in str(s))
 
-  col, gcol = new_col()
 
-  for idx, op in enumerate(ir.gates):
-    if op.is_section():
-      col[0] = r'\qw\slice{' + op.name + '}&'
-      continue
-    if not op.is_gate():
-      continue
-    if need_new_col(idx, ir.gates, gcol):
-      col, gcol = new_col()
+def _latex_param(val) -> str:
+  """Format a gate parameter as '(x)', as a fraction of pi if possible."""
 
-    name = op.name.upper()
-    #if op.name == 'cu1' or op.name == 'u1':
-    #  name = ''
+  if val is None:
+    return ''
+  s = helper.pi_fractions(val, r'\pi').replace('*', '')
+  if r'\pi' not in s and s != '0':
+    # Not an exact fraction of pi; retry with a looser tolerance before
+    # falling back to a plain number.
+    s = f'{val:.4g}'
+    for num, denom in itertools.product(range(1, 4), range(1, 129)):
+      if math.isclose(abs(val), num * math.pi / denom, rel_tol=1e-6):
+        s = ('-' if val < 0 else '') + (str(num) if num > 1 else '')
+        s += r'\pi' + (f'/{denom}' if denom > 1 else '')
+        break
+  return f'({s})'
 
-    parm = ''
-    if op.val is not None:
-      parm = '{}'.format(helper.pi_fractions(op.val, r'\pi'))
 
+def _latex_label(name: str, val) -> str:
+  """Math-mode label for a single gate (or the target of a controlled one)."""
+
+  dagger = ''
+  for suffix in ('dag', '_adj', '^t'):
+    if name.endswith(suffix) and name != suffix:
+      name, dagger = name[:-len(suffix)], r'^\dagger'
+      break
+  label = _LATEX_NAMES.get(name)
+  if label is None:
+    # Unknown names (e.g. 'X^{1/2}' from ccu, or user descriptions) are
+    # used verbatim, as they already tend to be math.
+    label = name
+  return label + dagger + _latex_param(val)
+
+
+def latex(ir, options: str = 'column sep=0.2cm', max_depth: int = 1) -> str:
+  """Dump IR to quantikz LaTeX.
+
+  Gates are scheduled as-soon-as-possible: a gate goes into the first
+  column that is free on all wires it touches (including the wires
+  between control and target), so independent gates line up vertically.
+  Scopes (sections) up to nesting level max_depth are drawn as labelled,
+  dashed gate groups; deeper scopes are ignored (None: show all).
+  """
+
+  # Wires may come from registers or (e.g. with bitstring()) just gates.
+  n = ir.nregs
+  for op in ir.gates:
     if op.is_single():
-      col[op.idx0] = (r'\gate{' + f'{name}' + parm + '}&')
-      col[op.idx0] = fix(col[op.idx0])
-      gcol[op.idx0] = True
+      n = max(n, op.idx0 + 1)
+    elif op.is_ctl():
+      n = max(n, op.ctl + 1, op.idx1 + 1)
+  cols: List[List[str]] = []  # cols[c][q] -> cell content
+  frontier = [0] * n  # first free column per wire
+  groups = []  # finished scopes: [label, lo, hi, c0, c1, depth]
+  stack = []  # open scopes, same layout (lo > hi: no gates yet)
+  depth = 0
 
-    if op.is_ctl():
-      col[op.ctl] = (r'\ctrl{' +
-                     '{}{}&'.format(op.idx1 - op.ctl, '}'))
-      col[op.idx1] = (r'\gate{' +
-                      '{}{}&'.format(name + parm, '}'))
-      col[op.ctl] = fix(col[op.ctl])
-      col[op.idx1] = fix(col[op.idx1])
+  def cell(c, q, content):
+    while len(cols) <= c:
+      cols.append([r'\qw'] * n)
+    cols[c][q] = content
 
-  res = r'\begin{qcc}[column sep=0.12cm]' + '\n'
-  for q in range(ir.nregs):
-    for col in carr:
-      res += col[q]
-    res += r'\qw\\' + '\n'
-  if q == ir.nregs - 1:
-    res = res[:-3] + '\n'
-  res += r'\end{qcc}'
-  return res
+  def place(lo, hi, c):
+    for q in range(lo, hi + 1):
+      frontier[q] = c + 1
+    for scope in stack:  # grow all open scopes to cover this gate
+      scope[1:5] = [min(scope[1], lo), max(scope[2], hi),
+                    min(scope[3], c), max(scope[4], c)]
+
+  for op in ir.gates:
+    if op.is_section():
+      depth += 1
+      if max_depth is None or depth <= max_depth:
+        # Barrier: nothing from before the scope may end up inside its box.
+        c = max(frontier, default=0)
+        for q in range(n):
+          frontier[q] = c
+        stack.append([_latex_text(op.name), n, -1, c, c - 1, depth])
+    elif op.is_end_section():
+      if max_depth is None or depth <= max_depth:
+        scope = stack.pop()
+        if scope[1] <= scope[2]:  # non-empty scope
+          groups.append(scope)
+          # Later gates on the boxed wires must stay to the right of the box.
+          for q in range(scope[1], scope[2] + 1):
+            frontier[q] = max(frontier[q], scope[4] + 1)
+      depth -= 1
+    elif op.is_single():
+      q = op.idx0
+      c = frontier[q]
+      cell(c, q, r'\gate{' + _latex_label(op.name, op.val) + '}')
+      place(q, q, c)
+    elif op.is_ctl():
+      ctl, tgt = op.ctl, op.idx1
+      lo, hi = min(ctl, tgt), max(ctl, tgt)
+      c = max(frontier[lo:hi + 1])
+      name = op.name
+      if name == 'cx':
+        target = r'\targ{}'
+      elif name == 'cz':
+        target = r'\control{}'
+      elif name == 'cu1':
+        target = r'\phase{' + _latex_param(op.val)[1:-1] + '}'
+      else:
+        if name.startswith('c') and len(name) > 1:
+          name = name[1:]
+        target = r'\gate{' + _latex_label(name, op.val) + '}'
+      cell(c, ctl, r'\ctrl{' + str(tgt - ctl) + '}')
+      cell(c, tgt, target)
+      place(lo, hi, c)
+
+  # Nested boxes grow outwards and their labels move up by nesting level.
+  max_level = max((g[5] for g in groups), default=0)
+  for label, lo, hi, c0, c1, level in groups:
+    pad = 2 + 2 * (max_level - level)
+    cols[c0][lo] += (
+        r'\gategroup[wires=' + str(hi - lo + 1) + ',steps=' + str(c1 - c0 + 1)
+        + ',style={dashed,rounded corners,'
+        + f'inner xsep={pad}pt,inner ysep={pad + 2}pt}},'
+        + 'label style={label position=above,anchor=south,'
+        + f'yshift={-0.1 + 0.3 * (max_level - level):.1f}cm}}]'
+        + '{' + label + '}')
+
+  # Wire labels: register name, index, and initial value.
+  def lstick(q):
+    for reg in ir.regs:
+      if reg[0] == q:
+        name, idx = reg[1], reg[2]
+        break
+    else:
+      name, idx = 'q', q
+    init = ''
+    for rname, size, reg in ir.regset:
+      if rname == name and idx < size and hasattr(reg, 'val'):
+        init = f' = |{reg.val[idx]}\\rangle'
+    if not name:
+      name = 'q'
+    elif name.isalnum():
+      name = r'\mathrm{' + name + '}'  # else: assume it's already math
+    return r'\lstick{$' + f'{name}_{{{idx}}}{init}' + '$}'
+
+  opts = f'[{options}]' if options else ''
+  rows = []
+  for q in range(n):
+    rows.append(' & '.join([lstick(q)] + [col[q] for col in cols] + [r'\qw']))
+  return (r'\begin{qcc}' + opts + '\n' + ' \\\\\n'.join(rows) + '\n'
+          + r'\end{qcc}')
 
 
 def totext(ir) -> str:
