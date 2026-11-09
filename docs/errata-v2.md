@@ -72,6 +72,7 @@ readers.
 | 248, 250 | `find_solutions` (defined as `find_negative_solutions`); `assert solution[0]) ==` | Name; unbalanced ")" |
 | 256 * | "Σ F(i)/2^{n/2} = µ" and the 2^{n/2} explanation | Amplitude is Σ F(i)/2^n, which is what the code asserts; Fig. 10.20 also shows H on the ancilla that the code never applies |
 | 258 | duplicated "Note that we already know the minimum classically..." | Delete one |
+| 259-263 * | Median via `mean = np.mean(diffnorm)` with `diffnorm = np.linalg.norm(diff)`; check `max(np.mean(x), x[median]) / min(np.mean(x), x[median]) > 1.02` | The median minimizes the sum of absolute differences, but the norm is an L2 cost, whose minimizer is the element nearest the mean of x, and the check compares against the mean. It only passes for large uniform data, where mean and median are close (for [1, 2, 3, 4, 100, 2, 3, 3] it picks 4, the median is 3); it also rejects correct medians, e.g. 173 of 200 random inputs with 2 qubits. Use the mean of the normalized difference vector times its norm (as in the mean computation), and compare the sum of absolute differences against that of `np.median(x)`; for an even number of elements both middle values are optimal. |
 | 265 | "U, U², ..., U^{t−1}" | U^{2^0}, ..., U^{2^{t−1}} |
 | 273 | "highest probability (≥ 1%)" | Code uses 3% |
 | 276 | "ω^n = 2^{2πin/N}" | e^{2πin/N} |

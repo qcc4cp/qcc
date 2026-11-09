@@ -40,31 +40,38 @@ def run_experiment(nbits: int):
   x = np.array([random.randint(0, 2**nbits) for _ in range(2**nbits)])
   xn = x / np.linalg.norm(x)
 
-  # Compute the mean(s) for each difference vector.
-  median = min_mean = 1000
+  # Compute the mean for each difference vector.
+  median = 0
+  min_mean = np.inf
   for idx, z in enumerate(xn):
     # Make the difference vector. Note that this vector
     # may not be normalized!
-    diff = [abs(xval - z) for xval in xn]
+    diff = np.abs(xn - z)
 
     # Normalization (required for quantum, also improves
-    # accuracy by an order of magnitude).
+    # accuracy by an order of magnitude). As in quantum_mean.py, the
+    # quantum algorithm estimates the mean of the normalized vector, which
+    # is scaled back with the norm. Note that the norm itself is not the
+    # mean, it would minimize the sum of squares, which finds the element
+    # nearest to the mean of x and not its median.
     diffnorm = np.linalg.norm(diff)
 
     # Compute the mean (which we know how to do quantumly).
-    mean = np.mean(diffnorm)
+    mean = np.mean(diff / diffnorm) * diffnorm if diffnorm else 0.0
 
     # Find the minimum (which we would also know how to do quantumly).
     if mean < min_mean:
       min_mean = mean
       median = idx
 
-  # Print and check results, we allow for a 1% deviation.
-  print(
-      f' Median ({nbits} qb): Classic: {np.mean(x):.3f},'
-      f' Quantum: {x[median]:.0f}'
-  )
-  if max(np.mean(x), x[median]) / min(np.mean(x), x[median]) > 1.02:
+  # Print and check results. The median minimizes the sum of |x_i - z|. With
+  # an even number of elements, both middle elements are optimal, so we
+  # compare this cost and not the value. All costs are sums of integers or
+  # half-integers, and thus exact.
+  classic = np.median(x)
+  quantum = x[median]
+  print(f' Median ({nbits} qb): Classic: {classic:.1f}, Quantum: {quantum:.0f}')
+  if np.sum(np.abs(x - quantum)) != np.sum(np.abs(x - classic)):
     raise AssertionError('Incorrect median computation.')
 
 
