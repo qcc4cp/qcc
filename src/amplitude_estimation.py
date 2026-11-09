@@ -43,16 +43,21 @@ def run_experiment(nbits_phase: int,
   """Run full experiment for a given A and set of solutions."""
 
   # The state for the AE algorithm.
-  # We reserve nbits_phase for the phase estimation.
-  # We reserve nbits_grover for the oracle.
-  # We also add the |1> for the oracle's y value.
+  # We reserve nbits_phase for the phase estimation. These qubits start in
+  # equal superposition.
+  # We reserve nbits_grover for the oracle. These qubits must start in the
+  # state A|0>, whose amplitude we estimate. This is the same as equal
+  # superposition only if A is a Hadamard. In general, the Grover operator
+  # rotates the plane spanned by the good and bad parts of A|0>, and the two
+  # eigenvalues, from which AE derives the amplitude, belong to this plane.
+  # We also add the |1> for the oracle's y value, which becomes |-> and turns
+  # the oracle into a phase flip.
   #
   # These numbers can be adjusted to achieve various levels
   # of accuracy.
-  psi = state.zeros(nbits_phase + nbits_grover) * state.ones(1)
-
-  # Apply Hadamard to all the qubits.
-  psi = ops.Hadamard(nbits_phase + nbits_grover + 1)(psi)
+  psi = (ops.Hadamard(nbits_phase)(state.zeros(nbits_phase)) *
+         algo(state.zeros(nbits_grover)) *
+         ops.Hadamard()(state.ones(1)))
 
   # Construct the Grover operator. First phase invesion via Oracle.
   f = make_f(nbits_grover, solutions)

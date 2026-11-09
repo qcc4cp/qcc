@@ -71,6 +71,7 @@ readers.
 | 238 | k "proportional to the probability pgood" | k ∝ 1/√pgood, as the next formula says |
 | 241 | `u` used before defined; `nbits` undefined in `run_experiment` | Reorder; `nbits_grover` |
 | 242 | "For N = 64" with four Grover qubits | N = 16 |
+| 243-247 * | Amplitude estimation prepares `psi` with `ops.Hadamard(nbits_phase + nbits_grover + 1)(psi)`, i.e. Hadamard gates on all qubits | The data register must start in A\|0⟩, not in the equal superposition: the two eigenvalues of the Grover operator that AE reads out belong to the plane spanned by the good and bad parts of A\|0⟩. The two states coincide only for A = H^⊗n, which is what the listing uses. For other A the result is wrong; e.g. for a rotated A with true amplitude 0.478, the program returns 1.0 (17 or 18 of 18 runs failed for each of several kinds of A). Prepare the phase register with Hadamards, the data register as A\|0⟩, and the ancilla as H\|1⟩ = \|−⟩. |
 | 248, 250 | `find_solutions` (defined as `find_negative_solutions`); `assert solution[0]) ==` | Name; unbalanced ")" |
 | 256 * | "Σ F(i)/2^{n/2} = µ" and the 2^{n/2} explanation | Amplitude is Σ F(i)/2^n, which is what the code asserts; Fig. 10.20 also shows H on the ancilla that the code never applies |
 | 258 | duplicated "Note that we already know the minimum classically..." | Delete one |
