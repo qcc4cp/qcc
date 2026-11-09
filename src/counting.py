@@ -79,11 +79,19 @@ def run_experiment(nbits_phase: int, nbits_grover: int, solutions: int) -> None:
   psi = ops.Qft(nbits_phase).adjoint()(psi)
 
   # Get the state with highest probability and compute the phase
-  # as a binary fraction. Note that the probability decreases
-  # as M, the number of solutions, gets closer and closer to N,
-  # the total mnumber of states.
-  maxbits, maxprob = psi.maxprob()
-  phi_estimate = helper.bits2frac(maxbits)
+  # as a binary fraction. Only the phase qubits are part of the fraction,
+  # the other qubits (the oracle register and the ancilla) are not.
+  #
+  # The probability of the estimate is that of all states with these phase
+  # bits, whatever the values of the other qubits are. It is shared with the
+  # conjugate phase 1 - phi (the Grover operator has the two eigenvalues
+  # exp(+-i theta)), so it is at most about 50%. It is lower when the phase
+  # is not a multiple of 1 / 2**nbits_phase.
+  maxbits, _ = psi.maxprob()
+  phase_bits = maxbits[:nbits_phase]
+  phi_estimate = helper.bits2frac(phase_bits)
+  prob = sum(psi.prob(*phase_bits, *rest)
+             for rest in helper.bitprod(nbits_grover + 1))
 
   # We know that after phase estimation, this holds:
   #    sin(phi/2) = sqrt(M/N)
@@ -94,7 +102,7 @@ def run_experiment(nbits_phase: int, nbits_grover: int, solutions: int) -> None:
   m = round(2**nbits_grover * math.sin(phi_estimate * math.pi) ** 2, 2)
 
   print(
-      f'Estimate: {phi_estimate:.4f} prob: {maxprob * 100.0:5.2f}% '
+      f'Estimate: {phi_estimate:.4f} prob: {prob * 100.0:5.2f}% '
       f'--> m: {m:5.2f}, want: {solutions:2d}'
   )
   assert np.allclose(np.round(m), solutions), 'Incorrect result.'
