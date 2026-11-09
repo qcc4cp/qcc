@@ -1,6 +1,8 @@
 # python3
 """Example: Simon's Algorithm."""
 
+import math
+
 from absl import app
 
 from src.lib import helper
@@ -53,15 +55,8 @@ def dot2(bits):
   return (bits[0] * bits[2] + bits[1] * bits[3]) % 2
 
 
-def run_experiment():
-  """Run single, defined experiment for secret 11."""
-
-  psi = state.zeros(4)
-  u = make_u()
-
-  psi = ops.Hadamard(2)(psi)
-  psi = u(psi)
-  psi = ops.Hadamard(2)(psi)
+def check_result(psi: state.State) -> None:
+  """Check the measurement probabilities for the secret 11."""
 
   # Because of the xor patterns (Yanofski 6.64)
   # measurement will only find those qubit strings where
@@ -81,6 +76,30 @@ def run_experiment():
             format(bits[0], bits[1],
                    bits[2], bits[3], psi.prob(*bits),
                    dot2(bits)))
+
+  # Not finding forbidden outcomes is not enough. An oracle that does nothing
+  # only gives 00, which tells nothing about the secret. We need both 00 and
+  # 11, with the same probability, for the input register, whatever the output
+  # register is. The results are exact to a few 1e-7.
+  for z, want in [((0, 0), 0.5), ((1, 1), 0.5), ((0, 1), 0.0), ((1, 0), 0.0)]:
+    prob = sum(psi.prob(*z, *y) for y in helper.bitprod(2))
+    if not math.isclose(prob, want, abs_tol=1e-4):
+      raise AssertionError(
+          f'Invalid Results, |{z[0]}{z[1]}> has probability {prob:.4f}, '
+          f'want {want}')
+
+
+def run_experiment():
+  """Run single, defined experiment for secret 11."""
+
+  psi = state.zeros(4)
+  u = make_u()
+
+  psi = ops.Hadamard(2)(psi)
+  psi = u(psi)
+  psi = ops.Hadamard(2)(psi)
+
+  check_result(psi)
 
 
 def main(argv):
