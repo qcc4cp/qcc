@@ -49,9 +49,15 @@ def tensor_type():
 class Tensor(np.ndarray):
   """Tensor is a numpy array representing a state or operator."""
 
+  # Only __new__ assigns a name, and only to the new instance. Arrays that
+  # numpy derives from a Tensor (slices, results of arithmetic or matmul)
+  # don't go through __new__ and have no name, hence this default.
+  name = None
+
   def __new__(cls, input_array, op_name=None) -> Tensor:
-    cls.name = op_name
-    return np.asarray(input_array, dtype=tensor_type()).view(cls)
+    obj = np.asarray(input_array, dtype=tensor_type()).view(cls)
+    obj.name = op_name
+    return obj
 
   def __array_finalize__(self, obj) -> None:
     if obj is None:
