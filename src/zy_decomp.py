@@ -57,7 +57,7 @@ def zy_decompose(umat):
   det = np.linalg.det(umat)
   alpha = 0.5 * np.arctan2(det.imag, det.real)
 
-  if a >= b:
+  if abs(a) <= abs(b):
     gamma = 2 * np.arccos(abs(a))
   else:
     gamma = 2 * np.arcsin(abs(b))
@@ -66,6 +66,19 @@ def zy_decompose(umat):
 
   beta = cmath.phase(c) - cmath.phase(a)
   delta = cmath.phase(-b) - cmath.phase(a)
+
+  # det(U) = e^(2 i alpha) only determines e^(i alpha) up to its sign
+  # (alpha up to Pi), and the two choices result in U and -U. For gamma
+  # in [0, Pi], cos(gamma/2) and sin(gamma/2) are not negative, and
+  #   a = e^(i alpha) e^(-i (beta + delta)/2) cos(gamma/2)
+  #   c = e^(i alpha) e^( i (beta - delta)/2) sin(gamma/2)
+  # Pick the sign for which the larger of a and c comes out right.
+  if abs(a) >= abs(c):
+    sign = (a * cmath.exp(0.5j * (beta + delta) - 1j * alpha)).real
+  else:
+    sign = (c * cmath.exp(-0.5j * (beta - delta) - 1j * alpha)).real
+  if sign < 0:
+    alpha += np.pi
 
   return alpha, beta, gamma, delta
 
