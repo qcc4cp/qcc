@@ -46,15 +46,27 @@ def run_experiment(a, b):
 
   p0, _ = ops.Measure(combo, 0)
 
-  # Now compute the euclidian norm from the probability.
+  # Now compute the euclidian norm from the probability. This first gives
+  # the squared distance. The simulator computes in single precision by
+  # default, so for a distance of (nearly) zero, p0 - 0.5 can come out as a
+  # tiny negative number. A negative number to the power of 0.5 is NaN,
+  # hence the clamp.
   #
-  eucl_dist_q = (4 * z * (p0 - 0.5)) ** 0.5
+  eucl_dist_sq_q = 4 * z * (p0 - 0.5)
+  eucl_dist_q = max(eucl_dist_sq_q, 0.0) ** 0.5
 
   # We can also compute the euclidian distance classically.
   #
   eucl_dist_c = np.linalg.norm(a - b)
 
-  assert np.allclose(eucl_dist_q, eucl_dist_c, atol=1e-4), 'Whaaa'
+  # The precision of p0 limits the squared distance by an absolute error
+  # of about 1e-6 * z (measured: at most 8e-7 * z in single precision). The
+  # square root amplifies this error for small distances, so a tolerance
+  # on the distance itself can't hold when a and b are close. Compare the
+  # squared distances instead.
+  #
+  assert np.allclose(
+      eucl_dist_sq_q, eucl_dist_c**2, rtol=0, atol=1e-5 * z), 'Whaaa'
   print(f'  Classic: {eucl_dist_c:.2f}, quantum: {eucl_dist_q:.2f}, Correct')
 
 
