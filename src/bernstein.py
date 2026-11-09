@@ -1,10 +1,10 @@
 # python3
 """Example: Bernstein-Vasirani Algorithm."""
 
+import math
 from typing import Tuple
 from absl import app
 import numpy as np
-from src.lib import helper
 from src.lib import ops
 from src.lib import state
 
@@ -30,14 +30,18 @@ from src.lib import state
 def check_result(nbits: int, c: Tuple[int, ...], psi: state.State) -> None:
   """Check expected vs achieved results."""
 
-  # The state with the 'flipped' bits will have probability 1.0.
-  # It will be found on the very first try.
+  # The state with the 'flipped' bits will have probability 1.0. It has the
+  # secret in the input qubits, and the ancilla in |1>. It will be found on
+  # the very first try. We have to check this state, and not just that no
+  # other state is likely: a state in which nothing is likely is wrong, too.
   #
   print('Expect:', c)
-  for bits in helper.bitprod(nbits):
-    if psi.prob(*bits) > 0.1:
-      print(f'Found : {bits[:-1]}, with prob: {psi.prob(*bits):.1f}')
-      assert bits[:-1] == c, 'Invalid result'
+  expected = tuple(c) + (1,)
+  assert len(expected) == nbits, 'Secret and number of qubits do not match.'
+  prob = psi.prob(*expected)
+  print(f'Found : {c}, with prob: {prob:.1f}')
+  if not math.isclose(prob, 1.0, abs_tol=1e-4):
+    raise AssertionError(f'Invalid result, probability of {c} is {prob:.4f}')
 
 
 def make_c(nbits: int) -> Tuple[int, ...]:
