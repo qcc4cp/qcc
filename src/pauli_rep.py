@@ -51,7 +51,7 @@ def single_qubit():
     assert np.allclose(rho, new_rho, atol=1e-06), 'Invalid Pauli Representation'
 
     print(f'qubit({qc.psi[0]:11.2f}, {qc.psi[1]:11.2f}) = ', end='')
-    print(f'{i:11.2f} I + {x:11.2f} X + {y:11.2f} Y + {z:11.2f} Z')
+    print(f'{c:11.2f} I + {x:11.2f} X + {y:11.2f} Y + {z:11.2f} Z')
 
     # There is another way to decompose 2x2 matrices in terms of
     # Pauli matrices and rank-one projectors. See:
