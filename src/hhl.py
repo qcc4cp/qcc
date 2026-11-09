@@ -12,6 +12,8 @@
 # extended to support 4x4 matrices as well. The numerical
 # comparisons to the reference numerical example have been removed.
 
+import math
+
 from absl import app
 import numpy as np
 from src.lib import circuit
@@ -33,15 +35,39 @@ def check_results(qc, a, b):
   """Check the results by inspecting the final state."""
 
   ratio_classical = check_classic_solution(a, b)
-  res = (np.abs(qc.psi) > 0.05).nonzero()[0]
-  ratio_quantum = [np.real(qc.psi[res[j]] ** 2 / qc.psi[res[0]] ** 2)
-                   for j in range(1, len(res))]
 
-  for idx, ratio in enumerate(ratio_quantum):
-    delta = ratio - ratio_classical[idx]
-    print(f'Quantum ratio: {ratio:6.3f}, delta: {delta:+5.3f}')
-    if abs(delta) > 0.2:
-      raise AssertionError('Incorrect result.')
+  # The solution is in the amplitudes of the b register, for the ancilla being
+  # |1> (we measured it) and the clock register being back in |0>. The qubits
+  # are ordered as ancilla, clock, b register.
+  dim = a.shape[0]
+  clock_bits = len(b)
+  start = 1 << (int(math.log2(dim)) + clock_bits)
+  amps = np.asarray(qc.psi)[start:start + dim]
+
+  # All of the state has to be here. If it is not, the clock register has
+  # not been uncomputed, and the amplitudes below are not the solution.
+  weight = float(np.sum(np.abs(amps) ** 2))
+  print(f'Solution part of the state: {weight:.4f}')
+  if weight < 0.99:
+    raise AssertionError(f'Only {weight:.4f} of the state is the solution.')
+
+  # The quantum ratios, for comparison with the classical ones.
+  for idx in range(1, dim):
+    if abs(amps[0]) > 1e-3:
+      ratio = abs(amps[idx]) ** 2 / abs(amps[0]) ** 2
+      delta = ratio - ratio_classical[idx - 1]
+      print(f'Quantum ratio: {ratio:6.3f}, delta: {delta:+5.3f}')
+
+  # The solution has to be the classical one, including the signs of the
+  # amplitudes, which the ratios don't see. The overlap of normalized states
+  # is 1 if they are equal up to a global phase. The correct results are
+  # computed to a few 1e-5, the tolerance leaves some room.
+  x = np.linalg.solve(a, b)
+  x = x / np.linalg.norm(x)
+  fidelity = abs(np.vdot(x, amps)) ** 2 / weight
+  print(f'Fidelity with the classical solution: {fidelity:.5f}')
+  if fidelity < 0.999:
+    raise AssertionError(f'Incorrect result, fidelity is only {fidelity:.5f}.')
 
 
 def compute_sorted_eigenvalues(a):
