@@ -421,26 +421,34 @@ def TraceOutSingle(rho: Operator, index: int) -> Operator:
 def TraceOut(rho: Operator, index_set: List[int]) -> Operator:
   """Trace out multiple qubits from density matrix."""
 
-  for idx, val in enumerate(index_set):
-    nbits = int(math.log2(rho.shape[0]))
-    rho = TraceOutSingle(rho, val)
+  # The indices refer to the qubits of the original rho, and they can be in
+  # any order. We neither modify the caller's index_set, nor require it to
+  # be a list.
+  index_set = list(index_set)
+  assert len(set(index_set)) == len(index_set), 'TraceOut: Duplicate index.'
 
-    # Tracing out a bit means that rho is now 1 bit smaller, the
-    # indices right to the traced out qubit need to shift left by 1.
-    # Example, to trace out bits 2, 4:
-    # Before:
-    #    qubit 0  1  2  3  4  5
-    #          a  b  c  d  e  f
-    # Trace out 2:
-    #    qubit 0  1 <-  3  4  5
-    #    qubit 0  1  2  3  4
-    #          a  b  d  e  f
-    # Trace out 4 (is now 3)
-    #    qubit 0  1  2  <-  4
-    #    qubit 0  1  2  3
-    #          a  b  d  f
-    for i in range(idx + 1, len(index_set)):
-      index_set[i] = index_set[i] - 1
+  # Tracing out a bit means that rho is now 1 bit smaller, the
+  # indices right to the traced out qubit need to shift left by 1.
+  # Example, to trace out bits 2, 4:
+  # Before:
+  #    qubit 0  1  2  3  4  5
+  #          a  b  c  d  e  f
+  # Trace out 2:
+  #    qubit 0  1 <-  3  4  5
+  #    qubit 0  1  2  3  4
+  #          a  b  d  e  f
+  # Trace out 4 (is now 3)
+  #    qubit 0  1  2  <-  4
+  #    qubit 0  1  2  3
+  #          a  b  d  f
+  #
+  # In general, an index shifts left by the number of already traced out
+  # qubits to its left. Only these shift the index, which is why this also
+  # works if the indices are not in ascending order, eg., to trace out 4, 2.
+  traced = []
+  for val in index_set:
+    rho = TraceOutSingle(rho, val - sum(1 for t in traced if t < val))
+    traced.append(val)
   return rho
 
 

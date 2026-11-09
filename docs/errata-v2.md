@@ -37,6 +37,7 @@ readers.
 | 113 | `applyc` uses undefined `qbit` | `index` |
 | 123 | `assert np.allclose(...) 'Not orthonormal'` | Missing comma |
 | 127 | `assert index <= 0 < nbits` | `0 <= index < nbits` |
+| 127-128 * | `TraceOut` decrements every later index (`index_set[i] = index_set[i] - 1`) after tracing out a qubit | Only correct for ascending indices. For descending or unordered indices it either fails an assertion (tracing out [2, 0] makes the second index −1) or silently returns the wrong reduced density matrix (e.g. [3, 1]); it also overwrites the caller's list ([0, 1, 2] becomes [0, 0, 0]) and fails for tuples. Shift an index only by the number of already traced out qubits below it, and work on a copy of the list. |
 | 128-129 | "the square of the trace ... is 0.5" | Trace of the square (purity) |
 | 130 * | separable iff "the number of distinct coefficients is 1" | Nonzero coefficients; the Bell state is a counterexample as written |
 | 131-138 | `print(f'{i:11.2f} I + {x:11.2f} X + ...')` in the Pauli representation of a single qubit | `i` is the loop counter, so the identity coefficient prints as 0.00, 1.00, 2.00, ... The coefficient is `c`, which is always 1. |

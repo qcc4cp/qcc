@@ -1,4 +1,5 @@
 # python3
+import itertools
 import math
 import random
 from absl.testing import absltest
@@ -341,6 +342,65 @@ class OpsTest(absltest.TestCase):
       ident, x, y, z = ops.Pauli()
       u = (rho + x @ rho @ x + y @ rho @ y + z @ rho @ z) / 2
       self.assertTrue(np.allclose(u, ident))
+
+  def random_rho(self, nbits):
+    """Make a random complex mixed density matrix of nbits qubits."""
+
+    rng = np.random.RandomState(nbits)
+    dim = 2**nbits
+    m = rng.randn(dim, dim) + 1j * rng.randn(dim, dim)
+    rho = m @ m.conj().T
+    return ops.Operator(rho / np.trace(rho))
+
+  def test_trace_out_any_order(self):
+    """TraceOut for all subsets of qubits, in all orders, vs. a reference."""
+
+    nbits = 4
+    rho = self.random_rho(nbits)
+
+    # Reference: contract the row and column index of each traced out qubit.
+    def reference(traced):
+      rows = list(range(nbits))
+      cols = list(range(nbits, 2 * nbits))
+      for qubit in traced:
+        cols[qubit] = rows[qubit]
+      kept = [q for q in range(nbits) if q not in traced]
+      tensor = np.asarray(rho).reshape((2,) * (2 * nbits))
+      reduced = np.einsum(tensor, rows + cols,
+                          [rows[q] for q in kept] + [cols[q] for q in kept])
+      return reduced.reshape(2 ** len(kept), 2 ** len(kept))
+
+    # Ascending, descending, and all other orders of the indices. The
+    # indices to the right of an already traced out qubit shift, those to
+    # the left do not, which only works if this is done per index.
+    for size in range(1, nbits + 1):
+      for indices in itertools.permutations(range(nbits), size):
+        want = reference(indices)
+        got = np.asarray(ops.TraceOut(rho, list(indices)))
+        self.assertEqual(got.size, want.size, f'TraceOut{indices}')
+        self.assertTrue(np.allclose(got.reshape(want.shape), want, atol=1e-5),
+                        f'TraceOut{indices} is not the partial trace')
+
+  def test_trace_out_keeps_index_set(self):
+    """TraceOut must not modify the indices passed by the caller."""
+
+    rho = self.random_rho(3)
+    for indices in ([0, 1, 2], [2, 0], [1, 0], [0, 2], [1]):
+      before = list(indices)
+      ops.TraceOut(rho, indices)
+      self.assertEqual(indices, before)
+
+    # Other sequences than lists work as well.
+    want = ops.TraceOut(rho, [2, 0])
+    self.assertTrue(want.is_close(ops.TraceOut(rho, (2, 0))))
+    self.assertTrue(want.is_close(ops.TraceOut(rho, iter([2, 0]))))
+
+  def test_trace_out_duplicate_index(self):
+    """Tracing out the same qubit twice must not silently trace another."""
+
+    rho = self.random_rho(3)
+    with self.assertRaises(AssertionError):
+      ops.TraceOut(rho, [1, 1])
 
 
 if __name__ == '__main__':
