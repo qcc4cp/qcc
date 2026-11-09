@@ -133,7 +133,7 @@ def main(argv):
   # P(|0>) = 1/2 + 1/2<a|b>^2.
   # Hence (dot product)^2 = 2 * (p0 - 0.5)
   #
-  if abs(p0 - 0.624999) > 0.5:
+  if abs(p0 - 0.624999) > 0.001:
     raise AssertionError('Incorrect math on example.')
   print(f'Similarity from literature: p={p0:.3f}, dot={2*(p0-0.5):.3f} (ok)')
 
