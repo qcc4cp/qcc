@@ -43,7 +43,9 @@ def run_experiment(a):
   a = make_hermitian(a)
   dim = a.shape[0]
 
-  # Let's compute eigenvalues and eigenvectors:
+  # Let's compute eigenvalues and eigenvectors. Note that numpy returns
+  # the eigenvectors as the columns of v: the eigenvector for lam[i] is
+  # v[:, i], and not the row v[i].
   #
   lam, v = np.linalg.eig(a)
 
@@ -63,14 +65,14 @@ def run_experiment(a):
 
   # Let's compute gamma:
   #
-  gamma = np.array([np.dot(psi.conj(), v[i]) for i in range(dim)])
+  gamma = np.array([np.dot(psi.conj(), v[:, i]) for i in range(dim)])
 
   # Let's double check that we can construct psi from the basis v and gamma:
   #   psi = (gamma[0]^dagger * v[0]) + ... + (gamma[dim]^dagger * v[dim])
   #
   psi_new = np.zeros(dim)
   for i in range(dim):
-    psi_new = psi_new + (gamma[i].conj() * v[i])
+    psi_new = psi_new + (gamma[i].conj() * v[:, i])
   if not np.allclose(psi, psi_new, atol=1e-5):
     raise AssertionError('Incorrect computation.')
 
@@ -81,7 +83,7 @@ def run_experiment(a):
   def apply_hamiltonian(t: float):
     psi = np.zeros(dim)
     for i in range(dim):
-      psi = psi + np.exp(-1j * lam[i] * t) * gamma[i].conj() * v[i]
+      psi = psi + np.exp(-1j * lam[i] * t) * gamma[i].conj() * v[:, i]
     return psi
 
   # At time t = 0 we must get the same result as above:
