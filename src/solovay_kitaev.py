@@ -28,15 +28,15 @@ def trace_dist(u, v):
 def create_unitaries(base, limit):
   """Create all combinations of all base gates, up to length 'limit'."""
 
-  # Create bitstrings up to bitstring length limit-1:
-  #  0, 1, 00, 01, 10, 11, 000, 001, 010, ...
+  # Create bitstrings up to bitstring length limit:
+  #  (empty), 0, 1, 00, 01, 10, 11, 000, 001, 010, ...
   #
   # Multiply together the 2 base operators, according to their index.
   # Note: This can be optimized, by remembering the last 2^x results
   # and multiplying them with base gets 0, 1.
   #
   gate_list = []
-  for width in range(limit):
+  for width in range(limit + 1):
     for bits in helper.bitprod(width):
       u = ops.Identity()
       for bit in bits:

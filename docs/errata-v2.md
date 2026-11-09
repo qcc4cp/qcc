@@ -64,6 +64,7 @@ readers.
 | 198 | "for a time-dependent Hamiltonian, U(t) = e^{−itH}" | Time-independent; the proof's sign also disagrees with the claim |
 | 199 | Figure 9.1 last gate labeled w2 | w3 |
 | 214 | `0.5 - 0.5 * np.cos(theta) / 2` | `0.5 - 0.5 * np.cos(theta / 2)` per the derived formula |
+| ??? | Solovay-Kitaev: `create_unitaries(base, limit)` "up to length 'limit'" loops `for width in range(limit)` | Builds the sequences up to length limit − 1 only (with limit = 1 only the identity), so `depth = 8` gives 255 sequences of at most 7 gates instead of 511 of at most 8. Loop over `range(limit + 1)`. The base approximations get better, and the mean trace distance of the example drops from about 0.07 to about 0.03 (in three runs: 0.055-0.096 before, 0.016-0.040 after). |
 
 ## Chapters 10-11: Grover, amplitude estimation, QPE, QFT, Shor
 
