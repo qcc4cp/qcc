@@ -20,6 +20,8 @@
 # rotations with 2 clock bits.
 
 
+import math
+
 from absl import app
 import numpy as np
 
@@ -95,15 +97,39 @@ def check_results(qc, a, b, verify):
 
   ratio_classical = check_classic_solution(a, b, verify)
 
-  # Find the non-zero amplitudes. Note that amplitudes are complex, and
-  # numpy orders complex numbers by their real part first, so a comparison
-  # of psi itself would drop all amplitudes with a negative real part.
-  res = (np.abs(qc.psi) > 0.001).nonzero()[0]
-  for j in range(1, b.size):
-    ratio_quantum = np.real(qc.psi[res[j]] ** 2 / qc.psi[res[0]] ** 2)
-    print(f'Quantum solution^2 ratio: {ratio_quantum:.3f}\n')
-    if not np.allclose(ratio_classical, ratio_quantum, atol=1e-4):
-      raise AssertionError('Incorrect result.')
+  # The solution is in the amplitudes of the b register, for the ancilla being
+  # |1> (we measured it) and the clock register being back in |0>. The qubits
+  # are ordered as b register, clock, ancilla.
+  dim = a.shape[0]
+  clock_bits = qc.psi.nbits - int(math.log2(dim)) - 1
+  amps = np.array([qc.psi[(x << (clock_bits + 1)) | 1] for x in range(dim)])
+
+  # All of the state has to be here. If it is not, the clock register has
+  # not been uncomputed, and the amplitudes below are not the solution.
+  weight = float(np.sum(np.abs(amps) ** 2))
+  if weight < 0.99:
+    raise AssertionError(f'Only {weight:.4f} of the state is the solution.')
+
+  x = np.linalg.solve(a, b)
+  x = x / np.linalg.norm(x)
+
+  # The ratio of the squared amplitudes is only meaningful if no component of
+  # the solution vanishes, otherwise it is 0 or infinite (or noise). The
+  # fidelity below also covers these cases.
+  if np.min(np.abs(x)) > 1e-3:
+    for j in range(1, dim):
+      ratio_quantum = abs(amps[j]) ** 2 / abs(amps[0]) ** 2
+      print(f'Quantum solution^2 ratio: {ratio_quantum:.3f}\n')
+      if not np.allclose(ratio_classical, ratio_quantum, atol=1e-4):
+        raise AssertionError('Incorrect result.')
+
+  # The ratios don't see the signs of the amplitudes. The solution has to be
+  # the classical one, up to a global phase, which is what the overlap of the
+  # normalized states measures. The correct results are computed to a few
+  # 1e-6, the tolerance leaves some room.
+  fidelity = abs(np.vdot(x, amps)) ** 2 / weight
+  if fidelity < 0.999:
+    raise AssertionError(f'Incorrect result, fidelity is only {fidelity:.5f}.')
 
 
 def compute_sorted_eigenvalues(a, verify: bool = True):
@@ -143,10 +169,12 @@ def compute_sorted_eigenvalues(a, verify: bool = True):
   # need to be scaled up.
   #
   if verify:
-    if w[1] < w[0]:
-      raise AssertionError('w[0] must be larger than w[1].')
+    # The eigenvalues are sorted, w[0] is the smallest. We divide by it,
+    # and the inverse eigenvalues are only defined for positive ones.
+    if w[0] <= 0:
+      raise AssertionError('The eigenvalues must be positive.')
     ratio = w[1] / w[0]
-    if ratio - np.round(ratio) > 0.01:
+    if abs(ratio - np.round(ratio)) > 0.01:
       raise AssertionError('We assume integer ratio between w[1] and w[0]')
   return w, v
 
@@ -303,7 +331,7 @@ def run_experiment(a, b, verify: bool = False):
   # For the example this becomes 3/4 * pi:
   t = ratio / N / w[1] * 2 * np.pi
   if verify:
-    if t - 3.0 * np.pi / 4.0 > 1e-5:
+    if abs(t - 3.0 * np.pi / 4.0) > 1e-5:
       raise AssertionError('Incorrect calculation of t')
 
   # With 't' we can now compute the integer eigenvalues:
