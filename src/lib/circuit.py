@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import numbers
 import os
 from typing import Callable, Tuple
 
@@ -171,10 +172,13 @@ class qc:
     self.ir.reg(t.nbits, 'state', ret)
     return ret
 
+  # A control is either a qubit index, or a list with one index for a
+  # control-by-0. Indices can be Python or numpy integers. A numpy integer is
+  # not an int, hence the check for numbers.Integral. We return Python ints.
   def _ctl_by_0(self, ctl):
-    if isinstance(ctl, int):
-      return ctl, False
-    return ctl[0], True
+    if isinstance(ctl, numbers.Integral):
+      return int(ctl), False
+    return int(ctl[0]), True
 
   # --- Gates  ----------------------------------------------------
   def add_single(self, name: str, gate: ops.Operator):
@@ -190,11 +194,18 @@ class qc:
   ):
     """Apply single gates."""
 
+    # Indices can be Python or numpy integers (a numpy integer is not an
+    # int), and we store Python ints. Anything else would silently be
+    # ignored, which is why we raise an error.
     indices = []
-    if isinstance(idx_set, int):
-      indices.append(idx_set)
-    if isinstance(idx_set, (state.Reg, list)):
-      indices += idx_set[:]
+    if isinstance(idx_set, numbers.Integral):
+      indices.append(int(idx_set))
+    elif isinstance(idx_set, (state.Reg, list)):
+      indices += [int(idx) for idx in idx_set]
+    else:
+      raise TypeError(
+          f'Invalid qubit index {idx_set!r}, expected an integer or a list.'
+      )
 
     for idx in indices:
       if self.build_ir:
@@ -211,6 +222,7 @@ class qc:
     if isinstance(idx, state.Reg):
       assert len(idx) == 1, 'Controlled n-qbit register not supported'
       idx = idx[0]
+    idx = int(idx)
 
     ctl_qubit, by_0 = self._ctl_by_0(ctl)
     self.x(ctl_qubit, by_0)

@@ -33,6 +33,7 @@ readers.
 | 84, 86 | "Bennet" (4x) | Bennett |
 | 86 | "obtain \|f(0)⟩\|x⟩\|0⟩" | \|f(x)⟩ |
 | 87 | "collapses to the measured state (postulate 5)" | Postulate 4; Born rule names the probability rule, not collapse |
+| 100-122 * | `isinstance(idx_set, int)` in `apply1` and `isinstance(ctl, int)` in `_ctl_by_0` | A numpy integer is not an `int`. `c.x(np.int64(1))` silently does nothing (as does a tuple or array of indices), `cx(np.int64(0), 1)` raises an `IndexError`, and a control-by-0 such as `cx([np.int64(0)], 1)` silently fires without flipping the control, which gives a wrong state. Test for `numbers.Integral`, convert the indices to `int`, and raise a `TypeError` for unsupported index types instead of ignoring them. |
 | 113 | `applyc` uses undefined `qbit` | `index` |
 | 123 | `assert np.allclose(...) 'Not orthonormal'` | Missing comma |
 | 127 | `assert index <= 0 < nbits` | `0 <= index < nbits` |
