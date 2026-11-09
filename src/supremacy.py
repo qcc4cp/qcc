@@ -215,7 +215,10 @@ def sim_circuit(states, nbits, depth, target_nbits, target_depth):
   qc = circuit.qc('Supremacy Circuit')
   qc.reg(nbits)
 
-  for d in range(depth):
+  # build_circuit() returns depth + 1 layers: the initial layer of Hadamards,
+  # depth - 1 layers of random gates, and the final layer of Hadamards.
+  nlayers = len(states)
+  for d in range(nlayers):
     s = states[d]
     for i in range(nbits):
       if s[i] == Gate.UNK:
@@ -264,7 +267,7 @@ def sim_circuit(states, nbits, depth, target_nbits, target_depth):
   # optimistic estimate.
 
   print('\nEstimate simulation time for larger circuit:\n')
-  gate_density = ngates / nbits / depth
+  gate_density = ngates / nbits / nlayers
   print('Simulated smaller circuit:')
   print('  Qubits                  : {:d}'.format(nbits))
   print('  Circuit Depth           : {:d}'.format(depth))
