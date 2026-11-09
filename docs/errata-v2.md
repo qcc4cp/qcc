@@ -92,7 +92,9 @@ readers.
 | 322 | Hamiltonian built from PauliY, label prints "X" | Make consistent |
 | 326 * | "S†HZHS" for the Y measurement | Equals −Y; correct is S H Z H S† (circuit, code and Table 13.1 are already right) |
 | 336 | "decreases the energy for the vertices in the same set"; "mirroring Equation (13.2)" | Opposite; Eq. (13.3) |
-| 337-339 | edge weight multiplied into both Z factors | Hamiltonian uses w² per edge while prose and classical check use w; likely the real cause of the reported 20-30% failures |
+| 336-337 | `random.sample(range(0, 3 + i - 1), 2)` in the random graph builder | `range` excludes its end, so the newest existing node 2 + i is never chosen as the target of an edge (with 8 nodes, node 6 never gets an edge to node 7). Use `range(0, 3 + i)`. |
+| 337-339 * | edge weight multiplied into both Z factors | Hamiltonian uses w² per edge while prose and classical check use w. Confirmed as the cause of the reported failures: on the same graphs, a Hamiltonian with weight w finds the maximum cut in every run, while the printed one fails in 11-19% of the runs with 6 to 10 nodes. Apply the weight once per edge, e.g. build the diagonal of Z⊗Z and scale it by w. |
+| 337-339 * | `graph_to_hamiltonian`: `Identity(idx2 - idx1 + 1)` and `Identity(n - idx2 + 1)`, with idx1 the larger and idx2 the smaller node index | The numbers of identity gates between and after the two Z gates are wrong (zero or negative, and off by one), the matrices do not fit, and the function raises an exception. Use `Identity(lo)`, Z, `Identity(hi - lo - 1)`, Z, `Identity(n - hi - 1)` for the nodes lo < hi, and multiply the weight in once. |
 | 341-343 * | `random.sample(range(1, nmax), nnum)` and `tensor_diag` with `diag = [1, 1]` and `for i in range(1, n)` | The number nmax has no qubit and is silently ignored: with nmax = 15, the set {5, 10, 15} is reported to have no partition, although 5 + 10 = 15. Give the number k its own qubit k − 1 (start from `diag = [1]`, loop to n), sample from `range(1, nmax + 1)`, and reject numbers outside 1..n. |
 | 342 | `-> -> List[float]` | One arrow |
 | 346-348 | `z` defined, `Z` used | NameError as printed |

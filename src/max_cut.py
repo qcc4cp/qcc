@@ -26,7 +26,8 @@ def build_graph(num: int = 0) -> Tuple[int, List[Tuple[int, int, float]]]:
   weight = 5.0
   nodes = [(0, 1, 1.0), (1, 2, 2.0), (0, 2, 3.0)]
   for i in range(num - 3):
-    rand_nodes = random.sample(range(0, 3 + i - 1), 2)
+    # The new node is 3 + i, hence the existing nodes are 0 to 3 + i - 1.
+    rand_nodes = random.sample(range(0, 3 + i), 2)
     nodes.append((3 + i, rand_nodes[0], weight * np.random.random()))
     nodes.append((3 + i, rand_nodes[1], weight * np.random.random()))
   return num, nodes
@@ -52,35 +53,40 @@ def graph_to_hamiltonian(n: int,
                          nodes: List[Tuple[int, int, float]]) -> ops.Operator:
   """Compute Hamiltonian matrix from graph."""
 
+  # For each edge (lo, hi) with weight w, add w * Z_lo Z_hi, with identities
+  # in front of, between, and behind the two Z gates.
   hamil = np.zeros((2**n, 2**n))
   for node in nodes:
-    idx1 = max(node[0], node[1])
-    idx2 = min(node[0], node[1])
+    lo = min(node[0], node[1])
+    hi = max(node[0], node[1])
 
-    op = ops.Identity(idx1) * (node[2] * ops.PauliZ())
-    op = op * ops.Identity(idx2 - idx1 + 1)
-    op = op * (node[2] * ops.PauliZ())
-    op = op * ops.Identity(n - idx2 + 1)
+    op = ops.Identity(lo) * ops.PauliZ()
+    op = op * ops.Identity(hi - lo - 1)
+    op = op * ops.PauliZ()
+    op = op * ops.Identity(n - hi - 1)
 
-    hamil = hamil + op
+    hamil = hamil + node[2] * op
   return ops.Operator(hamil)
 
 
 def tensor_diag(n: int, fr: int, to: int, w: float):
-  """Construct a tensor product from diagonal matrices."""
+  """Construct the diagonal of w * Z_fr Z_to as tensor product of diagonals."""
 
   def tensor_product(w1: float, w2: float, diag):
     # pylint: disable=g-complex-comprehension
     return [j for i in zip([x * w1 for x in diag],
                            [x * w2 for x in diag]) for j in i]
 
-  diag = [w, -w] if (0 == fr or 0 == to) else [1, 1]
+  # The diagonal of Z is (1, -1), that of the identity is (1, 1). The weight
+  # belongs to the edge, so it is applied once, and not to each of the two Z
+  # gates, which would give the Hamiltonian a weight of w^2 per edge.
+  diag = [1, -1] if (0 == fr or 0 == to) else [1, 1]
   for i in range(1, n):
     if i == fr or i == to:
-      diag = tensor_product(w, -w, diag)
+      diag = tensor_product(1, -1, diag)
     else:
       diag = tensor_product(1, 1, diag)
-  return diag
+  return [w * x for x in diag]
 
 
 def graph_to_diagonal_h(n: int,
