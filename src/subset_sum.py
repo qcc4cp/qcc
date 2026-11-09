@@ -30,23 +30,40 @@ flags.DEFINE_integer('iterations', 20, 'Number of experiments')
 def select_numbers(nmax: int, nnum: int) -> List[int]:
   """Select nnum random, unique numbers in range 1 to nmax."""
 
+  # With all numbers selected the sum is fixed. If it's odd, we would loop
+  # forever below.
+  if nnum == nmax and (nmax * (nmax + 1) // 2) % 2:
+    raise ValueError(f'No even sum possible with all numbers 1..{nmax}.')
   while True:
-    sample = random.sample(range(1, nmax), nnum)
+    sample = random.sample(range(1, nmax + 1), nnum)
     if sum(sample) % 2 == 0:
       return sample
 
 
 def tensor_diag(n: int, num: int):
-  """Construct tensor product from diagonal matrices."""
+  """Construct tensor product from diagonal matrices.
+
+  Each number has its own qubit, the number k being represented by qubit
+  k - 1 of n qubits. Hence, the numbers 1 to n can be represented.
+
+  Args:
+    n: The number of qubits.
+    num: The number to construct the diagonal for, 1 <= num <= n.
+
+  Returns:
+    The diagonal of num * Z on the qubit of num, tensored with the identity
+    on all other qubits.
+  """
 
   def tensor_product(w1: float, w2: float, diag):
     # pylint: disable=g-complex-comprehension
     return [j for i in zip([x * w1 for x in diag],
                            [x * w2 for x in diag]) for j in i]
 
-  assert num > 0, 'Invalid input, expected num > 0.'
-  diag = [1, 1]
-  for i in range(1, n):
+  # A number that doesn't have a qubit would silently be ignored.
+  assert 1 <= num <= n, 'Invalid input, expected 1 <= num <= n.'
+  diag = [1]
+  for i in range(1, n + 1):
     if i == num:
       diag = tensor_product(i, -i, diag)
     else:
@@ -54,12 +71,12 @@ def tensor_diag(n: int, num: int):
   return diag
 
 
-def set_to_diagonal_h(num_list: List[int], nmax: int) -> List[float]:
-  """Construct diag(H)."""
+def set_to_diagonal_h(num_list: List[int], nbits: int) -> List[float]:
+  """Construct diag(H) for nbits qubits, which can hold numbers 1..nbits."""
 
-  h = [0.0] * 2**nmax
+  h = [0.0] * 2**nbits
   for num in num_list:
-    diag = tensor_diag(nmax, num)
+    diag = tensor_diag(nbits, num)
     for idx, val in enumerate(diag):
       h[idx] += val
   return h
@@ -103,10 +120,13 @@ def run_experiment(num_list: List[int]) -> bool:
     num_list = select_numbers(nmax, flags.FLAGS.nnum)
   solutions = compute_partition(num_list)
 
-  diag = set_to_diagonal_h(num_list, nmax)
+  # Each number needs a qubit. If a caller passes numbers larger than nmax,
+  # we extend the register, instead of silently ignoring these numbers.
+  nbits = max(nmax, max(num_list))
+  diag = set_to_diagonal_h(num_list, nbits)
 
   non_zero = np.count_nonzero(diag)
-  if non_zero != 2**nmax:
+  if non_zero != 2**nbits:
     print('  Solution should exist...', end='')
     if solutions:
       print(' Found Solution:',

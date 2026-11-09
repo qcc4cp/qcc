@@ -18,6 +18,7 @@ readers.
 | 32 | `((x == 1) or (x == 0)).all()` | `or` on numpy arrays raises; use `\|` |
 | 37 * | "e^{π/2}", "e^{3π/2}" in the y-basis equations | Missing i: e^{iπ/2}, e^{i3π/2} |
 | 38 | "tensor product in Section 1.3" | Section 1.5 |
+| 40-47 | `cls.name = op_name` in `Tensor.__new__` | Assigns a class attribute, so every tensor without a name of its own reports the name of the most recently created tensor (e.g. after creating "foo" and then "bar", the first reports "bar"). Assign `obj.name` on the new instance, and keep a class-level default `name = None` for arrays numpy derives from a tensor. |
 | 48 | `assert isinstance(arg, state.State), '...')` | Stray ")" |
 | 49, 52 | `return arg @ self` vs prose "Y(X) means (Y @ X)(ψ)" | Code applies Y first; code or prose must change |
 | 51 | "O(2^{2.3752477})" | O(n^{2.375477}) |
@@ -36,6 +37,7 @@ readers.
 | 127 | `assert index <= 0 < nbits` | `0 <= index < nbits` |
 | 128-129 | "the square of the trace ... is 0.5" | Trace of the square (purity) |
 | 130 * | separable iff "the number of distinct coefficients is 1" | Nonzero coefficients; the Bell state is a counterexample as written |
+| 131-138 | `print(f'{i:11.2f} I + {x:11.2f} X + ...')` in the Pauli representation of a single qubit | `i` is the loop counter, so the identity coefficient prints as 0.00, 1.00, 2.00, ... The coefficient is `c`, which is always 1. |
 | 139 | "det U = a^{i2α}"; `if a >= b` on complex a, b | e^{i2α}; `abs(a) >= abs(b)` |
 | 142 | "Cout will also start as \|1⟩" | Starts as \|0⟩ |
 | 146 | integer factorization given as NP-hard | Not known to be NP-hard |
@@ -87,11 +89,14 @@ readers.
 | 326 * | "S†HZHS" for the Y measurement | Equals −Y; correct is S H Z H S† (circuit, code and Table 13.1 are already right) |
 | 336 | "decreases the energy for the vertices in the same set"; "mirroring Equation (13.2)" | Opposite; Eq. (13.3) |
 | 337-339 | edge weight multiplied into both Z factors | Hamiltonian uses w² per edge while prose and classical check use w; likely the real cause of the reported 20-30% failures |
+| 341-343 * | `random.sample(range(1, nmax), nnum)` and `tensor_diag` with `diag = [1, 1]` and `for i in range(1, n)` | The number nmax has no qubit and is silently ignored: with nmax = 15, the set {5, 10, 15} is reported to have no partition, although 5 + 10 = 15. Give the number k its own qubit k − 1 (start from `diag = [1]`, loop to n), sample from `range(1, nmax + 1)`, and reject numbers outside 1..n. |
 | 342 | `-> -> List[float]` | One arrow |
 | 346-348 | `z` defined, `Z` used | NameError as printed |
+| 349-353 * | `eucl_dist_q = (4 * z * (p0 - 0.5)) ** 0.5` and `assert np.allclose(eucl_dist_q, eucl_dist_c, atol=1e-4)` | For equal or nearby vectors the exact radicand is 0 or tiny, and rounding makes it slightly negative about half of the time. The root is then NaN and the assertion fails. The precision of p0 limits the error of the squared distance (about 10^−6 · z), not of the distance, so a fixed tolerance on the distance cannot hold for close vectors. Clamp the radicand at 0 and compare the squared distances with a tolerance proportional to z. |
 | 351 | "for pure states, the trace must be 1" | Trace is 1 for all density matrices; purity is the pure-state test |
 | 354 * | "x − 3y + 4z = 4" with solution (1, 2, 3) | Gives 7; change the right-hand side |
 | 358 | "eig returns the eigenvalues as columns"; `np.outer(v, v.adjoint())` ignores i; eigenvectors are not actually decolumned | Eigenvectors; `v[:, i]`; footnotes 9 and 11 reason from a false premise |
+| 359-362 * | `res = (qc.psi > 0.001).nonzero()[0]` | numpy orders complex numbers by their real part first, so amplitudes with a negative real part are dropped. A solution with a negative component then crashes with an IndexError. Compare the magnitudes: `np.abs(qc.psi) > 0.001`. |
 | 363 | "λ_i = e^{2πφ_i}" | Missing i; λ_i also reused for two different things |
 | 369 | Table 15.1 nuclear spin τ_Q "10^−2 to 10^−8"; "almost ten orders of magnitude" | 10^8; about fifteen |
 | 372 | "C(ρ) = (1 − p)ρ + pXρX" with E_0 = √p I | Swap p and 1 − p in one of the two |
