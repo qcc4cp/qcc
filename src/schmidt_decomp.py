@@ -64,11 +64,18 @@ def compute_eigvals(psi: state.State, expected: int, tolerance: float):
   # which we derive via SVD. Then we check whether the new state
   # matches the original state.
   #
-  u0, d0, _ = np.linalg.svd(rho0)
-  a1, _, _ = np.linalg.svd(rho1)
-  newpsi = (np.sqrt(d0[0]) * np.kron(u0[:, 0], a1[0, :]) +
-            np.sqrt(d0[1]) * np.kron(u0[:, 1], a1[1, :]))
-  assert np.allclose(psi, newpsi, atol=1e-3), 'Incorrect Schmidt basis'
+  # The bases cannot come from two separate SVDs of rho0 and rho1:
+  # each basis vector is only determined up to a phase (a sign for
+  # real states), and the vectors u_i and v_i have to match. Instead,
+  # the SVD of the 2x2 matrix of amplitudes, psi = U D V^dagger, gives
+  # both bases at once: u_i are the columns of U, v_i are the rows of
+  # V^dagger, and the squares of D are the eigenvalues from above.
+  #
+  u0, d0, v0 = np.linalg.svd(psi.reshape(2, 2))
+  assert np.allclose(np.sort(d0**2), eigvals0, atol=1e-6), 'Whaa'
+  newpsi = (d0[0] * np.kron(u0[:, 0], v0[0, :]) +
+            d0[1] * np.kron(u0[:, 1], v0[1, :]))
+  assert np.allclose(psi, newpsi, atol=1e-5), 'Incorrect Schmidt basis'
 
   return eigvals0
 
