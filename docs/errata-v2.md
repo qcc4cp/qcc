@@ -52,6 +52,7 @@ readers.
 | 166 | x=0,y=1 case: Bob measures "\|b1⟩" with cos²π/8 | \|b0⟩; and for x=1 Alice measures \|+⟩, not \|1⟩ |
 | 184 | `def check_result(...) -> None` | Missing colon |
 | 187 | "f:{0,1}^N → {0,1}, N = 2^n" and "Deutsch-Jozska" | {0,1}^n; Jozsa |
+| 187-190 | `make_c` in the Bernstein-Vazirani listing loops `for idx in range(nbits - 1)` | The argument is the length of the secret (callers pass the qubit count minus 1), so the last bit of the secret is never set: it is always 0, and only half of all secrets can occur (64 of 128 for 7 bits). Loop over `range(nbits)`. The oracles themselves are correct for every secret. |
 | 188-195 * | Simon oracle built for a secret c "with the msb set to 1", but `make_c` samples every bit independently; comment "return x % c" | For a nonzero c with msb 0 (1 of 4 secrets for 2 bits, 3 of 8 for 3 bits) the oracle is one-to-one, f(x) ≠ f(x ⊕ c), and half of the measurements violate ⟨z, c⟩ = 0 (mod 2). Set the msb of c to 1 in `make_c` and reject other nonzero secrets in `make_u`. The oracle returns x XOR c, not x % c. Reported by [REPORTER NAME]. |
 | 196 | "0.082 ≃ \|00001⟩ ... (∆ = 0.0195)" | Vector entry is 0.1, ∆ = 0.0375 |
 | 198 | "for a time-dependent Hamiltonian, U(t) = e^{−itH}" | Time-independent; the proof's sign also disagrees with the claim |

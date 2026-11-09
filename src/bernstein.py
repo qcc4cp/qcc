@@ -41,10 +41,18 @@ def check_result(nbits: int, c: Tuple[int, ...], psi: state.State) -> None:
 
 
 def make_c(nbits: int) -> Tuple[int, ...]:
-  """Make a random constant c from {0,1}, which we try to find."""
+  """Make a random constant c from {0,1}, which we try to find.
+
+  Args:
+    nbits: The length of the secret. This is the number of qubits of the
+      experiment minus 1, as the last qubit is the ancilla.
+
+  Returns:
+    The secret, a tuple of nbits random bits.
+  """
 
   constant_c = [0] * nbits
-  for idx in range(nbits - 1):
+  for idx in range(nbits):
     constant_c[idx] = int(np.random.random() < 0.5)
   return tuple(constant_c)
 
