@@ -147,9 +147,14 @@ def run_experiment_multi(nbits: int, t: int = 8):
   # match estimates and phi's is possible, but not essential for our
   # purposes here.
   #
+  # Only the first t qubits hold the phase. The probability of an
+  # estimate is that of its t bits, whatever the data qubits are, so we
+  # add up the probabilities over all values of the data qubits.
+  #
   estimates = [helper.bits2frac(bits)
-               for bits in helper.bitprod(psi.nbits)
-               if psi.prob(*bits) >= 0.03]
+               for bits in helper.bitprod(t)
+               if sum(psi.prob(*bits, *data)
+                      for data in helper.bitprod(nbits)) >= 0.03]
   for p in phi:
     print(f'Phase : {p:.4f} ', end='')
     est = [x for x in estimates if abs(p - x) < 0.01]
