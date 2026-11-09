@@ -24,6 +24,7 @@ readers.
 | 51 | "O(2^{2.3752477})" | O(n^{2.375477}) |
 | 55 * | "Y = \|+y⟩⟨−y\| − \|−y⟩⟨+y\|" | Should be \|+y⟩⟨+y\| − \|−y⟩⟨−y\| (and "Paul matrices" on the same page) |
 | 57 | `Rotation(vparm, theta)` called with three arguments | Add the name parameter |
+| 58-70 * | `Toffoli(idx0, idx1, idx2)` built as `ControlledU(idx0, idx1, Cnot(idx1, idx2))` | Only correct when the three qubits are ordered (idx0 < idx1 < idx2 or idx0 > idx1 > idx2): the inner `Cnot` is assumed to start at idx1 and to lie entirely on one side of the outer control. For the other four orders of three adjacent qubits, e.g. (0, 2, 1), the result has the wrong width (16 x 16 instead of 8 x 8); of the 120 ordered triples of distinct indices below 6, only 40 are correct. Keep the construction, but choose the indices so that the outer control is at one end of the three qubits: use as outer control the one farther from the target (with the target in the middle either works), and pass the qubit of the inner `Cnot` that is nearer to it as second argument of `ControlledU`, because `ControlledU(c, t, u)` takes the qubit of u nearest to the control. For ordered qubits this is the printed call. |
 
 ## Chapters 3-4: simulation, density matrices, decompositions
 

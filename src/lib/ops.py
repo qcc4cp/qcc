@@ -282,18 +282,39 @@ def Swap(idx0: int = 0, idx1: int = 1) -> Operator:
 
 
 # Make universal Toffoli gate out of 2 controlled Cnot's.
-#    idx1 and idx2 define the 'inner' cnot
-#    idx0 defines the 'outer' cnot.
+#    idx0 and idx1 are the two control qubits.
+#    idx2 is the target qubit.
+#    The 'inner' cnot connects one of the controls with the target.
+#    The other control is the 'outer' control.
 #
 # For a Toffoli gate to control with qubit 5
 # a Cnot from 4 to 1:
 #    Toffoli(5, 4, 1)
 #
+# ControlledU(c, t, u) places u next to the control c, extending away from
+# it, and t is the qubit of u that is nearest to the control. The outer
+# control must therefore be at one end of the three qubits, with the inner
+# cnot entirely on one side of it. A Toffoli gate is symmetric in its two
+# controls, so we pick as the outer control the one that is farther from
+# the target (with the target in the middle, either one works). Then the
+# qubit of the inner cnot that is nearer to the outer control is t.
+#
+# For ordered qubits, idx0 < idx1 < idx2 or idx0 > idx1 > idx2, this is just
+#    ControlledU(idx0, idx1, Cnot(idx1, idx2))
+#
 def Toffoli(idx0: int, idx1: int, idx2: int) -> Operator:
   """Make a toffoli gate."""
 
-  cnot = Cnot(idx1, idx2)
-  toffoli = ControlledU(idx0, idx1, cnot)
+  assert len({idx0, idx1, idx2}) == 3, 'Toffoli: Indices must be distinct.'
+
+  if abs(idx0 - idx2) >= abs(idx1 - idx2):
+    outer, inner = idx0, idx1
+  else:
+    outer, inner = idx1, idx0
+
+  nearest = min(inner, idx2, key=lambda idx: abs(idx - outer))
+  cnot = Cnot(inner, idx2)
+  toffoli = ControlledU(outer, nearest, cnot)
   return toffoli
 
 
