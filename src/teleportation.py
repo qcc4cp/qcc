@@ -52,6 +52,13 @@ def alice_measures(alice: state.State,
       not math.isclose(expect1, bob_b, abs_tol=1e-6)):
     raise AssertionError('Invalid result.')
 
+  # The probabilities don't show the sign of b, so a missing Z correction
+  # would go unnoticed. Bob's amplitudes must also be proportional to
+  # the sent a and b (up to a global phase), i.e., b * a' == a * b'.
+  if not np.isclose(expect1 * alice1.ampl(qubit0, qubit1, 0),
+                    expect0 * alice1.ampl(qubit0, qubit1, 1), atol=1e-6):
+    raise AssertionError('Invalid phase.')
+
 
 def main(argv):
   if len(argv) > 1:
