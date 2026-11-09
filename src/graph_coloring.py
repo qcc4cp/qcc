@@ -96,10 +96,15 @@ def test_qubit_equality_circuit():
 
     compare_pairs_equal(qc, 0, 1, 2, 3, aux[0], aux[1], chk)
 
+    # The check qubit is 1 for equal pairs and 0 for different ones, and all
+    # other qubits are back in their original state.
     maxbits, _ = qc.psi.maxprob()
-    if bits[0:2] == bits[2:4]:
-      if maxbits[chk] == 0:
-        raise AssertionError('Incorrect equality check')
+    equal = int(bits[0:2] == bits[2:4])
+    want = tuple(bits) + (0, 0, equal)
+    if tuple(maxbits) != want:
+      raise AssertionError(
+          f'Incorrect equality check for {bits}: got {tuple(maxbits)}, '
+          f'want {want}')
 
 
 # Example graph (adding additional edges between C-F and/or
@@ -137,10 +142,11 @@ class Graph:
     self.desc = desc
 
   def verify(self, bits, n: int = 2):
-    """Verify that no connected vertices have the same color."""
+    """Return True if some connected vertices have different colors."""
 
     # For each edge, we check whether the colors assigned to fr/to
-    # are different.
+    # are different. Hence, this is False for the colorings that we look
+    # for, where all connected vertices have the same color.
     #   bits: are the measured bits from the quantum state.
     #   n   : number of bits used to encode colors.
     for edge in self.edges:
@@ -148,6 +154,24 @@ class Graph:
           bits[edge[1] * n: edge[1] * n + n]):
         return True
     return False
+
+
+def find_solutions(g: Graph) -> List[int]:
+  """Classically find the colorings we look for, as numbers."""
+
+  nbits = g.num * 2
+  return [val for val in range(2**nbits)
+          if not g.verify(helper.val2bits(val, nbits))]
+
+
+def grover_iterations(g: Graph) -> int:
+  """Number of Grover iterations, which depends on the number of solutions."""
+
+  # With N states and M solutions, the best number of iterations is
+  # pi/4 sqrt(N / M). With several solutions, as here, the first state of
+  # the search is not just one of them. A quantum counting algorithm
+  # could compute M, here we just count them.
+  return int(math.pi / 4 * math.sqrt(2**(g.num * 2) / len(find_solutions(g))))
 
 
 def diffuser(qc: circuit.qc, reg, checker, aux):
@@ -172,8 +196,14 @@ def build_circuit(g: Graph):
   print(f'Solving [{g.desc}]: ', end='')
   print(f'{g.num} vertices, {len(g.edges)} edges -> {qc.nbits} qubits')
 
-  iterations = int(math.pi / 4 * math.sqrt(2**(g.num*2)))
+  # The oracle and the diffuser are multi-controlled gates with the result
+  # qubit as the target. For them to flip the phase of a state, and not the
+  # result qubit itself, this qubit has to be in |->. In |0> the oracle does
+  # nothing, and the search does not amplify the solutions.
+  qc.x(res)
+  qc.h(res)
 
+  iterations = grover_iterations(g)
   qc.h(reg)
   for _ in range(iterations):
     sc = qc.sub()
@@ -183,7 +213,7 @@ def build_circuit(g: Graph):
       compare_pairs_equal(sc, fr, fr + 1, to, to + 1, tmp[0], tmp[1], chk[idx])
 
     qc.qc(sc)
-    qc.multi_control(chk, res, tmp, ops.PauliZ(), 'multi')
+    qc.multi_control(chk, res, tmp, ops.PauliX(), 'multi')
     qc.qc(sc.inverse())
 
     diffuser(qc, reg, res, tmp)
@@ -192,12 +222,28 @@ def build_circuit(g: Graph):
   # probability. These will be the possible
   # solutions to the (inverse) graph coloring problem, which
   # is to find the coloring with all colors being the same.
-  _, maxprob = qc.psi.maxprob()
-  for idx, val in enumerate(qc.psi):
-    if np.real(val.conj() * val) > (maxprob - 0.000001):
-      bits = helper.val2bits(idx, qc.nbits)
-      print('  Color:', bits[0 : g.num * 2])
-      assert not g.verify(bits), 'Incorrect color assignment found.'
+  #
+  # The probability of a coloring is that of all states with these colors,
+  # whatever the other qubits are. The colors are the first qubits.
+  nbits = g.num * 2
+  probs = (np.abs(np.asarray(qc.psi)) ** 2).reshape(2**nbits, -1).sum(axis=1)
+  best = [val for val in range(2**nbits) if probs[val] > probs.max() - 1e-5]
+  for val in best:
+    bits = helper.val2bits(val, nbits)
+    print('  Color:', bits)
+    assert not g.verify(bits), 'Incorrect color assignment found.'
+
+  # Finding only valid colorings is not enough. They have to be all of the
+  # solutions, as they have the same probability, and the search has to find
+  # them with a high probability. With the best number of iterations the
+  # probability is at least 0.96 here, a search that does not amplify
+  # the solutions (or only a little) is not working, even if it ends up with
+  # a valid coloring as the most likely one.
+  solutions = find_solutions(g)
+  prob_solutions = float(np.sum(probs[solutions]))
+  print(f'  Probability of the {len(solutions)} solutions: {prob_solutions:.3f}')
+  assert best == solutions, 'Not all solutions are the most likely states.'
+  assert prob_solutions > 0.9, 'Solutions are not amplified enough.'
 
 
 def main(argv):
