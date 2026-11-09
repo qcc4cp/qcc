@@ -133,20 +133,19 @@ def simple_walk():
     incr(qc, 0, nbits, aux, [coin[0]])
     decr(qc, 0, nbits, aux, [[coin[0]]])
 
-  # Find and print the non-zero amplitudes for all states
+  # Find and print the probabilities of all positions. The position
+  # register is entangled with the coin, so the probability of a position
+  # is the sum of the probabilities for both coin values.
   for bits in helper.bitprod(nbits):
     idx_bits = bits
     for _ in range(nbits):
       idx_bits = idx_bits + (0,)
     idx_bits0 = idx_bits + (0,)
+    idx_bits1 = idx_bits + (1,)
 
-    # Printing bits0 only, this can be changed, of course.
-    if qc.psi.ampl(*idx_bits0) > 1e-5:
-      print(
-          '{:5.1f} {:5.4f}'.format(
-              float(helper.bits2val(bits)), qc.psi.ampl(*idx_bits0).real
-          )
-      )
+    prob = qc.psi.prob(*idx_bits0) + qc.psi.prob(*idx_bits1)
+    if prob > 1e-5:
+      print('{:5.1f} {:5.4f}'.format(float(helper.bits2val(bits)), prob))
 
 
 def main(argv):
