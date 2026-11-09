@@ -116,28 +116,23 @@ def run_two_qubit_zi_experiment():
     qc.z(0)
 
     # Measure the probablities as computed from the amplitudes.
-    # We only do this once per experiment.
-    p0, _ = qc.measure_bit(0, collapse=True)
-    p1, _ = qc.measure_bit(1, collapse=True)
+    # We only do this once per experiment. We need the probabilities of
+    # all four basis states |00>, |01>, |10>, |11> (qubit 0 is the
+    # leftmost). The probabilities of single qubits are not enough: the
+    # qubits are entangled, and measuring qubit 1 after collapsing
+    # qubit 0 to |0> results in a conditional probability.
+    probs = [qc.psi.prob(0, 0), qc.psi.prob(0, 1),
+             qc.psi.prob(1, 0), qc.psi.prob(1, 1)]
 
     # Simulate multiple measurements by sampling over the probabilities
-    # to obtain a distribution of sampled states. The measurements above
-    # are the probablities that a state would be found in the |0> state.
-    # For each bit, we compare this probability against another random value r.
-    # If the measured probability is < r, we pretend we've actually measured an
-    # |0> state, else a |1> state. We do this via sample_state() on both qubits.
+    # to obtain a distribution of sampled states. For each shot, we
+    # pick one of the four basis states with its probability, as an
+    # actual measurement of both qubits would.
     #
-    def sample_state(prob_state0: float):
-      if prob_state0 < random.random():
-        return 1
-      return 0
-
     num_shots = flags.FLAGS.shots
     counts = [0] * 4
     for _ in range(num_shots):
-      bit0 = sample_state(p0)
-      bit1 = sample_state(p1)
-      counts[bit1 * 2 + bit0] += 1
+      counts[random.choices(range(4), weights=probs)[0]] += 1
 
     # Compute the expectation value from samples measurements. Again,
     #   |00> and |01> map to Eigenvalue +1
