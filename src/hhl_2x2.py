@@ -95,7 +95,10 @@ def check_results(qc, a, b, verify):
 
   ratio_classical = check_classic_solution(a, b, verify)
 
-  res = (qc.psi > 0.001).nonzero()[0]
+  # Find the non-zero amplitudes. Note that amplitudes are complex, and
+  # numpy orders complex numbers by their real part first, so a comparison
+  # of psi itself would drop all amplitudes with a negative real part.
+  res = (np.abs(qc.psi) > 0.001).nonzero()[0]
   for j in range(1, b.size):
     ratio_quantum = np.real(qc.psi[res[j]] ** 2 / qc.psi[res[0]] ** 2)
     print(f'Quantum solution^2 ratio: {ratio_quantum:.3f}\n')
