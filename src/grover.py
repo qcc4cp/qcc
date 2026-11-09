@@ -83,7 +83,11 @@ def run_experiment(nbits: int, solutions: int) -> None:
   #
   hn = ops.Hadamard(nbits)
   inversion = hn(reflection(hn)) * ops.Identity()
-  grover = inversion(uf)
+
+  # Note the order. Operator composition reverses, x(y) == y @ x, so
+  # x(y) applies x first and y second (see Operator.apply). A Grover
+  # iteration applies the oracle first, then the inversion about the mean:
+  grover = uf(inversion)
 
   # Number of Grover iterations
   #

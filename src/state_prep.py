@@ -54,7 +54,7 @@ def run_experiment_qaa(nbits: int, states: List[int]) -> None:
 
   hn = ops.Hadamard(nbits)
   inversion = hn(reflection(hn)) * ops.Identity()
-  grover = inversion(uf)
+  grover = uf(inversion)
 
   iterations = int(math.pi / 4 * math.sqrt(2**nbits / len(states)))
   for _ in range(iterations):

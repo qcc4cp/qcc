@@ -1,4 +1,4 @@
-load("@rules_python//python:defs.bzl", "py_binary", "py_library")
+load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
 
 py_library(
     name = "qcall",
@@ -150,6 +150,21 @@ py_binary(
 py_binary(
     name = "grover",
     srcs = ["grover.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        ":qcall",
+    ],
+)
+
+py_test(
+    name = "grover_test",
+    size = "small",
+    srcs = [
+        "grover.py",
+        "grover_test.py",
+    ],
+    main = "grover_test.py",
     python_version = "PY3",
     srcs_version = "PY3",
     deps = [

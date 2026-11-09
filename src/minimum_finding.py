@@ -96,7 +96,7 @@ def run_experiment(nbits: int, numbers: List[int],
 
   hn = ops.Hadamard(nbits)
   inversion = hn(reflection(hn)) * ops.Identity()
-  grover = inversion(uf)
+  grover = uf(inversion)
 
   iterations = int(math.pi / 4 * math.sqrt(2**nbits / solutions))
 

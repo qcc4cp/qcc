@@ -119,7 +119,7 @@ def find_negative_solutions(variables: int, formula):
       return bits
 
 
-def grover_with_oracle(nbits: int, clauses: int, solutions: int):
+def grover_with_oracle(nbits: int, clauses: int):
   """Oracle-based Grover."""
 
   formula = make_formula(nbits, clauses)
@@ -134,8 +134,15 @@ def grover_with_oracle(nbits: int, clauses: int, solutions: int):
   op_zero = ops.ZeroProjector(nbits)
   reflection = op_zero * 2.0 - ops.Identity(nbits)
   inversion = hn(reflection(hn)) * ops.Identity()
-  grover = inversion(uf)
+  grover = uf(inversion)
 
+  # The number of iterations depends on the number of solutions, which
+  # depends on the random formula (every clause rules out one assignment,
+  # so there are between 1 and 'clauses' of them). Count them classically
+  # here, a stand-in for quantum counting (see counting.py). Using a wrong
+  # count over- or undershoots the optimal rotation.
+  solutions = sum(int(f(bits))
+                  for bits in itertools.product([0, 1], repeat=nbits))
   iterations = int(math.pi / 4 * math.sqrt(2**nbits / solutions))
   for _ in range(iterations):
     psi = grover(psi)
@@ -311,7 +318,7 @@ def main(argv):
 
   # Oracle-based.
   for idx in range(1, 4):
-    grover_with_oracle(3, idx, 1)
+    grover_with_oracle(3, idx)
 
   # Single 3-variable clause.
   for _ in range(3):
