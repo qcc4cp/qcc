@@ -37,6 +37,10 @@ from src.lib import tensor
 
 _BACKEND = os.environ.get('QCC_BACKEND', 'libxgates').lower()
 
+# The planner backend collects the gates and applies them later. Anything
+# that reads the state has to flush them first, which is what _flush does.
+_flush = None
+
 try:
   # pylint: disable=g-import-not-at-top
   if _BACKEND == 'planner':
@@ -46,6 +50,7 @@ try:
 
   apply1 = xgates.apply1
   applyc = xgates.applyc
+  _flush = getattr(xgates, 'flush', None)
 except Exception:  # pylint: disable=broad-except
   if _BACKEND == 'planner':
     raise
@@ -79,7 +84,7 @@ class qc:
 
   def __init__(self, name=None, eager: bool = True):
     self.name = name
-    self.psi = state.State(1.0)
+    self._psi = state.State(1.0)
     self.ir = ir.Ir()
     self.eager = eager
     self.build_ir = not eager
@@ -111,7 +116,22 @@ class qc:
 
   @property
   def nbits(self) -> int:
-    return self.psi.nbits
+    return self._psi.nbits
+
+  @property
+  def psi(self) -> state.State:
+    """The state. The planner backend applies its pending gates first."""
+
+    # Reading from outside of this class can use the state in ways that
+    # cannot be intercepted, e.g., np.asarray(qc.psi). Internally, we access
+    # _psi, as flushing for each gate would defeat the planner.
+    if _flush:
+      _flush(self._psi)
+    return self._psi
+
+  @psi.setter
+  def psi(self, value: state.State) -> None:
+    self._psi = value
 
   class scope:
     """Scope object to allow grouping of gates in the output."""
@@ -128,7 +148,7 @@ class qc:
 
   # --- States ----------------------------------------------------
   def _tprod(self, new_state, nqubits: int):
-    self.psi = self.psi * new_state
+    self._psi = self._psi * new_state
     self.global_reg = self.global_reg + nqubits
 
   def reg(self, size: int, it=0, *, name: str = None) -> state.Reg:
@@ -154,12 +174,12 @@ class qc:
     self._tprod(state.rand_bits(n), n)
 
   def arange(self, n: int) -> None:
-    self.psi = state.State([float(i) for i in range(0, 2**n)])
+    self._psi = state.State([float(i) for i in range(0, 2**n)])
     self.global_reg = self.global_reg + n
 
   def random(self, n: int = 1) -> None:
     u = ops.Operator(unitary_group.rvs(1 << n))
-    self.psi = u(state.zeros(n))
+    self._psi = u(state.zeros(n))
 
   # We know we can initialize any state, eg., with the code
   # found in src/state_prep_mottonen.py. Here, we take a
@@ -211,8 +231,8 @@ class qc:
       if self.build_ir:
         self.ir.single(name, idx, gate, val)
       if self.eager:
-        assert idx < self.psi.nbits, 'Invalid qubit index'
-        apply1(self.psi, gate.reshape(4), self.psi.nbits, idx,
+        assert idx < self._psi.nbits, 'Invalid qubit index'
+        apply1(self._psi, gate.reshape(4), self._psi.nbits, idx,
                tensor.tensor_width())
 
   def applyc(self, gate: ops.Operator, ctl: int, idx: int,
@@ -229,8 +249,8 @@ class qc:
     if self.build_ir:
       self.ir.controlled(name, ctl_qubit, idx, gate, val)
     if self.eager:
-      assert idx < self.psi.nbits, 'Invalid qubit index'
-      applyc(self.psi, gate.reshape(4), self.psi.nbits, ctl_qubit, idx,
+      assert idx < self._psi.nbits, 'Invalid qubit index'
+      applyc(self._psi, gate.reshape(4), self._psi.nbits, ctl_qubit, idx,
              tensor.tensor_width())
     self.x(ctl_qubit, by_0)
 
@@ -251,16 +271,19 @@ class qc:
     i0, c0_by_0 = self._ctl_by_0(idx0)
     i1, c1_by_0 = self._ctl_by_0(idx1)
 
-    with self.scope(self.ir, f'CC{op.name}\\{desc}({idx0},{idx1},{idx2})'):
+    # Operators don't have to have a name (e.g., one made from a matrix).
+    name = op.name if op.name else 'U'
+
+    with self.scope(self.ir, f'CC{name}\\{desc}({idx0},{idx1},{idx2})'):
       self.x(i0, c0_by_0)
       self.x(i1, c1_by_0)
 
       v = ops.Operator(sqrtm(op))
-      self.cu(i0, idx2, v, op.name + '^{1/2}')
+      self.cu(i0, idx2, v, name + '^{1/2}')
       self.cx(i0, i1)
-      self.cu(i1, idx2, v.adjoint(), op.name + '^t')
+      self.cu(i1, idx2, v.adjoint(), name + '^t')
       self.cx(i0, i1)
-      self.cu(i1, idx2, v, op.name + '^{1/2}')
+      self.cu(i1, idx2, v, name + '^{1/2}')
 
       self.x(i1, c1_by_0)
       self.x(i0, c0_by_0)
@@ -301,15 +324,15 @@ class qc:
   #  Appplying a random unitary is possible, but it is not a
   #  1- or 2-qubit gate, hence slow. Avoid using it (unless unavoidable).
   def unitary(self, op, idx):
-    self.psi = ops.Operator(op)(self.psi, idx)
+    self._psi = ops.Operator(op)(self._psi, idx)
 
   # --- Measure ----------------------------------------------------
   def measure_bit(self, idx: int, tostate: int = 0,
                   collapse: bool = True) -> Tuple[float, state.State]:
     """Measure state with big matrix operation, can collapse the state."""
 
-    prob, self.psi = ops.Measure(self.psi, idx, tostate, collapse)
-    return prob, self.psi
+    prob, self._psi = ops.Measure(self._psi, idx, tostate, collapse)
+    return prob, self._psi
 
   def pauli_expectation(self, idx: int):
     """We can compute the Pauli expectation value from probabilities."""
@@ -478,18 +501,32 @@ class qc:
     return newqc
 
   def invert(self, reg):
-    """Invert the circuit gates across a register reg."""
+    """Invert the circuit gates across a register reg.
 
-    def swap_bits(reg, idx):
-      d = int(len(reg) - idx - 1)
-      tmp = reg[idx]
-      reg[idx] = reg[d]
-      reg[d] = tmp
+    The order of the qubits in reg is reversed, i.e., all gates on the k-th
+    qubit of reg move to the k-th qubit from the end of reg, and vice versa.
+    Gates on qubits outside of reg stay where they are. This rewrites the IR,
+    which is why it requires a non-eager circuit.
+    """
 
+    assert not self.eager, 'invert() used in eager circuit.'
+
+    mirror = {qubit: reg[len(reg) - 1 - pos] for pos, qubit in enumerate(reg)}
+
+    res = ir.Ir()
     for gate in self.ir.gates:
-      swap_bits(reg, gate.idx0, reg.size)
-      if gate.is_ctl():
-        swap_bits(reg, gate.idx1, reg.size)
+      if gate.is_single():
+        res.single(gate.desc, mirror.get(gate.idx0, gate.idx0), gate.gate,
+                   gate.val)
+      elif gate.is_ctl():
+        res.controlled(gate.desc, mirror.get(gate.ctl, gate.ctl),
+                       mirror.get(gate.idx1, gate.idx1), gate.gate, gate.val)
+      else:
+        res.add_node(gate)  # Sections don't have qubits.
+    res.regs = list(self.ir.regs)
+    res.nregs = self.ir.nregs
+    res.regset = list(self.ir.regset)
+    self.ir = res
 
   def control_by(self, ctl: int):
     """Control a full circuit by qubit 'ctl'."""
@@ -546,9 +583,9 @@ class qc:
       print(desc)
     if self.name:
       print(f'Circuit: {self.name}, Gates: {len(self.ir.gates)}, '
-            + f'QBits: {self.psi.nbits}')
+            + f'QBits: {self._psi.nbits}')
     print(self.ir, end='')
     if draw:
       print(dumpers.totext(self.ir))
     if pstate:
-      self.psi.dump('Current state')
+      self._psi.dump('Current state')

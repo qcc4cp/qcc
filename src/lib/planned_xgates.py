@@ -145,6 +145,52 @@ def _install_state_hooks():
 
     State.__getitem__ = getitem
 
+    # numpy operations on a state, e.g., np.abs(psi), np.dot(a, psi), or
+    # matmul(op, psi) when an operator is applied, are routed here by numpy.
+    # We apply the pending gates of all states involved, and let numpy
+    # do the rest. (A plain np.asarray(psi) cannot be intercepted, which is
+    # why qc.psi flushes when it is read.)
+    def flush_states(values):
+      for value in values:
+        if isinstance(value, State):
+          flush(value)
+        elif isinstance(value, (list, tuple)):
+          flush_states(value)
+
+    def array_ufunc(self, ufunc, method, *inputs, **kwargs):
+      flush_states(inputs)
+      out = kwargs.get('out', ())
+      flush_states(out)
+
+      # The default implementation of ndarray refuses to work if an input
+      # overrides this method. We compute on plain arrays, and return a
+      # state again, as numpy does when there is no override.
+      def plain(value):
+        return value.view(np.ndarray) if isinstance(value, State) else value
+
+      def wrap(value):
+        if isinstance(value, np.ndarray) and value.ndim > 0:
+          return value.view(type(self))
+        return value
+
+      inputs = tuple(plain(value) for value in inputs)
+      if out:
+        kwargs['out'] = tuple(plain(value) for value in out)
+      result = getattr(ufunc, method)(*inputs, **kwargs)
+      if out:
+        return out[0] if len(out) == 1 else out
+      if isinstance(result, tuple):
+        return tuple(wrap(value) for value in result)
+      return wrap(result)
+
+    def array_function(self, func, types, args, kwargs):
+      flush_states(args)
+      flush_states(kwargs.values())
+      return super(State, self).__array_function__(func, types, args, kwargs)
+
+    State.__array_ufunc__ = array_ufunc
+    State.__array_function__ = array_function
+
   if not hasattr(Tensor, '_planner_original_is_close'):
     Tensor._planner_original_is_close = Tensor.is_close
 

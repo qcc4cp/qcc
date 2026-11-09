@@ -3,9 +3,13 @@
 
 """Various output formats for the compiler IR."""
 
+import cmath
 import itertools
 import math
+import re
 from typing import List
+
+import numpy as np
 
 from src.lib import helper
 
@@ -19,23 +23,188 @@ def reg2str(ir, idx):
   return '???'
 
 
-def qasm(ir) -> str:
-  """Dump IR in qasm format."""
+def _wires(ir) -> int:
+  """Number of wires: those of the registers, and those only used by gates."""
 
+  n = ir.nregs
+  for op in ir.gates:
+    if op.is_single():
+      n = max(n, op.idx0 + 1)
+    elif op.is_ctl():
+      n = max(n, op.ctl + 1, op.idx1 + 1)
+  return n
+
+
+def _initial_ones(ir):
+  """Yield the qubits that the registers initialize to |1>."""
+
+  idx = 0
+  for _, _, reg in ir.regset:
+    for val in reg.val:
+      if val == 1:
+        yield idx
+      idx += 1
+
+
+# --- qasm dumper --------------------------------------------------
+#
+# The output uses nothing but the gates of "qelib1.inc", the standard
+# library of OpenQASM 2.0. Gates with other names, such as the square root
+# gates, controlled phase gates, or the adjoints and sub-gates that
+# circuits create, are expressed by these gates.
+_QASM_RESERVED = frozenset([
+    'qreg', 'creg', 'gate', 'opaque', 'include', 'measure', 'barrier',
+    'reset', 'if', 'pi', 'u', 'cx', 'sin', 'cos', 'tan', 'exp', 'ln', 'sqrt',
+])
+_QASM_SINGLE = {
+    'h': 'h', 'x': 'x', 'y': 'y', 'z': 'z', 's': 's', 't': 't',
+    'sdag': 'sdg', 'tdag': 'tdg', 'hdag': 'h', 'xdag': 'x', 'ydag': 'y',
+    'zdag': 'z',
+}
+_QASM_CONTROLLED = {
+    'cx': 'cx', 'cy': 'cy', 'cz': 'cz', 'ch': 'ch',
+    'cxdag': 'cx', 'cydag': 'cy', 'czdag': 'cz', 'chdag': 'ch',
+}
+_QASM_PARAMETER = ('u1', 'rx', 'ry', 'rz')
+_QASM_CONTROLLED_PARAMETER = ('cu1', 'crz')
+_EPS = 1e-12
+
+
+def _qasm_num(x: float) -> str:
+  """Format an angle as a fraction of pi if it is one, else as a number."""
+
+  # The gates are computed in single precision, hence the tolerance.
+  x = float(x)
+  for num, denom in itertools.product(range(1, 4), range(1, 129)):
+    if math.isclose(abs(x), num * math.pi / denom, rel_tol=1e-6):
+      return (('-' if x < 0 else '') + (f'{num}*' if num > 1 else '') + 'pi'
+              + (f'/{denom}' if denom > 1 else ''))
+  return f'{x:.12g}'
+
+
+def _qasm_wires(ir):
+  """Return the register declarations, and the qasm name of every wire."""
+
+  decls = []
+  used = set()
+
+  def unique(name: str) -> str:
+    # Names in qasm start with a lower case letter and are not keywords.
+    name = re.sub(r'\W', '_', name)
+    if not re.match('[a-z]', name) or name in _QASM_RESERVED:
+      name = 'r_' + name
+    while name in used:
+      name += '_'
+    used.add(name)
+    return name
+
+  wires = []
+  for idx, (name, size, _) in enumerate(ir.regset):
+    name = unique(str(name) if name else f'q{idx}')
+    decls.append((name, size))
+    wires += [f'{name}[{i}]' for i in range(size)]
+
+  # Qubits that no register has allocated, e.g., with bitstring().
+  extra = _wires(ir) - len(wires)
+  if extra > 0:
+    name = unique('anon')
+    decls.append((name, extra))
+    wires += [f'{name}[{i}]' for i in range(extra)]
+  return decls, wires
+
+
+def _zyz(u):
+  """Decompose u = exp(i alpha) Rz(beta) Ry(gamma) Rz(delta)."""
+
+  u = np.asarray(u, dtype=complex).reshape(2, 2)
+  alpha = cmath.phase(np.linalg.det(u)) / 2
+  v = u * cmath.exp(-1j * alpha)       # In SU(2).
+  gamma = 2 * math.atan2(abs(v[1, 0]), abs(v[0, 0]))
+  total = 2 * cmath.phase(v[1, 1]) if abs(v[1, 1]) > _EPS else 0.0  # beta+delta
+  diff = 2 * cmath.phase(v[1, 0]) if abs(v[1, 0]) > _EPS else 0.0  # beta-delta
+  return alpha, (total + diff) / 2, gamma, (total - diff) / 2
+
+
+def _qasm_rotation(name: str, angle: float, wire: str) -> List[str]:
+  return [f'{name}({_qasm_num(angle)}) {wire};'] if abs(angle) > _EPS else []
+
+
+def _qasm_single_generic(u, wire: str) -> List[str]:
+  """Any single qubit gate, up to a global phase, which has no effect."""
+
+  u = np.asarray(u, dtype=complex).reshape(2, 2)
+  if abs(u[0, 1]) < _EPS and abs(u[1, 0]) < _EPS:
+    return _qasm_rotation(
+        'u1', cmath.phase(u[1, 1]) - cmath.phase(u[0, 0]), wire)
+  _, beta, gamma, delta = _zyz(u)
+  return (_qasm_rotation('rz', delta, wire) + _qasm_rotation('ry', gamma, wire)
+          + _qasm_rotation('rz', beta, wire))
+
+
+def _qasm_controlled_generic(u, ctl: str, tgt: str) -> List[str]:
+  """Any controlled single qubit gate, including the phase."""
+
+  u = np.asarray(u, dtype=complex).reshape(2, 2)
+  if abs(u[0, 1]) < _EPS and abs(u[1, 0]) < _EPS:
+    # Diagonal: a phase on the control, and a controlled phase gate.
+    phase = cmath.phase(u[0, 0])
+    lam = cmath.phase(u[1, 1]) - phase
+    lines = _qasm_rotation('u1', phase, ctl)
+    if abs(lam) > _EPS:
+      lines.append(f'cu1({_qasm_num(lam)}) {ctl},{tgt};')
+    return lines
+
+  # With u = exp(i alpha) A X B X C and A B C = 1, where X is the Pauli X,
+  # we get the controlled u from 2 cnot gates and the phase on the control.
+  alpha, beta, gamma, delta = _zyz(u)
+  cx = f'cx {ctl},{tgt};'
+  return (_qasm_rotation('rz', (delta - beta) / 2, tgt)               # C
+          + [cx]
+          + _qasm_rotation('rz', -(delta + beta) / 2, tgt)            # B
+          + _qasm_rotation('ry', -gamma / 2, tgt)
+          + [cx]
+          + _qasm_rotation('ry', gamma / 2, tgt)                      # A
+          + _qasm_rotation('rz', beta, tgt)
+          + _qasm_rotation('u1', alpha, ctl))
+
+
+def _qasm_gate(op, wires) -> List[str]:
+  """The qasm statements for a single gate of the IR."""
+
+  name = op.name
+  if op.is_single():
+    wire = wires[op.idx0]
+    if name in _QASM_SINGLE:
+      return [f'{_QASM_SINGLE[name]} {wire};']
+    if name in _QASM_PARAMETER and op.val is not None:
+      return [f'{name}({helper.pi_fractions(op.val)}) {wire};']
+    return _qasm_single_generic(op.gate, wire)
+
+  ctl, tgt = wires[op.ctl], wires[op.idx1]
+  if name in _QASM_CONTROLLED:
+    return [f'{_QASM_CONTROLLED[name]} {ctl},{tgt};']
+  if name in _QASM_CONTROLLED_PARAMETER and op.val is not None:
+    return [f'{name}({helper.pi_fractions(op.val)}) {ctl},{tgt};']
+  return _qasm_controlled_generic(op.gate, ctl, tgt)
+
+
+def qasm(ir) -> str:
+  """Dump IR in qasm format (OpenQASM 2.0)."""
+
+  decls, wires = _qasm_wires(ir)
   res = 'OPENQASM 2.0;\n'
-  for regs in ir.regset:
-    res += f'qreg {regs[0]}[{regs[1]}];\n'
+  res += 'include "qelib1.inc";\n'
+  for name, size in decls:
+    res += f'qreg {name}[{size}];\n'
   res += '\n'
+
+  for idx in _initial_ones(ir):
+    res += f'x {wires[idx]};\n'
 
   for op in ir.gates:
     if op.is_gate():
-      res += op.name
-      if op.val is not None:
-        res += '({})'.format(helper.pi_fractions(op.val))
-      if op.is_single():
-        res += f' {reg2str(ir, op.idx0)};\n'
-      if op.is_ctl():
-        res += f' {reg2str(ir, op.ctl)},{reg2str(ir, op.idx1)};\n'
+      for line in _qasm_gate(op, wires):
+        res += line + '\n'
   return res
 
 
@@ -88,6 +257,51 @@ def libq(ir) -> str:
   return res
 
 
+_CIRQ_SINGLE = {
+    'h': 'cirq.H', 'x': 'cirq.X', 'y': 'cirq.Y', 'z': 'cirq.Z', 's': 'cirq.S',
+    't': 'cirq.T',
+}
+_CIRQ_ROTATION = {'rx': 'cirq.rx', 'ry': 'cirq.ry', 'rz': 'cirq.rz'}
+
+
+def _cirq_matrix(gate) -> str:
+  """Python code for the matrix of a gate."""
+
+  # The gates are computed in single precision (and some, like the square
+  # roots in ccu(), numerically), and they are not exactly unitary. cirq
+  # insists on this, so we use the nearest unitary matrix.
+  w, _, vh = np.linalg.svd(np.asarray(gate, dtype=complex).reshape(2, 2))
+  m = w @ vh
+
+  def num(z):
+    return repr(complex(round(z.real, 12), round(z.imag, 12)))
+
+  return ('np.array([[{}, {}], [{}, {}]])'
+          .format(num(m[0, 0]), num(m[0, 1]), num(m[1, 0]), num(m[1, 1])))
+
+
+def _cirq_gate(name: str, val, gate):
+  """Return the code to set up and the expression for a cirq gate.
+
+  Gates which cirq knows are named, all others are made from the matrix of
+  the gate, which is always correct and works for any name.
+
+  Args:
+    name: The name of the gate (of its target for controlled gates).
+    val: Gate parameter, or None.
+    gate: The 2x2 matrix of the gate.
+
+  Returns:
+    A tuple of the setup code, which can be empty, and the gate expression.
+  """
+
+  if name in _CIRQ_SINGLE:
+    return '', _CIRQ_SINGLE[name]
+  if name in _CIRQ_ROTATION and val is not None:
+    return '', f'{_CIRQ_ROTATION[name]}({helper.pi_fractions(val)})'
+  return f'm = {_cirq_matrix(gate)}\n', 'cirq.MatrixGate(m)'
+
+
 def cirq(ir) -> str:
   """Dump IR to a Cirq Python file."""
 
@@ -100,59 +314,31 @@ def cirq(ir) -> str:
   )
 
   res += 'qc = cirq.Circuit()\n\n'
-  res += f'r = cirq.LineQubit.range({ir.nregs})\n'
+  res += f'r = cirq.LineQubit.range({_wires(ir)})\n'
   res += '\n'
 
-  op_map = {'h': 'H', 'x': 'X', 'y': 'Y', 'z': 'Z', 'cx': 'CX', 'cz': 'CZ'}
+  for idx in _initial_ones(ir):
+    res += f'qc.append(cirq.X(r[{idx}]))\n'
 
   for op in ir.gates:
-    if op.is_gate():
-      if op.name == 'u1':
-        res += 'm = np.array([(1.0, 0.0), (0.0, '
-        res += f'cmath.exp(1j * {helper.pi_fractions(op.val)}))])\n'
-        res += f'qc.append(cirq.MatrixGate(m).on(r[{op.idx0}]))\n'
-        continue
+    if not op.is_gate():
+      continue
 
-      if op.name == 'cu1':
-        res += 'm = np.array([(1.0, 0.0), (0.0, '
-        res += f'cmath.exp(1j * {helper.pi_fractions(op.val)}))])\n'
-        res += (
-            'qc.append(cirq.MatrixGate(m).controlled()'
-            + f'(r[{op.idx0}], r[{op.idx1}]))\n'
-        )
-        continue
+    if op.is_single():
+      setup, gate = _cirq_gate(op.name, op.val, op.gate)
+      res += setup
+      res += f'qc.append({gate}(r[{op.idx0}]))\n'
+      continue
 
-      if op.name == 'cv':
-        res += 'm = np.array([(1+1j, 1-1j), (1-1j, 1+1j)]) * 0.5\n'
-        res += (
-            'qc.append(cirq.MatrixGate(m).controlled()'
-            + f'(r[{op.idx0}], r[{op.idx1}]))\n'
-        )
-        continue
-
-      if op.name == 'cv_adj':
-        res += 'm = np.array([(1+1j, 1-1j), (1-1j, 1+1j)]) * 0.5\n'
-        res += (
-            'qc.append(cirq.MatrixGate('
-            + 'np.conj(m.transpose())).controlled()'
-            + f'(r[{op.idx0}], r[{op.idx1}]))\n'
-        )
-        continue
-
-      op_name = op_map[op.name]
-      res += f'qc.append(cirq.{op_name}('
-
-      if op.is_single():
-        res += f'r[{op.idx0}]'
-        if op.val is not None:
-          res += ', {}'.format(helper.pi_fractions(op.val))
-        res += '))\n'
-
-      if op.is_ctl():
-        res += f'r[{op.ctl}], r[{op.idx1}]'
-        if op.val is not None:
-          res += ', {}'.format(helper.pi_fractions(op.val))
-        res += '))\n'
+    if op.name == 'cx':
+      res += f'qc.append(cirq.CX(r[{op.ctl}], r[{op.idx1}]))\n'
+    elif op.name == 'cz':
+      res += f'qc.append(cirq.CZ(r[{op.ctl}], r[{op.idx1}]))\n'
+    else:
+      # The name of a controlled gate is c + the name of its target gate.
+      setup, gate = _cirq_gate(op.name[1:], op.val, op.gate)
+      res += setup
+      res += f'qc.append({gate}.controlled()(r[{op.ctl}], r[{op.idx1}]))\n'
 
   res += 'sim = cirq.Simulator()\n'
   res += "print('Simulate...')\n"
@@ -345,16 +531,21 @@ def totext(ir) -> str:
       name += parm
     return name
 
+  # Sections are not drawn. Wires may come from registers or (e.g. with
+  # bitstring()) just from gates.
+  gates = [op for op in ir.gates if op.is_gate()]
+  n = _wires(ir)
+
   # First let's create a matrix according to circuit size,
   # before populating it with gates or lines.
   larr = []
-  for q in range(ir.nregs):
-    larr.append([''] * (ir.ngates + 1))
+  for q in range(n):
+    larr.append([''] * (len(gates) + 1))
 
   depth = 0
-  for op in ir.gates:
+  for op in gates:
     name = mkname(op)
-    for r in range(ir.nregs):
+    for r in range(n):
       larr[r][depth] = '-' * (len(name) + 2)
 
     if op.is_single():
@@ -370,7 +561,7 @@ def totext(ir) -> str:
     depth += 1
 
   ret = ''
-  for q in range(ir.nregs):
+  for q in range(n):
     ret += ''.join(larr[q]) + '\n'
 
   return ret

@@ -144,7 +144,8 @@ def Sgate(d: int = 1) -> Operator:
 
 # T-gate, which is sqrt(S).
 def Tgate(d: int = 1) -> Operator:
-  return Operator([[1.0, 0.0], [0.0, cmath.exp(cmath.pi * 1j / 4)]]).kpow(d)
+  return Operator([[1.0, 0.0], [0.0, cmath.exp(cmath.pi * 1j / 4)]],
+                  'T').kpow(d)
 
 
 # V-gate, which is sqrt(X). Note that there are more roots:

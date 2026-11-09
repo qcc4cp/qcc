@@ -133,7 +133,8 @@ class Ir:
 
   def add_node(self, node):
     self.gates.append(node)
-    self._ngates += 1
+    if node.is_gate():  # as in single() and controlled(), not sections.
+      self._ngates += 1
 
   def single(self, name, idx0, gate, val=None):
     self.gates.append(Node(Op.SINGLE, name, idx0, None, gate, val))
