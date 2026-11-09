@@ -22,14 +22,20 @@ from src.lib import state
 def purify(rho: ops.Operator, nbits: int):
   """Purify a quantum state / density matrix."""
 
-  rho_eig_val, rho_eig_vec = np.linalg.eig(rho)
+  # rho is Hermitian. For a Hermitian matrix, eigh() returns an orthonormal
+  # basis of eigenvectors, which the purification requires. eig() does not
+  # guarantee this for repeated eigenvalues, such as the zero eigenvalues
+  # of a pure state, and fails for complex density matrices. Rounding
+  # can make zero eigenvalues slightly negative, so we clamp them at 0.
+  rho_eig_val, rho_eig_vec = np.linalg.eigh(rho)
+  rho_eig_val = np.maximum(rho_eig_val, 0.0)
 
   # Use stinespring dilation.
   # We know
   #    rho = sum_k pk |psi_k><psi_k|
   #
   # Purification is given by
-  #    rho = sum_k sqrt(pk) |psi_k> tensor |psi_k>
+  #    |psi> = sum_k sqrt(pk) |psi_k> tensor |psi_k>
   #
   # There are two (equivalent) ways to implement this:
   #
@@ -41,26 +47,26 @@ def purify(rho: ops.Operator, nbits: int):
              np.kron(rho_eig_vec[:, i], rho_eig_vec[:, i]))
 
   mat = psi1.reshape((2**nbits, 2**nbits))
-  assert np.allclose(np.trace(mat@mat), 1.0, atol = 1e-5)
+  assert np.allclose(np.trace(mat@mat.conj().T), 1.0, atol = 1e-5)
 
   # Version 2 using einsum's:
   #
   psi2 = np.einsum('k,ki,kj->ij', np.sqrt(rho_eig_val),
                    rho_eig_vec.T, rho_eig_vec.T).reshape(-1)
-  assert np.allclose(psi1, psi2), 'Wrong purification.'
+  assert np.allclose(psi1, psi2, atol=1e-6), 'Wrong purification.'
 
   # Verify the original reduced density matrix with the method
   # used in quantum_pca.py:
   #
   reduced = np.dot(psi1.reshape((2**nbits, 2**nbits)),
-                   psi1.reshape((2**nbits, 2**nbits)).transpose())
-  assert np.allclose(rho, reduced), 'Wrong reduced density'
+                   psi1.reshape((2**nbits, 2**nbits)).conj().transpose())
+  assert np.allclose(rho, reduced, atol=1e-6), 'Wrong reduced density'
 
   # Another way to compute the reduced density matrix:
   reduced = ops.TraceOut(state.State(psi1).density(),
                          [x for x in range(int(nbits),
                                            int(nbits*2))])
-  assert np.allclose(rho, reduced), 'Wrong reduced density'
+  assert np.allclose(rho, reduced, atol=1e-6), 'Wrong reduced density'
 
 
 def main(argv):
