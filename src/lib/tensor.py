@@ -90,11 +90,18 @@ class Tensor(np.ndarray):
     )
 
   def is_density(self) -> bool:
-    """Check if this tensor is a density operator."""
+    """Check if this tensor is a density operator.
+
+    A density operator is Hermitian, positive semidefinite (all its
+    eigenvalues are non-negative), and has trace 1. All checks allow for
+    rounding errors, with the same tolerance as is_close().
+    """
 
     if not self.is_hermitian():
       return False
-    if np.trace(self) > 1.0:
+    if not np.isclose(np.real(np.trace(self)), 1.0, atol=1e-6):
+      return False
+    if np.linalg.eigvalsh(self).min() < -1e-6:
       return False
     return True
 

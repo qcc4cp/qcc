@@ -19,6 +19,7 @@ readers.
 | 37 * | "e^{π/2}", "e^{3π/2}" in the y-basis equations | Missing i: e^{iπ/2}, e^{i3π/2} |
 | 38 | "tensor product in Section 1.3" | Section 1.5 |
 | 40-47 | `cls.name = op_name` in `Tensor.__new__` | Assigns a class attribute, so every tensor without a name of its own reports the name of the most recently created tensor (e.g. after creating "foo" and then "bar", the first reports "bar"). Assign `obj.name` on the new instance, and keep a class-level default `name = None` for arrays numpy derives from a tensor. |
+| 40-47 * | `is_density`: `if not self.is_hermitian(): return False`, `if np.trace(self) > 1.0: return False` | A density matrix is Hermitian, positive semidefinite and has trace 1, but the code only checks that it is Hermitian and that the trace is not above 1, and that without a tolerance. It accepts invalid matrices, such as the zero matrix, a trace of 0.5 or −1, diag(1.5, −0.5), or a trace-1 Hermitian matrix with negative eigenvalues. It also rejects about half of all valid pure states, whose trace is rounded to slightly above 1 (and 4-8% of mixed ones with 128 bits). Check that the trace is 1 within a tolerance, e.g. `np.isclose(np.real(np.trace(self)), 1.0, atol=1e-6)`, and that `np.linalg.eigvalsh(self).min() >= -1e-6`. |
 | 48 | `assert isinstance(arg, state.State), '...')` | Stray ")" |
 | 49, 52 | `return arg @ self` vs prose "Y(X) means (Y @ X)(ψ)" | Code applies Y first; code or prose must change |
 | 51 | "O(2^{2.3752477})" | O(n^{2.375477}) |
