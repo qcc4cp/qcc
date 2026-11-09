@@ -98,14 +98,16 @@ def arith_quantum_constant(n: int, init_a: int, c: int) -> None:
   for i in range(n + 1):
     qft(qc, a, n - i)
 
-  for idx, angle in enumerate(precompute_angles(c, n)):
+  # The register has n + 1 qubits, the top qubit being the carry out. It
+  # needs its rotation as well, and is part of the result.
+  for idx, angle in enumerate(precompute_angles(c, n + 1)):
     qc.u1(a[idx], angle)
 
   for i in range(n + 1):
     inverse_qft(qc, a, i)
 
   maxbits, _ = qc.psi.maxprob()
-  result = helper.bits2val(maxbits[0:n][::-1])
+  result = helper.bits2val(maxbits[0 : n + 1][::-1])
   assert result == init_a + c, f'{init_a} + {c} != {result}'
 
 
@@ -116,11 +118,14 @@ def arith_quantum_mult(nbits_a: int, init_a: int,
   def add_src_to_targ(qc, nbits: int, src, targ, factor: float = 1.0):
     """Add the value of (src * factor) to targ, as shown above."""
 
-    for i in range(nbits):
+    # The registers have nbits + 1 qubits, as in arith_quantum(). All of them
+    # have to be transformed, otherwise this is not an adder, and adding
+    # to a target that is not zero gives wrong results.
+    for i in range(nbits + 1):
       qft(qc, targ, nbits - i)
-    for i in range(nbits):
+    for i in range(nbits + 1):
       evolve(qc, targ, src, nbits - i, factor)
-    for i in range(nbits):
+    for i in range(nbits + 1):
       inverse_qft(qc, targ, i)
 
   # Compute  c = a * b
@@ -131,6 +136,10 @@ def arith_quantum_mult(nbits_a: int, init_a: int,
   # the qubits of 'a', we multiply 'factor' by 2 to model the binary
   # values of 'a' individual qubit positions.
   #
+  # The result register has 2 * nbits_b + 1 qubits, which holds products of
+  # up to nbits_a + nbits_b bits.
+  assert nbits_a <= nbits_b + 1, 'Result register too small for the product.'
+
   qc = circuit.qc('qmult', eager=False)
   a = qc.reg(nbits_a, helper.val2bits(init_a, nbits_a)[::-1], name='a')
   b = qc.reg(nbits_b * 2 + 1, helper.val2bits(init_b, nbits_b)[::-1], name='b')
@@ -146,7 +155,7 @@ def arith_quantum_mult(nbits_a: int, init_a: int,
   qc.run()
 
   maxbits, _ = qc.psi.maxprob()
-  result = helper.bits2val(maxbits[c[0] : c[0 + nbits_b * 2]][::-1])
+  result = helper.bits2val(maxbits[c[0] : c[nbits_b * 2] + 1][::-1])
   assert result == init_a * init_b, 'incorrect multiplication'
 
 

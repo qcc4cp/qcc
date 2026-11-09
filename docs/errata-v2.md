@@ -83,6 +83,8 @@ readers.
 | 276 | "ω^n = 2^{2πin/N}" | e^{2πin/N} |
 | 278 | last term "φ_{n−1}/2^{n−1}" | /2^n |
 | 279 | "e^{2φi0.φ0}" (twice) | 2πi |
+| 281-285 * | `arith_quantum_constant`: `precompute_angles(c, n)` and `maxbits[0:n]` | The register has n + 1 qubits, the top one being the carry out, but only n rotations are applied and only n result bits are read. Every sum of 2^n or more is wrong: 7 + 7 gives 6 for n = 3, and for n = 2 to 5 exactly the pairs with a sum of at least 2^n fail (28 of 64 for n = 3). Use `precompute_angles(c, n + 1)` and read n + 1 bits. The examples only add numbers whose sum is below 2^n. |
+| 285-290 * | `arith_quantum_mult`: the loops in `add_src_to_targ` run over `range(nbits)`, and the result is read as `c[0] : c[0 + nbits_b * 2]` | The registers have nbits + 1 qubits (the addition loops over `range(n + 1)`), so the Fourier transform skips qubit 0 and its inverse skips the top qubit. This is not an adder if the target is not zero: 3 × 3 with 2 bit operands gives 10 (with probability 0.38) instead of 9. The top qubit of the result register is not read either, which drops the top bit of products of at least 2^(2·nbits_b) (6 × 3 gives 2). Loop over `range(nbits + 1)` and read `c[0] : c[nbits_b * 2] + 1`. The examples only multiply with a < 3, where a single addition to zero happens to work. |
 | 291 | Eq. (11.11) "(x + y) mod N ≡ x mod N + y mod N" | Needs the outer mod N |
 | 296 | `while 1 != (num ** order) % modulus` | Missing colon |
 | 299 | two different vectors both called \|u1⟩ | Uniform superposition is \|u0⟩ |
