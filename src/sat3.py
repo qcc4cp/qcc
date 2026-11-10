@@ -265,6 +265,13 @@ def grover_with_circuit(variables: int = 3):
   w = qc.reg(variables - 1, 0)
   chk = qc.reg(1, 0)[0]
 
+  # The oracle and the diffuser are controlled-X gates with chk as target.
+  # For them to flip the phase of a state, and not chk itself, chk has to
+  # be in |->, where X has the eigenvalue -1 (phase kickback). In |0> the
+  # oracle does nothing, and the search does not amplify the solution.
+  qc.x(chk)
+  qc.h(chk)
+
   # Equal superposition.
   qc.h(reg)
 
@@ -292,8 +299,8 @@ def grover_with_circuit(variables: int = 3):
     # Add and execute the sub-circuit.
     qc.qc(cc)
 
-    # Phase inversion - connect the result to the chk qubit.
-    qc.cz(w[idx - 1], chk)
+    # Phase inversion - connect the result to the chk qubit, which is in |->.
+    qc.cx(w[idx - 1], chk)
 
     # Uncompute the sub-circuit.
     qc.qc(cc.inverse())
@@ -305,6 +312,20 @@ def grover_with_circuit(variables: int = 3):
   print(f'Circuit: Want: {solution}, ', end='')
   print(f'Got: {list(maxbits[:variables])}, p: {maxprob:.2f}')
   assert list(solution) == maxbits[:variables], 'Incorrect Result'
+
+  # Finding the right assignment as the most likely state is not enough,
+  # it also has to be amplified. The probability of the assignment is that
+  # of all states with these values, whatever the other qubits are. With one
+  # solution among N = 2^variables assignments, k iterations give exactly
+  #    sin^2((2k + 1) theta),  with  sin(theta) = 1 / sqrt(N).
+  # The circuit matches this to better than 1e-4.
+  probs = (np.abs(np.asarray(qc.psi)) ** 2).reshape(2**variables, -1)
+  prob_solution = float(probs.sum(axis=1)[helper.bits2val(solution)])
+  theta = math.asin(1 / math.sqrt(2**variables))
+  expected = math.sin((2 * iterations + 1) * theta) ** 2
+  print(f'  Probability of the solution: {prob_solution:.4f} '
+        f'(expected: {expected:.4f})')
+  assert abs(prob_solution - expected) < 1e-3, 'Incorrect Grover search.'
 
 
 def main(argv):
