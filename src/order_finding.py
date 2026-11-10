@@ -14,6 +14,7 @@ from typing import List, Tuple
 
 from absl import app
 from absl import flags
+import numpy as np
 
 from src.lib import circuit
 from src.lib import helper
@@ -183,23 +184,38 @@ def main(argv):
   inverse_qft(qc, up, 2 * nbits, with_swaps=True)
 
   print('Measurement...')
-  total_prob = 0.0
-  for bits in helper.bitprod(nbits * 4 + 2):
-    prob = qc.psi.prob(*bits)
-    if prob > 0.01:
-      bitslice = bits[nbits + 2 : nbits + 2 + nbits * 2][::-1]
-      intval = helper.bits2val(bitslice)
-      phase = helper.bits2frac(bitslice)
+  # Let numpy find the likely phases, no loop over the amplitudes in Python.
+  #
+  # The index of an amplitude is the state's bit string, qubit 0 first. The
+  # qubits are: the 'aux' register (nbits + 2 qubits), the 'up' register
+  # with the phase (2 * nbits qubits), and the 'down' register (nbits
+  # qubits). Hence we can reshape the probabilities into a 3-d array. The
+  # probability of a phase is the sum over everything else (axes 0 and 2).
+  # Looking at single states would be wrong: the probability of a phase is
+  # spread over many states of the other registers, and each one on its
+  # own can be too small to be noticed.
+  nup = nbits * 2
+  probs = np.abs(np.asarray(qc.psi)) ** 2
+  phase_probs = probs.reshape(2**(nbits + 2), 2**nup, 2**nbits).sum(
+      axis=(0, 2), dtype=np.float64)
 
-      r = fractions.Fraction(phase).limit_denominator(8).denominator
-      guesses = [math.gcd(a ** (r // 2) - 1, number),
-                 math.gcd(a ** (r // 2) + 1, number)]
-      print('Final x: {:3d} phase: {:3f} prob: {:.3f} factors: {}'.
-            format(intval, phase, prob.real, guesses))
+  for idx in np.nonzero(phase_probs > 0.01)[0]:
+    prob = phase_probs[idx]
 
-    total_prob += prob
-    if total_prob > 0.999:
-      break
+    # The phase is the binary fraction of the bits of the 'up' register,
+    # in reverse order.
+    bitslice = helper.val2bits(int(idx), nup)[::-1]
+    intval = helper.bits2val(bitslice)
+    phase = helper.bits2frac(bitslice)
+
+    # The phase is close to k/r for the order r, which is less than N.
+    # The continued fraction expansion finds k/r if the denominator is
+    # limited to N (the 2n bits of the phase are enough for this).
+    r = fractions.Fraction(phase).limit_denominator(number).denominator
+    guesses = [math.gcd(a ** (r // 2) - 1, number),
+               math.gcd(a ** (r // 2) + 1, number)]
+    print('Final x: {:3d} phase: {:3f} prob: {:.3f} factors: {}'.
+          format(intval, phase, prob, guesses))
 
   print(qc.stats())
 
