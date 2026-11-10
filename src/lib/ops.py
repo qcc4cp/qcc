@@ -50,7 +50,9 @@ class Operator(tensor.Tensor):
   #
   # On Operator:
   # -------------
-  # Op(op) equals Op @ op equal matmul(Op, op), to produce a new state.
+  # Op(op) equals op @ Op equal matmul(op, Op), to produce a new operator
+  # (not a state). The order is reversed, see the note on x(y) == y @ x
+  # below.
   #
   # Note: Note that in the book the return type was marked as
   #       -> state.State, which is incorrect. (Un-)fortunately, the
